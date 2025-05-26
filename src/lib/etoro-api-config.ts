@@ -1,6 +1,8 @@
 export const ETORO_API_BASE_URL = process.env.ETORO_API_BASE_URL || 'https://www.etoro.com/api/public';
-const API_USER_KEY = process.env.ETORO_USER_KEY || '';
-const API_KEY = process.env.ETORO_API_KEY || '';
+
+// Use functions to get these values at runtime instead of build time
+const getApiUserKey = () => process.env.ETORO_USER_KEY || '';
+const getApiKey = () => process.env.ETORO_API_KEY || '';
 
 export const API_ENDPOINTS = {
   PORTFOLIO: `${ETORO_API_BASE_URL}/v1/trading/info/portfolio`,
@@ -24,12 +26,22 @@ function generateUUID(): string {
 }
 
 export const getDefaultHeaders = () => {
-  return {
+  const headers = {
     'Content-Type': 'application/json',
-    'X-USER-KEY': API_USER_KEY,
-    'X-API-KEY': API_KEY,
+    'X-USER-KEY': getApiUserKey(),
+    'X-API-KEY': getApiKey(),
     'X-REQUEST-ID': generateUUID()
   };
+  
+  // Debug log to check if keys are present (only log length for security)
+  if (!headers['X-USER-KEY'] || !headers['X-API-KEY']) {
+    console.error('WARNING: API keys are missing!', {
+      userKeyLength: headers['X-USER-KEY']?.length || 0,
+      apiKeyLength: headers['X-API-KEY']?.length || 0
+    });
+  }
+  
+  return headers;
 };
 
 export const getApiRequestOptions = (method = 'GET') => {

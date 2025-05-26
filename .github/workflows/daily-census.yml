@@ -34,6 +34,9 @@ jobs:
         run: |
           echo "ETORO_API_KEY=${{ secrets.ETORO_API_KEY }}" > .env.local
           echo "ETORO_USER_KEY=${{ secrets.ETORO_USER_KEY }}" >> .env.local
+          # Verify the file was created
+          echo "Created .env.local with:"
+          wc -l .env.local
           
       - name: Build Next.js application
         run: npm run build
