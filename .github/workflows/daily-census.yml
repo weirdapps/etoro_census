@@ -28,9 +28,15 @@ jobs:
         run: npm ci
       
       - name: Build Next.js application
+        env:
+          ETORO_API_KEY: ${{ secrets.ETORO_API_KEY }}
+          ETORO_USER_KEY: ${{ secrets.ETORO_USER_KEY }}
         run: npm run build
       
       - name: Start Next.js server
+        env:
+          ETORO_API_KEY: ${{ secrets.ETORO_API_KEY }}
+          ETORO_USER_KEY: ${{ secrets.ETORO_USER_KEY }}
         run: |
           npm start &
           SERVER_PID=$!
