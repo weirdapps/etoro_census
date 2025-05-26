@@ -14,12 +14,21 @@ export const API_ENDPOINTS = {
   USER_DISCOVERY_INFO: `${ETORO_API_BASE_URL}/sapi/portfolio/discover/user-discovery-info`,
 };
 
+// Generate a UUID v4
+function generateUUID(): string {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0;
+    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
+
 export const getDefaultHeaders = () => {
   return {
     'Content-Type': 'application/json',
     'X-USER-KEY': API_USER_KEY,
     'X-API-KEY': API_KEY,
-    'X-REQUEST-ID': '1fea900a-bf1f-4b7c-8af2-976dc6ab273f'
+    'X-REQUEST-ID': generateUUID()
   };
 };
 
