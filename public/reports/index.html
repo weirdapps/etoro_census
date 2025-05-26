@@ -83,27 +83,26 @@
     </div>
     
     <script>
-        // This script will look for HTML files in the current directory
-        // In a real deployment, you'd want to generate this list server-side
-        // For GitHub Pages, you might need to manually update this list
+        // Manually maintained list of reports for GitHub Pages
+        const reports = [
+            { name: 'etoro-census-2025-05-26-1748291476523.html', date: '2025-05-26 17:11:16' },
+            { name: 'etoro-census-2025-05-26-1748288556345.html', date: '2025-05-26 16:22:36' },
+            { name: 'etoro-census-2025-05-26-1748286026473.html', date: '2025-05-26 15:40:26' },
+            { name: 'etoro-census-2025-05-26-1748282575141.html', date: '2025-05-26 14:42:55' }
+        ];
         
-        // Example of how to add reports manually:
-        // const reports = [
-        //     { name: 'etoro-census-2024-01-15.html', date: '2024-01-15' }
-        // ];
-        
-        // if (reports.length > 0) {
-        //     document.querySelector('.no-reports').style.display = 'none';
-        //     document.getElementById('reportList').style.display = 'block';
-        //     
-        //     const listEl = document.getElementById('reportList');
-        //     reports.forEach(report => {
-        //         const li = document.createElement('li');
-        //         li.className = 'report-item';
-        //         li.innerHTML = `<a href="${report.name}" class="report-link">Report from ${report.date}</a>`;
-        //         listEl.appendChild(li);
-        //     });
-        // }
+        if (reports.length > 0) {
+            document.querySelector('.no-reports').style.display = 'none';
+            document.getElementById('reportList').style.display = 'block';
+            
+            const listEl = document.getElementById('reportList');
+            reports.forEach(report => {
+                const li = document.createElement('li');
+                li.className = 'report-item';
+                li.innerHTML = `<a href="${report.name}" class="report-link">Census Report - ${report.date}</a>`;
+                listEl.appendChild(li);
+            });
+        }
     </script>
 </body>
 </html>
