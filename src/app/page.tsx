@@ -182,12 +182,14 @@ export default function Home() {
                   <CardDescription>Per portfolio</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold text-primary">
-                    {analysis.averageUniqueInstruments}
+                  <div className="flex flex-col items-center justify-center min-h-[120px] gap-3">
+                    <div className="text-6xl font-bold text-primary">
+                      {analysis.averageUniqueInstruments}
+                    </div>
+                    <p className="text-sm text-muted-foreground text-left w-full px-5">
+                      Average number of instruments held
+                    </p>
                   </div>
-                  <p className="text-sm text-muted-foreground mt-2">
-                    Average number of different instruments held
-                  </p>
                 </CardContent>
               </Card>
 
@@ -197,12 +199,14 @@ export default function Home() {
                   <CardDescription>Per portfolio</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold text-primary">
-                    {analysis.averageCashPercentage.toFixed(1)}%
+                  <div className="flex flex-col items-center justify-center min-h-[120px] gap-3">
+                    <div className="text-6xl font-bold text-primary">
+                      {analysis.averageCashPercentage.toFixed(1)}%
+                    </div>
+                    <p className="text-sm text-muted-foreground text-left w-full px-5">
+                      Average percentage of portfolio in cash
+                    </p>
                   </div>
-                  <p className="text-sm text-muted-foreground mt-2">
-                    Average percentage of portfolio in cash
-                  </p>
                 </CardContent>
               </Card>
             </div>

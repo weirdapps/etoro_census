@@ -341,16 +341,18 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
         /* Metrics */
         .metric-card-content {
             display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 16px;
+            justify-content: center;
+            min-height: 120px;
+            gap: 12px;
         }
         
         .metric-value {
-            font-size: 3rem;
+            font-size: 4rem;
             font-weight: 700;
             color: #00C896;
             line-height: 1;
-            min-width: 100px;
             text-align: center;
         }
         
@@ -358,7 +360,8 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
             font-size: 0.875rem;
             color: #6b7280;
             text-align: left;
-            flex: 1;
+            width: 100%;
+            padding: 0 20px;
         }
         
         /* Fear & Greed Gauge */
