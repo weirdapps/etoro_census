@@ -14,7 +14,6 @@ import { CensusAnalysis } from '@/lib/models/census';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 
 export default function Home() {
   const [analysis, setAnalysis] = useState<CensusAnalysis | null>(null);

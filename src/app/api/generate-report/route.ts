@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
         const filePath = path.join(reportsDir, fileName);
 
         // Generate the HTML report with tabs for different investor counts
-        const html = generateReportHTML(analyses, period);
+        const html = generateReportHTML(analyses);
 
         // Write the HTML file
         await fs.writeFile(filePath, html, 'utf-8');
@@ -127,20 +127,6 @@ function truncateText(text: string, maxLength: number): string {
   return text.substring(0, maxLength - 3) + '...';
 }
 
-function formatPeriod(period: string): string {
-  const periodMap: { [key: string]: string } = {
-    'CurrYear': 'Current Year',
-    'CurrMonth': 'Current Month',
-    'CurrQuarter': 'Current Quarter',
-    'LastYear': 'Last Year',
-    'LastTwoYears': 'Last Two Years',
-    'OneMonthAgo': 'One Month Ago',
-    'ThreeMonthsAgo': 'Three Months Ago',
-    'SixMonthsAgo': 'Six Months Ago',
-    'OneYearAgo': 'One Year Ago'
-  };
-  return periodMap[period] || period;
-}
 
 function formatDateTime(date: Date): string {
   const year = date.getFullYear();
@@ -163,7 +149,7 @@ function formatDateTime(date: Date): string {
   return `${year}.${month}.${day} at ${hours}:${minutes} ${timezone}`;
 }
 
-function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis }[], period: string): string {
+function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis }[]): string {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
