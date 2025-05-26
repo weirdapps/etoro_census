@@ -179,7 +179,7 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background-color: #f9fafb;
+            background-color: white;
             color: #111827;
             line-height: 1.5;
         }
@@ -255,7 +255,7 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
         }
         
         .tab:hover {
-            background-color: #f9fafb;
+            background-color: white;
         }
         
         .tab.active {
@@ -288,9 +288,10 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
         /* Summary Box */
         .summary-box {
             text-align: center;
-            background-color: #f3f4f6;
+            background-color: white;
             border-radius: 8px;
             padding: 16px;
+            border: 1px solid #e5e7eb;
         }
         
         .summary-text {
@@ -419,16 +420,17 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
         
         .progress-percentage {
             font-size: 0.75rem;
-            background-color: #00C89610;
+            background-color: white;
             color: #00C896;
             padding: 2px 8px;
             border-radius: 9999px;
+            border: 1px solid #00C896;
         }
         
         .progress-bar {
             width: 100%;
             height: 8px;
-            background-color: #f3f4f6;
+            background-color: #e5e7eb;
             border-radius: 9999px;
             overflow: hidden;
         }
@@ -480,7 +482,7 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
         
         td {
             padding: 12px 16px;
-            border-bottom: 1px solid #f3f4f6;
+            border-bottom: 1px solid #e5e7eb;
         }
         
         td.text-right {
@@ -488,7 +490,7 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
         }
         
         tr:hover td {
-            background-color: #f9fafb;
+            background-color: white;
         }
         
         /* Table Elements */
@@ -510,11 +512,12 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
             width: 32px;
             height: 32px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #60a5fa, #a855f7);
+            background: white;
+            border: 2px solid #00C896;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
+            color: #00C896;
             font-size: 0.875rem;
             font-weight: 600;
             flex-shrink: 0;
@@ -532,11 +535,12 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
             width: 32px;
             height: 32px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #60a5fa, #a855f7);
+            background: white;
+            border: 2px solid #00C896;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
+            color: #00C896;
             font-size: 0.75rem;
             font-weight: 500;
             flex-shrink: 0;
@@ -585,33 +589,39 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
         }
         
         .badge-blue {
-            background-color: #dbeafe;
+            background-color: white;
             color: #1e40af;
+            border: 1px solid #1e40af;
         }
         
         .badge-green {
-            background-color: #d1fae5;
+            background-color: white;
             color: #065f46;
+            border: 1px solid #065f46;
         }
         
         .badge-yellow {
-            background-color: #fef3c7;
+            background-color: white;
             color: #92400e;
+            border: 1px solid #92400e;
         }
         
         .badge-red {
-            background-color: #fee2e2;
+            background-color: white;
             color: #991b1b;
+            border: 1px solid #991b1b;
         }
         
         .badge-primary {
-            background-color: #00C89610;
+            background-color: white;
             color: #00C896;
+            border: 1px solid #00C896;
         }
         
         .badge-purple {
-            background-color: #e9d5ff;
+            background-color: white;
             color: #6b21a8;
+            border: 1px solid #6b21a8;
         }
         
         .rank {
@@ -647,7 +657,7 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
         }
         
         .pagination-btn:hover:not(:disabled) {
-            background-color: #f9fafb;
+            background-color: white;
             border-color: #d1d5db;
         }
         
