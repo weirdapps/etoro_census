@@ -1,0 +1,90 @@
+name: Daily Census Report Generation
+
+on:
+  schedule:
+    # Run at 04:00 Athens time (UTC+2 or UTC+3 depending on DST)
+    # Using 01:00 UTC which is 04:00 Athens time during summer (UTC+3)
+    # and 03:00 Athens time during winter (UTC+2)
+    - cron: '0 1 * * *'
+  workflow_dispatch: # Allow manual triggering
+
+jobs:
+  generate-report:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Build Next.js application
+        run: npm run build
+      
+      - name: Start Next.js server
+        run: |
+          npm start &
+          SERVER_PID=$!
+          echo "SERVER_PID=$SERVER_PID" >> $GITHUB_ENV
+          # Wait for server to be ready
+          sleep 10
+          # Check if server is running
+          curl -f http://localhost:3000 || exit 1
+      
+      - name: Generate census report
+        env:
+          ETORO_API_KEY: ${{ secrets.ETORO_API_KEY }}
+          ETORO_USER_KEY: ${{ secrets.ETORO_USER_KEY }}
+        run: |
+          # Call the generate report endpoint
+          curl -X POST http://localhost:3000/api/generate-report \
+            -H "Content-Type: application/json" \
+            -d '{"period": "CurrYear"}' \
+            --no-buffer \
+            --silent \
+            --show-error \
+            --fail-with-body \
+            -w "\n\nHTTP Status: %{http_code}\n" | while IFS= read -r line; do
+              echo "$line"
+              # Check if this is the complete event with the report URL
+              if echo "$line" | grep -q '"type":"complete"'; then
+                # Extract the URL from the JSON
+                URL=$(echo "$line" | sed -n 's/.*"url":"\([^"]*\)".*/\1/p')
+                echo "Report generated at: $URL"
+              fi
+            done
+      
+      - name: Stop Next.js server
+        if: always()
+        run: |
+          if [ ! -z "$SERVER_PID" ]; then
+            kill $SERVER_PID || true
+          fi
+      
+      - name: Configure Git
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "GitHub Actions Bot"
+      
+      - name: Commit and push reports
+        run: |
+          git add public/reports/*.html docs/index.html
+          git diff --staged --quiet || {
+            COMMIT_MSG="Daily census report - $(date -u +'%Y-%m-%d %H:%M UTC')"
+            git commit -m "$COMMIT_MSG"
+            git push
+          }
+      
+      - name: Trigger GitHub Pages deployment
+        run: |
+          # The push above will trigger the deploy-reports workflow automatically
+          echo "GitHub Pages deployment will be triggered by the push"
