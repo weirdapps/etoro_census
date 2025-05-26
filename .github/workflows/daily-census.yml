@@ -30,16 +30,15 @@ jobs:
       - name: Install dependencies
         run: npm ci
       
+      - name: Create .env.local file
+        run: |
+          echo "ETORO_API_KEY=${{ secrets.ETORO_API_KEY }}" > .env.local
+          echo "ETORO_USER_KEY=${{ secrets.ETORO_USER_KEY }}" >> .env.local
+          
       - name: Build Next.js application
-        env:
-          ETORO_API_KEY: ${{ secrets.ETORO_API_KEY }}
-          ETORO_USER_KEY: ${{ secrets.ETORO_USER_KEY }}
         run: npm run build
       
       - name: Start Next.js server
-        env:
-          ETORO_API_KEY: ${{ secrets.ETORO_API_KEY }}
-          ETORO_USER_KEY: ${{ secrets.ETORO_USER_KEY }}
         run: |
           npm start &
           SERVER_PID=$!
@@ -50,9 +49,6 @@ jobs:
           curl -f http://localhost:3000 || exit 1
       
       - name: Generate census report
-        env:
-          ETORO_API_KEY: ${{ secrets.ETORO_API_KEY }}
-          ETORO_USER_KEY: ${{ secrets.ETORO_USER_KEY }}
         run: |
           # Call the generate report endpoint
           curl -X POST http://localhost:3000/api/generate-report \
