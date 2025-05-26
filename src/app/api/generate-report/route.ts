@@ -175,7 +175,7 @@ function formatDateTime(date: Date): string {
   return `${year}.${month}.${day} at ${hours}:${minutes} ${timezone}`;
 }
 
-function calculateReturnsDistribution(investors: any[]): { [range: string]: number } {
+function calculateReturnsDistribution(investors: { gain: number }[]): { [range: string]: number } {
   const distribution: { [range: string]: number } = {
     'Loss': 0,
     '0-10%': 0,
@@ -198,7 +198,7 @@ function calculateReturnsDistribution(investors: any[]): { [range: string]: numb
   return distribution;
 }
 
-function calculateRiskScoreDistribution(investors: any[]): { [range: string]: number } {
+function calculateRiskScoreDistribution(investors: { riskScore?: number }[]): { [range: string]: number } {
   const distribution: { [range: string]: number } = {
     'Conservative (1-3)': 0,
     'Moderate (4-5)': 0,
