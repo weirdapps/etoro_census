@@ -112,6 +112,16 @@ function calculatePortfolioStats(investor: PopularInvestor, portfolio: UserPortf
   let totalInvested = 0;
   let cashPercentage = 0;
   
+  if (!portfolio.positions || portfolio.positions.length === 0) {
+    // If no positions, assume 100% cash
+    return {
+      username: investor.userName,
+      cashPercentage: 100,
+      uniqueInstruments: 0,
+      instruments: {}
+    };
+  }
+  
   portfolio.positions.forEach(position => {
     const percentage = position.investmentPct || 0;
     totalInvested += percentage;
