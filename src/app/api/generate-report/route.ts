@@ -87,6 +87,10 @@ export async function POST(request: NextRequest) {
 
         // Write the HTML file
         await fs.writeFile(filePath, html, 'utf-8');
+        
+        // Also copy to index.html to make it the latest report
+        const indexPath = path.join(reportsDir, 'index.html');
+        await fs.writeFile(indexPath, html, 'utf-8');
 
         // Return the relative URL for the report
         const reportUrl = `/reports/${fileName}`;

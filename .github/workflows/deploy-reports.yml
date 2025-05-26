@@ -5,6 +5,7 @@ on:
     branches: [ main, master ]
     paths:
       - 'public/reports/**'
+      - '.github/workflows/deploy-reports.yml'
   workflow_dispatch:
 
 permissions:
@@ -25,6 +26,19 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      
+      - name: Copy latest report to index.html
+        run: |
+          cd public/reports
+          # Find the most recent report file (excluding index.html)
+          LATEST_REPORT=$(ls -t etoro-census-*.html 2>/dev/null | head -n 1)
+          if [ -n "$LATEST_REPORT" ]; then
+            echo "Copying $LATEST_REPORT to index.html"
+            cp "$LATEST_REPORT" index.html
+          else
+            echo "No report files found"
+            exit 1
+          fi
       
       - name: Setup Pages
         uses: actions/configure-pages@v4
