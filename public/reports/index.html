@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eToro Census Reports</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #00C896;
+            margin-bottom: 10px;
+        }
+        
+        p {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        .report-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .report-item {
+            padding: 15px;
+            margin-bottom: 10px;
+            background-color: #f8f8f8;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        
+        .report-item:hover {
+            background-color: #f0f0f0;
+        }
+        
+        .report-link {
+            color: #00C896;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .report-link:hover {
+            text-decoration: underline;
+        }
+        
+        .no-reports {
+            text-align: center;
+            color: #999;
+            padding: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>eToro Census Reports</h1>
+        <p>Browse generated census reports below:</p>
+        
+        <div class="no-reports">
+            <p>No reports have been generated yet.</p>
+            <p>Use the eToro Census tool to generate reports.</p>
+        </div>
+        
+        <ul class="report-list" id="reportList" style="display: none;">
+            <!-- Reports will be dynamically added here -->
+        </ul>
+    </div>
+    
+    <script>
+        // This script will look for HTML files in the current directory
+        // In a real deployment, you'd want to generate this list server-side
+        // For GitHub Pages, you might need to manually update this list
+        
+        // Example of how to add reports manually:
+        // const reports = [
+        //     { name: 'etoro-census-2024-01-15.html', date: '2024-01-15' }
+        // ];
+        
+        // if (reports.length > 0) {
+        //     document.querySelector('.no-reports').style.display = 'none';
+        //     document.getElementById('reportList').style.display = 'block';
+        //     
+        //     const listEl = document.getElementById('reportList');
+        //     reports.forEach(report => {
+        //         const li = document.createElement('li');
+        //         li.className = 'report-item';
+        //         li.innerHTML = `<a href="${report.name}" class="report-link">Report from ${report.date}</a>`;
+        //         listEl.appendChild(li);
+        //     });
+        // }
+    </script>
+</body>
+</html>
