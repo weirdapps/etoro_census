@@ -91,6 +91,12 @@ export async function POST(request: NextRequest) {
         // Also copy to index.html to make it the latest report
         const indexPath = path.join(reportsDir, 'index.html');
         await fs.writeFile(indexPath, html, 'utf-8');
+        
+        // Also copy to docs folder for GitHub Pages
+        const docsDir = path.join(process.cwd(), 'docs');
+        await fs.mkdir(docsDir, { recursive: true });
+        const docsIndexPath = path.join(docsDir, 'index.html');
+        await fs.writeFile(docsIndexPath, html, 'utf-8');
 
         // Return the relative URL for the report
         const reportUrl = `/reports/${fileName}`;

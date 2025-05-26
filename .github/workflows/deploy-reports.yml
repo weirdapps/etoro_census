@@ -35,6 +35,9 @@ jobs:
           if [ -n "$LATEST_REPORT" ]; then
             echo "Copying $LATEST_REPORT to index.html"
             cp "$LATEST_REPORT" index.html
+            # Also copy to docs folder for GitHub Pages from branch
+            mkdir -p ../../docs
+            cp "$LATEST_REPORT" ../../docs/index.html
           else
             echo "No report files found"
             exit 1
