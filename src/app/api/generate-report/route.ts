@@ -55,6 +55,12 @@ export async function POST(request: NextRequest) {
           
           sendProgress(baseProgress, `Analyzing top ${subsetSize} investors...`);
           
+          // Add delay between analyses to avoid caching issues
+          if (i > 0) {
+            sendProgress(baseProgress, `Waiting before analyzing top ${subsetSize}...`);
+            await new Promise(resolve => setTimeout(resolve, 5000)); // 5 second delay
+          }
+          
           // Create progress callback for this subset
           const onProgress: ProgressCallback = (progress: number, message: string) => {
             const scaledProgress = baseProgress + (progress * (nextProgress - baseProgress) / 100);

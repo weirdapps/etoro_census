@@ -32,11 +32,18 @@ export async function performCensusAnalysis(
   } } = {};
   
   let processedCount = 0;
+  let emptyPortfolioCount = 0;
+  
   for (const investor of investors) {
     try {
       const portfolio = await getUserPortfolio(investor.userName);
       const stats = calculatePortfolioStats(investor, portfolio);
       portfolioStats.push(stats);
+      
+      // Track empty portfolios
+      if (Object.keys(stats.instruments).length === 0) {
+        emptyPortfolioCount++;
+      }
       
       Object.entries(stats.instruments).forEach(([instrumentId, percentage]) => {
         const id = parseInt(instrumentId);
@@ -57,7 +64,9 @@ export async function performCensusAnalysis(
       const progressPercent = 5 + Math.round((processedCount / investors.length) * 70);
       updateProgress(progressPercent, `Processed ${processedCount}/${investors.length} portfolios...`);
       
-      await new Promise(resolve => setTimeout(resolve, 50));
+      // Increase delay after first 100 to avoid rate limiting
+      const delay = processedCount > 100 ? 200 : 50;
+      await new Promise(resolve => setTimeout(resolve, delay));
     } catch (error) {
       console.error(`Error fetching portfolio for ${investor.userName}:`, error);
       processedCount++;
@@ -65,6 +74,8 @@ export async function performCensusAnalysis(
       updateProgress(progressPercent, `Processed ${processedCount}/${investors.length} portfolios...`);
     }
   }
+  
+  console.log(`Processed ${processedCount} portfolios, ${emptyPortfolioCount} were empty`);
   
   // Fetch instrument details for all unique instruments
   const allInstrumentIds = Object.keys(instrumentData).map(id => parseInt(id));
