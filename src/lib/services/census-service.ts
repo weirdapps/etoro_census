@@ -75,7 +75,8 @@ export async function performCensusAnalysis(
     }
   }
   
-  console.log(`Processed ${processedCount} portfolios, ${emptyPortfolioCount} were empty`);
+  console.log(`[Census] Processed ${processedCount} portfolios, ${emptyPortfolioCount} were empty (${(emptyPortfolioCount/processedCount*100).toFixed(1)}%)`);
+  console.log(`[Census] Found ${Object.keys(instrumentData).length} unique instruments across all portfolios`);
   
   // Fetch instrument details for all unique instruments
   const allInstrumentIds = Object.keys(instrumentData).map(id => parseInt(id));

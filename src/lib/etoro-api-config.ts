@@ -26,11 +26,19 @@ function generateUUID(): string {
 }
 
 export const getDefaultHeaders = () => {
-  const headers = {
+  const headers: { [key: string]: string } = {
     'Content-Type': 'application/json',
     'X-USER-KEY': getApiUserKey(),
     'X-API-KEY': getApiKey(),
-    'X-REQUEST-ID': generateUUID()
+    'X-REQUEST-ID': generateUUID(),
+    // Add browser-like headers that might be expected by eToro
+    'Accept': 'application/json, text/plain, */*',
+    'Accept-Language': 'en-US,en;q=0.9',
+    'Cache-Control': 'no-cache',
+    'Pragma': 'no-cache',
+    'Origin': 'https://www.etoro.com',
+    'Referer': 'https://www.etoro.com/',
+    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
   };
   
   // Debug log to check if keys are present (only log length for security)
@@ -66,28 +74,42 @@ export async function fetchFromEtoroApi<T>(
       }
     };
     
+    // Log request details for debugging
+    console.log(`[eToro API] Request to: ${endpoint}`);
+    console.log(`[eToro API] Request headers configured`);
+    
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 10000);
     requestOptions.signal = controller.signal;
     
+    const startTime = Date.now();
     const response = await fetch(endpoint, requestOptions);
+    const responseTime = Date.now() - startTime;
     
     clearTimeout(timeoutId);
     
+    console.log(`[eToro API] Response: ${response.status} in ${responseTime}ms`);
+    
     if (!response.ok) {
       const errorText = await response.text().catch(() => 'Unknown error');
-      console.error(`eToro API request failed (${response.status}):`, errorText);
+      console.error(`[eToro API] Request failed (${response.status}):`, errorText);
       throw new Error(`eToro API request failed: ${response.status}`);
     }
     
-    return await response.json() as T;
+    const data = await response.json() as T;
+    
+    // Log response data size for debugging
+    const dataStr = JSON.stringify(data);
+    console.log(`[eToro API] Response size: ${dataStr.length} bytes`);
+    
+    return data;
   } catch (error) {
     if (error instanceof Error && error.name === 'AbortError') {
-      console.error('eToro API request timed out:', endpoint);
+      console.error('[eToro API] Request timed out:', endpoint);
       throw new Error('eToro API request timed out');
     }
     
-    console.error('Error fetching from eToro API:', error);
+    console.error('[eToro API] Error:', error);
     throw error;
   }
 }

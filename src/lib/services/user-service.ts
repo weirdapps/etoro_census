@@ -41,14 +41,22 @@ export async function getPopularInvestors(
 export async function getUserPortfolio(username: string): Promise<UserPortfolio> {
   try {
     const endpoint = API_ENDPOINTS.USER_PORTFOLIO_LIVE.replace('{username}', username);
-    console.log(`Fetching user portfolio from: ${endpoint}`);
+    console.log(`[Portfolio] Fetching portfolio for user: ${username}`);
     
     const response = await fetchFromEtoroApi<UserPortfolio>(endpoint);
     
-    if (!response || !response.positions) {
-      console.error('Invalid response format for user portfolio:', response);
+    // Detailed logging of response
+    if (!response) {
+      console.warn(`[Portfolio] No response for user ${username}`);
       return { positions: [] };
     }
+    
+    if (!response.positions) {
+      console.warn(`[Portfolio] No positions array for user ${username}, response keys:`, Object.keys(response));
+      return { positions: [] };
+    }
+    
+    console.log(`[Portfolio] User ${username} has ${response.positions.length} positions`);
     
     let totalValue = 0;
     let profitLoss = 0;

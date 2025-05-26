@@ -39,63 +39,60 @@ export async function POST(request: NextRequest) {
           throw new Error('No investors found');
         }
         
-        sendProgress(5, `Found ${allInvestors.length} investors. Starting analysis...`);
+        sendProgress(5, `Found ${allInvestors.length} investors. Starting portfolio analysis...`);
         
-        // WORKAROUND FOR GITHUB ACTIONS: Only analyze first 100 with portfolios
-        // Due to rate limiting from GitHub Actions IPs, we can only fetch ~100 portfolios
-        const portfolioLimit = process.env.GITHUB_ACTIONS ? 100 : allInvestors.length;
-        
-        // Analyze the first batch with portfolio data
-        sendProgress(10, `Analyzing top ${portfolioLimit} investors with portfolio data...`);
-        
+        // NEW APPROACH: Fetch all portfolio data ONCE
         const onProgress: ProgressCallback = (progress: number, message: string) => {
-          const scaledProgress = 10 + (progress * 60 / 100);
+          const scaledProgress = 5 + (progress * 85 / 100);
           sendProgress(Math.round(scaledProgress), message);
         };
         
-        const portfolioAnalysis = await performCensusAnalysis(
-          allInvestors.slice(0, portfolioLimit), 
-          onProgress
-        );
+        // Perform full census analysis on all investors
+        const fullAnalysis = await performCensusAnalysis(allInvestors, onProgress);
         
-        if (!portfolioAnalysis) {
+        if (!fullAnalysis) {
           throw new Error('Failed to analyze investors');
         }
         
-        // For the report, create analyses for different subset sizes
-        // but use the portfolio data from the first 100 only
+        sendProgress(92, 'Preparing reports for different investor counts...');
+        
+        // Create analyses for different subset sizes using the same data
         const subsetSizes = [100, 500, 1000, 1500].filter(size => size <= allInvestors.length);
         const analyses: { count: number; analysis: CensusAnalysis }[] = [];
         
         for (const subsetSize of subsetSizes) {
-          sendProgress(70 + (subsetSizes.indexOf(subsetSize) * 5), `Preparing report for top ${subsetSize}...`);
-          
-          // Use the actual subset of investors for basic stats
+          // Get subset of investors
           const subset = allInvestors.slice(0, subsetSize);
           
-          // Create analysis using portfolio data from first 100 but stats from full subset
+          // Create analysis using data from full analysis but recalculate stats for subset
           const analysis: CensusAnalysis = {
-            ...portfolioAnalysis,
+            ...fullAnalysis, // Use portfolio data from full analysis
             investorCount: subset.length,
-            // Recalculate distributions and top performers for the subset
+            // Recalculate basic stats for the subset
             averageGain: subset.reduce((sum, inv) => sum + inv.gain, 0) / subset.length,
             averageRiskScore: subset.reduce((sum, inv) => sum + (inv.riskScore || 0), 0) / subset.length,
             averageCopiers: Math.round(subset.reduce((sum, inv) => sum + inv.copiers, 0) / subset.length),
             returnsDistribution: calculateReturnsDistribution(subset),
             riskScoreDistribution: calculateRiskScoreDistribution(subset),
+            // Keep portfolio-based data from full analysis
+            // This includes: topHoldings, portfolioDiversification, cashAllocation, etc.
             topPerformers: subset
               .sort((a, b) => b.gain - a.gain)
               .slice(0, 20)
-              .map(inv => ({
-                username: inv.userName,
-                fullName: inv.fullName,
-                gain: inv.gain,
-                winRatio: inv.winRatio || 0,
-                riskScore: inv.riskScore || 0,
-                copiers: inv.copiers,
-                cashPercentage: 0, // We don't have this for investors beyond 100
-                avatarUrl: ''
-              }))
+              .map(inv => {
+                // Find portfolio stats from full analysis if available
+                const portfolioStats = fullAnalysis.topPerformers.find(p => p.username === inv.userName);
+                return {
+                  username: inv.userName,
+                  fullName: inv.fullName,
+                  gain: inv.gain,
+                  winRatio: inv.winRatio || 0,
+                  riskScore: inv.riskScore || 0,
+                  copiers: inv.copiers,
+                  cashPercentage: portfolioStats?.cashPercentage || 0,
+                  avatarUrl: portfolioStats?.avatarUrl || ''
+                };
+              })
           };
           
           analyses.push({ count: subsetSize, analysis });
@@ -629,7 +626,6 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
             <h1>eToro Popular Investors Census</h1>
             <p class="subtitle">Comprehensive analysis of top performers and portfolio trends</p>
             <p class="timestamp">Report generated on ${formatDateTime(new Date())}</p>
-            ${process.env.GITHUB_ACTIONS ? '<p class="timestamp" style="color: #ef4444;">Note: Portfolio data limited to first 100 investors due to API rate limits on GitHub Actions</p>' : ''}
         </div>
     </div>
 
