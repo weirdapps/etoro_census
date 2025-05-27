@@ -42,9 +42,31 @@ export async function POST(request: NextRequest) {
         
         sendProgress(5, `Found ${allInvestors.length} investors. Starting portfolio analysis...`);
         
+        // Log initial investor data
+        console.log(`\n=== Initial investor fetch ===`);
+        console.log(`Requested limit: ${actualLimit}`);
+        console.log(`Actually fetched: ${allInvestors.length} investors`);
+        
+        // Always fetch 1500 investors for the full report BEFORE analysis
+        if (allInvestors.length < 1500) {
+          sendProgress(10, 'Fetching additional investors for complete report...');
+          const additionalInvestors = await getPopularInvestors(period as PeriodType, 1500);
+          console.log(`Additional fetch returned: ${additionalInvestors.length} investors`);
+          
+          // Only add the missing investors, not duplicates
+          const existingUsernames = new Set(allInvestors.map(inv => inv.userName));
+          const newInvestors = additionalInvestors.filter(inv => !existingUsernames.has(inv.userName));
+          allInvestors.push(...newInvestors);
+          
+          console.log(`Added ${newInvestors.length} new investors`);
+          console.log(`Total investors now: ${allInvestors.length}`);
+        }
+        
+        sendProgress(15, `Analyzing ${allInvestors.length} investors...`);
+        
         // NEW APPROACH: Fetch all portfolio data ONCE
         const onProgress: ProgressCallback = (progress: number, message: string) => {
-          const scaledProgress = 5 + (progress * 85 / 100);
+          const scaledProgress = 15 + (progress * 75 / 100);
           sendProgress(Math.round(scaledProgress), message);
         };
         
@@ -57,13 +79,6 @@ export async function POST(request: NextRequest) {
         
         sendProgress(92, 'Generating report...');
 
-        // Always fetch 1500 investors for the full report
-        if (allInvestors.length < 1500) {
-          sendProgress(93, 'Fetching additional investors for complete report...');
-          const additionalInvestors = await getPopularInvestors(period as PeriodType, 1500);
-          allInvestors.push(...additionalInvestors.slice(allInvestors.length));
-        }
-
         sendProgress(95, 'Generating HTML report...');
 
         // Create reports directory if it doesn't exist
@@ -75,12 +90,35 @@ export async function POST(request: NextRequest) {
         const fileName = `etoro-census-${date.toISOString().split('T')[0]}-${Date.now()}.html`;
         const filePath = path.join(reportsDir, fileName);
 
+        // Sort investors by copiers to ensure consistent ordering
+        allInvestors.sort((a, b) => b.copiers - a.copiers);
+        console.log(`\n=== Sorted ${allInvestors.length} investors by copiers ===`);
+        console.log(`Top investor: ${allInvestors[0]?.userName} with ${allInvestors[0]?.copiers} copiers and ${allInvestors[0]?.gain}% gain`);
+        console.log(`Investor #1000: ${allInvestors[999]?.userName} with ${allInvestors[999]?.copiers} copiers and ${allInvestors[999]?.gain}% gain`);
+        console.log(`Investor #1500: ${allInvestors[1499]?.userName} with ${allInvestors[1499]?.copiers} copiers and ${allInvestors[1499]?.gain}% gain`);
+        
         // Generate multiple analyses for different investor counts
         const analyses: { count: number; analysis: CensusAnalysis }[] = [];
         const subsetSizes = [100, 500, 1000, 1500].filter(size => size <= allInvestors.length);
         
         for (const size of subsetSizes) {
           const subset = allInvestors.slice(0, size);
+          
+          // Detailed logging for debugging
+          console.log(`\n=== Analyzing top ${size} investors ===`);
+          console.log(`Total investors in subset: ${subset.length}`);
+          
+          // Log gain distribution
+          const gains = subset.map(inv => inv.gain);
+          const sortedGains = [...gains].sort((a, b) => b - a);
+          console.log(`Gain range: ${Math.min(...gains).toFixed(2)}% to ${Math.max(...gains).toFixed(2)}%`);
+          console.log(`Median gain: ${sortedGains[Math.floor(sortedGains.length / 2)].toFixed(2)}%`);
+          
+          // Check for outliers
+          const top10Gains = sortedGains.slice(0, 10);
+          const bottom10Gains = sortedGains.slice(-10);
+          console.log(`Top 10 gains: ${top10Gains.map(g => g.toFixed(1)).join(', ')}%`);
+          console.log(`Bottom 10 gains: ${bottom10Gains.map(g => g.toFixed(1)).join(', ')}%`);
           
           // Calculate average cash percentage for this subset from topPerformers
           const subsetPerformers = fullAnalysis.topPerformers.filter(performer => 
@@ -93,6 +131,16 @@ export async function POST(request: NextRequest) {
           // For each subset, create an analysis with the data appropriate for that subset
           const avgGain = subset.reduce((sum, inv) => sum + inv.gain, 0) / subset.length;
           console.log(`Average gain for top ${size} investors: ${avgGain.toFixed(2)}%`);
+          
+          // Additional logging for band comparison
+          if (size === 1000) {
+            console.log(`Investors 1-1000 avg: ${avgGain.toFixed(2)}%`);
+          } else if (size === 1500) {
+            const investors1001to1500 = subset.slice(1000, 1500);
+            const avgGain1001to1500 = investors1001to1500.reduce((sum, inv) => sum + inv.gain, 0) / investors1001to1500.length;
+            console.log(`Investors 1001-1500 avg: ${avgGain1001to1500.toFixed(2)}%`);
+            console.log(`Difference: ${(avgGain - avgGain1001to1500).toFixed(2)}%`);
+          }
           
           const subsetAnalysis: CensusAnalysis & { investorCount: number } = {
             ...fullAnalysis,
@@ -294,7 +342,6 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
         .header {
             background-color: transparent;
             margin-bottom: 32px;
-            border-bottom: 1px solid #e5e7eb;
         }
         
         .header-content {
