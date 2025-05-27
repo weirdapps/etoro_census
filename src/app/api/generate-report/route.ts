@@ -57,6 +57,13 @@ export async function POST(request: NextRequest) {
         
         sendProgress(92, 'Generating report...');
 
+        // Always fetch 1500 investors for the full report
+        if (allInvestors.length < 1500) {
+          sendProgress(93, 'Fetching additional investors for complete report...');
+          const additionalInvestors = await getPopularInvestors(period as PeriodType, 1500);
+          allInvestors.push(...additionalInvestors.slice(allInvestors.length));
+        }
+
         sendProgress(95, 'Generating HTML report...');
 
         // Create reports directory if it doesn't exist
@@ -68,8 +75,43 @@ export async function POST(request: NextRequest) {
         const fileName = `etoro-census-${date.toISOString().split('T')[0]}-${Date.now()}.html`;
         const filePath = path.join(reportsDir, fileName);
 
-        // Generate the HTML report
-        const html = generateReportHTML([{ count: actualLimit, analysis: fullAnalysis }]);
+        // Generate multiple analyses for different investor counts
+        const analyses: { count: number; analysis: CensusAnalysis }[] = [];
+        const subsetSizes = [100, 500, 1000, 1500].filter(size => size <= allInvestors.length);
+        
+        for (const size of subsetSizes) {
+          const subset = allInvestors.slice(0, size);
+          // For each subset, create an analysis with recalculated statistics
+          const subsetAnalysis = {
+            ...fullAnalysis,
+            investorCount: size,
+            // Recalculate averages for the subset
+            averageGain: subset.reduce((sum, inv) => sum + inv.gain, 0) / subset.length,
+            averageRiskScore: subset.reduce((sum, inv) => sum + (inv.riskScore || 0), 0) / subset.length,
+            averageCopiers: Math.round(subset.reduce((sum, inv) => sum + inv.copiers, 0) / subset.length),
+            // Keep the portfolio-based data from full analysis
+            topPerformers: subset
+              .sort((a, b) => b.gain - a.gain)
+              .slice(0, 20)
+              .map(inv => {
+                const performer = fullAnalysis.topPerformers.find(p => p.username === inv.userName);
+                return performer || {
+                  username: inv.userName,
+                  fullName: inv.fullName || 'Unknown',
+                  gain: inv.gain,
+                  riskScore: inv.riskScore || 0,
+                  winRatio: inv.winRatio || 0,
+                  copiers: inv.copiers,
+                  cashPercentage: 0,
+                  avatarUrl: ''
+                };
+              })
+          };
+          analyses.push({ count: size, analysis: subsetAnalysis });
+        }
+
+        // Generate the HTML report with multiple tabs
+        const html = generateReportHTML(analyses);
 
         // Write the HTML file
         await fs.writeFile(filePath, html, 'utf-8');
