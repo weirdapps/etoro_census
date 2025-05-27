@@ -28,12 +28,13 @@ export async function POST(request: NextRequest) {
       };
 
       try {
-        const { limit = 1500, period = 'CurrYear' } = await request.json();
+        const { investorCount = 1500, limit = 1500, period = 'CurrYear' } = await request.json();
+        const actualLimit = investorCount || limit;
         
         sendProgress(0, 'Fetching popular investors...');
         
-        // Fetch all investors up to the limit
-        const allInvestors = await getPopularInvestors(period as PeriodType, limit);
+        // Fetch requested number of investors
+        const allInvestors = await getPopularInvestors(period as PeriodType, actualLimit);
         
         if (allInvestors.length === 0) {
           throw new Error('No investors found');
@@ -54,49 +55,7 @@ export async function POST(request: NextRequest) {
           throw new Error('Failed to analyze investors');
         }
         
-        sendProgress(92, 'Preparing reports for different investor counts...');
-        
-        // Create analyses for different subset sizes using the same data
-        const subsetSizes = [100, 500, 1000, 1500].filter(size => size <= allInvestors.length);
-        const analyses: { count: number; analysis: CensusAnalysis }[] = [];
-        
-        for (const subsetSize of subsetSizes) {
-          // Get subset of investors
-          const subset = allInvestors.slice(0, subsetSize);
-          
-          // Create analysis using data from full analysis but recalculate stats for subset
-          const analysis: CensusAnalysis = {
-            ...fullAnalysis, // Use portfolio data from full analysis
-            investorCount: subset.length,
-            // Recalculate basic stats for the subset
-            averageGain: subset.reduce((sum, inv) => sum + inv.gain, 0) / subset.length,
-            averageRiskScore: subset.reduce((sum, inv) => sum + (inv.riskScore || 0), 0) / subset.length,
-            averageCopiers: Math.round(subset.reduce((sum, inv) => sum + inv.copiers, 0) / subset.length),
-            returnsDistribution: calculateReturnsDistribution(subset),
-            riskScoreDistribution: calculateRiskScoreDistribution(subset),
-            // Keep portfolio-based data from full analysis
-            // This includes: topHoldings, portfolioDiversification, cashAllocation, etc.
-            topPerformers: subset
-              .sort((a, b) => b.gain - a.gain)
-              .slice(0, 20)
-              .map(inv => {
-                // Find portfolio stats from full analysis if available
-                const portfolioStats = fullAnalysis.topPerformers.find(p => p.username === inv.userName);
-                return {
-                  username: inv.userName,
-                  fullName: inv.fullName,
-                  gain: inv.gain,
-                  winRatio: inv.winRatio || 0,
-                  riskScore: inv.riskScore || 0,
-                  copiers: inv.copiers,
-                  cashPercentage: portfolioStats?.cashPercentage || 0,
-                  avatarUrl: portfolioStats?.avatarUrl || ''
-                };
-              })
-          };
-          
-          analyses.push({ count: subsetSize, analysis });
-        }
+        sendProgress(92, 'Generating report...');
 
         sendProgress(95, 'Generating HTML report...');
 
@@ -109,8 +68,8 @@ export async function POST(request: NextRequest) {
         const fileName = `etoro-census-${date.toISOString().split('T')[0]}-${Date.now()}.html`;
         const filePath = path.join(reportsDir, fileName);
 
-        // Generate the HTML report with tabs for different investor counts
-        const html = generateReportHTML(analyses);
+        // Generate the HTML report
+        const html = generateReportHTML([{ count: actualLimit, analysis: fullAnalysis }]);
 
         // Write the HTML file
         await fs.writeFile(filePath, html, 'utf-8');

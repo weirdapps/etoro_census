@@ -27,21 +27,15 @@ function generateUUID(): string {
 
 export const getDefaultHeaders = () => {
   const headers: { [key: string]: string } = {
-    'Content-Type': 'application/json',
     'X-USER-KEY': getApiUserKey(),
     'X-API-KEY': getApiKey(),
     'X-REQUEST-ID': generateUUID(),
-    // Add browser-like headers that might be expected by eToro
-    'Accept': 'application/json, text/plain, */*',
-    'Accept-Language': 'en-US,en;q=0.9',
-    'Cache-Control': 'no-cache',
-    'Pragma': 'no-cache',
-    'Origin': 'https://www.etoro.com',
-    'Referer': 'https://www.etoro.com/',
-    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+    'Accept': 'application/json',
+    'Content-Type': 'application/json'
   };
   
-  // Debug log to check if keys are present (only log length for security)
+  // Debug log to check if keys are present (log full headers for debugging)
+  
   if (!headers['X-USER-KEY'] || !headers['X-API-KEY']) {
     console.error('WARNING: API keys are missing!', {
       userKeyLength: headers['X-USER-KEY']?.length || 0,
@@ -60,11 +54,27 @@ export const getApiRequestOptions = (method = 'GET') => {
   };
 };
 
+// Global rate limiting state
+let lastRequestTime = 0;
+const MIN_REQUEST_INTERVAL = 1000; // 1 second between requests
+
 export async function fetchFromEtoroApi<T>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<T> {
   try {
+    // Implement aggressive rate limiting
+    const now = Date.now();
+    const timeSinceLastRequest = now - lastRequestTime;
+    
+    if (timeSinceLastRequest < MIN_REQUEST_INTERVAL) {
+      const waitTime = MIN_REQUEST_INTERVAL - timeSinceLastRequest;
+      console.log(`[eToro API] Rate limiting: waiting ${waitTime}ms before request`);
+      await new Promise(resolve => setTimeout(resolve, waitTime));
+    }
+    
+    lastRequestTime = Date.now();
+    
     const requestOptions = {
       ...getApiRequestOptions(),
       ...options,
@@ -79,7 +89,7 @@ export async function fetchFromEtoroApi<T>(
     console.log(`[eToro API] Request headers configured`);
     
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000);
+    const timeoutId = setTimeout(() => controller.abort(), 15000); // Increased timeout
     requestOptions.signal = controller.signal;
     
     const startTime = Date.now();
@@ -93,6 +103,13 @@ export async function fetchFromEtoroApi<T>(
     if (!response.ok) {
       const errorText = await response.text().catch(() => 'Unknown error');
       console.error(`[eToro API] Request failed (${response.status}):`, errorText);
+      
+      // If we get 429, wait longer before next request
+      if (response.status === 429) {
+        console.log(`[eToro API] Rate limited! Waiting 5 seconds before next request...`);
+        lastRequestTime = Date.now() + 5000; // Force 5 second wait
+      }
+      
       throw new Error(`eToro API request failed: ${response.status}`);
     }
     
