@@ -81,6 +81,15 @@ export async function POST(request: NextRequest) {
         
         for (const size of subsetSizes) {
           const subset = allInvestors.slice(0, size);
+          
+          // Calculate average cash percentage for this subset from topPerformers
+          const subsetPerformers = fullAnalysis.topPerformers.filter(performer => 
+            subset.some(inv => inv.userName === performer.username)
+          );
+          const averageCashForSubset = subsetPerformers.length > 0
+            ? subsetPerformers.reduce((sum, p) => sum + p.cashPercentage, 0) / subsetPerformers.length
+            : 0;
+          
           // For each subset, create an analysis with the data appropriate for that subset
           const subsetAnalysis: CensusAnalysis & { investorCount: number } = {
             ...fullAnalysis,
@@ -93,9 +102,7 @@ export async function POST(request: NextRequest) {
             returnsDistribution: calculateReturnsDistribution(subset),
             riskScoreDistribution: calculateRiskScoreDistribution(subset),
             // Filter topPerformers to only include investors in this subset
-            topPerformers: fullAnalysis.topPerformers.filter(performer => 
-              subset.some(inv => inv.userName === performer.username)
-            ),
+            topPerformers: subsetPerformers,
             // Keep the same top holdings from full analysis (instruments are portfolio-based)
             topHoldings: fullAnalysis.topHoldings,
             // Keep the portfolio-based distributions from full analysis
@@ -104,7 +111,8 @@ export async function POST(request: NextRequest) {
             // Keep the same metrics that are portfolio-based
             fearGreedIndex: fullAnalysis.fearGreedIndex,
             averageUniqueInstruments: fullAnalysis.averageUniqueInstruments,
-            averageCashPercentage: fullAnalysis.averageCashPercentage
+            // Use the recalculated average cash for this subset
+            averageCashPercentage: Math.round(averageCashForSubset * 10) / 10
           };
           analyses.push({ count: size, analysis: subsetAnalysis });
         }
@@ -366,11 +374,11 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
         }
         
         .card {
-            background: white;
+            background: transparent;
             border-radius: 8px;
             border: 1px solid #e5e7eb;
             padding: 24px;
-            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            box-shadow: none;
         }
         
         .card-header {
@@ -503,11 +511,11 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
         table {
             width: 100%;
             border-collapse: collapse;
-            background: white;
+            background: transparent;
         }
         
         th {
-            background-color: white;
+            background-color: transparent;
             padding: 12px 16px;
             text-align: left;
             font-weight: 500;
@@ -529,7 +537,7 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
         }
         
         tr:hover {
-            background-color: #f9fafb;
+            background-color: transparent;
         }
         
         .text-right {
@@ -698,7 +706,7 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
         .pagination-btn {
             padding: 6px 12px;
             border: 1px solid #e5e7eb;
-            background-color: white;
+            background-color: transparent;
             border-radius: 6px;
             font-size: 0.875rem;
             cursor: pointer;
@@ -706,7 +714,7 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
         }
         
         .pagination-btn:hover:not(:disabled) {
-            background-color: #f9fafb;
+            background-color: rgba(0, 0, 0, 0.05);
             border-color: #d1d5db;
         }
         
@@ -734,7 +742,7 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
         
         /* Footer */
         .footer {
-            background-color: white;
+            background-color: transparent;
             margin-top: 64px;
             padding: 32px 0;
             border-top: 1px solid #e5e7eb;
@@ -831,7 +839,7 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                     <div class="card">
                         <h3 class="card-title">Fear & Greed Index</h3>
                         <div class="gauge-container">
-                            <svg class="gauge-arc" viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">
+                            <svg class="gauge-arc" viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
                                 <defs>
                                     <linearGradient id="gaugeGradient-${index}" x1="0%" y1="0%" x2="100%" y2="0%">
                                         <stop offset="0%" style="stop-color:#ef4444;stop-opacity:1" />
@@ -1006,8 +1014,7 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                 </div>
 
                 <!-- Tables -->
-                <div class="container">
-                    <div class="space-y-8">
+                <div class="space-y-8">
                     <!-- Top Holdings -->
                     <div class="card">
                         <div class="card-header">
@@ -1144,7 +1151,6 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                                 </div>
                             ` : ''}
                         </div>
-                    </div>
                     </div>
                 </div>
             </div>
