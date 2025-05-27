@@ -168,46 +168,6 @@ function formatDateTime(date: Date): string {
 
 
 function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis }[]): string {
-  // Helper functions for distribution charts
-  const getReturnsColorClass = (range: string) => {
-    if (range === 'Loss') return '#ef4444'; // red-500
-    if (range === '0-10%') return '#fb923c'; // orange-400
-    if (range === '11-25%') return '#facc15'; // yellow-400
-    if (range === '26-50%') return '#a3e635'; // lime-400
-    if (range === '51-100%') return '#22c55e'; // green-500
-    return '#10b981'; // emerald-500
-  };
-
-  const getReturnsBadgeColor = (range: string) => {
-    if (range === 'Loss') return 'background-color: #fee2e2; color: #dc2626;'; // red
-    if (range === '0-10%') return 'background-color: #fed7aa; color: #ea580c;'; // orange
-    if (range === '11-25%') return 'background-color: #fef3c7; color: #ca8a04;'; // yellow
-    if (range === '26-50%') return 'background-color: #ecfccb; color: #65a30d;'; // lime
-    if (range === '51-100%') return 'background-color: #dcfce7; color: #16a34a;'; // green
-    return 'background-color: #d1fae5; color: #059669;'; // emerald
-  };
-
-  const getRiskColorClass = (range: string) => {
-    if (range.includes('Conservative')) return '#22c55e'; // green-500
-    if (range.includes('Moderate')) return '#3b82f6'; // blue-500
-    if (range.includes('Aggressive')) return '#f97316'; // orange-500
-    return '#ef4444'; // red-500
-  };
-
-  const getRiskBadgeColor = (range: string) => {
-    if (range.includes('Conservative')) return 'background-color: #dcfce7; color: #16a34a;'; // green
-    if (range.includes('Moderate')) return 'background-color: #dbeafe; color: #2563eb;'; // blue
-    if (range.includes('Aggressive')) return 'background-color: #fed7aa; color: #ea580c;'; // orange
-    return 'background-color: #fee2e2; color: #dc2626;'; // red
-  };
-
-  const getRiskIcon = (range: string) => {
-    if (range.includes('Conservative')) return '🛡️';
-    if (range.includes('Moderate')) return '⚖️';
-    if (range.includes('Aggressive')) return '📈';
-    return '🔥';
-  };
-
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -223,7 +183,7 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background-color: #f9fafb;
+            background-color: #f5f7fa;
             color: #111827;
             line-height: 1.5;
         }
@@ -334,8 +294,10 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
         .card-header h3 {
             font-size: 0.875rem;
             font-weight: 600;
-            color: #111827;
+            color: #374151;
             margin: 0 0 0.25rem 0;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
         
         .card-description {
@@ -382,6 +344,17 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
             height: auto;
         }
         
+        .gauge-needle {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 3px;
+            height: 50%;
+            background-color: #111827;
+            transform-origin: bottom center;
+            transition: transform 0.5s ease;
+        }
+        
         .gauge-labels {
             display: flex;
             justify-content: space-between;
@@ -397,56 +370,61 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
             color: #10b981;
         }
         
-        /* Distribution Charts */
-        .distribution-row {
+        /* Charts */
+        .chart-container {
+            width: 100%;
+            padding: 0;
+        }
+        
+        .bar-chart {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
             margin-bottom: 16px;
         }
         
-        .distribution-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-        
-        .distribution-label {
-            font-size: 0.875rem;
-            font-weight: 500;
-            color: #111827;
-        }
-        
-        .distribution-stats {
+        .bar-group {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 12px;
         }
         
-        .distribution-count {
-            font-size: 0.875rem;
-            color: #6b7280;
-        }
-        
-        .distribution-badge {
-            display: inline-flex;
-            align-items: center;
-            padding: 2px 8px;
-            border-radius: 9999px;
+        .bar-label {
+            min-width: 100px;
             font-size: 0.75rem;
-            font-weight: 500;
+            color: #6b7280;
+            text-align: right;
+            padding-right: 12px;
         }
         
-        .progress-bar-container {
-            width: 100%;
-            height: 8px;
+        .bar-wrapper {
+            flex: 1;
+            position: relative;
+            height: 24px;
             background-color: #f3f4f6;
-            border-radius: 9999px;
+            border-radius: 4px;
             overflow: hidden;
         }
         
-        .progress-bar {
+        .bar {
             height: 100%;
-            border-radius: 9999px;
-            transition: width 0.7s ease;
+            background-color: #00C896;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        
+        .bar:hover {
+            background-color: #00B085;
+        }
+        
+        .bar-value {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #111827;
         }
         
         /* Tables */
@@ -490,6 +468,14 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
             text-align: right;
         }
         
+        .text-green {
+            color: #10b981;
+        }
+        
+        .text-red {
+            color: #ef4444;
+        }
+        
         /* Table Elements */
         .name-cell {
             display: flex;
@@ -510,15 +496,18 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
         
         .rank {
             font-weight: 600;
-            color: #111827;
+            color: #6b7280;
             font-size: 0.875rem;
         }
         
         /* Instrument images */
+        .instrument-image,
         .instrument-icon {
             width: 32px;
             height: 32px;
             border-radius: 50%;
+            margin-right: 12px;
+            vertical-align: middle;
             object-fit: cover;
             flex-shrink: 0;
         }
@@ -549,7 +538,7 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
             width: 32px;
             height: 32px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            background: linear-gradient(135deg, #60a5fa, #a855f7);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -559,65 +548,34 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
             flex-shrink: 0;
         }
         
-        /* Badges */
-        .badge {
-            display: inline-flex;
-            align-items: center;
-            padding: 4px 8px;
-            border-radius: 9999px;
+        .allocation-badge {
+            background-color: #e0f2fe;
+            color: #0369a1;
+            padding: 2px 8px;
+            border-radius: 4px;
             font-size: 0.75rem;
             font-weight: 500;
         }
         
-        .badge-green {
-            background-color: #dcfce7;
-            color: #16a34a;
-        }
-        
-        .badge-red {
-            background-color: #fee2e2;
-            color: #dc2626;
-        }
-        
-        .badge-blue {
-            background-color: #dbeafe;
-            color: #2563eb;
-        }
-        
-        .badge-yellow {
-            background-color: #fef3c7;
-            color: #ca8a04;
-        }
-        
-        .badge-purple {
-            background-color: #f3e8ff;
-            color: #9333ea;
-        }
-        
-        .badge-primary {
-            background-color: rgba(0, 200, 150, 0.1);
-            color: #00C896;
-        }
-        
         .risk-badge {
-            padding: 4px 8px;
-            border-radius: 9999px;
-            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.875rem;
             font-weight: 500;
         }
         
         .risk-badge.risk-1,
         .risk-badge.risk-2,
         .risk-badge.risk-3 {
-            background-color: #dcfce7;
-            color: #16a34a;
+            background-color: #d1fae5;
+            color: #065f46;
         }
         
         .risk-badge.risk-4,
         .risk-badge.risk-5,
         .risk-badge.risk-6 {
             background-color: #fef3c7;
-            color: #ca8a04;
+            color: #92400e;
         }
         
         .risk-badge.risk-7,
@@ -625,7 +583,17 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
         .risk-badge.risk-9,
         .risk-badge.risk-10 {
             background-color: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .positive {
+            color: #10b981;
+            font-weight: 600;
+        }
+        
+        .negative {
             color: #dc2626;
+            font-weight: 600;
         }
         
         /* Pagination */
@@ -676,7 +644,7 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
         /* Full width sections */
         .full-width {
             width: 100%;
-            background-color: #f9fafb;
+            background-color: #f5f7fa;
             padding: 48px 0;
             margin-top: 48px;
             margin-bottom: 48px;
@@ -709,7 +677,7 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
             }
             
             .metric-value {
-                font-size: 2rem;
+                font-size: 3rem;
             }
             
             .tabs {
@@ -717,10 +685,6 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
             }
             
             .grid-cols-4 {
-                grid-template-columns: 1fr;
-            }
-            
-            .top-row {
                 grid-template-columns: 1fr;
             }
         }
@@ -740,17 +704,57 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
             }
         }
         
-        /* Additional utility classes */
-        .font-medium {
+        .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            margin-right: 12px;
+            vertical-align: middle;
+            background-color: #e5e7eb;
+        }
+        
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
             font-weight: 500;
         }
         
-        .font-semibold {
-            font-weight: 600;
+        .badge-green {
+            background-color: #dcfce7;
+            color: #15803d;
         }
         
-        .text-muted {
-            color: #6b7280;
+        .badge-red {
+            background-color: #fee2e2;
+            color: #dc2626;
+        }
+        
+        .badge-blue {
+            background-color: #e0f2fe;
+            color: #0369a1;
+        }
+        
+        .badge-yellow {
+            background-color: #fef3c7;
+            color: #a16207;
+        }
+        
+        .placeholder-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.875rem;
+            margin-right: 12px;
+            vertical-align: middle;
         }
     </style>
 </head>
@@ -778,37 +782,37 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                 <div class="container">
                     <!-- Top Row: Fear/Greed + Key Metrics -->
                     <div class="top-row">
-                        <!-- Fear & Greed Gauge -->
-                        <div class="card">
-                            <h3 class="card-title">Fear & Greed Index</h3>
-                            <div class="gauge-container">
-                                <svg class="gauge-arc" viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">
-                                    <defs>
-                                        <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                                            <stop offset="0%" style="stop-color:#ef4444;stop-opacity:1" />
-                                            <stop offset="25%" style="stop-color:#f59e0b;stop-opacity:1" />
-                                            <stop offset="50%" style="stop-color:#fbbf24;stop-opacity:1" />
-                                            <stop offset="75%" style="stop-color:#84cc16;stop-opacity:1" />
-                                            <stop offset="100%" style="stop-color:#10b981;stop-opacity:1" />
-                                        </linearGradient>
-                                    </defs>
-                                    <path d="M 10 90 A 80 80 0 0 1 190 90" fill="none" stroke="url(#gaugeGradient)" stroke-width="20" stroke-linecap="round"/>
-                                    <line x1="100" y1="90" x2="100" y2="30" stroke="#111827" stroke-width="3" stroke-linecap="round" transform="rotate(${(item.analysis.fearGreedIndex - 50) * 1.8} 100 90)"/>
-                                    <circle cx="100" cy="90" r="6" fill="#111827"/>
-                                </svg>
-                                <div class="metric-value">${item.analysis.fearGreedIndex}</div>
-                                <div class="metric-label">
-                                    ${item.analysis.fearGreedIndex < 20 ? 'Extreme Fear' :
-                                      item.analysis.fearGreedIndex < 40 ? 'Fear' :
-                                      item.analysis.fearGreedIndex < 60 ? 'Neutral' :
-                                      item.analysis.fearGreedIndex < 80 ? 'Greed' : 'Extreme Greed'}
-                                </div>
-                            </div>
-                            <div class="gauge-labels">
-                                <span class="fear-label">Fear</span>
-                                <span class="greed-label">Greed</span>
+                    <!-- Fear & Greed Gauge -->
+                    <div class="card">
+                        <h3 class="card-title">Fear & Greed Index</h3>
+                        <div class="gauge-container">
+                            <svg class="gauge-arc" viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                    <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                        <stop offset="0%" style="stop-color:#ef4444;stop-opacity:1" />
+                                        <stop offset="25%" style="stop-color:#f59e0b;stop-opacity:1" />
+                                        <stop offset="50%" style="stop-color:#fbbf24;stop-opacity:1" />
+                                        <stop offset="75%" style="stop-color:#84cc16;stop-opacity:1" />
+                                        <stop offset="100%" style="stop-color:#10b981;stop-opacity:1" />
+                                    </linearGradient>
+                                </defs>
+                                <path d="M 10 90 A 80 80 0 0 1 190 90" fill="none" stroke="url(#gaugeGradient)" stroke-width="20" stroke-linecap="round"/>
+                                <line x1="100" y1="90" x2="100" y2="30" stroke="#111827" stroke-width="3" stroke-linecap="round" transform="rotate(${(item.analysis.fearGreedIndex - 50) * 1.8} 100 90)"/>
+                                <circle cx="100" cy="90" r="6" fill="#111827"/>
+                            </svg>
+                            <div class="metric-value">${item.analysis.fearGreedIndex}</div>
+                            <div class="metric-label">
+                                ${item.analysis.fearGreedIndex < 20 ? 'Extreme Fear' :
+                                  item.analysis.fearGreedIndex < 40 ? 'Fear' :
+                                  item.analysis.fearGreedIndex < 60 ? 'Neutral' :
+                                  item.analysis.fearGreedIndex < 80 ? 'Greed' : 'Extreme Greed'}
                             </div>
                         </div>
+                        <div class="gauge-labels">
+                            <span class="fear-label">Fear</span>
+                            <span class="greed-label">Greed</span>
+                        </div>
+                    </div>
                         
                         <!-- Key Metrics Grid -->
                         <div class="grid grid-cols-4">
@@ -839,32 +843,29 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                 <!-- Distribution Charts - Full Width -->
                 <div class="full-width">
                     <div class="container">
-                        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));">
+                        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
                             <!-- Returns Distribution -->
                             <div class="card">
                                 <div class="card-header">
-                                    <h3>Returns Distribution</h3>
-                                    <p class="card-description">Performance ranges across analyzed investors</p>
+                                    <h3>12-Month Returns Distribution</h3>
                                 </div>
                                 <div class="chart-container">
-                                    ${Object.entries(item.analysis.returnsDistribution || {}).map(([range, count]) => {
-                                        const total = Object.values(item.analysis.returnsDistribution || {}).reduce((sum, val) => sum + val, 0);
-                                        const percentage = total > 0 ? Math.round((count / total) * 100) : 0;
-                                        return `
-                                            <div class="distribution-row">
-                                                <div class="distribution-header">
-                                                    <span class="distribution-label">${range} returns</span>
-                                                    <div class="distribution-stats">
-                                                        <span class="distribution-count">${count} investors</span>
-                                                        <span class="distribution-badge" style="${getReturnsBadgeColor(range)}">${percentage}%</span>
+                                    <div class="bar-chart">
+                                        ${Object.entries(item.analysis.returnsDistribution || {}).map(([range, count]) => {
+                                            const maxCount = Math.max(...Object.values(item.analysis.returnsDistribution || {}));
+                                            const width = maxCount > 0 ? (count / maxCount) * 100 : 0;
+                                            return `
+                                                <div class="bar-group">
+                                                    <span class="bar-label">${range}</span>
+                                                    <div class="bar-wrapper">
+                                                        <div class="bar" style="width: ${width}%;">
+                                                            <span class="bar-value">${count}</span>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                                <div class="progress-bar-container">
-                                                    <div class="progress-bar" style="background: linear-gradient(to right, ${getReturnsColorClass(range)}, ${getReturnsColorClass(range)}dd); width: ${percentage}%;"></div>
-                                                </div>
-                                            </div>
-                                        `;
-                                    }).join('')}
+                                            `;
+                                        }).join('')}
+                                    </div>
                                 </div>
                             </div>
 
@@ -872,32 +873,23 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                             <div class="card">
                                 <div class="card-header">
                                     <h3>Risk Score Distribution</h3>
-                                    <p class="card-description">Risk appetite distribution across analyzed investors</p>
                                 </div>
                                 <div class="chart-container">
-                                    ${Object.entries(item.analysis.riskScoreDistribution || {}).map(([range, count]) => {
-                                        const total = Object.values(item.analysis.riskScoreDistribution || {}).reduce((sum, val) => sum + val, 0);
-                                        const percentage = total > 0 ? Math.round((count / total) * 100) : 0;
-                                        return `
-                                            <div class="distribution-row">
-                                                <div class="distribution-header">
-                                                    <span class="distribution-label">
-                                                        <span>${getRiskIcon(range)}</span>
-                                                        <span>${range}</span>
-                                                    </span>
-                                                    <div class="distribution-stats">
-                                                        <span class="distribution-count">${count} investors</span>
-                                                        <span class="distribution-badge" style="${getRiskBadgeColor(range)}">${percentage}%</span>
+                                    <div class="bar-chart">
+                                        ${Object.entries(item.analysis.riskScoreDistribution || {}).map(([range, count]) => {
+                                            const maxCount = Math.max(...Object.values(item.analysis.riskScoreDistribution || {}));
+                                            const width = maxCount > 0 ? (count / maxCount) * 100 : 0;
+                                            return `
+                                                <div class="bar-group">
+                                                    <span class="bar-label">${range}</span>
+                                                    <div class="bar-wrapper">
+                                                        <div class="bar" style="width: ${width}%;">
+                                                            <span class="bar-value">${count}</span>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                                <div class="progress-bar-container">
-                                                    <div class="progress-bar" style="background: linear-gradient(to right, ${getRiskColorClass(range)}, ${getRiskColorClass(range)}dd); width: ${percentage}%;"></div>
-                                                </div>
-                                            </div>
-                                        `;
-                                    }).join('')}
-                                    <div style="margin-top: 16px; font-size: 0.75rem; color: #6b7280;">
-                                        <p>eToro Risk Score ranges from 1 (lowest risk) to 10 (highest risk)</p>
+                                            `;
+                                        }).join('')}
                                     </div>
                                 </div>
                             </div>
@@ -906,27 +898,24 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                             <div class="card">
                                 <div class="card-header">
                                     <h3>Portfolio Diversification</h3>
-                                    <p class="card-description">Number of unique instruments held by investors</p>
                                 </div>
                                 <div class="chart-container">
-                                    ${Object.entries(item.analysis.uniqueInstrumentsDistribution || {}).map(([range, count]) => {
-                                        const total = Object.values(item.analysis.uniqueInstrumentsDistribution || {}).reduce((sum, val) => sum + val, 0);
-                                        const percentage = total > 0 ? Math.round((count / total) * 100) : 0;
-                                        return `
-                                            <div class="distribution-row">
-                                                <div class="distribution-header">
-                                                    <span class="distribution-label">${range} assets</span>
-                                                    <div class="distribution-stats">
-                                                        <span class="distribution-count">${count} investors</span>
-                                                        <span class="distribution-badge" style="background-color: #dbeafe; color: #2563eb;">${percentage}%</span>
+                                    <div class="bar-chart">
+                                        ${Object.entries(item.analysis.uniqueInstrumentsDistribution || {}).map(([range, count]) => {
+                                            const maxCount = Math.max(...Object.values(item.analysis.uniqueInstrumentsDistribution || {}));
+                                            const width = maxCount > 0 ? (count / maxCount) * 100 : 0;
+                                            return `
+                                                <div class="bar-group">
+                                                    <span class="bar-label">${range}</span>
+                                                    <div class="bar-wrapper">
+                                                        <div class="bar" style="width: ${width}%;">
+                                                            <span class="bar-value">${count}</span>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                                <div class="progress-bar-container">
-                                                    <div class="progress-bar" style="background: linear-gradient(to right, #00C896, #00B085); width: ${percentage}%;"></div>
-                                                </div>
-                                            </div>
-                                        `;
-                                    }).join('')}
+                                            `;
+                                        }).join('')}
+                                    </div>
                                 </div>
                             </div>
 
@@ -934,27 +923,24 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                             <div class="card">
                                 <div class="card-header">
                                     <h3>Cash Allocation</h3>
-                                    <p class="card-description">Percentage of portfolio held in cash</p>
                                 </div>
                                 <div class="chart-container">
-                                    ${Object.entries(item.analysis.cashPercentageDistribution || {}).map(([range, count]) => {
-                                        const total = Object.values(item.analysis.cashPercentageDistribution || {}).reduce((sum, val) => sum + val, 0);
-                                        const percentage = total > 0 ? Math.round((count / total) * 100) : 0;
-                                        return `
-                                            <div class="distribution-row">
-                                                <div class="distribution-header">
-                                                    <span class="distribution-label">${range} cash</span>
-                                                    <div class="distribution-stats">
-                                                        <span class="distribution-count">${count} investors</span>
-                                                        <span class="distribution-badge" style="background-color: #f3e8ff; color: #9333ea;">${percentage}%</span>
+                                    <div class="bar-chart">
+                                        ${Object.entries(item.analysis.cashPercentageDistribution || {}).map(([range, count]) => {
+                                            const maxCount = Math.max(...Object.values(item.analysis.cashPercentageDistribution || {}));
+                                            const width = maxCount > 0 ? (count / maxCount) * 100 : 0;
+                                            return `
+                                                <div class="bar-group">
+                                                    <span class="bar-label">${range}</span>
+                                                    <div class="bar-wrapper">
+                                                        <div class="bar" style="width: ${width}%;">
+                                                            <span class="bar-value">${count}</span>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                                <div class="progress-bar-container">
-                                                    <div class="progress-bar" style="background: linear-gradient(to right, #8b5cf6, #7c3aed); width: ${percentage}%;"></div>
-                                                </div>
-                                            </div>
-                                        `;
-                                    }).join('')}
+                                            `;
+                                        }).join('')}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -967,7 +953,7 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                         <!-- Top Holdings -->
                         <div class="card">
                             <div class="card-header">
-                                <h3>Most Popular Holdings</h3>
+                                <h3 class="card-title">Most Popular Holdings</h3>
                                 <p class="card-description">Instruments held by the highest number of investors (${(item.analysis.topHoldings || []).length} total)</p>
                             </div>
                             <div class="card-content">
@@ -997,22 +983,15 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                                                         </div>
                                                     </div>
                                                 </td>
-                                                <td class="text-right font-medium">${holding.holdersCount || 0}</td>
+                                                <td class="text-right" style="font-weight: 500;">${holding.holdersCount || 0}</td>
+                                                <td class="text-right">${((holding.holdersPercentage || 0)).toFixed(1)}%</td>
                                                 <td class="text-right">
-                                                    <span class="badge badge-primary">${(holding.holdersPercentage || 0).toFixed(1)}%</span>
-                                                </td>
-                                                <td class="text-right font-medium">
-                                                    ${(holding.averageAllocation || 0).toFixed(1)}%
+                                                    <span class="allocation-badge">${(holding.averageAllocation || 0).toFixed(1)}%</span>
                                                 </td>
                                             </tr>
                                         `).join('')}
                                     </tbody>
                                 </table>
-                                ${(item.analysis.topHoldings || []).length === 0 ? `
-                                    <div style="text-align: center; padding: 32px 0; color: #6b7280;">
-                                        No holdings data available
-                                    </div>
-                                ` : ''}
                                 ${(item.analysis.topHoldings || []).length > 20 ? `
                                     <div class="pagination">
                                         <div class="pagination-info">
@@ -1031,7 +1010,7 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                         <!-- Top Performers -->
                         <div class="card">
                             <div class="card-header">
-                                <h3>Most Followed Investors</h3>
+                                <h3 class="card-title">Most Followed Investors</h3>
                                 <p class="card-description">Investors ranked by number of copiers (${(item.analysis.topPerformers || []).length} total)</p>
                             </div>
                             <div class="card-content">
@@ -1063,7 +1042,7 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                                                         </div>
                                                     </div>
                                                 </td>
-                                                <td class="text-right font-medium">
+                                                <td class="text-right">
                                                     <span class="${(performer.gain || 0) >= 0 ? 'badge badge-green' : 'badge badge-red'}">
                                                         ${(performer.gain || 0) > 0 ? '+' : ''}${(performer.gain || 0).toFixed(1)}%
                                                     </span>
@@ -1075,18 +1054,13 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                                                 <td class="text-right">
                                                     <span class="risk-badge risk-${performer.riskScore || 0}">${performer.riskScore || '-'}/10</span>
                                                 </td>
-                                                <td class="text-right">
-                                                    <span class="badge badge-purple">${(performer.copiers || 0).toLocaleString()}</span>
+                                                <td class="text-right" style="font-weight: 600;">
+                                                    ${(performer.copiers || 0).toLocaleString()}
                                                 </td>
                                             </tr>
                                         `).join('')}
                                     </tbody>
                                 </table>
-                                ${(item.analysis.topPerformers || []).length === 0 ? `
-                                    <div style="text-align: center; padding: 32px 0; color: #6b7280;">
-                                        No performer data available
-                                    </div>
-                                ` : ''}
                                 ${(item.analysis.topPerformers || []).length > 20 ? `
                                     <div class="pagination">
                                         <div class="pagination-info">
@@ -1132,8 +1106,8 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
             
             // Get current page
             const currentPageText = pageSpan.textContent;
-            const currentPage = parseInt(currentPageText.match(/Page (\\d+)/)[1]);
-            const totalPages = parseInt(currentPageText.match(/of (\\d+)/)[1]);
+            const currentPage = parseInt(currentPageText.match(/Page (\d+)/)[1]);
+            const totalPages = parseInt(currentPageText.match(/of (\d+)/)[1]);
             
             // Calculate new page
             const newPage = currentPage + direction;
