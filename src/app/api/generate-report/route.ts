@@ -613,8 +613,8 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                                 <h3 class="card-title">Returns Distribution</h3>
                                 <div class="chart-container">
                                     <div class="bar-chart">
-                                        ${Object.entries(item.analysis.returnsDistribution).map(([range, count]) => {
-                                            const maxCount = Math.max(...Object.values(item.analysis.returnsDistribution));
+                                        ${Object.entries(item.analysis.returnsDistribution || {}).map(([range, count]) => {
+                                            const maxCount = Math.max(...Object.values(item.analysis.returnsDistribution || {}));
                                             const height = maxCount > 0 ? (count / maxCount) * 100 : 0;
                                             return `
                                                 <div class="bar-group">
@@ -634,8 +634,8 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                                 <h3 class="card-title">Risk Score Distribution</h3>
                                 <div class="chart-container">
                                     <div class="bar-chart">
-                                        ${Object.entries(item.analysis.riskScoreDistribution).map(([range, count]) => {
-                                            const maxCount = Math.max(...Object.values(item.analysis.riskScoreDistribution));
+                                        ${Object.entries(item.analysis.riskScoreDistribution || {}).map(([range, count]) => {
+                                            const maxCount = Math.max(...Object.values(item.analysis.riskScoreDistribution || {}));
                                             const height = maxCount > 0 ? (count / maxCount) * 100 : 0;
                                             return `
                                                 <div class="bar-group">
@@ -655,8 +655,8 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                                 <h3 class="card-title">Portfolio Diversification</h3>
                                 <div class="chart-container">
                                     <div class="bar-chart">
-                                        ${Object.entries(item.analysis.uniqueInstrumentsDistribution).map(([range, count]) => {
-                                            const maxCount = Math.max(...Object.values(item.analysis.uniqueInstrumentsDistribution));
+                                        ${Object.entries(item.analysis.uniqueInstrumentsDistribution || {}).map(([range, count]) => {
+                                            const maxCount = Math.max(...Object.values(item.analysis.uniqueInstrumentsDistribution || {}));
                                             const height = maxCount > 0 ? (count / maxCount) * 100 : 0;
                                             return `
                                                 <div class="bar-group">
@@ -676,8 +676,8 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                                 <h3 class="card-title">Cash Allocation</h3>
                                 <div class="chart-container">
                                     <div class="bar-chart">
-                                        ${Object.entries(item.analysis.cashPercentageDistribution).map(([range, count]) => {
-                                            const maxCount = Math.max(...Object.values(item.analysis.cashPercentageDistribution));
+                                        ${Object.entries(item.analysis.cashPercentageDistribution || {}).map(([range, count]) => {
+                                            const maxCount = Math.max(...Object.values(item.analysis.cashPercentageDistribution || {}));
                                             const height = maxCount > 0 ? (count / maxCount) * 100 : 0;
                                             return `
                                                 <div class="bar-group">
@@ -710,13 +710,13 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        ${item.analysis.topHoldings.slice(0, 10).map(holding => `
+                                        ${(item.analysis.topHoldings || []).slice(0, 10).map(holding => `
                                             <tr>
                                                 <td>
                                                     ${holding.imageUrl ? 
                                                         `<img src="${holding.imageUrl}" alt="${holding.symbol}" class="instrument-image" onerror="this.style.display='none'">` : 
                                                         ''}
-                                                    <strong>${truncateText(holding.name, 24)}</strong>
+                                                    <strong>${truncateText(holding.instrumentName || holding.name || 'Unknown', 24)}</strong>
                                                     <span style="color: #6b7280; margin-left: 8px;">${holding.symbol}</span>
                                                 </td>
                                                 <td class="text-right">
@@ -742,13 +742,13 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        ${item.analysis.topPerformers.slice(0, 10).map(performer => `
+                                        ${(item.analysis.topPerformers || []).slice(0, 10).map(performer => `
                                             <tr>
                                                 <td>
                                                     ${performer.avatarUrl ? 
                                                         `<img src="${performer.avatarUrl}" alt="${performer.fullName}" class="avatar" onerror="this.style.display='none'">` : 
-                                                        `<span class="placeholder-avatar">${performer.fullName.charAt(0).toUpperCase()}</span>`}
-                                                    <strong>${truncateText(performer.fullName, 24)}</strong>
+                                                        `<span class="placeholder-avatar">${(performer.fullName || 'U').charAt(0).toUpperCase()}</span>`}
+                                                    <strong>${truncateText(performer.fullName || 'Unknown', 24)}</strong>
                                                 </td>
                                                 <td class="text-right">
                                                     <span class="${(performer.gain || 0) >= 0 ? 'text-green' : 'text-red'}">
