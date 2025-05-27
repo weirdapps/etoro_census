@@ -28,13 +28,12 @@ export async function POST(request: NextRequest) {
       };
 
       try {
-        const { investorCount = 1500, limit = 1500, period = 'CurrYear' } = await request.json();
-        const actualLimit = investorCount || limit;
+        const { period = 'CurrYear' } = await request.json();
         
         sendProgress(0, 'Fetching popular investors...');
         
-        // Fetch requested number of investors
-        const allInvestors = await getPopularInvestors(period as PeriodType, actualLimit);
+        // ALWAYS fetch 1500 investors to ensure consistent data across all bands
+        const allInvestors = await getPopularInvestors(period as PeriodType, 1500);
         
         if (allInvestors.length === 0) {
           throw new Error('No investors found');
@@ -44,23 +43,11 @@ export async function POST(request: NextRequest) {
         
         // Log initial investor data
         console.log(`\n=== Initial investor fetch ===`);
-        console.log(`Requested limit: ${actualLimit}`);
-        console.log(`Actually fetched: ${allInvestors.length} investors`);
+        console.log(`Fetched: ${allInvestors.length} investors (always fetching 1500 for consistency)`);
         
-        // Always fetch 1500 investors for the full report BEFORE analysis
-        if (allInvestors.length < 1500) {
-          sendProgress(10, 'Fetching additional investors for complete report...');
-          const additionalInvestors = await getPopularInvestors(period as PeriodType, 1500);
-          console.log(`Additional fetch returned: ${additionalInvestors.length} investors`);
-          
-          // Only add the missing investors, not duplicates
-          const existingUsernames = new Set(allInvestors.map(inv => inv.userName));
-          const newInvestors = additionalInvestors.filter(inv => !existingUsernames.has(inv.userName));
-          allInvestors.push(...newInvestors);
-          
-          console.log(`Added ${newInvestors.length} new investors`);
-          console.log(`Total investors now: ${allInvestors.length}`);
-        }
+        // Sort by copiers immediately to ensure consistent ordering
+        allInvestors.sort((a, b) => b.copiers - a.copiers);
+        console.log(`Sorted ${allInvestors.length} investors by copiers`);
         
         sendProgress(15, `Analyzing ${allInvestors.length} investors...`);
         
@@ -90,10 +77,11 @@ export async function POST(request: NextRequest) {
         const fileName = `etoro-census-${date.toISOString().split('T')[0]}-${Date.now()}.html`;
         const filePath = path.join(reportsDir, fileName);
 
-        // Sort investors by copiers to ensure consistent ordering
-        allInvestors.sort((a, b) => b.copiers - a.copiers);
-        console.log(`\n=== Sorted ${allInvestors.length} investors by copiers ===`);
+        // Log key investor positions for debugging
+        console.log(`\n=== Key investor positions ===`);
         console.log(`Top investor: ${allInvestors[0]?.userName} with ${allInvestors[0]?.copiers} copiers and ${allInvestors[0]?.gain}% gain`);
+        console.log(`Investor #100: ${allInvestors[99]?.userName} with ${allInvestors[99]?.copiers} copiers and ${allInvestors[99]?.gain}% gain`);
+        console.log(`Investor #500: ${allInvestors[499]?.userName} with ${allInvestors[499]?.copiers} copiers and ${allInvestors[499]?.gain}% gain`);
         console.log(`Investor #1000: ${allInvestors[999]?.userName} with ${allInvestors[999]?.copiers} copiers and ${allInvestors[999]?.gain}% gain`);
         console.log(`Investor #1500: ${allInvestors[1499]?.userName} with ${allInvestors[1499]?.copiers} copiers and ${allInvestors[1499]?.gain}% gain`);
         
