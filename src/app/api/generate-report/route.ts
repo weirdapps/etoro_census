@@ -214,15 +214,19 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
             margin-bottom: 8px;
         }
         
-        .header .subtitle {
-            font-size: 1.125rem;
+        .header .creator {
+            font-size: 0.875rem;
             color: #6b7280;
+            margin-top: 8px;
         }
         
-        .header .timestamp {
-            font-size: 0.875rem;
-            color: #9ca3af;
-            margin-top: 8px;
+        .header .creator a {
+            color: #00C896;
+            text-decoration: none;
+        }
+        
+        .header .creator a:hover {
+            text-decoration: underline;
         }
         
         /* Tabs */
@@ -283,6 +287,23 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
         
+        .card-header {
+            margin-bottom: 1.5rem;
+        }
+        
+        .card-header h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #111827;
+            margin: 0 0 0.5rem 0;
+        }
+        
+        .card-description {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin: 0;
+        }
+        
         .card-title {
             font-size: 0.875rem;
             font-weight: 500;
@@ -293,12 +314,12 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
         }
         
         .metric-value {
-            font-size: 4rem;
+            font-size: 3rem;
             font-weight: 700;
             color: #111827;
             line-height: 1;
             text-align: center;
-            margin: 20px 0;
+            margin: 16px 0;
         }
         
         .metric-label {
@@ -439,13 +460,169 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
             color: #ef4444;
         }
         
+        /* Table Elements */
+        .name-cell {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .name-primary {
+            font-weight: 500;
+            color: #111827;
+            font-size: 0.875rem;
+        }
+        
+        .name-secondary {
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+        
+        .rank {
+            font-weight: 600;
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+        
         /* Instrument images */
-        .instrument-image {
+        .instrument-image,
+        .instrument-icon {
             width: 32px;
             height: 32px;
             border-radius: 50%;
             margin-right: 12px;
             vertical-align: middle;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+        
+        .instrument-placeholder {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #60a5fa, #a855f7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        
+        .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+        
+        .avatar-placeholder {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #60a5fa, #a855f7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.875rem;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        
+        .allocation-badge {
+            background-color: #dbeafe;
+            color: #1e40af;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        
+        .risk-badge {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        
+        .risk-badge.risk-1,
+        .risk-badge.risk-2,
+        .risk-badge.risk-3 {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        
+        .risk-badge.risk-4,
+        .risk-badge.risk-5,
+        .risk-badge.risk-6 {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+        
+        .risk-badge.risk-7,
+        .risk-badge.risk-8,
+        .risk-badge.risk-9,
+        .risk-badge.risk-10 {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .positive {
+            color: #10b981;
+            font-weight: 500;
+        }
+        
+        .negative {
+            color: #ef4444;
+            font-weight: 500;
+        }
+        
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 16px;
+            border-top: 1px solid #e5e7eb;
+            margin-top: 16px;
+        }
+        
+        .pagination-info {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+        
+        .pagination-controls {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .pagination-btn {
+            padding: 6px 12px;
+            border: 1px solid #e5e7eb;
+            background-color: white;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .pagination-btn:hover:not(:disabled) {
+            background-color: #f9fafb;
+            border-color: #d1d5db;
+        }
+        
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .hidden {
+            display: none;
         }
         
         /* Full width sections */
@@ -568,9 +745,8 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
 <body>
     <div class="header">
         <div class="header-content">
-            <h1>eToro Popular Investors Census</h1>
-            <p class="subtitle">Comprehensive analysis of top performers and portfolio trends</p>
-            <p class="timestamp">Report generated on ${formatDateTime(new Date())}</p>
+            <h1>eToro PI Census</h1>
+            <p class="creator">created by <a href="https://www.etoro.com/people/plessas" target="_blank" rel="noopener noreferrer">@plessas</a> at ${formatDateTime(new Date())}</p>
         </div>
     </div>
 
@@ -592,9 +768,8 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                     <div class="top-row">
                         <!-- Fear & Greed Gauge -->
                         <div class="card">
-                            <div class="card-content">
-                                <h3 class="card-title">Fear & Greed Index</h3>
-                                <div class="gauge-container">
+                            <h3 class="card-title">Fear & Greed Index</h3>
+                            <div class="gauge-container">
                                     <svg class="gauge-arc" viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">
                                         <defs>
                                             <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -621,7 +796,6 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                                     <span class="fear-label">Fear</span>
                                     <span class="greed-label">Greed</span>
                                 </div>
-                            </div>
                         </div>
                         
                         <!-- Key Metrics Grid -->
@@ -652,7 +826,7 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                         <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
                             <!-- Returns Distribution -->
                             <div class="card">
-                                <h3 class="card-title">Returns Distribution</h3>
+                                <h3 class="card-title">12-Month Returns Distribution</h3>
                                 <div class="chart-container">
                                     <div class="bar-chart">
                                         ${Object.entries(item.analysis.returnsDistribution || {}).map(([range, count]) => {
@@ -742,68 +916,125 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                     <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 48px;">
                         <!-- Top Holdings -->
                         <div class="card">
-                            <h3 class="card-title">Top Holdings</h3>
-                            <div class="table-container">
+                            <div class="card-header">
+                                <h3 class="card-title">Most Popular Holdings</h3>
+                                <p class="card-description">Instruments held by the highest number of investors (${(item.analysis.topHoldings || []).length} total)</p>
+                            </div>
+                            <div class="card-content">
                                 <table>
                                     <thead>
                                         <tr>
-                                            <th>Instrument</th>
-                                            <th class="text-right">Average Allocation</th>
+                                            <th>Rank</th>
+                                            <th>Asset</th>
+                                            <th class="text-right">Holders</th>
+                                            <th class="text-right">% of PIs</th>
+                                            <th class="text-right">Avg Allocation</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
-                                        ${(item.analysis.topHoldings || []).slice(0, 10).map(holding => `
-                                            <tr>
+                                    <tbody id="holdings-tbody-${index}">
+                                        ${(item.analysis.topHoldings || []).map((holding, idx) => `
+                                            <tr class="holdings-row-${index} ${idx >= 20 ? 'hidden' : ''}" data-page="${Math.floor(idx / 20) + 1}">
+                                                <td class="rank">#${idx + 1}</td>
                                                 <td>
-                                                    ${holding.imageUrl ? 
-                                                        `<img src="${holding.imageUrl}" alt="${holding.symbol}" class="instrument-image" onerror="this.style.display='none'">` : 
-                                                        ''}
-                                                    <strong>${truncateText(holding.instrumentName || holding.name || 'Unknown', 24)}</strong>
-                                                    <span style="color: #6b7280; margin-left: 8px;">${holding.symbol}</span>
+                                                    <div class="name-cell">
+                                                        ${holding.imageUrl ? 
+                                                            `<img src="${holding.imageUrl}" alt="${holding.symbol}" class="instrument-icon">` :
+                                                            `<div class="instrument-placeholder">${(holding.symbol || 'UN').slice(0, 2).toUpperCase()}</div>`
+                                                        }
+                                                        <div>
+                                                            <div class="name-primary" title="${holding.instrumentName || 'Unknown'}">${truncateText(holding.instrumentName || 'Unknown', 24)}</div>
+                                                            <div class="name-secondary">${holding.symbol || ''}</div>
+                                                        </div>
+                                                    </div>
                                                 </td>
+                                                <td class="text-right" style="font-weight: 500;">${holding.holdersCount || 0}</td>
+                                                <td class="text-right">${((holding.holdersPercentage || 0)).toFixed(1)}%</td>
                                                 <td class="text-right">
-                                                    <span class="badge badge-blue">${(holding.averageAllocation || 0).toFixed(2)}%</span>
+                                                    <span class="allocation-badge">${(holding.averageAllocation || 0).toFixed(2)}%</span>
                                                 </td>
                                             </tr>
                                         `).join('')}
                                     </tbody>
                                 </table>
+                                ${(item.analysis.topHoldings || []).length > 20 ? `
+                                    <div class="pagination">
+                                        <div class="pagination-info">
+                                            Showing <span id="holdings-showing-${index}">1-20</span> of ${(item.analysis.topHoldings || []).length}
+                                        </div>
+                                        <div class="pagination-controls">
+                                            <button class="pagination-btn" onclick="changePage('holdings', ${index}, -1)" id="holdings-prev-${index}" disabled>Previous</button>
+                                            <span id="holdings-page-${index}">Page 1 of ${Math.ceil((item.analysis.topHoldings || []).length / 20)}</span>
+                                            <button class="pagination-btn" onclick="changePage('holdings', ${index}, 1)" id="holdings-next-${index}">Next</button>
+                                        </div>
+                                    </div>
+                                ` : ''}
                             </div>
                         </div>
 
                         <!-- Top Performers -->
                         <div class="card">
-                            <h3 class="card-title">Top Performers</h3>
-                            <div class="table-container">
+                            <div class="card-header">
+                                <h3 class="card-title">Most Followed Investors</h3>
+                                <p class="card-description">Investors ranked by number of copiers (${(item.analysis.topPerformers || []).length} total)</p>
+                            </div>
+                            <div class="card-content">
                                 <table>
                                     <thead>
                                         <tr>
+                                            <th>Rank</th>
                                             <th>Investor</th>
-                                            <th class="text-right">Returns</th>
+                                            <th class="text-right">Gain YTD</th>
+                                            <th class="text-right">Win Ratio</th>
+                                            <th class="text-right">Cash %</th>
+                                            <th class="text-right">Risk Score</th>
                                             <th class="text-right">Copiers</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
-                                        ${(item.analysis.topPerformers || []).slice(0, 10).map(performer => `
-                                            <tr>
+                                    <tbody id="performers-tbody-${index}">
+                                        ${(item.analysis.topPerformers || []).map((performer, idx) => `
+                                            <tr class="performers-row-${index} ${idx >= 20 ? 'hidden' : ''}" data-page="${Math.floor(idx / 20) + 1}">
+                                                <td class="rank">#${idx + 1}</td>
                                                 <td>
-                                                    ${performer.avatarUrl ? 
-                                                        `<img src="${performer.avatarUrl}" alt="${performer.fullName}" class="avatar" onerror="this.style.display='none'">` : 
-                                                        `<span class="placeholder-avatar">${(performer.fullName || 'U').charAt(0).toUpperCase()}</span>`}
-                                                    <strong>${truncateText(performer.fullName || 'Unknown', 24)}</strong>
+                                                    <div class="name-cell">
+                                                        ${performer.avatarUrl ? 
+                                                            `<img src="${performer.avatarUrl}" alt="${performer.fullName}" class="avatar">` :
+                                                            `<div class="avatar-placeholder">${(performer.fullName || 'U').charAt(0).toUpperCase()}</div>`
+                                                        }
+                                                        <div>
+                                                            <div class="name-primary" title="${performer.fullName || performer.username || 'Unknown'}">${truncateText(performer.fullName || performer.username || 'Unknown', 24)}</div>
+                                                            <div class="name-secondary" title="@${performer.username}">@${truncateText(performer.username, 20)}</div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td class="text-right ${(performer.gain || 0) >= 0 ? 'positive' : 'negative'}">
+                                                    ${(performer.gain || 0) > 0 ? '+' : ''}${(performer.gain || 0).toFixed(1)}%
+                                                </td>
+                                                <td class="text-right">${(performer.winRatio || 0).toFixed(1)}%</td>
+                                                <td class="text-right">
+                                                    <span class="badge badge-blue">${(performer.cashPercentage || 0).toFixed(1)}%</span>
                                                 </td>
                                                 <td class="text-right">
-                                                    <span class="${(performer.gain || 0) >= 0 ? 'text-green' : 'text-red'}">
-                                                        ${(performer.gain || 0) >= 0 ? '+' : ''}${(performer.gain || 0).toFixed(1)}%
-                                                    </span>
+                                                    <span class="risk-badge risk-${performer.riskScore || 0}">${performer.riskScore || '-'}</span>
                                                 </td>
-                                                <td class="text-right">
-                                                    <span class="badge badge-yellow">${(performer.copiers || 0).toLocaleString()}</span>
+                                                <td class="text-right" style="font-weight: 600;">
+                                                    ${(performer.copiers || 0).toLocaleString()}
                                                 </td>
                                             </tr>
                                         `).join('')}
                                     </tbody>
                                 </table>
+                                ${(item.analysis.topPerformers || []).length > 20 ? `
+                                    <div class="pagination">
+                                        <div class="pagination-info">
+                                            Showing <span id="performers-showing-${index}">1-20</span> of ${(item.analysis.topPerformers || []).length}
+                                        </div>
+                                        <div class="pagination-controls">
+                                            <button class="pagination-btn" onclick="changePage('performers', ${index}, -1)" id="performers-prev-${index}" disabled>Previous</button>
+                                            <span id="performers-page-${index}">Page 1 of ${Math.ceil((item.analysis.topPerformers || []).length / 20)}</span>
+                                            <button class="pagination-btn" onclick="changePage('performers', ${index}, 1)" id="performers-next-${index}">Next</button>
+                                        </div>
+                                    </div>
+                                ` : ''}
                             </div>
                         </div>
                     </div>
@@ -826,6 +1057,47 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
             // Show selected tab and content
             document.querySelectorAll('.tab')[index].classList.add('active');
             document.getElementById('tab-' + index).classList.add('active');
+        }
+        
+        function changePage(type, tabIndex, direction) {
+            const rows = document.querySelectorAll('.' + type + '-row-' + tabIndex);
+            const pageSpan = document.getElementById(type + '-page-' + tabIndex);
+            const showingSpan = document.getElementById(type + '-showing-' + tabIndex);
+            const prevBtn = document.getElementById(type + '-prev-' + tabIndex);
+            const nextBtn = document.getElementById(type + '-next-' + tabIndex);
+            
+            // Get current page
+            const currentPageText = pageSpan.textContent;
+            const currentPage = parseInt(currentPageText.match(/Page (\d+)/)[1]);
+            const totalPages = parseInt(currentPageText.match(/of (\d+)/)[1]);
+            
+            // Calculate new page
+            const newPage = currentPage + direction;
+            if (newPage < 1 || newPage > totalPages) return;
+            
+            // Hide all rows
+            rows.forEach(row => row.classList.add('hidden'));
+            
+            // Show rows for new page
+            rows.forEach(row => {
+                const rowPage = parseInt(row.getAttribute('data-page'));
+                if (rowPage === newPage) {
+                    row.classList.remove('hidden');
+                }
+            });
+            
+            // Update page display
+            pageSpan.textContent = 'Page ' + newPage + ' of ' + totalPages;
+            
+            // Update showing display
+            const itemsPerPage = 20;
+            const start = (newPage - 1) * itemsPerPage + 1;
+            const end = Math.min(newPage * itemsPerPage, rows.length);
+            showingSpan.textContent = start + '-' + end;
+            
+            // Update button states
+            prevBtn.disabled = newPage === 1;
+            nextBtn.disabled = newPage === totalPages;
         }
     </script>
 </body>
