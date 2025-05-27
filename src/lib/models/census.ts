@@ -2,6 +2,9 @@ export interface CensusAnalysis {
   fearGreedIndex: number;
   averageUniqueInstruments: number;
   averageCashPercentage: number;
+  averageGain: number;
+  averageRiskScore: number;
+  averageCopiers: number;
   uniqueInstrumentsDistribution: { [range: string]: number };
   cashPercentageDistribution: { [range: string]: number };
   riskScoreDistribution: { [range: string]: number };

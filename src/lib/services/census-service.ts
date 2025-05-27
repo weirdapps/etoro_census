@@ -107,6 +107,9 @@ export async function performCensusAnalysis(
     fearGreedIndex: calculateFearGreedIndex(portfolioStats),
     averageUniqueInstruments: calculateAverageUniqueInstruments(portfolioStats),
     averageCashPercentage: calculateAverageCashPercentage(portfolioStats),
+    averageGain: calculateAverageGain(investors),
+    averageRiskScore: calculateAverageRiskScore(investors),
+    averageCopiers: calculateAverageCopiers(investors),
     uniqueInstrumentsDistribution: calculateUniqueInstrumentsDistribution(portfolioStats),
     cashPercentageDistribution: calculateCashPercentageDistribution(portfolioStats),
     topHoldings: calculateTopHoldings(instrumentData, instrumentDetails, investors.length),
@@ -347,5 +350,26 @@ function calculateTopPerformers(investors: PopularInvestor[], portfolioStats: Po
     .filter(performer => performer.username !== 'Unknown') // Filter out completely unknown investors
     .sort((a, b) => b.copiers - a.copiers) // Sort by copiers descending
 ; // No limit on performers - pagination handled in UI
+}
+
+function calculateAverageGain(investors: PopularInvestor[]): number {
+  if (investors.length === 0) return 0;
+  
+  const totalGain = investors.reduce((sum, investor) => sum + (investor.gain || 0), 0);
+  return Math.round((totalGain / investors.length) * 10) / 10;
+}
+
+function calculateAverageRiskScore(investors: PopularInvestor[]): number {
+  if (investors.length === 0) return 0;
+  
+  const totalRiskScore = investors.reduce((sum, investor) => sum + (investor.riskScore || 0), 0);
+  return Math.round((totalRiskScore / investors.length) * 10) / 10;
+}
+
+function calculateAverageCopiers(investors: PopularInvestor[]): number {
+  if (investors.length === 0) return 0;
+  
+  const totalCopiers = investors.reduce((sum, investor) => sum + (investor.copiers || 0), 0);
+  return Math.round(totalCopiers / investors.length);
 }
 

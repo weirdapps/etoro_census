@@ -114,24 +114,14 @@ function truncateText(text: string, maxLength: number): string {
 }
 
 function formatDateTime(date: Date): string {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  const hours = String(date.getHours()).padStart(2, '0');
-  const minutes = String(date.getMinutes()).padStart(2, '0');
+  // Always use UTC to avoid timezone confusion
+  const year = date.getUTCFullYear();
+  const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(date.getUTCDate()).padStart(2, '0');
+  const hours = String(date.getUTCHours()).padStart(2, '0');
+  const minutes = String(date.getUTCMinutes()).padStart(2, '0');
   
-  // Get timezone offset in hours
-  const timezoneOffset = -date.getTimezoneOffset() / 60;
-  const timezoneSign = timezoneOffset >= 0 ? '+' : '';
-  const timezoneHours = Math.floor(Math.abs(timezoneOffset));
-  const timezoneMinutes = (Math.abs(timezoneOffset) % 1) * 60;
-  
-  let timezone = `GMT${timezoneSign}${timezoneHours}`;
-  if (timezoneMinutes > 0) {
-    timezone += `:${String(timezoneMinutes).padStart(2, '0')}`;
-  }
-  
-  return `${year}.${month}.${day} at ${hours}:${minutes} ${timezone}`;
+  return `${year}.${month}.${day} at ${hours}:${minutes} UTC`;
 }
 
 
@@ -665,8 +655,8 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                                 <h3 class="card-title">Portfolio Diversification</h3>
                                 <div class="chart-container">
                                     <div class="bar-chart">
-                                        ${Object.entries(item.analysis.portfolioDiversification).map(([range, count]) => {
-                                            const maxCount = Math.max(...Object.values(item.analysis.portfolioDiversification));
+                                        ${Object.entries(item.analysis.uniqueInstrumentsDistribution).map(([range, count]) => {
+                                            const maxCount = Math.max(...Object.values(item.analysis.uniqueInstrumentsDistribution));
                                             const height = maxCount > 0 ? (count / maxCount) * 100 : 0;
                                             return `
                                                 <div class="bar-group">
@@ -686,8 +676,8 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                                 <h3 class="card-title">Cash Allocation</h3>
                                 <div class="chart-container">
                                     <div class="bar-chart">
-                                        ${Object.entries(item.analysis.cashAllocation).map(([range, count]) => {
-                                            const maxCount = Math.max(...Object.values(item.analysis.cashAllocation));
+                                        ${Object.entries(item.analysis.cashPercentageDistribution).map(([range, count]) => {
+                                            const maxCount = Math.max(...Object.values(item.analysis.cashPercentageDistribution));
                                             const height = maxCount > 0 ? (count / maxCount) * 100 : 0;
                                             return `
                                                 <div class="bar-group">
