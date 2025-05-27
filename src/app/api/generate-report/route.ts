@@ -586,19 +586,19 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                         <div class="grid grid-cols-4">
                             <div class="card">
                                 <h3 class="card-title">Average Returns</h3>
-                                <div class="metric-value">${item.analysis.averageGain.toFixed(1)}%</div>
+                                <div class="metric-value">${(item.analysis.averageGain || 0).toFixed(1)}%</div>
                             </div>
                             <div class="card">
                                 <h3 class="card-title">Average Cash</h3>
-                                <div class="metric-value">${item.analysis.averageCashPercentage.toFixed(1)}%</div>
+                                <div class="metric-value">${(item.analysis.averageCashPercentage || 0).toFixed(1)}%</div>
                             </div>
                             <div class="card">
                                 <h3 class="card-title">Average Risk Score</h3>
-                                <div class="metric-value">${item.analysis.averageRiskScore.toFixed(1)}</div>
+                                <div class="metric-value">${(item.analysis.averageRiskScore || 0).toFixed(1)}</div>
                             </div>
                             <div class="card">
                                 <h3 class="card-title">Average Copiers</h3>
-                                <div class="metric-value">${item.analysis.averageCopiers.toLocaleString()}</div>
+                                <div class="metric-value">${(item.analysis.averageCopiers || 0).toLocaleString()}</div>
                             </div>
                         </div>
                     </div>
@@ -720,7 +720,7 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                                                     <span style="color: #6b7280; margin-left: 8px;">${holding.symbol}</span>
                                                 </td>
                                                 <td class="text-right">
-                                                    <span class="badge badge-blue">${holding.averageAllocation.toFixed(2)}%</span>
+                                                    <span class="badge badge-blue">${(holding.averageAllocation || 0).toFixed(2)}%</span>
                                                 </td>
                                             </tr>
                                         `).join('')}
@@ -751,12 +751,12 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                                                     <strong>${truncateText(performer.fullName, 24)}</strong>
                                                 </td>
                                                 <td class="text-right">
-                                                    <span class="${performer.gain >= 0 ? 'text-green' : 'text-red'}">
-                                                        ${performer.gain >= 0 ? '+' : ''}${performer.gain.toFixed(1)}%
+                                                    <span class="${(performer.gain || 0) >= 0 ? 'text-green' : 'text-red'}">
+                                                        ${(performer.gain || 0) >= 0 ? '+' : ''}${(performer.gain || 0).toFixed(1)}%
                                                     </span>
                                                 </td>
                                                 <td class="text-right">
-                                                    <span class="badge badge-yellow">${performer.copiers.toLocaleString()}</span>
+                                                    <span class="badge badge-yellow">${(performer.copiers || 0).toLocaleString()}</span>
                                                 </td>
                                             </tr>
                                         `).join('')}
