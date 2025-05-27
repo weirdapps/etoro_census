@@ -673,6 +673,10 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
             display: none;
         }
         
+        .space-y-8 > * + * {
+            margin-top: 2rem;
+        }
+        
         /* Full width sections */
         .full-width {
             width: 100%;
@@ -837,9 +841,8 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                 </div>
 
                 <!-- Distribution Charts - Full Width -->
-                <div class="full-width">
-                    <div class="container">
-                        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));">
+                <div class="container">
+                    <div class="space-y-8">
                             <!-- Returns Distribution -->
                             <div class="card">
                                 <div class="card-header">
@@ -963,7 +966,7 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
 
                 <!-- Tables -->
                 <div class="container">
-                    <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 48px;">
+                    <div class="space-y-8">
                         <!-- Top Holdings -->
                         <div class="card">
                             <div class="card-header">
