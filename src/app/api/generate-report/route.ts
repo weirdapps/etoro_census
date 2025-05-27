@@ -470,28 +470,8 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
         .gauge-container {
             position: relative;
             width: 100%;
-            max-width: 280px;
             margin: 0 auto;
-        }
-        
-        .gauge-arc {
-            width: 100%;
-            height: auto;
-        }
-        
-        .gauge-labels {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 16px;
-            font-size: 0.75rem;
-        }
-        
-        .fear-label {
-            color: #ef4444;
-        }
-        
-        .greed-label {
-            color: #10b981;
+            text-align: center;
         }
         
         /* Distribution Charts */
@@ -883,8 +863,8 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                         <div class="card-header">
                             <h3>Fear & Greed Index</h3>
                         </div>
-                        <div class="gauge-container">
-                            <svg class="gauge-arc" viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+                        <div class="gauge-container" style="padding: 20px 0;">
+                            <svg class="gauge-arc" viewBox="0 0 240 120" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" style="width: 200px; height: 100px; margin: 0 auto; display: block;">
                                 <defs>
                                     <linearGradient id="gaugeGradient-${index}" x1="0%" y1="0%" x2="100%" y2="0%">
                                         <stop offset="0%" style="stop-color:#ef4444;stop-opacity:1" />
@@ -894,21 +874,27 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                                         <stop offset="100%" style="stop-color:#10b981;stop-opacity:1" />
                                     </linearGradient>
                                 </defs>
-                                <path d="M 10 90 A 80 80 0 0 1 190 90" fill="none" stroke="url(#gaugeGradient-${index})" stroke-width="20" stroke-linecap="round"/>
-                                <line x1="100" y1="90" x2="100" y2="30" stroke="#111827" stroke-width="3" stroke-linecap="round" transform="rotate(${(item.analysis.fearGreedIndex - 50) * 1.8} 100 90)"/>
-                                <circle cx="100" cy="90" r="6" fill="#111827"/>
+                                <!-- Background arc -->
+                                <path d="M 20 100 A 90 90 0 0 1 220 100" fill="none" stroke="#e5e7eb" stroke-width="12" stroke-linecap="round"/>
+                                <!-- Colored arc -->
+                                <path d="M 20 100 A 90 90 0 0 1 220 100" fill="none" stroke="url(#gaugeGradient-${index})" stroke-width="12" stroke-linecap="round"/>
+                                <!-- Needle -->
+                                <g transform="rotate(${(item.analysis.fearGreedIndex - 50) * 1.8} 120 100)">
+                                    <line x1="120" y1="100" x2="120" y2="25" stroke="#111827" stroke-width="3" stroke-linecap="round"/>
+                                    <circle cx="120" cy="100" r="8" fill="#111827"/>
+                                </g>
                             </svg>
-                            <div class="metric-value" style="color: #84cc16; font-size: 3.5rem; margin: 24px 0 8px 0;">${item.analysis.fearGreedIndex}</div>
-                            <div class="metric-label" style="font-size: 1.25rem; color: #111827; font-weight: 500;">
+                            <div class="metric-value" style="color: ${item.analysis.fearGreedIndex >= 60 ? '#84cc16' : item.analysis.fearGreedIndex >= 40 ? '#fbbf24' : '#ef4444'}; font-size: 4rem; margin: 16px 0 8px 0; font-weight: 700;">${item.analysis.fearGreedIndex}</div>
+                            <div class="metric-label" style="font-size: 1.125rem; color: #111827; font-weight: 500; margin-bottom: 16px;">
                                 ${item.analysis.fearGreedIndex < 20 ? 'Extreme Fear' :
                                   item.analysis.fearGreedIndex < 40 ? 'Fear' :
                                   item.analysis.fearGreedIndex < 60 ? 'Neutral' :
                                   item.analysis.fearGreedIndex < 80 ? 'Greed' : 'Extreme Greed'}
                             </div>
-                        </div>
-                        <div class="gauge-labels">
-                            <span class="fear-label">Fear</span>
-                            <span class="greed-label">Greed</span>
+                            <div class="gauge-labels" style="display: flex; justify-content: space-between; width: 200px; margin: 0 auto;">
+                                <span class="fear-label" style="color: #ef4444; font-size: 0.875rem; font-weight: 500;">Fear</span>
+                                <span class="greed-label" style="color: #10b981; font-size: 0.875rem; font-weight: 500;">Greed</span>
+                            </div>
                         </div>
                     </div>
                     
