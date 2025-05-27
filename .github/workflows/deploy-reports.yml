@@ -30,8 +30,9 @@ jobs:
       - name: Copy latest report to index.html
         run: |
           cd public/reports
-          # Find the most recent report file (excluding index.html)
-          LATEST_REPORT=$(ls -t etoro-census-*.html 2>/dev/null | head -n 1)
+          # Find the most recent report file by filename (excluding index.html)
+          # Sort by filename which contains the timestamp
+          LATEST_REPORT=$(ls etoro-census-*.html 2>/dev/null | sort -r | head -n 1)
           if [ -n "$LATEST_REPORT" ]; then
             echo "Copying $LATEST_REPORT to index.html"
             cp "$LATEST_REPORT" index.html
