@@ -91,11 +91,14 @@ export async function POST(request: NextRequest) {
             : 0;
           
           // For each subset, create an analysis with the data appropriate for that subset
+          const avgGain = subset.reduce((sum, inv) => sum + inv.gain, 0) / subset.length;
+          console.log(`Average gain for top ${size} investors: ${avgGain.toFixed(2)}%`);
+          
           const subsetAnalysis: CensusAnalysis & { investorCount: number } = {
             ...fullAnalysis,
             investorCount: size,
             // Recalculate averages for the subset
-            averageGain: subset.reduce((sum, inv) => sum + inv.gain, 0) / subset.length,
+            averageGain: avgGain,
             averageRiskScore: subset.reduce((sum, inv) => sum + (inv.riskScore || 0), 0) / subset.length,
             averageCopiers: Math.round(subset.reduce((sum, inv) => sum + inv.copiers, 0) / subset.length),
             // Recalculate distributions for the subset
@@ -289,8 +292,9 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
         }
         
         .header {
-            background-color: #00C896;
+            background-color: transparent;
             margin-bottom: 32px;
+            border-bottom: 1px solid #e5e7eb;
         }
         
         .header-content {
@@ -303,18 +307,18 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
         .header h1 {
             font-size: 2.5rem;
             font-weight: bold;
-            color: white;
+            color: #111827;
             margin-bottom: 8px;
         }
         
         .header .creator {
             font-size: 0.875rem;
-            color: rgba(255, 255, 255, 0.9);
+            color: #6b7280;
             margin-top: 8px;
         }
         
         .header .creator a {
-            color: white;
+            color: #00C896;
             text-decoration: none;
             font-weight: 500;
         }
@@ -383,6 +387,7 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
         
         .card-header {
             margin-bottom: 1.5rem;
+            text-align: left;
         }
         
         .card-header h3 {
@@ -390,12 +395,14 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
             font-weight: 600;
             color: #111827;
             margin: 0 0 0.25rem 0;
+            text-align: left;
         }
         
         .card-description {
             font-size: 0.875rem;
             color: #6b7280;
             margin: 0;
+            text-align: left;
         }
         
         .card-title {
@@ -405,6 +412,7 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
             margin-bottom: 8px;
             text-transform: uppercase;
             letter-spacing: 0.05em;
+            text-align: left;
         }
         
         .metric-value {
@@ -837,7 +845,9 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                 <div class="top-row">
                     <!-- Fear & Greed Gauge -->
                     <div class="card">
-                        <h3 class="card-title">Fear & Greed Index</h3>
+                        <div class="card-header">
+                            <h3>Fear & Greed Index</h3>
+                        </div>
                         <div class="gauge-container">
                             <svg class="gauge-arc" viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
                                 <defs>
@@ -853,8 +863,8 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                                 <line x1="100" y1="90" x2="100" y2="30" stroke="#111827" stroke-width="3" stroke-linecap="round" transform="rotate(${(item.analysis.fearGreedIndex - 50) * 1.8} 100 90)"/>
                                 <circle cx="100" cy="90" r="6" fill="#111827"/>
                             </svg>
-                            <div class="metric-value">${item.analysis.fearGreedIndex}</div>
-                            <div class="metric-label">
+                            <div class="metric-value" style="color: #84cc16; font-size: 3.5rem; margin: 24px 0 8px 0;">${item.analysis.fearGreedIndex}</div>
+                            <div class="metric-label" style="font-size: 1.25rem; color: #111827; font-weight: 500;">
                                 ${item.analysis.fearGreedIndex < 20 ? 'Extreme Fear' :
                                   item.analysis.fearGreedIndex < 40 ? 'Fear' :
                                   item.analysis.fearGreedIndex < 60 ? 'Neutral' :
@@ -870,24 +880,32 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                     <!-- Key Metrics Grid -->
                     <div class="grid grid-cols-4">
                         <div class="card">
-                            <h3 class="card-title">Average Returns</h3>
+                            <div class="card-header">
+                                <h3>Average Returns</h3>
+                                <p class="card-description">12-Month Performance</p>
+                            </div>
                             <div class="metric-value">${(item.analysis.averageGain || 0).toFixed(1)}%</div>
-                            <div class="metric-label">12-Month Performance</div>
                         </div>
                         <div class="card">
-                            <h3 class="card-title">Average Cash</h3>
+                            <div class="card-header">
+                                <h3>Average Cash</h3>
+                                <p class="card-description">Portfolio Allocation</p>
+                            </div>
                             <div class="metric-value">${(item.analysis.averageCashPercentage || 0).toFixed(1)}%</div>
-                            <div class="metric-label">Portfolio Allocation</div>
                         </div>
                         <div class="card">
-                            <h3 class="card-title">Average Risk Score</h3>
+                            <div class="card-header">
+                                <h3>Average Risk Score</h3>
+                                <p class="card-description">Risk Level (1-10)</p>
+                            </div>
                             <div class="metric-value">${(item.analysis.averageRiskScore || 0).toFixed(1)}</div>
-                            <div class="metric-label">Risk Level (1-10)</div>
                         </div>
                         <div class="card">
-                            <h3 class="card-title">Average Copiers</h3>
+                            <div class="card-header">
+                                <h3>Average Copiers</h3>
+                                <p class="card-description">Per Investor</p>
+                            </div>
                             <div class="metric-value">${(item.analysis.averageCopiers || 0).toLocaleString()}</div>
-                            <div class="metric-label">Per Investor</div>
                         </div>
                     </div>
                 </div>
