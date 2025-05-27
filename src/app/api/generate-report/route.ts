@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { CensusAnalysis } from '@/lib/models/census';
 import { getPopularInvestors } from '@/lib/services/user-service';
 import { performCensusAnalysis, ProgressCallback } from '@/lib/services/census-service';
-import { PeriodType } from '@/lib/models/user';
+import { PeriodType, PopularInvestor } from '@/lib/models/user';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -81,31 +81,30 @@ export async function POST(request: NextRequest) {
         
         for (const size of subsetSizes) {
           const subset = allInvestors.slice(0, size);
-          // For each subset, create an analysis with recalculated statistics
-          const subsetAnalysis = {
+          // For each subset, create an analysis with the data appropriate for that subset
+          const subsetAnalysis: CensusAnalysis & { investorCount: number } = {
             ...fullAnalysis,
             investorCount: size,
             // Recalculate averages for the subset
             averageGain: subset.reduce((sum, inv) => sum + inv.gain, 0) / subset.length,
             averageRiskScore: subset.reduce((sum, inv) => sum + (inv.riskScore || 0), 0) / subset.length,
             averageCopiers: Math.round(subset.reduce((sum, inv) => sum + inv.copiers, 0) / subset.length),
-            // Keep the portfolio-based data from full analysis
-            topPerformers: subset
-              .sort((a, b) => b.gain - a.gain)
-              .slice(0, 20)
-              .map(inv => {
-                const performer = fullAnalysis.topPerformers.find(p => p.username === inv.userName);
-                return performer || {
-                  username: inv.userName,
-                  fullName: inv.fullName || 'Unknown',
-                  gain: inv.gain,
-                  riskScore: inv.riskScore || 0,
-                  winRatio: inv.winRatio || 0,
-                  copiers: inv.copiers,
-                  cashPercentage: 0,
-                  avatarUrl: ''
-                };
-              })
+            // Recalculate distributions for the subset
+            returnsDistribution: calculateReturnsDistribution(subset),
+            riskScoreDistribution: calculateRiskScoreDistribution(subset),
+            // Filter topPerformers to only include investors in this subset
+            topPerformers: fullAnalysis.topPerformers.filter(performer => 
+              subset.some(inv => inv.userName === performer.username)
+            ),
+            // Keep the same top holdings from full analysis (instruments are portfolio-based)
+            topHoldings: fullAnalysis.topHoldings,
+            // Keep the portfolio-based distributions from full analysis
+            uniqueInstrumentsDistribution: fullAnalysis.uniqueInstrumentsDistribution,
+            cashPercentageDistribution: fullAnalysis.cashPercentageDistribution,
+            // Keep the same metrics that are portfolio-based
+            fearGreedIndex: fullAnalysis.fearGreedIndex,
+            averageUniqueInstruments: fullAnalysis.averageUniqueInstruments,
+            averageCashPercentage: fullAnalysis.averageCashPercentage
           };
           analyses.push({ count: size, analysis: subsetAnalysis });
         }
@@ -164,6 +163,53 @@ function formatDateTime(date: Date): string {
   const minutes = String(date.getUTCMinutes()).padStart(2, '0');
   
   return `${year}.${month}.${day} at ${hours}:${minutes} UTC`;
+}
+
+function calculateReturnsDistribution(investors: PopularInvestor[]): { [range: string]: number } {
+  const distribution: { [range: string]: number } = {
+    'Loss': 0,
+    '0-10%': 0,
+    '11-25%': 0,
+    '26-50%': 0,
+    '51-100%': 0,
+    '100%+': 0
+  };
+  
+  investors.forEach(investor => {
+    const gain = investor.gain || 0;
+    if (gain < 0) distribution['Loss']++;
+    else if (gain <= 10) distribution['0-10%']++;
+    else if (gain <= 25) distribution['11-25%']++;
+    else if (gain <= 50) distribution['26-50%']++;
+    else if (gain <= 100) distribution['51-100%']++;
+    else distribution['100%+']++;
+  });
+  
+  return distribution;
+}
+
+function calculateRiskScoreDistribution(investors: PopularInvestor[]): { [range: string]: number } {
+  const distribution: { [range: string]: number } = {
+    'Conservative (1-3)': 0,
+    'Moderate (4-5)': 0,
+    'Aggressive (6-7)': 0,
+    'Very High Risk (8-10)': 0
+  };
+  
+  investors.forEach(investor => {
+    const riskScore = investor.riskScore || 0;
+    if (riskScore >= 1 && riskScore <= 3) {
+      distribution['Conservative (1-3)']++;
+    } else if (riskScore >= 4 && riskScore <= 5) {
+      distribution['Moderate (4-5)']++;
+    } else if (riskScore >= 6 && riskScore <= 7) {
+      distribution['Aggressive (6-7)']++;
+    } else if (riskScore >= 8 && riskScore <= 10) {
+      distribution['Very High Risk (8-10)']++;
+    }
+  });
+  
+  return distribution;
 }
 
 
@@ -779,187 +825,182 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
         <!-- Tab Contents -->
         ${analyses.map((item, index) => `
             <div class="tab-content ${index === 0 ? 'active' : ''}" id="tab-${index}">
-                <div class="container">
-                    <!-- Top Row: Fear/Greed + Key Metrics -->
-                    <div class="top-row">
-                        <!-- Fear & Greed Gauge -->
-                        <div class="card">
-                            <h3 class="card-title">Fear & Greed Index</h3>
-                            <div class="gauge-container">
-                                <svg class="gauge-arc" viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">
-                                    <defs>
-                                        <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                                            <stop offset="0%" style="stop-color:#ef4444;stop-opacity:1" />
-                                            <stop offset="25%" style="stop-color:#f59e0b;stop-opacity:1" />
-                                            <stop offset="50%" style="stop-color:#fbbf24;stop-opacity:1" />
-                                            <stop offset="75%" style="stop-color:#84cc16;stop-opacity:1" />
-                                            <stop offset="100%" style="stop-color:#10b981;stop-opacity:1" />
-                                        </linearGradient>
-                                    </defs>
-                                    <path d="M 10 90 A 80 80 0 0 1 190 90" fill="none" stroke="url(#gaugeGradient)" stroke-width="20" stroke-linecap="round"/>
-                                    <line x1="100" y1="90" x2="100" y2="30" stroke="#111827" stroke-width="3" stroke-linecap="round" transform="rotate(${(item.analysis.fearGreedIndex - 50) * 1.8} 100 90)"/>
-                                    <circle cx="100" cy="90" r="6" fill="#111827"/>
-                                </svg>
-                                <div class="metric-value">${item.analysis.fearGreedIndex}</div>
-                                <div class="metric-label">
-                                    ${item.analysis.fearGreedIndex < 20 ? 'Extreme Fear' :
-                                      item.analysis.fearGreedIndex < 40 ? 'Fear' :
-                                      item.analysis.fearGreedIndex < 60 ? 'Neutral' :
-                                      item.analysis.fearGreedIndex < 80 ? 'Greed' : 'Extreme Greed'}
-                                </div>
-                            </div>
-                            <div class="gauge-labels">
-                                <span class="fear-label">Fear</span>
-                                <span class="greed-label">Greed</span>
+                <!-- Top Row: Fear/Greed + Key Metrics -->
+                <div class="top-row">
+                    <!-- Fear & Greed Gauge -->
+                    <div class="card">
+                        <h3 class="card-title">Fear & Greed Index</h3>
+                        <div class="gauge-container">
+                            <svg class="gauge-arc" viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                    <linearGradient id="gaugeGradient-${index}" x1="0%" y1="0%" x2="100%" y2="0%">
+                                        <stop offset="0%" style="stop-color:#ef4444;stop-opacity:1" />
+                                        <stop offset="25%" style="stop-color:#f59e0b;stop-opacity:1" />
+                                        <stop offset="50%" style="stop-color:#fbbf24;stop-opacity:1" />
+                                        <stop offset="75%" style="stop-color:#84cc16;stop-opacity:1" />
+                                        <stop offset="100%" style="stop-color:#10b981;stop-opacity:1" />
+                                    </linearGradient>
+                                </defs>
+                                <path d="M 10 90 A 80 80 0 0 1 190 90" fill="none" stroke="url(#gaugeGradient-${index})" stroke-width="20" stroke-linecap="round"/>
+                                <line x1="100" y1="90" x2="100" y2="30" stroke="#111827" stroke-width="3" stroke-linecap="round" transform="rotate(${(item.analysis.fearGreedIndex - 50) * 1.8} 100 90)"/>
+                                <circle cx="100" cy="90" r="6" fill="#111827"/>
+                            </svg>
+                            <div class="metric-value">${item.analysis.fearGreedIndex}</div>
+                            <div class="metric-label">
+                                ${item.analysis.fearGreedIndex < 20 ? 'Extreme Fear' :
+                                  item.analysis.fearGreedIndex < 40 ? 'Fear' :
+                                  item.analysis.fearGreedIndex < 60 ? 'Neutral' :
+                                  item.analysis.fearGreedIndex < 80 ? 'Greed' : 'Extreme Greed'}
                             </div>
                         </div>
-                        
-                        <!-- Key Metrics Grid -->
-                        <div class="grid grid-cols-4">
-                            <div class="card">
-                                <h3 class="card-title">Average Returns</h3>
-                                <div class="metric-value">${(item.analysis.averageGain || 0).toFixed(1)}%</div>
-                                <div class="metric-label">12-Month Performance</div>
-                            </div>
-                            <div class="card">
-                                <h3 class="card-title">Average Cash</h3>
-                                <div class="metric-value">${(item.analysis.averageCashPercentage || 0).toFixed(1)}%</div>
-                                <div class="metric-label">Portfolio Allocation</div>
-                            </div>
-                            <div class="card">
-                                <h3 class="card-title">Average Risk Score</h3>
-                                <div class="metric-value">${(item.analysis.averageRiskScore || 0).toFixed(1)}</div>
-                                <div class="metric-label">Risk Level (1-10)</div>
-                            </div>
-                            <div class="card">
-                                <h3 class="card-title">Average Copiers</h3>
-                                <div class="metric-value">${(item.analysis.averageCopiers || 0).toLocaleString()}</div>
-                                <div class="metric-label">Per Investor</div>
-                            </div>
+                        <div class="gauge-labels">
+                            <span class="fear-label">Fear</span>
+                            <span class="greed-label">Greed</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Key Metrics Grid -->
+                    <div class="grid grid-cols-4">
+                        <div class="card">
+                            <h3 class="card-title">Average Returns</h3>
+                            <div class="metric-value">${(item.analysis.averageGain || 0).toFixed(1)}%</div>
+                            <div class="metric-label">12-Month Performance</div>
+                        </div>
+                        <div class="card">
+                            <h3 class="card-title">Average Cash</h3>
+                            <div class="metric-value">${(item.analysis.averageCashPercentage || 0).toFixed(1)}%</div>
+                            <div class="metric-label">Portfolio Allocation</div>
+                        </div>
+                        <div class="card">
+                            <h3 class="card-title">Average Risk Score</h3>
+                            <div class="metric-value">${(item.analysis.averageRiskScore || 0).toFixed(1)}</div>
+                            <div class="metric-label">Risk Level (1-10)</div>
+                        </div>
+                        <div class="card">
+                            <h3 class="card-title">Average Copiers</h3>
+                            <div class="metric-value">${(item.analysis.averageCopiers || 0).toLocaleString()}</div>
+                            <div class="metric-label">Per Investor</div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Distribution Charts - Full Width -->
-                <div class="container">
-                    <div class="space-y-8">
-                            <!-- Returns Distribution -->
-                            <div class="card">
-                                <div class="card-header">
-                                    <h3>Returns Distribution</h3>
-                                    <p class="card-description">Performance ranges across analyzed investors</p>
-                                </div>
-                                <div class="chart-container">
-                                    ${Object.entries(item.analysis.returnsDistribution || {}).map(([range, count]) => {
-                                        const total = Object.values(item.analysis.returnsDistribution || {}).reduce((sum, val) => sum + val, 0);
-                                        const percentage = total > 0 ? Math.round((count / total) * 100) : 0;
-                                        return `
-                                            <div class="distribution-row">
-                                                <div class="distribution-header">
-                                                    <span class="distribution-label">${range} returns</span>
-                                                    <div class="distribution-stats">
-                                                        <span class="distribution-count">${count} investors</span>
-                                                        <span class="distribution-badge" style="${getReturnsBadgeColor(range)}">${percentage}%</span>
-                                                    </div>
-                                                </div>
-                                                <div class="progress-bar-container">
-                                                    <div class="progress-bar" style="background: linear-gradient(to right, ${getReturnsColorClass(range)}, ${getReturnsColorClass(range)}dd); width: ${percentage}%;"></div>
-                                                </div>
+                <!-- Distribution Charts -->
+                <div class="space-y-8">
+                    <!-- Returns Distribution -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Returns Distribution</h3>
+                            <p class="card-description">Performance ranges across analyzed investors</p>
+                        </div>
+                        <div class="chart-container">
+                            ${Object.entries(item.analysis.returnsDistribution || {}).map(([range, count]) => {
+                                const total = Object.values(item.analysis.returnsDistribution || {}).reduce((sum, val) => sum + val, 0);
+                                const percentage = total > 0 ? Math.round((count / total) * 100) : 0;
+                                return `
+                                    <div class="distribution-row">
+                                        <div class="distribution-header">
+                                            <span class="distribution-label">${range} returns</span>
+                                            <div class="distribution-stats">
+                                                <span class="distribution-count">${count} investors</span>
+                                                <span class="distribution-badge" style="${getReturnsBadgeColor(range)}">${percentage}%</span>
                                             </div>
-                                        `;
-                                    }).join('')}
-                                </div>
-                            </div>
-
-                            <!-- Risk Score Distribution -->
-                            <div class="card">
-                                <div class="card-header">
-                                    <h3>Risk Score Distribution</h3>
-                                    <p class="card-description">Risk appetite distribution across analyzed investors</p>
-                                </div>
-                                <div class="chart-container">
-                                    ${Object.entries(item.analysis.riskScoreDistribution || {}).map(([range, count]) => {
-                                        const total = Object.values(item.analysis.riskScoreDistribution || {}).reduce((sum, val) => sum + val, 0);
-                                        const percentage = total > 0 ? Math.round((count / total) * 100) : 0;
-                                        return `
-                                            <div class="distribution-row">
-                                                <div class="distribution-header">
-                                                    <span class="distribution-label">
-                                                        <span>${getRiskIcon(range)}</span>
-                                                        <span>${range}</span>
-                                                    </span>
-                                                    <div class="distribution-stats">
-                                                        <span class="distribution-count">${count} investors</span>
-                                                        <span class="distribution-badge" style="${getRiskBadgeColor(range)}">${percentage}%</span>
-                                                    </div>
-                                                </div>
-                                                <div class="progress-bar-container">
-                                                    <div class="progress-bar" style="background: linear-gradient(to right, ${getRiskColorClass(range)}, ${getRiskColorClass(range)}dd); width: ${percentage}%;"></div>
-                                                </div>
-                                            </div>
-                                        `;
-                                    }).join('')}
-                                    <div style="margin-top: 16px; font-size: 0.75rem; color: #6b7280;">
-                                        <p>eToro Risk Score ranges from 1 (lowest risk) to 10 (highest risk)</p>
+                                        </div>
+                                        <div class="progress-bar-container">
+                                            <div class="progress-bar" style="background: linear-gradient(to right, ${getReturnsColorClass(range)}, ${getReturnsColorClass(range)}dd); width: ${percentage}%;"></div>
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
 
-                            <!-- Portfolio Diversification -->
-                            <div class="card">
-                                <div class="card-header">
-                                    <h3>Portfolio Diversification</h3>
-                                    <p class="card-description">Number of unique instruments held by investors</p>
-                                </div>
-                                <div class="chart-container">
-                                    ${Object.entries(item.analysis.uniqueInstrumentsDistribution || {}).map(([range, count]) => {
-                                        const total = Object.values(item.analysis.uniqueInstrumentsDistribution || {}).reduce((sum, val) => sum + val, 0);
-                                        const percentage = total > 0 ? Math.round((count / total) * 100) : 0;
-                                        return `
-                                            <div class="distribution-row">
-                                                <div class="distribution-header">
-                                                    <span class="distribution-label">${range} assets</span>
-                                                    <div class="distribution-stats">
-                                                        <span class="distribution-count">${count} investors</span>
-                                                        <span class="distribution-badge" style="background-color: #dbeafe; color: #2563eb;">${percentage}%</span>
-                                                    </div>
-                                                </div>
-                                                <div class="progress-bar-container">
-                                                    <div class="progress-bar" style="background: linear-gradient(to right, #00C896, #00B085); width: ${percentage}%;"></div>
-                                                </div>
+                    <!-- Risk Score Distribution -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Risk Score Distribution</h3>
+                            <p class="card-description">Risk appetite distribution across analyzed investors</p>
+                        </div>
+                        <div class="chart-container">
+                            ${Object.entries(item.analysis.riskScoreDistribution || {}).map(([range, count]) => {
+                                const total = Object.values(item.analysis.riskScoreDistribution || {}).reduce((sum, val) => sum + val, 0);
+                                const percentage = total > 0 ? Math.round((count / total) * 100) : 0;
+                                return `
+                                    <div class="distribution-row">
+                                        <div class="distribution-header">
+                                            <span class="distribution-label">
+                                                <span>${getRiskIcon(range)}</span>
+                                                <span>${range}</span>
+                                            </span>
+                                            <div class="distribution-stats">
+                                                <span class="distribution-count">${count} investors</span>
+                                                <span class="distribution-badge" style="${getRiskBadgeColor(range)}">${percentage}%</span>
                                             </div>
-                                        `;
-                                    }).join('')}
-                                </div>
+                                        </div>
+                                        <div class="progress-bar-container">
+                                            <div class="progress-bar" style="background: linear-gradient(to right, ${getRiskColorClass(range)}, ${getRiskColorClass(range)}dd); width: ${percentage}%;"></div>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                            <div style="margin-top: 16px; font-size: 0.75rem; color: #6b7280;">
+                                <p>eToro Risk Score ranges from 1 (lowest risk) to 10 (highest risk)</p>
                             </div>
+                        </div>
+                    </div>
 
-                            <!-- Cash Allocation -->
-                            <div class="card">
-                                <div class="card-header">
-                                    <h3>Cash Allocation</h3>
-                                    <p class="card-description">Percentage of portfolio held in cash</p>
-                                </div>
-                                <div class="chart-container">
-                                    ${Object.entries(item.analysis.cashPercentageDistribution || {}).map(([range, count]) => {
-                                        const total = Object.values(item.analysis.cashPercentageDistribution || {}).reduce((sum, val) => sum + val, 0);
-                                        const percentage = total > 0 ? Math.round((count / total) * 100) : 0;
-                                        return `
-                                            <div class="distribution-row">
-                                                <div class="distribution-header">
-                                                    <span class="distribution-label">${range} cash</span>
-                                                    <div class="distribution-stats">
-                                                        <span class="distribution-count">${count} investors</span>
-                                                        <span class="distribution-badge" style="background-color: #f3e8ff; color: #9333ea;">${percentage}%</span>
-                                                    </div>
-                                                </div>
-                                                <div class="progress-bar-container">
-                                                    <div class="progress-bar" style="background: linear-gradient(to right, #8b5cf6, #7c3aed); width: ${percentage}%;"></div>
-                                                </div>
+                    <!-- Portfolio Diversification -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Portfolio Diversification</h3>
+                            <p class="card-description">Number of unique instruments held by investors</p>
+                        </div>
+                        <div class="chart-container">
+                            ${Object.entries(item.analysis.uniqueInstrumentsDistribution || {}).map(([range, count]) => {
+                                const total = Object.values(item.analysis.uniqueInstrumentsDistribution || {}).reduce((sum, val) => sum + val, 0);
+                                const percentage = total > 0 ? Math.round((count / total) * 100) : 0;
+                                return `
+                                    <div class="distribution-row">
+                                        <div class="distribution-header">
+                                            <span class="distribution-label">${range} assets</span>
+                                            <div class="distribution-stats">
+                                                <span class="distribution-count">${count} investors</span>
+                                                <span class="distribution-badge" style="background-color: #dbeafe; color: #2563eb;">${percentage}%</span>
                                             </div>
-                                        `;
-                                    }).join('')}
-                                </div>
-                            </div>
+                                        </div>
+                                        <div class="progress-bar-container">
+                                            <div class="progress-bar" style="background: linear-gradient(to right, #00C896, #00B085); width: ${percentage}%;"></div>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+
+                    <!-- Cash Allocation -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Cash Allocation</h3>
+                            <p class="card-description">Percentage of portfolio held in cash</p>
+                        </div>
+                        <div class="chart-container">
+                            ${Object.entries(item.analysis.cashPercentageDistribution || {}).map(([range, count]) => {
+                                const total = Object.values(item.analysis.cashPercentageDistribution || {}).reduce((sum, val) => sum + val, 0);
+                                const percentage = total > 0 ? Math.round((count / total) * 100) : 0;
+                                return `
+                                    <div class="distribution-row">
+                                        <div class="distribution-header">
+                                            <span class="distribution-label">${range} cash</span>
+                                            <div class="distribution-stats">
+                                                <span class="distribution-count">${count} investors</span>
+                                                <span class="distribution-badge" style="background-color: #f3e8ff; color: #9333ea;">${percentage}%</span>
+                                            </div>
+                                        </div>
+                                        <div class="progress-bar-container">
+                                            <div class="progress-bar" style="background: linear-gradient(to right, #8b5cf6, #7c3aed); width: ${percentage}%;"></div>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
                         </div>
                     </div>
                 </div>
@@ -967,143 +1008,143 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                 <!-- Tables -->
                 <div class="container">
                     <div class="space-y-8">
-                        <!-- Top Holdings -->
-                        <div class="card">
-                            <div class="card-header">
-                                <h3>Most Popular Holdings</h3>
-                                <p class="card-description">Instruments held by the highest number of investors (${(item.analysis.topHoldings || []).length} total)</p>
-                            </div>
-                            <div class="card-content">
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th>Rank</th>
-                                            <th>Asset</th>
-                                            <th class="text-right">Holders</th>
-                                            <th class="text-right">% of PIs</th>
-                                            <th class="text-right">Avg Allocation</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="holdings-tbody-${index}">
-                                        ${(item.analysis.topHoldings || []).map((holding, idx) => `
-                                            <tr class="holdings-row-${index} ${idx >= 20 ? 'hidden' : ''}" data-page="${Math.floor(idx / 20) + 1}">
-                                                <td class="rank">#${idx + 1}</td>
-                                                <td>
-                                                    <div class="name-cell">
-                                                        ${holding.imageUrl ? 
-                                                            `<img src="${holding.imageUrl}" alt="${holding.symbol}" class="instrument-icon">` :
-                                                            `<div class="instrument-placeholder">${(holding.symbol || 'UN').slice(0, 2).toUpperCase()}</div>`
-                                                        }
-                                                        <div>
-                                                            <div class="name-primary" title="${holding.instrumentName || 'Unknown'}">${truncateText(holding.instrumentName || 'Unknown', 24)}</div>
-                                                            <div class="name-secondary">${holding.symbol || ''}</div>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td class="text-right font-medium">${holding.holdersCount || 0}</td>
-                                                <td class="text-right">
-                                                    <span class="badge badge-primary">${(holding.holdersPercentage || 0).toFixed(1)}%</span>
-                                                </td>
-                                                <td class="text-right font-medium">
-                                                    ${(holding.averageAllocation || 0).toFixed(1)}%
-                                                </td>
-                                            </tr>
-                                        `).join('')}
-                                    </tbody>
-                                </table>
-                                ${(item.analysis.topHoldings || []).length === 0 ? `
-                                    <div style="text-align: center; padding: 32px 0; color: #6b7280;">
-                                        No holdings data available
-                                    </div>
-                                ` : ''}
-                                ${(item.analysis.topHoldings || []).length > 20 ? `
-                                    <div class="pagination">
-                                        <div class="pagination-info">
-                                            Showing <span id="holdings-showing-${index}">1-20</span> of ${(item.analysis.topHoldings || []).length}
-                                        </div>
-                                        <div class="pagination-controls">
-                                            <button class="pagination-btn" onclick="changePage('holdings', ${index}, -1)" id="holdings-prev-${index}" disabled>Previous</button>
-                                            <span id="holdings-page-${index}">Page 1 of ${Math.ceil((item.analysis.topHoldings || []).length / 20)}</span>
-                                            <button class="pagination-btn" onclick="changePage('holdings', ${index}, 1)" id="holdings-next-${index}">Next</button>
-                                        </div>
-                                    </div>
-                                ` : ''}
-                            </div>
+                    <!-- Top Holdings -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Most Popular Holdings</h3>
+                            <p class="card-description">Instruments held by the highest number of investors (${(item.analysis.topHoldings || []).length} total)</p>
                         </div>
+                        <div class="card-content">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Rank</th>
+                                        <th>Asset</th>
+                                        <th class="text-right">Holders</th>
+                                        <th class="text-right">% of PIs</th>
+                                        <th class="text-right">Avg Allocation</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="holdings-tbody-${index}">
+                                    ${(item.analysis.topHoldings || []).map((holding, idx) => `
+                                        <tr class="holdings-row-${index} ${idx >= 20 ? 'hidden' : ''}" data-page="${Math.floor(idx / 20) + 1}">
+                                            <td class="rank">#${idx + 1}</td>
+                                            <td>
+                                                <div class="name-cell">
+                                                    ${holding.imageUrl ? 
+                                                        `<img src="${holding.imageUrl}" alt="${holding.symbol}" class="instrument-icon">` :
+                                                        `<div class="instrument-placeholder">${(holding.symbol || 'UN').slice(0, 2).toUpperCase()}</div>`
+                                                    }
+                                                    <div>
+                                                        <div class="name-primary" title="${holding.instrumentName || 'Unknown'}">${truncateText(holding.instrumentName || 'Unknown', 24)}</div>
+                                                        <div class="name-secondary">${holding.symbol || ''}</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="text-right font-medium">${holding.holdersCount || 0}</td>
+                                            <td class="text-right">
+                                                <span class="badge badge-primary">${(holding.holdersPercentage || 0).toFixed(1)}%</span>
+                                            </td>
+                                            <td class="text-right font-medium">
+                                                ${(holding.averageAllocation || 0).toFixed(1)}%
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                            ${(item.analysis.topHoldings || []).length === 0 ? `
+                                <div style="text-align: center; padding: 32px 0; color: #6b7280;">
+                                    No holdings data available
+                                </div>
+                            ` : ''}
+                            ${(item.analysis.topHoldings || []).length > 20 ? `
+                                <div class="pagination">
+                                    <div class="pagination-info">
+                                        Showing <span id="holdings-showing-${index}">1-20</span> of ${(item.analysis.topHoldings || []).length}
+                                    </div>
+                                    <div class="pagination-controls">
+                                        <button class="pagination-btn" onclick="changePage('holdings', ${index}, -1)" id="holdings-prev-${index}" disabled>Previous</button>
+                                        <span id="holdings-page-${index}">Page 1 of ${Math.ceil((item.analysis.topHoldings || []).length / 20)}</span>
+                                        <button class="pagination-btn" onclick="changePage('holdings', ${index}, 1)" id="holdings-next-${index}">Next</button>
+                                    </div>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
 
-                        <!-- Top Performers -->
-                        <div class="card">
-                            <div class="card-header">
-                                <h3>Most Followed Investors</h3>
-                                <p class="card-description">Investors ranked by number of copiers (${(item.analysis.topPerformers || []).length} total)</p>
-                            </div>
-                            <div class="card-content">
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th>Rank</th>
-                                            <th>Investor</th>
-                                            <th class="text-right">Gain</th>
-                                            <th class="text-right">Win Ratio</th>
-                                            <th class="text-right">Cash %</th>
-                                            <th class="text-right">Risk Score</th>
-                                            <th class="text-right">Copiers</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="performers-tbody-${index}">
-                                        ${(item.analysis.topPerformers || []).map((performer, idx) => `
-                                            <tr class="performers-row-${index} ${idx >= 20 ? 'hidden' : ''}" data-page="${Math.floor(idx / 20) + 1}">
-                                                <td class="rank">#${idx + 1}</td>
-                                                <td>
-                                                    <div class="name-cell">
-                                                        ${performer.avatarUrl ? 
-                                                            `<img src="${performer.avatarUrl}" alt="${performer.fullName}" class="avatar">` :
-                                                            `<div class="avatar-placeholder">${(performer.fullName || 'U').charAt(0).toUpperCase()}</div>`
-                                                        }
-                                                        <div>
-                                                            <div class="name-primary" title="${performer.fullName || performer.username || 'Unknown'}">${truncateText(performer.fullName || performer.username || 'Unknown', 24)}</div>
-                                                            <div class="name-secondary" title="@${performer.username}">@${truncateText(performer.username, 20)}</div>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td class="text-right font-medium">
-                                                    <span class="${(performer.gain || 0) >= 0 ? 'badge badge-green' : 'badge badge-red'}">
-                                                        ${(performer.gain || 0) > 0 ? '+' : ''}${(performer.gain || 0).toFixed(1)}%
-                                                    </span>
-                                                </td>
-                                                <td class="text-right">${(performer.winRatio || 0).toFixed(1)}%</td>
-                                                <td class="text-right">
-                                                    <span class="badge badge-blue">${(performer.cashPercentage || 0).toFixed(1)}%</span>
-                                                </td>
-                                                <td class="text-right">
-                                                    <span class="risk-badge risk-${performer.riskScore || 0}">${performer.riskScore || '-'}/10</span>
-                                                </td>
-                                                <td class="text-right">
-                                                    <span class="badge badge-purple">${(performer.copiers || 0).toLocaleString()}</span>
-                                                </td>
-                                            </tr>
-                                        `).join('')}
-                                    </tbody>
-                                </table>
-                                ${(item.analysis.topPerformers || []).length === 0 ? `
-                                    <div style="text-align: center; padding: 32px 0; color: #6b7280;">
-                                        No performer data available
-                                    </div>
-                                ` : ''}
-                                ${(item.analysis.topPerformers || []).length > 20 ? `
-                                    <div class="pagination">
-                                        <div class="pagination-info">
-                                            Showing <span id="performers-showing-${index}">1-20</span> of ${(item.analysis.topPerformers || []).length}
-                                        </div>
-                                        <div class="pagination-controls">
-                                            <button class="pagination-btn" onclick="changePage('performers', ${index}, -1)" id="performers-prev-${index}" disabled>Previous</button>
-                                            <span id="performers-page-${index}">Page 1 of ${Math.ceil((item.analysis.topPerformers || []).length / 20)}</span>
-                                            <button class="pagination-btn" onclick="changePage('performers', ${index}, 1)" id="performers-next-${index}">Next</button>
-                                        </div>
-                                    </div>
-                                ` : ''}
-                            </div>
+                    <!-- Top Performers -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Most Followed Investors</h3>
+                            <p class="card-description">Investors ranked by number of copiers (${Math.min((item.analysis.topPerformers || []).length, item.count)} shown)</p>
                         </div>
+                        <div class="card-content">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Rank</th>
+                                        <th>Investor</th>
+                                        <th class="text-right">Gain</th>
+                                        <th class="text-right">Win Ratio</th>
+                                        <th class="text-right">Cash %</th>
+                                        <th class="text-right">Risk Score</th>
+                                        <th class="text-right">Copiers</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="performers-tbody-${index}">
+                                    ${(item.analysis.topPerformers || []).slice(0, item.count).map((performer, idx) => `
+                                        <tr class="performers-row-${index} ${idx >= 20 ? 'hidden' : ''}" data-page="${Math.floor(idx / 20) + 1}">
+                                            <td class="rank">#${idx + 1}</td>
+                                            <td>
+                                                <div class="name-cell">
+                                                    ${performer.avatarUrl ? 
+                                                        `<img src="${performer.avatarUrl}" alt="${performer.fullName}" class="avatar">` :
+                                                        `<div class="avatar-placeholder">${(performer.fullName || 'U').charAt(0).toUpperCase()}</div>`
+                                                    }
+                                                    <div>
+                                                        <div class="name-primary" title="${performer.fullName || performer.username || 'Unknown'}">${truncateText(performer.fullName || performer.username || 'Unknown', 24)}</div>
+                                                        <div class="name-secondary" title="@${performer.username}">@${truncateText(performer.username, 20)}</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="text-right font-medium">
+                                                <span class="${(performer.gain || 0) >= 0 ? 'badge badge-green' : 'badge badge-red'}">
+                                                    ${(performer.gain || 0) > 0 ? '+' : ''}${(performer.gain || 0).toFixed(1)}%
+                                                </span>
+                                            </td>
+                                            <td class="text-right">${(performer.winRatio || 0).toFixed(1)}%</td>
+                                            <td class="text-right">
+                                                <span class="badge badge-blue">${(performer.cashPercentage || 0).toFixed(1)}%</span>
+                                            </td>
+                                            <td class="text-right">
+                                                <span class="risk-badge risk-${performer.riskScore || 0}">${performer.riskScore || '-'}/10</span>
+                                            </td>
+                                            <td class="text-right">
+                                                <span class="badge badge-purple">${(performer.copiers || 0).toLocaleString()}</span>
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                            ${(item.analysis.topPerformers || []).length === 0 ? `
+                                <div style="text-align: center; padding: 32px 0; color: #6b7280;">
+                                    No performer data available
+                                </div>
+                            ` : ''}
+                            ${(item.analysis.topPerformers || []).slice(0, item.count).length > 20 ? `
+                                <div class="pagination">
+                                    <div class="pagination-info">
+                                        Showing <span id="performers-showing-${index}">1-20</span> of ${Math.min((item.analysis.topPerformers || []).length, item.count)}
+                                    </div>
+                                    <div class="pagination-controls">
+                                        <button class="pagination-btn" onclick="changePage('performers', ${index}, -1)" id="performers-prev-${index}" disabled>Previous</button>
+                                        <span id="performers-page-${index}">Page 1 of ${Math.ceil(Math.min((item.analysis.topPerformers || []).length, item.count) / 20)}</span>
+                                        <button class="pagination-btn" onclick="changePage('performers', ${index}, 1)" id="performers-next-${index}">Next</button>
+                                    </div>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
                     </div>
                 </div>
             </div>
