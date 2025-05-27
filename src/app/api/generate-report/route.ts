@@ -183,7 +183,7 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background-color: #f5f5f5;
+            background-color: #f5f7fa;
             color: #111827;
             line-height: 1.5;
         }
@@ -195,8 +195,7 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
         }
         
         .header {
-            background-color: white;
-            border-bottom: 1px solid #e5e7eb;
+            background-color: #00C896;
             margin-bottom: 32px;
         }
         
@@ -210,19 +209,20 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
         .header h1 {
             font-size: 2.5rem;
             font-weight: bold;
-            color: #111827;
+            color: white;
             margin-bottom: 8px;
         }
         
         .header .creator {
             font-size: 0.875rem;
-            color: #6b7280;
+            color: rgba(255, 255, 255, 0.9);
             margin-top: 8px;
         }
         
         .header .creator a {
-            color: #00C896;
+            color: white;
             text-decoration: none;
+            font-weight: 500;
         }
         
         .header .creator a:hover {
@@ -284,7 +284,7 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
             border-radius: 8px;
             border: 1px solid #e5e7eb;
             padding: 24px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
         }
         
         .card-header {
@@ -321,13 +321,14 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
             color: #111827;
             line-height: 1;
             text-align: center;
-            margin: 8px 0;
+            margin: 16px 0 8px 0;
         }
         
         .metric-label {
-            font-size: 1rem;
+            font-size: 0.875rem;
             color: #6b7280;
             text-align: center;
+            margin-top: 8px;
         }
         
         /* Fear & Greed Gauge */
@@ -372,32 +373,44 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
         /* Charts */
         .chart-container {
             width: 100%;
-            padding: 24px;
+            padding: 0;
         }
         
         .bar-chart {
             display: flex;
-            align-items: flex-end;
-            height: 160px;
+            flex-direction: column;
             gap: 12px;
             margin-bottom: 16px;
-            padding: 0 8px;
         }
         
         .bar-group {
-            flex: 1;
             display: flex;
-            flex-direction: column;
             align-items: center;
-            justify-content: flex-end;
+            gap: 12px;
+        }
+        
+        .bar-label {
+            min-width: 100px;
+            font-size: 0.75rem;
+            color: #6b7280;
+            text-align: right;
+            padding-right: 12px;
+        }
+        
+        .bar-wrapper {
+            flex: 1;
+            position: relative;
+            height: 24px;
+            background-color: #f3f4f6;
+            border-radius: 4px;
+            overflow: hidden;
         }
         
         .bar {
-            width: 100%;
+            height: 100%;
             background-color: #00C896;
-            border-radius: 4px 4px 0 0;
+            border-radius: 4px;
             transition: background-color 0.3s;
-            position: relative;
         }
         
         .bar:hover {
@@ -406,20 +419,12 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
         
         .bar-value {
             position: absolute;
-            top: -20px;
-            left: 50%;
-            transform: translateX(-50%);
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
             font-size: 0.75rem;
             font-weight: 600;
             color: #111827;
-        }
-        
-        .bar-label {
-            margin-top: 8px;
-            font-size: 0.75rem;
-            color: #6b7280;
-            text-align: center;
-            max-width: 100px;
         }
         
         /* Tables */
@@ -431,23 +436,28 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
             width: 100%;
             border-collapse: collapse;
             background: white;
-            border-radius: 8px;
-            overflow: hidden;
         }
         
         th {
-            background-color: #f9fafb;
-            padding: 12px;
+            background-color: white;
+            padding: 12px 16px;
             text-align: left;
-            font-weight: 600;
-            font-size: 0.875rem;
-            color: #111827;
+            font-weight: 500;
+            font-size: 0.75rem;
+            color: #6b7280;
             border-bottom: 1px solid #e5e7eb;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
         
         td {
-            padding: 12px;
+            padding: 12px 16px;
             border-bottom: 1px solid #f3f4f6;
+            font-size: 0.875rem;
+        }
+        
+        tr:last-child td {
+            border-bottom: none;
         }
         
         tr:hover {
@@ -541,10 +551,10 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
         .allocation-badge {
             background-color: #e0f2fe;
             color: #0369a1;
-            padding: 4px 8px;
-            border-radius: 12px;
+            padding: 2px 8px;
+            border-radius: 4px;
             font-size: 0.75rem;
-            font-weight: 600;
+            font-weight: 500;
         }
         
         .risk-badge {
@@ -578,12 +588,12 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
         
         .positive {
             color: #10b981;
-            font-weight: 500;
+            font-weight: 600;
         }
         
         .negative {
-            color: #ef4444;
-            font-weight: 500;
+            color: #dc2626;
+            font-weight: 600;
         }
         
         /* Pagination */
@@ -634,7 +644,7 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
         /* Full width sections */
         .full-width {
             width: 100%;
-            background-color: #f5f5f5;
+            background-color: #f5f7fa;
             padding: 48px 0;
             margin-top: 48px;
             margin-bottom: 48px;
@@ -642,6 +652,7 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
         
         /* Footer */
         .footer {
+            background-color: white;
             margin-top: 64px;
             padding: 32px 0;
             border-top: 1px solid #e5e7eb;
@@ -705,30 +716,30 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
         .badge {
             display: inline-flex;
             align-items: center;
-            padding: 4px 12px;
-            border-radius: 9999px;
+            padding: 2px 8px;
+            border-radius: 4px;
             font-size: 0.75rem;
             font-weight: 500;
         }
         
         .badge-green {
-            background-color: #d1fae5;
-            color: #065f46;
+            background-color: #dcfce7;
+            color: #15803d;
         }
         
         .badge-red {
             background-color: #fee2e2;
-            color: #991b1b;
+            color: #dc2626;
         }
         
         .badge-blue {
-            background-color: #dbeafe;
-            color: #1e40af;
+            background-color: #e0f2fe;
+            color: #0369a1;
         }
         
         .badge-yellow {
             background-color: #fef3c7;
-            color: #92400e;
+            color: #a16207;
         }
         
         .placeholder-avatar {
@@ -773,53 +784,57 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                     <div class="top-row">
                     <!-- Fear & Greed Gauge -->
                     <div class="card">
-                            <h3 class="card-title">Fear & Greed Index</h3>
-                            <div class="gauge-container">
-                                    <svg class="gauge-arc" viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">
-                                        <defs>
-                                            <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                                                <stop offset="0%" style="stop-color:#ef4444;stop-opacity:1" />
-                                                <stop offset="25%" style="stop-color:#f59e0b;stop-opacity:1" />
-                                                <stop offset="50%" style="stop-color:#fbbf24;stop-opacity:1" />
-                                                <stop offset="75%" style="stop-color:#84cc16;stop-opacity:1" />
-                                                <stop offset="100%" style="stop-color:#10b981;stop-opacity:1" />
-                                            </linearGradient>
-                                        </defs>
-                                        <path d="M 10 90 A 80 80 0 0 1 190 90" fill="none" stroke="url(#gaugeGradient)" stroke-width="20" stroke-linecap="round"/>
-                                        <line x1="100" y1="90" x2="100" y2="30" stroke="#111827" stroke-width="3" stroke-linecap="round" transform="rotate(${(item.analysis.fearGreedIndex - 50) * 1.8} 100 90)"/>
-                                        <circle cx="100" cy="90" r="6" fill="#111827"/>
-                                    </svg>
-                                    <div class="metric-value">${item.analysis.fearGreedIndex}</div>
-                                    <div class="metric-label">
-                                        ${item.analysis.fearGreedIndex < 20 ? 'Extreme Fear' :
-                                          item.analysis.fearGreedIndex < 40 ? 'Fear' :
-                                          item.analysis.fearGreedIndex < 60 ? 'Neutral' :
-                                          item.analysis.fearGreedIndex < 80 ? 'Greed' : 'Extreme Greed'}
-                                    </div>
-                                </div>
-                                <div class="gauge-labels">
-                                    <span class="fear-label">Fear</span>
-                                    <span class="greed-label">Greed</span>
-                                </div>
+                        <h3 class="card-title">Fear & Greed Index</h3>
+                        <div class="gauge-container">
+                            <svg class="gauge-arc" viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                    <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                        <stop offset="0%" style="stop-color:#ef4444;stop-opacity:1" />
+                                        <stop offset="25%" style="stop-color:#f59e0b;stop-opacity:1" />
+                                        <stop offset="50%" style="stop-color:#fbbf24;stop-opacity:1" />
+                                        <stop offset="75%" style="stop-color:#84cc16;stop-opacity:1" />
+                                        <stop offset="100%" style="stop-color:#10b981;stop-opacity:1" />
+                                    </linearGradient>
+                                </defs>
+                                <path d="M 10 90 A 80 80 0 0 1 190 90" fill="none" stroke="url(#gaugeGradient)" stroke-width="20" stroke-linecap="round"/>
+                                <line x1="100" y1="90" x2="100" y2="30" stroke="#111827" stroke-width="3" stroke-linecap="round" transform="rotate(${(item.analysis.fearGreedIndex - 50) * 1.8} 100 90)"/>
+                                <circle cx="100" cy="90" r="6" fill="#111827"/>
+                            </svg>
+                            <div class="metric-value">${item.analysis.fearGreedIndex}</div>
+                            <div class="metric-label">
+                                ${item.analysis.fearGreedIndex < 20 ? 'Extreme Fear' :
+                                  item.analysis.fearGreedIndex < 40 ? 'Fear' :
+                                  item.analysis.fearGreedIndex < 60 ? 'Neutral' :
+                                  item.analysis.fearGreedIndex < 80 ? 'Greed' : 'Extreme Greed'}
+                            </div>
                         </div>
+                        <div class="gauge-labels">
+                            <span class="fear-label">Fear</span>
+                            <span class="greed-label">Greed</span>
+                        </div>
+                    </div>
                         
                         <!-- Key Metrics Grid -->
                         <div class="grid grid-cols-4">
                             <div class="card">
                                 <h3 class="card-title">Average Returns</h3>
                                 <div class="metric-value">${(item.analysis.averageGain || 0).toFixed(1)}%</div>
+                                <div class="metric-label">12-Month Performance</div>
                             </div>
                             <div class="card">
                                 <h3 class="card-title">Average Cash</h3>
                                 <div class="metric-value">${(item.analysis.averageCashPercentage || 0).toFixed(1)}%</div>
+                                <div class="metric-label">Portfolio Allocation</div>
                             </div>
                             <div class="card">
                                 <h3 class="card-title">Average Risk Score</h3>
                                 <div class="metric-value">${(item.analysis.averageRiskScore || 0).toFixed(1)}</div>
+                                <div class="metric-label">Risk Level (1-10)</div>
                             </div>
                             <div class="card">
                                 <h3 class="card-title">Average Copiers</h3>
                                 <div class="metric-value">${(item.analysis.averageCopiers || 0).toLocaleString()}</div>
+                                <div class="metric-label">Per Investor</div>
                             </div>
                         </div>
                     </div>
@@ -838,13 +853,15 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                                     <div class="bar-chart">
                                         ${Object.entries(item.analysis.returnsDistribution || {}).map(([range, count]) => {
                                             const maxCount = Math.max(...Object.values(item.analysis.returnsDistribution || {}));
-                                            const height = maxCount > 0 ? (count / maxCount) * 100 : 0;
+                                            const width = maxCount > 0 ? (count / maxCount) * 100 : 0;
                                             return `
                                                 <div class="bar-group">
-                                                    <div class="bar" style="height: ${height}%;">
-                                                        <span class="bar-value">${count}</span>
-                                                    </div>
                                                     <span class="bar-label">${range}</span>
+                                                    <div class="bar-wrapper">
+                                                        <div class="bar" style="width: ${width}%;">
+                                                            <span class="bar-value">${count}</span>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             `;
                                         }).join('')}
@@ -861,13 +878,15 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                                     <div class="bar-chart">
                                         ${Object.entries(item.analysis.riskScoreDistribution || {}).map(([range, count]) => {
                                             const maxCount = Math.max(...Object.values(item.analysis.riskScoreDistribution || {}));
-                                            const height = maxCount > 0 ? (count / maxCount) * 100 : 0;
+                                            const width = maxCount > 0 ? (count / maxCount) * 100 : 0;
                                             return `
                                                 <div class="bar-group">
-                                                    <div class="bar" style="height: ${height}%;">
-                                                        <span class="bar-value">${count}</span>
-                                                    </div>
                                                     <span class="bar-label">${range}</span>
+                                                    <div class="bar-wrapper">
+                                                        <div class="bar" style="width: ${width}%;">
+                                                            <span class="bar-value">${count}</span>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             `;
                                         }).join('')}
@@ -884,13 +903,15 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                                     <div class="bar-chart">
                                         ${Object.entries(item.analysis.uniqueInstrumentsDistribution || {}).map(([range, count]) => {
                                             const maxCount = Math.max(...Object.values(item.analysis.uniqueInstrumentsDistribution || {}));
-                                            const height = maxCount > 0 ? (count / maxCount) * 100 : 0;
+                                            const width = maxCount > 0 ? (count / maxCount) * 100 : 0;
                                             return `
                                                 <div class="bar-group">
-                                                    <div class="bar" style="height: ${height}%;">
-                                                        <span class="bar-value">${count}</span>
-                                                    </div>
                                                     <span class="bar-label">${range}</span>
+                                                    <div class="bar-wrapper">
+                                                        <div class="bar" style="width: ${width}%;">
+                                                            <span class="bar-value">${count}</span>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             `;
                                         }).join('')}
@@ -907,13 +928,15 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                                     <div class="bar-chart">
                                         ${Object.entries(item.analysis.cashPercentageDistribution || {}).map(([range, count]) => {
                                             const maxCount = Math.max(...Object.values(item.analysis.cashPercentageDistribution || {}));
-                                            const height = maxCount > 0 ? (count / maxCount) * 100 : 0;
+                                            const width = maxCount > 0 ? (count / maxCount) * 100 : 0;
                                             return `
                                                 <div class="bar-group">
-                                                    <div class="bar" style="height: ${height}%;">
-                                                        <span class="bar-value">${count}</span>
-                                                    </div>
                                                     <span class="bar-label">${range}</span>
+                                                    <div class="bar-wrapper">
+                                                        <div class="bar" style="width: ${width}%;">
+                                                            <span class="bar-value">${count}</span>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             `;
                                         }).join('')}
@@ -1019,8 +1042,10 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                                                         </div>
                                                     </div>
                                                 </td>
-                                                <td class="text-right ${(performer.gain || 0) >= 0 ? 'positive' : 'negative'}">
-                                                    ${(performer.gain || 0) > 0 ? '+' : ''}${(performer.gain || 0).toFixed(1)}%
+                                                <td class="text-right">
+                                                    <span class="${(performer.gain || 0) >= 0 ? 'badge badge-green' : 'badge badge-red'}">
+                                                        ${(performer.gain || 0) > 0 ? '+' : ''}${(performer.gain || 0).toFixed(1)}%
+                                                    </span>
                                                 </td>
                                                 <td class="text-right">${(performer.winRatio || 0).toFixed(1)}%</td>
                                                 <td class="text-right">
