@@ -183,7 +183,7 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background-color: white;
+            background-color: #f5f5f5;
             color: #111827;
             line-height: 1.5;
         }
@@ -281,7 +281,7 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
         
         .card {
             background: white;
-            border-radius: 12px;
+            border-radius: 8px;
             border: 1px solid #e5e7eb;
             padding: 24px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -292,10 +292,12 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
         }
         
         .card-header h3 {
-            font-size: 1.125rem;
+            font-size: 0.875rem;
             font-weight: 600;
-            color: #111827;
-            margin: 0 0 0.5rem 0;
+            color: #374151;
+            margin: 0 0 0.25rem 0;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
         
         .card-description {
@@ -314,12 +316,12 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
         }
         
         .metric-value {
-            font-size: 3rem;
+            font-size: 2.5rem;
             font-weight: 700;
             color: #111827;
             line-height: 1;
             text-align: center;
-            margin: 16px 0;
+            margin: 8px 0;
         }
         
         .metric-label {
@@ -376,9 +378,10 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
         .bar-chart {
             display: flex;
             align-items: flex-end;
-            height: 200px;
-            gap: 8px;
+            height: 160px;
+            gap: 12px;
             margin-bottom: 16px;
+            padding: 0 8px;
         }
         
         .bar-group {
@@ -427,6 +430,9 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
         table {
             width: 100%;
             border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
         }
         
         th {
@@ -533,12 +539,12 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
         }
         
         .allocation-badge {
-            background-color: #dbeafe;
-            color: #1e40af;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 0.875rem;
-            font-weight: 500;
+            background-color: #e0f2fe;
+            color: #0369a1;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
         }
         
         .risk-badge {
@@ -627,9 +633,8 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
         
         /* Full width sections */
         .full-width {
-            width: 100vw;
-            margin-left: calc(-50vw + 50%);
-            background-color: #f9fafb;
+            width: 100%;
+            background-color: #f5f5f5;
             padding: 48px 0;
             margin-top: 48px;
             margin-bottom: 48px;
@@ -766,8 +771,8 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                 <div class="container">
                     <!-- Top Row: Fear/Greed + Key Metrics -->
                     <div class="top-row">
-                        <!-- Fear & Greed Gauge -->
-                        <div class="card">
+                    <!-- Fear & Greed Gauge -->
+                    <div class="card">
                             <h3 class="card-title">Fear & Greed Index</h3>
                             <div class="gauge-container">
                                     <svg class="gauge-arc" viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">
@@ -826,7 +831,9 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                         <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
                             <!-- Returns Distribution -->
                             <div class="card">
-                                <h3 class="card-title">12-Month Returns Distribution</h3>
+                                <div class="card-header">
+                                    <h3>12-Month Returns Distribution</h3>
+                                </div>
                                 <div class="chart-container">
                                     <div class="bar-chart">
                                         ${Object.entries(item.analysis.returnsDistribution || {}).map(([range, count]) => {
@@ -847,7 +854,9 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
 
                             <!-- Risk Score Distribution -->
                             <div class="card">
-                                <h3 class="card-title">Risk Score Distribution</h3>
+                                <div class="card-header">
+                                    <h3>Risk Score Distribution</h3>
+                                </div>
                                 <div class="chart-container">
                                     <div class="bar-chart">
                                         ${Object.entries(item.analysis.riskScoreDistribution || {}).map(([range, count]) => {
@@ -868,7 +877,9 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
 
                             <!-- Portfolio Diversification -->
                             <div class="card">
-                                <h3 class="card-title">Portfolio Diversification</h3>
+                                <div class="card-header">
+                                    <h3>Portfolio Diversification</h3>
+                                </div>
                                 <div class="chart-container">
                                     <div class="bar-chart">
                                         ${Object.entries(item.analysis.uniqueInstrumentsDistribution || {}).map(([range, count]) => {
@@ -889,7 +900,9 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
 
                             <!-- Cash Allocation -->
                             <div class="card">
-                                <h3 class="card-title">Cash Allocation</h3>
+                                <div class="card-header">
+                                    <h3>Cash Allocation</h3>
+                                </div>
                                 <div class="chart-container">
                                     <div class="bar-chart">
                                         ${Object.entries(item.analysis.cashPercentageDistribution || {}).map(([range, count]) => {
