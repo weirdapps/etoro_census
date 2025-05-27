@@ -986,7 +986,7 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                                                 <td class="text-right" style="font-weight: 500;">${holding.holdersCount || 0}</td>
                                                 <td class="text-right">${((holding.holdersPercentage || 0)).toFixed(1)}%</td>
                                                 <td class="text-right">
-                                                    <span class="allocation-badge">${(holding.averageAllocation || 0).toFixed(2)}%</span>
+                                                    <span class="allocation-badge">${(holding.averageAllocation || 0).toFixed(1)}%</span>
                                                 </td>
                                             </tr>
                                         `).join('')}
@@ -1019,7 +1019,7 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                                         <tr>
                                             <th>Rank</th>
                                             <th>Investor</th>
-                                            <th class="text-right">Gain YTD</th>
+                                            <th class="text-right">Gain</th>
                                             <th class="text-right">Win Ratio</th>
                                             <th class="text-right">Cash %</th>
                                             <th class="text-right">Risk Score</th>
@@ -1052,7 +1052,7 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                                                     <span class="badge badge-blue">${(performer.cashPercentage || 0).toFixed(1)}%</span>
                                                 </td>
                                                 <td class="text-right">
-                                                    <span class="risk-badge risk-${performer.riskScore || 0}">${performer.riskScore || '-'}</span>
+                                                    <span class="risk-badge risk-${performer.riskScore || 0}">${performer.riskScore || '-'}/10</span>
                                                 </td>
                                                 <td class="text-right" style="font-weight: 600;">
                                                     ${(performer.copiers || 0).toLocaleString()}
