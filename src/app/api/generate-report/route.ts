@@ -134,52 +134,6 @@ function formatDateTime(date: Date): string {
   return `${year}.${month}.${day} at ${hours}:${minutes} ${timezone}`;
 }
 
-function calculateReturnsDistribution(investors: { gain: number }[]): { [range: string]: number } {
-  const distribution: { [range: string]: number } = {
-    'Loss': 0,
-    '0-10%': 0,
-    '11-25%': 0,
-    '26-50%': 0,
-    '51-100%': 0,
-    '100%+': 0
-  };
-  
-  investors.forEach(investor => {
-    const gain = investor.gain;
-    if (gain < 0) distribution['Loss']++;
-    else if (gain <= 10) distribution['0-10%']++;
-    else if (gain <= 25) distribution['11-25%']++;
-    else if (gain <= 50) distribution['26-50%']++;
-    else if (gain <= 100) distribution['51-100%']++;
-    else distribution['100%+']++;
-  });
-  
-  return distribution;
-}
-
-function calculateRiskScoreDistribution(investors: { riskScore?: number }[]): { [range: string]: number } {
-  const distribution: { [range: string]: number } = {
-    'Conservative (1-3)': 0,
-    'Moderate (4-5)': 0,
-    'Aggressive (6-7)': 0,
-    'Very High Risk (8-10)': 0
-  };
-  
-  investors.forEach(investor => {
-    const riskScore = investor.riskScore || 0;
-    if (riskScore >= 1 && riskScore <= 3) {
-      distribution['Conservative (1-3)']++;
-    } else if (riskScore >= 4 && riskScore <= 5) {
-      distribution['Moderate (4-5)']++;
-    } else if (riskScore >= 6 && riskScore <= 7) {
-      distribution['Aggressive (6-7)']++;
-    } else if (riskScore >= 8 && riskScore <= 10) {
-      distribution['Very High Risk (8-10)']++;
-    }
-  });
-  
-  return distribution;
-}
 
 function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis }[]): string {
   return `<!DOCTYPE html>
