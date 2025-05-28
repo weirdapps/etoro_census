@@ -217,7 +217,8 @@ function calculateUniqueInstrumentsDistribution(portfolioStats: PortfolioStats[]
 
 function calculateCashPercentageDistribution(portfolioStats: PortfolioStats[]): { [range: string]: number } {
   const distribution: { [range: string]: number } = {
-    '0-10%': 0,
+    '0-5%': 0,
+    '5-10%': 0,
     '11-25%': 0,
     '26-50%': 0,
     '51-75%': 0,
@@ -226,7 +227,8 @@ function calculateCashPercentageDistribution(portfolioStats: PortfolioStats[]): 
   
   portfolioStats.forEach(stats => {
     const percentage = stats.cashPercentage;
-    if (percentage <= 10) distribution['0-10%']++;
+    if (percentage <= 5) distribution['0-5%']++;
+    else if (percentage <= 10) distribution['5-10%']++;
     else if (percentage <= 25) distribution['11-25%']++;
     else if (percentage <= 50) distribution['26-50%']++;
     else if (percentage <= 75) distribution['51-75%']++;

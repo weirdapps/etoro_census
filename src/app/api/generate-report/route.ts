@@ -121,13 +121,22 @@ export async function POST(request: NextRequest) {
           console.log(`Average gain for top ${size} investors: ${avgGain.toFixed(2)}%`);
           
           // Additional logging for band comparison
-          if (size === 1000) {
+          if (size === 100) {
+            console.log(`Investors 1-100 avg: ${avgGain.toFixed(2)}%`);
+          } else if (size === 500) {
+            const investors101to500 = subset.slice(100, 500);
+            const avgGain101to500 = investors101to500.reduce((sum, inv) => sum + inv.gain, 0) / investors101to500.length;
+            console.log(`Investors 101-500 avg: ${avgGain101to500.toFixed(2)}%`);
+          } else if (size === 1000) {
+            const investors501to1000 = subset.slice(500, 1000);
+            const avgGain501to1000 = investors501to1000.reduce((sum, inv) => sum + inv.gain, 0) / investors501to1000.length;
             console.log(`Investors 1-1000 avg: ${avgGain.toFixed(2)}%`);
+            console.log(`Investors 501-1000 avg: ${avgGain501to1000.toFixed(2)}%`);
           } else if (size === 1500) {
             const investors1001to1500 = subset.slice(1000, 1500);
             const avgGain1001to1500 = investors1001to1500.reduce((sum, inv) => sum + inv.gain, 0) / investors1001to1500.length;
             console.log(`Investors 1001-1500 avg: ${avgGain1001to1500.toFixed(2)}%`);
-            console.log(`Difference: ${(avgGain - avgGain1001to1500).toFixed(2)}%`);
+            console.log(`Overall 1-1500 avg: ${avgGain.toFixed(2)}%`);
           }
           
           const subsetAnalysis: CensusAnalysis & { investorCount: number } = {
@@ -806,17 +815,21 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
             }
         }
         
-        /* Top row with gauge and metrics */
-        .top-row {
+        /* Grid helper */
+        .grid-cols-4 {
             display: grid;
-            grid-template-columns: 1fr 3fr;
+            grid-template-columns: repeat(4, 1fr);
             gap: 24px;
-            margin-bottom: 32px;
-            align-items: stretch;
         }
         
         @media (max-width: 1024px) {
-            .top-row {
+            .grid-cols-4 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 640px) {
+            .grid-cols-4 {
                 grid-template-columns: 1fr;
             }
         }
@@ -856,61 +869,54 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
         <!-- Tab Contents -->
         ${analyses.map((item, index) => `
             <div class="tab-content ${index === 0 ? 'active' : ''}" id="tab-${index}">
-                <!-- Top Row: Fear/Greed + Key Metrics -->
-                <div class="top-row">
-                    <!-- Fear & Greed Gauge -->
-                    <div class="card">
-                        <div class="card-header">
-                            <h3>Fear & Greed Index</h3>
-                        </div>
-                        <div class="gauge-container" style="padding: 20px 0;">
-                            <svg class="gauge-arc" viewBox="0 0 240 120" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" style="width: 200px; height: 100px; margin: 0 auto; display: block;">
-                                <defs>
-                                    <linearGradient id="gaugeGradient-${index}" x1="0%" y1="0%" x2="100%" y2="0%">
-                                        <stop offset="0%" style="stop-color:#ef4444;stop-opacity:1" />
-                                        <stop offset="25%" style="stop-color:#f59e0b;stop-opacity:1" />
-                                        <stop offset="50%" style="stop-color:#fbbf24;stop-opacity:1" />
-                                        <stop offset="75%" style="stop-color:#84cc16;stop-opacity:1" />
-                                        <stop offset="100%" style="stop-color:#10b981;stop-opacity:1" />
-                                    </linearGradient>
-                                </defs>
-                                <!-- Background arc -->
-                                <path d="M 20 100 A 90 90 0 0 1 220 100" fill="none" stroke="#e5e7eb" stroke-width="12" stroke-linecap="round"/>
-                                <!-- Colored arc -->
-                                <path d="M 20 100 A 90 90 0 0 1 220 100" fill="none" stroke="url(#gaugeGradient-${index})" stroke-width="12" stroke-linecap="round"/>
-                                <!-- Needle -->
-                                <g transform="rotate(${(item.analysis.fearGreedIndex - 50) * 1.8} 120 100)">
-                                    <line x1="120" y1="100" x2="120" y2="25" stroke="#111827" stroke-width="3" stroke-linecap="round"/>
-                                    <circle cx="120" cy="100" r="8" fill="#111827"/>
-                                </g>
-                            </svg>
-                            <div class="metric-value" style="color: ${item.analysis.fearGreedIndex >= 60 ? '#84cc16' : item.analysis.fearGreedIndex >= 40 ? '#fbbf24' : '#ef4444'}; font-size: 4rem; margin: 16px 0 8px 0; font-weight: 700;">${item.analysis.fearGreedIndex}</div>
-                            <div class="metric-label" style="font-size: 1.125rem; color: #111827; font-weight: 500; margin-bottom: 16px;">
-                                ${item.analysis.fearGreedIndex < 20 ? 'Extreme Fear' :
-                                  item.analysis.fearGreedIndex < 40 ? 'Fear' :
-                                  item.analysis.fearGreedIndex < 60 ? 'Neutral' :
-                                  item.analysis.fearGreedIndex < 80 ? 'Greed' : 'Extreme Greed'}
+                <!-- Fear & Greed Index Bar -->
+                <div class="card" style="margin-bottom: 32px;">
+                    <div class="card-header">
+                        <h3>Fear & Greed Index</h3>
+                    </div>
+                    <div style="padding: 24px 0;">
+                        <div style="position: relative; width: 100%; height: 60px; background: #f3f4f6; border-radius: 30px; overflow: hidden;">
+                            <!-- Gradient background -->
+                            <div style="position: absolute; width: 100%; height: 100%; background: linear-gradient(to right, #ef4444 0%, #f59e0b 25%, #fbbf24 50%, #84cc16 75%, #10b981 100%);"></div>
+                            <!-- Marker -->
+                            <div style="position: absolute; left: ${item.analysis.fearGreedIndex}%; top: 50%; transform: translate(-50%, -50%); width: 40px; height: 40px; background: #111827; border-radius: 50%; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); display: flex; align-items: center; justify-content: center;">
+                                <span style="color: white; font-weight: 700; font-size: 1rem;">${item.analysis.fearGreedIndex}</span>
                             </div>
-                            <div class="gauge-labels" style="display: flex; justify-content: space-between; width: 200px; margin: 0 auto;">
-                                <span class="fear-label" style="color: #ef4444; font-size: 0.875rem; font-weight: 500;">Fear</span>
-                                <span class="greed-label" style="color: #10b981; font-size: 0.875rem; font-weight: 500;">Greed</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-top: 16px;">
+                            <div style="text-align: left;">
+                                <div style="font-size: 0.875rem; color: #ef4444; font-weight: 500;">Extreme Fear</div>
+                                <div style="font-size: 0.75rem; color: #6b7280;">0</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 1.125rem; color: ${item.analysis.fearGreedIndex >= 60 ? '#84cc16' : item.analysis.fearGreedIndex >= 40 ? '#fbbf24' : '#ef4444'}; font-weight: 700;">
+                                    ${item.analysis.fearGreedIndex < 20 ? 'Extreme Fear' :
+                                      item.analysis.fearGreedIndex < 40 ? 'Fear' :
+                                      item.analysis.fearGreedIndex < 60 ? 'Neutral' :
+                                      item.analysis.fearGreedIndex < 80 ? 'Greed' : 'Extreme Greed'}
+                                </div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-size: 0.875rem; color: #10b981; font-weight: 500;">Extreme Greed</div>
+                                <div style="font-size: 0.75rem; color: #6b7280;">100</div>
                             </div>
                         </div>
                     </div>
-                    
-                    <!-- Key Metrics Grid -->
-                    <div class="grid grid-cols-4">
+                </div>
+                
+                <!-- Key Metrics Grid -->
+                <div class="grid grid-cols-4" style="margin-bottom: 32px;">
                         <div class="card">
                             <div class="card-header">
                                 <h3>Average Returns</h3>
-                                <p class="card-description">12-Month Performance</p>
+                                <p class="card-description">Year-to-Date Performance</p>
                             </div>
                             <div class="metric-value">${(item.analysis.averageGain || 0).toFixed(1)}%</div>
                         </div>
                         <div class="card">
                             <div class="card-header">
                                 <h3>Average Cash</h3>
-                                <p class="card-description">Portfolio Allocation</p>
+                                <p class="card-description">Percent of Portfolio</p>
                             </div>
                             <div class="metric-value">${(item.analysis.averageCashPercentage || 0).toFixed(1)}%</div>
                         </div>
@@ -924,11 +930,10 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                         <div class="card">
                             <div class="card-header">
                                 <h3>Average Copiers</h3>
-                                <p class="card-description">Per Investor</p>
+                                <p class="card-description">Per Popular Investor</p>
                             </div>
                             <div class="metric-value">${(item.analysis.averageCopiers || 0).toLocaleString()}</div>
                         </div>
-                    </div>
                 </div>
 
                 <!-- Distribution Charts -->
@@ -1058,7 +1063,7 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                     <div class="card">
                         <div class="card-header">
                             <h3>Most Popular Holdings</h3>
-                            <p class="card-description">Instruments held by the highest number of investors (${(item.analysis.topHoldings || []).length} total)</p>
+                            <p class="card-description">Instruments held by the highest number of investors across all ${item.count} PIs (${(item.analysis.topHoldings || []).length} total)</p>
                         </div>
                         <div class="card-content">
                             <table>
