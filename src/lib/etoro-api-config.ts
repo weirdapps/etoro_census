@@ -87,8 +87,6 @@ export async function fetchFromEtoroApi<T>(
     // Log request details for debugging
     console.log(`[eToro API] Request to: ${endpoint}`);
     console.log(`[eToro API] Request headers configured`);
-    // Type assertion to ensure TypeScript recognizes the custom headers
-    const typedHeaders = requestOptions.headers as Record<string, string>;
     
     
     const controller = new AbortController();
