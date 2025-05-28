@@ -133,6 +133,7 @@ function calculatePortfolioStats(investor: PopularInvestor, portfolio: UserPortf
       username: investor.userName,
       cashPercentage: 100,
       uniqueInstruments: 0,
+      totalGain: investor.gain || 0,
       instruments: {}
     };
   }
@@ -152,7 +153,7 @@ function calculatePortfolioStats(investor: PopularInvestor, portfolio: UserPortf
     username: investor.userName,
     cashPercentage,
     uniqueInstruments: Object.keys(instruments).length,
-    totalGain: investor.gain,
+    totalGain: investor.gain || 0,
     instruments
   };
 }
@@ -357,8 +358,6 @@ function calculateTopPerformers(investors: PopularInvestor[], portfolioStats: Po
 function calculateAverageGain(investors: PopularInvestor[]): number {
   if (investors.length === 0) return 0;
   
-  // Convert from basis points to percentage (gain / 100)
-  // The API returns gains in basis points where 100 = 1%
   const gains = investors
     .map(inv => inv.gain)  // Already in percentage format
     .filter(gain => 
@@ -366,7 +365,7 @@ function calculateAverageGain(investors: PopularInvestor[]): number {
       gain !== undefined && 
       !isNaN(gain) && 
       gain > -100 && 
-      gain < 200
+      gain < 1000
     );
   
   if (gains.length === 0) return 0;
