@@ -2,10 +2,10 @@ name: Daily Census Report Generation
 
 on:
   schedule:
-    # Run at 04:00 Athens time (UTC+2 or UTC+3 depending on DST)
-    # Using 01:00 UTC which is 04:00 Athens time during summer (UTC+3)
-    # and 03:00 Athens time during winter (UTC+2)
-    - cron: '0 1 * * *'
+    # Run at 00:00 UTC every day (midnight UTC)
+    # This is 03:00 Athens time during summer (UTC+3)
+    # and 02:00 Athens time during winter (UTC+2)
+    - cron: '0 0 * * *'
   workflow_dispatch: # Allow manual triggering
 
 permissions:
