@@ -70,6 +70,40 @@ export async function POST(request: NextRequest) {
           
           try {
             console.log(`\n=== Starting analysis for top ${size} investors ===`);
+            
+            // Pre-analysis logging to check raw data
+            const gains = subset.map(inv => inv.gain);
+            const sortedGains = [...gains].sort((a, b) => a - b);
+            const median = sortedGains[Math.floor(sortedGains.length / 2)];
+            const sum = gains.reduce((acc, g) => acc + g, 0);
+            const mean = sum / gains.length;
+            
+            console.log(`Raw data check for ${size} investors:`);
+            console.log(`- Sum of all gains: ${sum.toFixed(2)}`);
+            console.log(`- Count: ${gains.length}`);
+            console.log(`- Mean (sum/count): ${mean.toFixed(2)}%`);
+            console.log(`- Median: ${median.toFixed(2)}%`);
+            console.log(`- Min: ${Math.min(...gains).toFixed(2)}%`);
+            console.log(`- Max: ${Math.max(...gains).toFixed(2)}%`);
+            
+            // Check for extreme outliers
+            const outliers = gains.filter(g => g > 100);
+            if (outliers.length > 0) {
+              console.log(`WARNING: ${outliers.length} investors with gains > 100%`);
+              console.log(`Outlier examples: ${outliers.slice(0, 10).map(g => g.toFixed(1)).join(', ')}%`);
+            }
+            
+            // Distribution check
+            const distribution = {
+              'negative': gains.filter(g => g < 0).length,
+              '0-10%': gains.filter(g => g >= 0 && g <= 10).length,
+              '11-25%': gains.filter(g => g > 10 && g <= 25).length,
+              '26-50%': gains.filter(g => g > 25 && g <= 50).length,
+              '51-100%': gains.filter(g => g > 50 && g <= 100).length,
+              '>100%': gains.filter(g => g > 100).length
+            };
+            console.log('Distribution:', distribution);
+            
             const analysis = await performCensusAnalysis(subset, onProgress);
             
             if (!analysis) {
@@ -77,8 +111,13 @@ export async function POST(request: NextRequest) {
               continue;
             }
             
-            // Log average returns for debugging
-            console.log(`Top ${size} average gain: ${analysis.averageGain.toFixed(2)}%`);
+            // Log what census analysis calculated
+            console.log(`Census analysis average gain: ${analysis.averageGain.toFixed(2)}%`);
+            
+            // If there's a discrepancy, log it
+            if (Math.abs(analysis.averageGain - mean) > 0.1) {
+              console.log(`DISCREPANCY: Raw mean ${mean.toFixed(2)}% vs Census ${analysis.averageGain.toFixed(2)}%`);
+            }
             
             analyses.push({ count: size, analysis });
           } catch (error) {

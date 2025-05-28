@@ -357,8 +357,40 @@ function calculateTopPerformers(investors: PopularInvestor[], portfolioStats: Po
 function calculateAverageGain(investors: PopularInvestor[]): number {
   if (investors.length === 0) return 0;
   
-  const totalGain = investors.reduce((sum, investor) => sum + (investor.gain || 0), 0);
-  return Math.round((totalGain / investors.length) * 10) / 10;
+  // Filter out invalid or extreme gains that might be data errors
+  const validGains = investors
+    .map(inv => inv.gain)
+    .filter(gain => 
+      gain !== null && 
+      gain !== undefined && 
+      !isNaN(gain) && 
+      gain > -100 && 
+      gain < 200  // Cap at 200% to filter out potential data errors
+    );
+  
+  if (validGains.length === 0) return 0;
+  
+  // Calculate mean
+  const totalGain = validGains.reduce((sum, gain) => sum + gain, 0);
+  const mean = totalGain / validGains.length;
+  
+  // Calculate median as a sanity check
+  const sortedGains = [...validGains].sort((a, b) => a - b);
+  const median = sortedGains[Math.floor(sortedGains.length / 2)];
+  
+  // Log if there's a significant discrepancy
+  if (Math.abs(mean - median) > 10) {
+    console.log(`[Census] Large mean/median discrepancy: mean=${mean.toFixed(2)}%, median=${median.toFixed(2)}%`);
+    console.log(`[Census] Valid gains: ${validGains.length} out of ${investors.length} investors`);
+    
+    // Check for outliers
+    const outliers = validGains.filter(g => g > 100);
+    if (outliers.length > 0) {
+      console.log(`[Census] ${outliers.length} gains > 100%: ${outliers.slice(0, 5).map(g => g.toFixed(1)).join(', ')}%`);
+    }
+  }
+  
+  return Math.round(mean * 10) / 10;
 }
 
 function calculateAverageRiskScore(investors: PopularInvestor[]): number {
