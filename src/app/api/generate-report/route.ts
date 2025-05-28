@@ -108,6 +108,12 @@ export async function POST(request: NextRequest) {
           console.log(`Top 10 gains: ${top10Gains.map(g => g.toFixed(1)).join(', ')}%`);
           console.log(`Bottom 10 gains: ${bottom10Gains.map(g => g.toFixed(1)).join(', ')}%`);
           
+          // Check for data anomalies
+          const extremeGains = gains.filter(g => g > 1000);
+          if (extremeGains.length > 0) {
+            console.log(`WARNING: Found ${extremeGains.length} extreme gains > 1000%: ${extremeGains.slice(0, 5).map(g => g.toFixed(1)).join(', ')}`);
+          }
+          
           // Calculate average cash percentage for this subset from topPerformers
           const subsetPerformers = fullAnalysis.topPerformers.filter(performer => 
             subset.some(inv => inv.userName === performer.username)
@@ -117,26 +123,45 @@ export async function POST(request: NextRequest) {
             : 0;
           
           // For each subset, create an analysis with the data appropriate for that subset
-          const avgGain = subset.reduce((sum, inv) => sum + inv.gain, 0) / subset.length;
-          console.log(`Average gain for top ${size} investors: ${avgGain.toFixed(2)}%`);
+          // Filter out any invalid or extreme gains
+          const validGains = subset.map(inv => inv.gain).filter(gain => 
+            gain !== null && gain !== undefined && !isNaN(gain) && gain > -100 && gain < 10000
+          );
           
-          // Additional logging for band comparison
+          const avgGain = validGains.length > 0 
+            ? validGains.reduce((sum, gain) => sum + gain, 0) / validGains.length
+            : 0;
+          
+          console.log(`Average gain for top ${size} investors: ${avgGain.toFixed(2)}% (${validGains.length} valid gains out of ${subset.length} investors)`);
+          
+          // Additional logging for band comparison with validation
           if (size === 100) {
             console.log(`Investors 1-100 avg: ${avgGain.toFixed(2)}%`);
           } else if (size === 500) {
             const investors101to500 = subset.slice(100, 500);
-            const avgGain101to500 = investors101to500.reduce((sum, inv) => sum + inv.gain, 0) / investors101to500.length;
+            const validGains101to500 = investors101to500.map(inv => inv.gain).filter(g => g > -100 && g < 10000);
+            const avgGain101to500 = validGains101to500.reduce((sum, g) => sum + g, 0) / validGains101to500.length;
             console.log(`Investors 101-500 avg: ${avgGain101to500.toFixed(2)}%`);
           } else if (size === 1000) {
             const investors501to1000 = subset.slice(500, 1000);
-            const avgGain501to1000 = investors501to1000.reduce((sum, inv) => sum + inv.gain, 0) / investors501to1000.length;
+            const validGains501to1000 = investors501to1000.map(inv => inv.gain).filter(g => g > -100 && g < 10000);
+            const avgGain501to1000 = validGains501to1000.reduce((sum, g) => sum + g, 0) / validGains501to1000.length;
             console.log(`Investors 1-1000 avg: ${avgGain.toFixed(2)}%`);
             console.log(`Investors 501-1000 avg: ${avgGain501to1000.toFixed(2)}%`);
+            
+            // Check if there's a data format issue
+            const sample = investors501to1000.slice(0, 5);
+            console.log(`Sample gains 501-505: ${sample.map(inv => `${inv.userName}:${inv.gain}`).join(', ')}`);
           } else if (size === 1500) {
             const investors1001to1500 = subset.slice(1000, 1500);
-            const avgGain1001to1500 = investors1001to1500.reduce((sum, inv) => sum + inv.gain, 0) / investors1001to1500.length;
+            const validGains1001to1500 = investors1001to1500.map(inv => inv.gain).filter(g => g > -100 && g < 10000);
+            const avgGain1001to1500 = validGains1001to1500.reduce((sum, g) => sum + g, 0) / validGains1001to1500.length;
             console.log(`Investors 1001-1500 avg: ${avgGain1001to1500.toFixed(2)}%`);
             console.log(`Overall 1-1500 avg: ${avgGain.toFixed(2)}%`);
+            
+            // Check if there's a data format issue
+            const sample = investors1001to1500.slice(0, 5);
+            console.log(`Sample gains 1001-1005: ${sample.map(inv => `${inv.userName}:${inv.gain}`).join(', ')}`);
           }
           
           const subsetAnalysis: CensusAnalysis & { investorCount: number } = {
@@ -1004,7 +1029,7 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                     <div class="card">
                         <div class="card-header">
                             <h3>Portfolio Diversification</h3>
-                            <p class="card-description">Number of unique instruments held by investors</p>
+                            <p class="card-description">Distribution across all analyzed portfolios</p>
                         </div>
                         <div class="chart-container">
                             ${Object.entries(item.analysis.uniqueInstrumentsDistribution || {}).map(([range, count]) => {
@@ -1032,7 +1057,7 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                     <div class="card">
                         <div class="card-header">
                             <h3>Cash Allocation</h3>
-                            <p class="card-description">Percentage of portfolio held in cash</p>
+                            <p class="card-description">Distribution across all analyzed portfolios</p>
                         </div>
                         <div class="chart-container">
                             ${Object.entries(item.analysis.cashPercentageDistribution || {}).map(([range, count]) => {
