@@ -42,7 +42,7 @@ export default function TopPerformers({ performers }: TopPerformersProps) {
             <TableRow>
               <TableHead>Rank</TableHead>
               <TableHead>Investor</TableHead>
-              <TableHead className="text-right">Gain</TableHead>
+              <TableHead className="text-right">Gain (YTD)</TableHead>
               <TableHead className="text-right">Win Ratio</TableHead>
               <TableHead className="text-right">Cash %</TableHead>
               <TableHead className="text-right">Risk Score</TableHead>

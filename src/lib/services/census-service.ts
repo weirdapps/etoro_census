@@ -296,7 +296,7 @@ function calculateReturnsDistribution(investors: PopularInvestor[]): { [range: s
   };
   
   investors.forEach(investor => {
-    const gain = investor.gain / 100;  // Convert basis points to percentage
+    const gain = investor.gain;  // Already in percentage format
     if (gain < 0) distribution['Loss']++;
     else if (gain <= 10) distribution['0-10%']++;
     else if (gain <= 25) distribution['11-25%']++;
@@ -341,7 +341,7 @@ function calculateTopPerformers(investors: PopularInvestor[], portfolioStats: Po
       return {
         username: investor.userName || 'Unknown',
         fullName: investor.fullName || investor.userName || 'Unknown Investor',
-        gain: (investor.gain || 0) / 100,  // Convert basis points to percentage
+        gain: investor.gain || 0,  // Already in percentage format
         riskScore: investor.riskScore || 0,
         winRatio: investor.winRatio || 0,
         copiers: investor.copiers || 0,
@@ -360,7 +360,7 @@ function calculateAverageGain(investors: PopularInvestor[]): number {
   // Convert from basis points to percentage (gain / 100)
   // The API returns gains in basis points where 100 = 1%
   const gains = investors
-    .map(inv => inv.gain / 100)  // Convert basis points to percentage
+    .map(inv => inv.gain)  // Already in percentage format
     .filter(gain => 
       gain !== null && 
       gain !== undefined && 
