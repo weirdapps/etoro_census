@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { CensusAnalysis } from '@/lib/models/census';
 import { getPopularInvestors } from '@/lib/services/user-service';
 import { performCensusAnalysis, ProgressCallback } from '@/lib/services/census-service';
-import { PeriodType, PopularInvestor } from '@/lib/models/user';
+import { PeriodType } from '@/lib/models/user';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -49,23 +49,47 @@ export async function POST(request: NextRequest) {
         allInvestors.sort((a, b) => b.copiers - a.copiers);
         console.log(`Sorted ${allInvestors.length} investors by copiers`);
         
-        sendProgress(15, `Analyzing ${allInvestors.length} investors...`);
+        sendProgress(15, `Preparing to analyze investor bands...`);
         
-        // NEW APPROACH: Fetch all portfolio data ONCE
-        const onProgress: ProgressCallback = (progress: number, message: string) => {
-          const scaledProgress = 15 + (progress * 75 / 100);
-          sendProgress(Math.round(scaledProgress), message);
-        };
+        // Generate multiple analyses for different investor counts
+        const analyses: { count: number; analysis: CensusAnalysis }[] = [];
+        const subsetSizes = [100, 500, 1000, 1500].filter(size => size <= allInvestors.length);
         
-        // Perform full census analysis on all investors
-        const fullAnalysis = await performCensusAnalysis(allInvestors, onProgress);
-        
-        if (!fullAnalysis) {
-          throw new Error('Failed to analyze investors');
+        // Run separate analysis for each band
+        for (let i = 0; i < subsetSizes.length; i++) {
+          const size = subsetSizes[i];
+          const subset = allInvestors.slice(0, size);
+          
+          const progressOffset = 15 + (i * 20); // Each band gets 20% of progress
+          sendProgress(progressOffset, `Analyzing top ${size} investors...`);
+          
+          const onProgress: ProgressCallback = (progress: number, message: string) => {
+            const scaledProgress = progressOffset + (progress * 20 / 100);
+            sendProgress(Math.round(scaledProgress), message);
+          };
+          
+          try {
+            console.log(`\n=== Starting analysis for top ${size} investors ===`);
+            const analysis = await performCensusAnalysis(subset, onProgress);
+            
+            if (!analysis) {
+              console.error(`Failed to analyze top ${size} investors`);
+              continue;
+            }
+            
+            // Log average returns for debugging
+            console.log(`Top ${size} average gain: ${analysis.averageGain.toFixed(2)}%`);
+            
+            analyses.push({ count: size, analysis });
+          } catch (error) {
+            console.error(`Error analyzing top ${size} investors:`, error);
+          }
         }
         
-        sendProgress(92, 'Generating report...');
-
+        if (analyses.length === 0) {
+          throw new Error('Failed to analyze any investor bands');
+        }
+        
         sendProgress(95, 'Generating HTML report...');
 
         // Create reports directory if it doesn't exist
@@ -80,115 +104,10 @@ export async function POST(request: NextRequest) {
         // Log key investor positions for debugging
         console.log(`\n=== Key investor positions ===`);
         console.log(`Top investor: ${allInvestors[0]?.userName} with ${allInvestors[0]?.copiers} copiers and ${allInvestors[0]?.gain}% gain`);
-        console.log(`Investor #100: ${allInvestors[99]?.userName} with ${allInvestors[99]?.copiers} copiers and ${allInvestors[99]?.gain}% gain`);
-        console.log(`Investor #500: ${allInvestors[499]?.userName} with ${allInvestors[499]?.copiers} copiers and ${allInvestors[499]?.gain}% gain`);
-        console.log(`Investor #1000: ${allInvestors[999]?.userName} with ${allInvestors[999]?.copiers} copiers and ${allInvestors[999]?.gain}% gain`);
-        console.log(`Investor #1500: ${allInvestors[1499]?.userName} with ${allInvestors[1499]?.copiers} copiers and ${allInvestors[1499]?.gain}% gain`);
-        
-        // Generate multiple analyses for different investor counts
-        const analyses: { count: number; analysis: CensusAnalysis }[] = [];
-        const subsetSizes = [100, 500, 1000, 1500].filter(size => size <= allInvestors.length);
-        
-        for (const size of subsetSizes) {
-          const subset = allInvestors.slice(0, size);
-          
-          // Detailed logging for debugging
-          console.log(`\n=== Analyzing top ${size} investors ===`);
-          console.log(`Total investors in subset: ${subset.length}`);
-          
-          // Log gain distribution
-          const gains = subset.map(inv => inv.gain);
-          const sortedGains = [...gains].sort((a, b) => b - a);
-          console.log(`Gain range: ${Math.min(...gains).toFixed(2)}% to ${Math.max(...gains).toFixed(2)}%`);
-          console.log(`Median gain: ${sortedGains[Math.floor(sortedGains.length / 2)].toFixed(2)}%`);
-          
-          // Check for outliers
-          const top10Gains = sortedGains.slice(0, 10);
-          const bottom10Gains = sortedGains.slice(-10);
-          console.log(`Top 10 gains: ${top10Gains.map(g => g.toFixed(1)).join(', ')}%`);
-          console.log(`Bottom 10 gains: ${bottom10Gains.map(g => g.toFixed(1)).join(', ')}%`);
-          
-          // Check for data anomalies
-          const extremeGains = gains.filter(g => g > 1000);
-          if (extremeGains.length > 0) {
-            console.log(`WARNING: Found ${extremeGains.length} extreme gains > 1000%: ${extremeGains.slice(0, 5).map(g => g.toFixed(1)).join(', ')}`);
-          }
-          
-          // Calculate average cash percentage for this subset from topPerformers
-          const subsetPerformers = fullAnalysis.topPerformers.filter(performer => 
-            subset.some(inv => inv.userName === performer.username)
-          );
-          const averageCashForSubset = subsetPerformers.length > 0
-            ? subsetPerformers.reduce((sum, p) => sum + p.cashPercentage, 0) / subsetPerformers.length
-            : 0;
-          
-          // For each subset, create an analysis with the data appropriate for that subset
-          // Filter out any invalid or extreme gains
-          const validGains = subset.map(inv => inv.gain).filter(gain => 
-            gain !== null && gain !== undefined && !isNaN(gain) && gain > -100 && gain < 10000
-          );
-          
-          const avgGain = validGains.length > 0 
-            ? validGains.reduce((sum, gain) => sum + gain, 0) / validGains.length
-            : 0;
-          
-          console.log(`Average gain for top ${size} investors: ${avgGain.toFixed(2)}% (${validGains.length} valid gains out of ${subset.length} investors)`);
-          
-          // Additional logging for band comparison with validation
-          if (size === 100) {
-            console.log(`Investors 1-100 avg: ${avgGain.toFixed(2)}%`);
-          } else if (size === 500) {
-            const investors101to500 = subset.slice(100, 500);
-            const validGains101to500 = investors101to500.map(inv => inv.gain).filter(g => g > -100 && g < 10000);
-            const avgGain101to500 = validGains101to500.reduce((sum, g) => sum + g, 0) / validGains101to500.length;
-            console.log(`Investors 101-500 avg: ${avgGain101to500.toFixed(2)}%`);
-          } else if (size === 1000) {
-            const investors501to1000 = subset.slice(500, 1000);
-            const validGains501to1000 = investors501to1000.map(inv => inv.gain).filter(g => g > -100 && g < 10000);
-            const avgGain501to1000 = validGains501to1000.reduce((sum, g) => sum + g, 0) / validGains501to1000.length;
-            console.log(`Investors 1-1000 avg: ${avgGain.toFixed(2)}%`);
-            console.log(`Investors 501-1000 avg: ${avgGain501to1000.toFixed(2)}%`);
-            
-            // Check if there's a data format issue
-            const sample = investors501to1000.slice(0, 5);
-            console.log(`Sample gains 501-505: ${sample.map(inv => `${inv.userName}:${inv.gain}`).join(', ')}`);
-          } else if (size === 1500) {
-            const investors1001to1500 = subset.slice(1000, 1500);
-            const validGains1001to1500 = investors1001to1500.map(inv => inv.gain).filter(g => g > -100 && g < 10000);
-            const avgGain1001to1500 = validGains1001to1500.reduce((sum, g) => sum + g, 0) / validGains1001to1500.length;
-            console.log(`Investors 1001-1500 avg: ${avgGain1001to1500.toFixed(2)}%`);
-            console.log(`Overall 1-1500 avg: ${avgGain.toFixed(2)}%`);
-            
-            // Check if there's a data format issue
-            const sample = investors1001to1500.slice(0, 5);
-            console.log(`Sample gains 1001-1005: ${sample.map(inv => `${inv.userName}:${inv.gain}`).join(', ')}`);
-          }
-          
-          const subsetAnalysis: CensusAnalysis & { investorCount: number } = {
-            ...fullAnalysis,
-            investorCount: size,
-            // Recalculate averages for the subset
-            averageGain: avgGain,
-            averageRiskScore: subset.reduce((sum, inv) => sum + (inv.riskScore || 0), 0) / subset.length,
-            averageCopiers: Math.round(subset.reduce((sum, inv) => sum + inv.copiers, 0) / subset.length),
-            // Recalculate distributions for the subset
-            returnsDistribution: calculateReturnsDistribution(subset),
-            riskScoreDistribution: calculateRiskScoreDistribution(subset),
-            // Filter topPerformers to only include investors in this subset
-            topPerformers: subsetPerformers,
-            // Keep the same top holdings from full analysis (instruments are portfolio-based)
-            topHoldings: fullAnalysis.topHoldings,
-            // Keep the portfolio-based distributions from full analysis
-            uniqueInstrumentsDistribution: fullAnalysis.uniqueInstrumentsDistribution,
-            cashPercentageDistribution: fullAnalysis.cashPercentageDistribution,
-            // Keep the same metrics that are portfolio-based
-            fearGreedIndex: fullAnalysis.fearGreedIndex,
-            averageUniqueInstruments: fullAnalysis.averageUniqueInstruments,
-            // Use the recalculated average cash for this subset
-            averageCashPercentage: Math.round(averageCashForSubset * 10) / 10
-          };
-          analyses.push({ count: size, analysis: subsetAnalysis });
-        }
+        if (allInvestors.length >= 100) console.log(`Investor #100: ${allInvestors[99]?.userName} with ${allInvestors[99]?.copiers} copiers and ${allInvestors[99]?.gain}% gain`);
+        if (allInvestors.length >= 500) console.log(`Investor #500: ${allInvestors[499]?.userName} with ${allInvestors[499]?.copiers} copiers and ${allInvestors[499]?.gain}% gain`);
+        if (allInvestors.length >= 1000) console.log(`Investor #1000: ${allInvestors[999]?.userName} with ${allInvestors[999]?.copiers} copiers and ${allInvestors[999]?.gain}% gain`);
+        if (allInvestors.length >= 1500) console.log(`Investor #1500: ${allInvestors[1499]?.userName} with ${allInvestors[1499]?.copiers} copiers and ${allInvestors[1499]?.gain}% gain`);
 
         // Generate the HTML report with multiple tabs
         const html = generateReportHTML(analyses);
@@ -205,6 +124,8 @@ export async function POST(request: NextRequest) {
         await fs.mkdir(docsDir, { recursive: true });
         const docsIndexPath = path.join(docsDir, 'index.html');
         await fs.writeFile(docsIndexPath, html, 'utf-8');
+
+        sendProgress(99, 'Finalizing report...');
 
         // Return the relative URL for the report
         const reportUrl = `/reports/${fileName}`;
@@ -246,52 +167,6 @@ function formatDateTime(date: Date): string {
   return `${year}.${month}.${day} at ${hours}:${minutes} UTC`;
 }
 
-function calculateReturnsDistribution(investors: PopularInvestor[]): { [range: string]: number } {
-  const distribution: { [range: string]: number } = {
-    'Loss': 0,
-    '0-10%': 0,
-    '11-25%': 0,
-    '26-50%': 0,
-    '51-100%': 0,
-    '100%+': 0
-  };
-  
-  investors.forEach(investor => {
-    const gain = investor.gain || 0;
-    if (gain < 0) distribution['Loss']++;
-    else if (gain <= 10) distribution['0-10%']++;
-    else if (gain <= 25) distribution['11-25%']++;
-    else if (gain <= 50) distribution['26-50%']++;
-    else if (gain <= 100) distribution['51-100%']++;
-    else distribution['100%+']++;
-  });
-  
-  return distribution;
-}
-
-function calculateRiskScoreDistribution(investors: PopularInvestor[]): { [range: string]: number } {
-  const distribution: { [range: string]: number } = {
-    'Conservative (1-3)': 0,
-    'Moderate (4-5)': 0,
-    'Aggressive (6-7)': 0,
-    'Very High Risk (8-10)': 0
-  };
-  
-  investors.forEach(investor => {
-    const riskScore = investor.riskScore || 0;
-    if (riskScore >= 1 && riskScore <= 3) {
-      distribution['Conservative (1-3)']++;
-    } else if (riskScore >= 4 && riskScore <= 5) {
-      distribution['Moderate (4-5)']++;
-    } else if (riskScore >= 6 && riskScore <= 7) {
-      distribution['Aggressive (6-7)']++;
-    } else if (riskScore >= 8 && riskScore <= 10) {
-      distribution['Very High Risk (8-10)']++;
-    }
-  });
-  
-  return distribution;
-}
 
 
 function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis }[]): string {
@@ -1029,7 +904,7 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                     <div class="card">
                         <div class="card-header">
                             <h3>Portfolio Diversification</h3>
-                            <p class="card-description">Distribution across all analyzed portfolios</p>
+                            <p class="card-description">Number of unique instruments held by top ${item.count} investors</p>
                         </div>
                         <div class="chart-container">
                             ${Object.entries(item.analysis.uniqueInstrumentsDistribution || {}).map(([range, count]) => {
@@ -1057,7 +932,7 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                     <div class="card">
                         <div class="card-header">
                             <h3>Cash Allocation</h3>
-                            <p class="card-description">Distribution across all analyzed portfolios</p>
+                            <p class="card-description">Percentage of portfolio held in cash by top ${item.count} investors</p>
                         </div>
                         <div class="chart-container">
                             ${Object.entries(item.analysis.cashPercentageDistribution || {}).map(([range, count]) => {
@@ -1088,7 +963,7 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                     <div class="card">
                         <div class="card-header">
                             <h3>Most Popular Holdings</h3>
-                            <p class="card-description">Instruments held by the highest number of investors across all ${item.count} PIs (${(item.analysis.topHoldings || []).length} total)</p>
+                            <p class="card-description">Instruments held by the highest number of investors in top ${item.count} PIs (${(item.analysis.topHoldings || []).length} total)</p>
                         </div>
                         <div class="card-content">
                             <table>
