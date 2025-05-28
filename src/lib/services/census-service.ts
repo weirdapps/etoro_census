@@ -296,7 +296,7 @@ function calculateReturnsDistribution(investors: PopularInvestor[]): { [range: s
   };
   
   investors.forEach(investor => {
-    const gain = investor.gain;
+    const gain = investor.gain / 100;  // Convert basis points to percentage
     if (gain < 0) distribution['Loss']++;
     else if (gain <= 10) distribution['0-10%']++;
     else if (gain <= 25) distribution['11-25%']++;
@@ -341,7 +341,7 @@ function calculateTopPerformers(investors: PopularInvestor[], portfolioStats: Po
       return {
         username: investor.userName || 'Unknown',
         fullName: investor.fullName || investor.userName || 'Unknown Investor',
-        gain: investor.gain || 0,
+        gain: (investor.gain || 0) / 100,  // Convert basis points to percentage
         riskScore: investor.riskScore || 0,
         winRatio: investor.winRatio || 0,
         copiers: investor.copiers || 0,
@@ -357,38 +357,22 @@ function calculateTopPerformers(investors: PopularInvestor[], portfolioStats: Po
 function calculateAverageGain(investors: PopularInvestor[]): number {
   if (investors.length === 0) return 0;
   
-  // Filter out invalid or extreme gains that might be data errors
-  const validGains = investors
-    .map(inv => inv.gain)
+  // Convert from basis points to percentage (gain / 100)
+  // The API returns gains in basis points where 100 = 1%
+  const gains = investors
+    .map(inv => inv.gain / 100)  // Convert basis points to percentage
     .filter(gain => 
       gain !== null && 
       gain !== undefined && 
       !isNaN(gain) && 
       gain > -100 && 
-      gain < 200  // Cap at 200% to filter out potential data errors
+      gain < 200
     );
   
-  if (validGains.length === 0) return 0;
+  if (gains.length === 0) return 0;
   
-  // Calculate mean
-  const totalGain = validGains.reduce((sum, gain) => sum + gain, 0);
-  const mean = totalGain / validGains.length;
-  
-  // Calculate median as a sanity check
-  const sortedGains = [...validGains].sort((a, b) => a - b);
-  const median = sortedGains[Math.floor(sortedGains.length / 2)];
-  
-  // Log if there's a significant discrepancy
-  if (Math.abs(mean - median) > 10) {
-    console.log(`[Census] Large mean/median discrepancy: mean=${mean.toFixed(2)}%, median=${median.toFixed(2)}%`);
-    console.log(`[Census] Valid gains: ${validGains.length} out of ${investors.length} investors`);
-    
-    // Check for outliers
-    const outliers = validGains.filter(g => g > 100);
-    if (outliers.length > 0) {
-      console.log(`[Census] ${outliers.length} gains > 100%: ${outliers.slice(0, 5).map(g => g.toFixed(1)).join(', ')}%`);
-    }
-  }
+  const totalGain = gains.reduce((sum, gain) => sum + gain, 0);
+  const mean = totalGain / gains.length;
   
   return Math.round(mean * 10) / 10;
 }
