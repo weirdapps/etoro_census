@@ -261,6 +261,7 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>eToro Census Report - ${new Date().toLocaleDateString()}</title>
+    <script defer src="https://cloud.umami.is/script.js" data-website-id="5730b8f9-c50c-4175-9d28-50db8bfb04dc"></script>
     <style>
         * {
             margin: 0;
