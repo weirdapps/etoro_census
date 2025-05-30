@@ -218,22 +218,24 @@ function calculateUniqueInstrumentsDistribution(portfolioStats: PortfolioStats[]
 
 function calculateCashPercentageDistribution(portfolioStats: PortfolioStats[]): { [range: string]: number } {
   const distribution: { [range: string]: number } = {
-    '0-5%': 0,
-    '5-10%': 0,
-    '11-25%': 0,
-    '26-50%': 0,
-    '51-75%': 0,
-    '76-100%': 0
+    'Less than 1%': 0,
+    '1-5%': 0,
+    '> 5-10%': 0,
+    '> 10-25%': 0,
+    '> 25-50%': 0,
+    '> 50-75%': 0,
+    '> 75-100%': 0
   };
   
   portfolioStats.forEach(stats => {
     const percentage = stats.cashPercentage;
-    if (percentage <= 5) distribution['0-5%']++;
-    else if (percentage <= 10) distribution['5-10%']++;
-    else if (percentage <= 25) distribution['11-25%']++;
-    else if (percentage <= 50) distribution['26-50%']++;
-    else if (percentage <= 75) distribution['51-75%']++;
-    else distribution['76-100%']++;
+    if (percentage < 1) distribution['Less than 1%']++;
+    else if (percentage <= 5) distribution['1-5%']++;
+    else if (percentage <= 10) distribution['> 5-10%']++;
+    else if (percentage <= 25) distribution['> 10-25%']++;
+    else if (percentage <= 50) distribution['> 25-50%']++;
+    else if (percentage <= 75) distribution['> 50-75%']++;
+    else distribution['> 75-100%']++;
   });
   
   return distribution;
@@ -288,22 +290,24 @@ function calculateTopHoldings(
 
 function calculateReturnsDistribution(investors: PopularInvestor[]): { [range: string]: number } {
   const distribution: { [range: string]: number } = {
-    'Loss': 0,
-    '0-10%': 0,
-    '11-25%': 0,
-    '26-50%': 0,
-    '51-100%': 0,
-    '100%+': 0
+    'Negative': 0,
+    '0-5%': 0,
+    '> 5-10%': 0,
+    '> 10-25%': 0,
+    '> 25-50%': 0,
+    '> 50-100%': 0,
+    '> 100%': 0
   };
   
   investors.forEach(investor => {
     const gain = investor.gain;  // Already in percentage format
-    if (gain < 0) distribution['Loss']++;
-    else if (gain <= 10) distribution['0-10%']++;
-    else if (gain <= 25) distribution['11-25%']++;
-    else if (gain <= 50) distribution['26-50%']++;
-    else if (gain <= 100) distribution['51-100%']++;
-    else distribution['100%+']++;
+    if (gain < 0) distribution['Negative']++;
+    else if (gain <= 5) distribution['0-5%']++;
+    else if (gain <= 10) distribution['> 5-10%']++;
+    else if (gain <= 25) distribution['> 10-25%']++;
+    else if (gain <= 50) distribution['> 25-50%']++;
+    else if (gain <= 100) distribution['> 50-100%']++;
+    else distribution['> 100%']++;
   });
   
   return distribution;
@@ -312,8 +316,10 @@ function calculateReturnsDistribution(investors: PopularInvestor[]): { [range: s
 function calculateRiskScoreDistribution(investors: PopularInvestor[]): { [range: string]: number } {
   const distribution: { [range: string]: number } = {
     'Conservative (1-3)': 0,
-    'Moderate (4-5)': 0,
-    'Aggressive (6-7)': 0,
+    'Moderate (4)': 0,
+    'Moderate (5)': 0,
+    'Aggressive (6)': 0,
+    'Aggressive (7)': 0,
     'Very High Risk (8-10)': 0
   };
   
@@ -321,10 +327,14 @@ function calculateRiskScoreDistribution(investors: PopularInvestor[]): { [range:
     const riskScore = investor.riskScore || 0;
     if (riskScore >= 1 && riskScore <= 3) {
       distribution['Conservative (1-3)']++;
-    } else if (riskScore >= 4 && riskScore <= 5) {
-      distribution['Moderate (4-5)']++;
-    } else if (riskScore >= 6 && riskScore <= 7) {
-      distribution['Aggressive (6-7)']++;
+    } else if (riskScore === 4) {
+      distribution['Moderate (4)']++;
+    } else if (riskScore === 5) {
+      distribution['Moderate (5)']++;
+    } else if (riskScore === 6) {
+      distribution['Aggressive (6)']++;
+    } else if (riskScore === 7) {
+      distribution['Aggressive (7)']++;
     } else if (riskScore >= 8 && riskScore <= 10) {
       distribution['Very High Risk (8-10)']++;
     }
