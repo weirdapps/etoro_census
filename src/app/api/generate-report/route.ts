@@ -4,7 +4,6 @@ import { getPopularInvestors } from '@/lib/services/user-service';
 import { performCensusAnalysis, ProgressCallback } from '@/lib/services/census-service';
 import { PeriodType, PopularInvestor } from '@/lib/models/user';
 import { getUserPortfolio } from '@/lib/services/user-service';
-import { UserPortfolio } from '@/lib/models/user-portfolio';
 import fs from 'fs/promises';
 import path from 'path';
 
