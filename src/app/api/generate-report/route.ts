@@ -140,7 +140,7 @@ export async function POST(request: NextRequest) {
 
         // Create directories if they don't exist
         const reportsDir = path.join(process.cwd(), 'public', 'reports');
-        const dataDir = path.join(process.cwd(), 'data', 'daily');  // Save to repo root, not public
+        const dataDir = path.join(process.cwd(), 'public', 'data', 'daily');
         
         await fs.mkdir(reportsDir, { recursive: true });
         await fs.mkdir(dataDir, { recursive: true });
@@ -182,11 +182,6 @@ export async function POST(request: NextRequest) {
         const indexPath = path.join(reportsDir, 'index.html');
         await fs.writeFile(indexPath, html, 'utf-8');
         
-        // Also copy to docs folder for GitHub Pages
-        const docsDir = path.join(process.cwd(), 'docs');
-        await fs.mkdir(docsDir, { recursive: true });
-        const docsIndexPath = path.join(docsDir, 'index.html');
-        await fs.writeFile(docsIndexPath, html, 'utf-8');
 
 
         sendProgress(99, 'Finalizing report...');
@@ -1024,7 +1019,7 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                 </div>
 
                 <!-- Tables -->
-                <div class="space-y-8">
+                <div class="space-y-8" style="margin-top: 2rem;">
                     <!-- Top Holdings -->
                     <div class="card">
                         <div class="card-header">
