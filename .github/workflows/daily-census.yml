@@ -94,7 +94,7 @@ jobs:
       
       - name: Commit and push reports
         run: |
-          git add public/reports/*.html docs/index.html
+          git add public/reports/*.html docs/index.html data/daily/*.json
           git diff --staged --quiet || {
             COMMIT_MSG="Daily census report - $(date -u +'%Y-%m-%d %H:%M UTC')"
             git commit -m "$COMMIT_MSG"

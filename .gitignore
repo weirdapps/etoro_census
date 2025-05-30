@@ -100,3 +100,7 @@ temp/
 
 # AI context files
 CLAUDE.md
+
+# Data files (large JSON exports)
+# Uncomment below if JSON files become too large for git
+# data/daily/*.json

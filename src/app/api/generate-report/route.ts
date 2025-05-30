@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { CensusAnalysis } from '@/lib/models/census';
+import { CensusAnalysis, InstrumentHolding, PerformerStats } from '@/lib/models/census';
 import { getPopularInvestors } from '@/lib/services/user-service';
 import { performCensusAnalysis, ProgressCallback } from '@/lib/services/census-service';
-import { PeriodType } from '@/lib/models/user';
+import { PeriodType, PopularInvestor } from '@/lib/models/user';
+import { getUserPortfolio } from '@/lib/services/user-service';
+import { UserPortfolio } from '@/lib/models/user-portfolio';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -135,16 +137,22 @@ export async function POST(request: NextRequest) {
           throw new Error('Failed to analyze any investor bands');
         }
         
-        sendProgress(95, 'Generating HTML report...');
+        sendProgress(95, 'Generating reports...');
 
-        // Create reports directory if it doesn't exist
+        // Create directories if they don't exist
         const reportsDir = path.join(process.cwd(), 'public', 'reports');
+        const dataDir = path.join(process.cwd(), 'data', 'daily');  // Save to repo root, not public
+        
         await fs.mkdir(reportsDir, { recursive: true });
+        await fs.mkdir(dataDir, { recursive: true });
 
         // Generate timestamp for filename
         const date = new Date();
-        const fileName = `etoro-census-${date.toISOString().split('T')[0]}-${Date.now()}.html`;
-        const filePath = path.join(reportsDir, fileName);
+        const dateStr = date.toISOString().split('T')[0];
+        const timestamp = Date.now();
+        const htmlFileName = `etoro-census-${dateStr}-${timestamp}.html`;
+        const jsonFileName = `${dateStr}.json`;
+        const htmlFilePath = path.join(reportsDir, htmlFileName);
 
         // Log key investor positions for debugging
         console.log(`\n=== Key investor positions ===`);
@@ -154,11 +162,22 @@ export async function POST(request: NextRequest) {
         if (allInvestors.length >= 1000) console.log(`Investor #1000: ${allInvestors[999]?.userName} with ${allInvestors[999]?.copiers} copiers and ${allInvestors[999]?.gain}% gain`);
         if (allInvestors.length >= 1500) console.log(`Investor #1500: ${allInvestors[1499]?.userName} with ${allInvestors[1499]?.copiers} copiers and ${allInvestors[1499]?.gain}% gain`);
 
+        // Prepare JSON data with all user portfolios
+        sendProgress(96, 'Collecting portfolio data for JSON export...');
+        const jsonData = await prepareJSONExport(allInvestors, analyses, date);
+        
+        // Write JSON file to data directory (will be committed to git)
+        const jsonFilePath = path.join(dataDir, jsonFileName);
+        await fs.writeFile(jsonFilePath, JSON.stringify(jsonData, null, 2), 'utf-8');
+        console.log(`JSON data saved to: ${jsonFilePath} (${(JSON.stringify(jsonData).length / 1024 / 1024).toFixed(2)} MB)`);
+        
+        sendProgress(98, 'Generating HTML report...');
+        
         // Generate the HTML report with multiple tabs
         const html = generateReportHTML(analyses);
 
         // Write the HTML file
-        await fs.writeFile(filePath, html, 'utf-8');
+        await fs.writeFile(htmlFilePath, html, 'utf-8');
         
         // Also copy to index.html to make it the latest report
         const indexPath = path.join(reportsDir, 'index.html');
@@ -170,10 +189,11 @@ export async function POST(request: NextRequest) {
         const docsIndexPath = path.join(docsDir, 'index.html');
         await fs.writeFile(docsIndexPath, html, 'utf-8');
 
+
         sendProgress(99, 'Finalizing report...');
 
         // Return the relative URL for the report
-        const reportUrl = `/reports/${fileName}`;
+        const reportUrl = `/reports/${htmlFileName}`;
 
         sendProgress(100, 'Report generated successfully!');
         sendComplete(reportUrl);
@@ -211,6 +231,7 @@ function formatDateTime(date: Date): string {
   
   return `${year}.${month}.${day} at ${hours}:${minutes} UTC`;
 }
+
 
 
 
@@ -1206,4 +1227,216 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
     </script>
 </body>
 </html>`;
+}
+
+interface InvestorWithPortfolio extends PopularInvestor {
+  portfolio: {
+    realizedCreditPct?: number;
+    unrealizedCreditPct?: number;
+    totalValue?: number;
+    profitLoss?: number;
+    profitLossPercentage?: number;
+    positionsCount: number;
+    socialTradesCount: number;
+    positions: Array<{
+      positionId: number;
+      instrumentId: number;
+      instrumentName?: string;
+      isBuy: boolean;
+      leverage: number;
+      investmentPct?: number;
+      netProfit?: number;
+      currentValue?: number;
+      currentRate?: number;
+      openRate: number;
+      openTimestamp: string;
+    }>;
+    socialTrades: Array<{
+      socialTradeId: number;
+      parentUsername: string;
+      investmentPct?: number;
+      netProfit?: number;
+      realizedPct?: number;
+      unrealizedPct?: number;
+      openTimestamp: string;
+    }>;
+  } | null;
+  portfolioError?: string;
+}
+
+interface InstrumentData {
+  instrumentId: number;
+  instrumentName: string;
+  symbol: string;
+  imageUrl?: string;
+}
+
+interface AnalysisExport {
+  investorCount: number;
+  fearGreedIndex: number;
+  averages: {
+    gain: number;
+    cashPercentage: number;
+    riskScore: number;
+    copiers: number;
+    uniqueInstruments: number;
+  };
+  distributions: {
+    returns: { [range: string]: number };
+    riskScore: { [range: string]: number };
+    uniqueInstruments: { [range: string]: number };
+    cashPercentage: { [range: string]: number };
+  };
+  topHoldings: InstrumentHolding[];
+  topPerformers: PerformerStats[];
+}
+
+interface JSONExportData {
+  metadata: {
+    generatedAt: string;
+    generatedAtUTC: string;
+    totalInvestors: number;
+    analysisGroups: { count: number }[];
+    dataSource: string;
+    period: string;
+  };
+  investors: InvestorWithPortfolio[];
+  instruments: InstrumentData[];
+  analyses: AnalysisExport[];
+}
+
+async function prepareJSONExport(
+  investors: PopularInvestor[], 
+  analyses: { count: number; analysis: CensusAnalysis }[],
+  date: Date
+): Promise<JSONExportData> {
+  console.log('Preparing JSON export for', investors.length, 'investors');
+  
+  // Collect detailed portfolio data for each investor
+  const investorsWithPortfolios: InvestorWithPortfolio[] = [];
+  
+  for (const investor of investors) {
+    try {
+      const portfolio = await getUserPortfolio(investor.userName);
+      
+      investorsWithPortfolios.push({
+        // Basic investor info
+        customerId: investor.customerId,
+        userName: investor.userName,
+        fullName: investor.fullName,
+        hasAvatar: investor.hasAvatar,
+        popularInvestor: investor.popularInvestor,
+        gain: investor.gain,
+        dailyGain: investor.dailyGain,
+        riskScore: investor.riskScore,
+        copiers: investor.copiers,
+        trades: investor.trades,
+        winRatio: investor.winRatio,
+        country: investor.country,
+        avatarUrl: investor.avatarUrl,
+        
+        // Portfolio data
+        portfolio: {
+          realizedCreditPct: portfolio.realizedCreditPct,
+          unrealizedCreditPct: portfolio.unrealizedCreditPct,
+          totalValue: portfolio.totalValue,
+          profitLoss: portfolio.profitLoss,
+          profitLossPercentage: portfolio.profitLossPercentage,
+          positionsCount: portfolio.positions?.length || 0,
+          socialTradesCount: portfolio.socialTrades?.length || 0,
+          
+          // Positions summary (to avoid huge file sizes)
+          positions: portfolio.positions?.map(pos => ({
+            positionId: pos.positionId,
+            instrumentId: pos.instrumentId,
+            instrumentName: pos.instrumentName,
+            isBuy: pos.isBuy,
+            leverage: pos.leverage,
+            investmentPct: pos.investmentPct,
+            netProfit: pos.netProfit,
+            currentValue: pos.currentValue,
+            currentRate: pos.currentRate,
+            openRate: pos.openRate,
+            openTimestamp: pos.openTimestamp
+          })) || [],
+          
+          // Social trades summary
+          socialTrades: portfolio.socialTrades?.map(trade => ({
+            socialTradeId: trade.socialTradeId,
+            parentUsername: trade.parentUsername,
+            investmentPct: trade.investmentPct,
+            netProfit: trade.netProfit,
+            realizedPct: trade.realizedPct,
+            unrealizedPct: trade.unrealizedPct,
+            openTimestamp: trade.openTimestamp
+          })) || []
+        }
+      });
+      
+      // Small delay to avoid rate limiting
+      await new Promise(resolve => setTimeout(resolve, 50));
+      
+    } catch (error) {
+      console.error(`Error fetching portfolio for ${investor.userName}:`, error);
+      // Still include the investor even if portfolio fetch fails
+      investorsWithPortfolios.push({
+        ...investor,
+        portfolio: null,
+        portfolioError: error instanceof Error ? error.message : 'Failed to fetch portfolio'
+      });
+    }
+  }
+  
+  // Extract instrument details from all analyses
+  const allInstruments = new Map<number, InstrumentData>();
+  analyses.forEach(({ analysis }) => {
+    analysis.topHoldings?.forEach(holding => {
+      if (!allInstruments.has(holding.instrumentId)) {
+        allInstruments.set(holding.instrumentId, {
+          instrumentId: holding.instrumentId,
+          instrumentName: holding.instrumentName,
+          symbol: holding.symbol,
+          imageUrl: holding.imageUrl
+        });
+      }
+    });
+  });
+  
+  return {
+    metadata: {
+      generatedAt: date.toISOString(),
+      generatedAtUTC: formatDateTime(date),
+      totalInvestors: investors.length,
+      analysisGroups: analyses.map(a => ({ count: a.count })),
+      dataSource: 'eToro API',
+      period: 'CurrYear'
+    },
+    
+    // All investor data with portfolios
+    investors: investorsWithPortfolios,
+    
+    // Instrument reference data
+    instruments: Array.from(allInstruments.values()),
+    
+    // Analysis results for each band
+    analyses: analyses.map(({ count, analysis }) => ({
+      investorCount: count,
+      fearGreedIndex: analysis.fearGreedIndex,
+      averages: {
+        gain: analysis.averageGain,
+        cashPercentage: analysis.averageCashPercentage,
+        riskScore: analysis.averageRiskScore,
+        copiers: analysis.averageCopiers,
+        uniqueInstruments: analysis.averageUniqueInstruments
+      },
+      distributions: {
+        returns: analysis.returnsDistribution,
+        riskScore: analysis.riskScoreDistribution,
+        uniqueInstruments: analysis.uniqueInstrumentsDistribution,
+        cashPercentage: analysis.cashPercentageDistribution
+      },
+      topHoldings: analysis.topHoldings,
+      topPerformers: analysis.topPerformers
+    }))
+  };
 }
