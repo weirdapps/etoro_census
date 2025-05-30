@@ -4,7 +4,7 @@ This directory contains daily JSON exports of eToro Popular Investors census dat
 
 ## File Structure
 
-- `daily/YYYY-MM-DD.json` - Daily census data file containing all 1500 investors' information
+- `etoro-data-YYYY-MM-DD-HH-SS.json` - Census data files with timestamp containing all 1500 investors' information
 
 ## JSON Structure
 
@@ -142,10 +142,11 @@ Each JSON file contains the following structure:
 
 ## Usage Notes
 
-- Files are generated daily at 00:00 UTC
+- Files are generated daily at 00:00 UTC (automatic) and can be generated manually
 - All performance metrics are Year-to-Date (YTD)
 - Portfolio data represents a snapshot at the time of generation
 - Large files (typically 20-50MB) - consider streaming/pagination for processing
+- Multiple files per day are preserved with unique timestamps
 
 ## Privacy Note
 

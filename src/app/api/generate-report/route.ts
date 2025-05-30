@@ -140,7 +140,7 @@ export async function POST(request: NextRequest) {
 
         // Create directories if they don't exist
         const reportsDir = path.join(process.cwd(), 'public', 'reports');
-        const dataDir = path.join(process.cwd(), 'public', 'data', 'daily');
+        const dataDir = path.join(process.cwd(), 'public', 'data');
         
         await fs.mkdir(reportsDir, { recursive: true });
         await fs.mkdir(dataDir, { recursive: true });
@@ -148,9 +148,11 @@ export async function POST(request: NextRequest) {
         // Generate timestamp for filename
         const date = new Date();
         const dateStr = date.toISOString().split('T')[0];
-        const timestamp = Date.now();
-        const htmlFileName = `etoro-census-${dateStr}-${timestamp}.html`;
-        const jsonFileName = `${dateStr}.json`;
+        const timeStr = date.toISOString().replace(/:/g, '-').split('.')[0]; // YYYY-MM-DDTHH-MM-SS
+        const timestampStr = timeStr.replace('T', '-'); // YYYY-MM-DD-HH-MM-SS
+        const jsonTimestamp = `${dateStr}-${date.getUTCHours().toString().padStart(2, '0')}-${date.getUTCSeconds().toString().padStart(2, '0')}`; // YYYY-MM-DD-HH-SS
+        const htmlFileName = `etoro-census-${timestampStr}.html`;
+        const jsonFileName = `etoro-data-${jsonTimestamp}.json`;
         const htmlFilePath = path.join(reportsDir, htmlFileName);
 
         // Log key investor positions for debugging
