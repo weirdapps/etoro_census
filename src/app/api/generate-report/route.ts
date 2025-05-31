@@ -1429,7 +1429,7 @@ async function prepareJSONExport(
         gain: analysis.averageGain,
         cashPercentage: analysis.averageCashPercentage,
         riskScore: analysis.averageRiskScore,
-        trades: analysis.averageTrades,
+        copiers: analysis.averageTrades,
         uniqueInstruments: analysis.averageUniqueInstruments
       },
       distributions: {
