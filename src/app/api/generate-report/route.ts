@@ -890,10 +890,10 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                         </div>
                         <div class="card">
                             <div class="card-header">
-                                <h3>Average Copiers</h3>
+                                <h3>Average Trades</h3>
                                 <p class="card-description">Per Popular Investor</p>
                             </div>
-                            <div class="metric-value">${(item.analysis.averageCopiers || 0).toLocaleString()}</div>
+                            <div class="metric-value">${(item.analysis.averageTrades || 0).toLocaleString()}</div>
                         </div>
                 </div>
 
@@ -1035,6 +1035,7 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                                         <th class="text-right">Holders</th>
                                         <th class="text-right">% of PIs</th>
                                         <th class="text-right">Avg Allocation</th>
+                                        <th class="text-right">Return (YTD)</th>
                                     </tr>
                                 </thead>
                                 <tbody id="holdings-tbody-${index}">
@@ -1059,6 +1060,13 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                                             </td>
                                             <td class="text-right font-medium">
                                                 ${(holding.averageAllocation || 0).toFixed(1)}%
+                                            </td>
+                                            <td class="text-right font-medium">
+                                                ${holding.ytdReturn !== undefined ? `
+                                                    <span style="color: ${holding.ytdReturn > 0 ? '#10b981' : holding.ytdReturn < 0 ? '#ef4444' : '#3b82f6'}">
+                                                        ${holding.ytdReturn > 0 ? '+' : ''}${holding.ytdReturn.toFixed(1)}%
+                                                    </span>
+                                                ` : '<span style="color: #6b7280">-</span>'}
                                             </td>
                                         </tr>
                                     `).join('')}
@@ -1087,7 +1095,7 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                     <!-- Top Performers -->
                     <div class="card">
                         <div class="card-header">
-                            <h3>Most Followed Investors</h3>
+                            <h3>Most Copied Investors</h3>
                             <p class="card-description">Investors ranked by number of copiers (${Math.min((item.analysis.topPerformers || []).length, item.count)} shown)</p>
                         </div>
                         <div class="card-content">
@@ -1096,7 +1104,8 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                                     <tr>
                                         <th>Rank</th>
                                         <th>Investor</th>
-                                        <th class="text-right">Gain</th>
+                                        <th class="text-right">Gain (YTD)</th>
+                                        <th class="text-right">Trades</th>
                                         <th class="text-right">Win Ratio</th>
                                         <th class="text-right">Cash %</th>
                                         <th class="text-right">Risk Score</th>
@@ -1124,6 +1133,7 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                                                     ${(performer.gain || 0) > 0 ? '+' : ''}${(performer.gain || 0).toFixed(1)}%
                                                 </span>
                                             </td>
+                                            <td class="text-right">${performer.trades || 0}</td>
                                             <td class="text-right">${(performer.winRatio || 0).toFixed(1)}%</td>
                                             <td class="text-right">
                                                 <span class="badge badge-blue">${(performer.cashPercentage || 0).toFixed(1)}%</span>
@@ -1420,7 +1430,7 @@ async function prepareJSONExport(
         gain: analysis.averageGain,
         cashPercentage: analysis.averageCashPercentage,
         riskScore: analysis.averageRiskScore,
-        copiers: analysis.averageCopiers,
+        trades: analysis.averageTrades,
         uniqueInstruments: analysis.averageUniqueInstruments
       },
       distributions: {

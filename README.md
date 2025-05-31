@@ -13,16 +13,17 @@ A modern web application for analyzing the portfolios and performance metrics of
 - **Returns Distribution**: Performance ranges across analyzed investors
 - **Risk Score Distribution**: Risk appetite analysis (Conservative, Moderate, Aggressive, Very High Risk)
 
-### 👥 **Most Followed Investors**
+### 👥 **Most Copied Investors**
 - Ranked by number of copiers (social proof)
 - Profile pictures and investor details
-- Performance metrics (gain, win ratio, risk score)
+- Performance metrics (YTD gain, trades count, win ratio, risk score)
 - Pagination support (20 per page, unlimited total)
 
 ### 🏆 **Top Holdings Analysis**
 - Most popular instruments with asset images
 - Average allocation percentages
 - Ownership statistics across portfolios
+- Year-to-Date (YTD) returns for each instrument
 - Pagination support (20 per page, unlimited total)
 
 ### ⚡ **Real-time Progress Tracking**

@@ -102,3 +102,68 @@ export function getInstrumentImageUrl(instrument: InstrumentDisplayData): string
   
   return preferredImage?.uri;
 }
+
+export interface InstrumentRate {
+  instrumentID: number;
+  currYear?: number;
+  ask?: number;
+  bid?: number;
+}
+
+export interface InstrumentRatesResponse {
+  rates: InstrumentRate[];
+}
+
+export async function getInstrumentRates(instrumentIds: number[]): Promise<Map<number, number>> {
+  try {
+    if (instrumentIds.length === 0) {
+      return new Map();
+    }
+
+    const ratesMap = new Map<number, number>();
+    
+    // Batch requests to avoid URL length limits
+    const batchSize = 50;
+    const batches = [];
+    
+    for (let i = 0; i < instrumentIds.length; i += batchSize) {
+      batches.push(instrumentIds.slice(i, i + batchSize));
+    }
+    
+    console.log(`Fetching instrument rates in ${batches.length} batches for ${instrumentIds.length} instruments`);
+    
+    for (let i = 0; i < batches.length; i++) {
+      const batch = batches[i];
+      try {
+        const idsParam = batch.join(',');
+        const endpoint = `${API_ENDPOINTS.INSTRUMENT_RATES}?instrumentIDs=${idsParam}&period=CurrYear`;
+        
+        console.log(`Fetching rates batch ${i + 1}/${batches.length}: ${batch.length} instruments`);
+        
+        const response = await fetchFromEtoroApi<InstrumentRatesResponse>(endpoint);
+        
+        if (response && response.rates && Array.isArray(response.rates)) {
+          response.rates.forEach(rate => {
+            if (rate.currYear !== undefined) {
+              ratesMap.set(rate.instrumentID, rate.currYear);
+            }
+          });
+        }
+        
+        // Add delay between batches
+        if (i < batches.length - 1) {
+          await new Promise(resolve => setTimeout(resolve, 200));
+        }
+        
+      } catch (batchError) {
+        console.error(`Error fetching rates batch ${i + 1}:`, batchError);
+      }
+    }
+
+    console.log(`Successfully fetched rates for ${ratesMap.size}/${instrumentIds.length} instruments`);
+    return ratesMap;
+  } catch (error) {
+    console.error('Error fetching instrument rates:', error);
+    return new Map();
+  }
+}

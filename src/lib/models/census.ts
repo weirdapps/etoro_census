@@ -4,7 +4,7 @@ export interface CensusAnalysis {
   averageCashPercentage: number;
   averageGain: number;
   averageRiskScore: number;
-  averageCopiers: number;
+  averageTrades: number;
   uniqueInstrumentsDistribution: { [range: string]: number };
   cashPercentageDistribution: { [range: string]: number };
   riskScoreDistribution: { [range: string]: number };
@@ -22,6 +22,7 @@ export interface InstrumentHolding {
   holdersPercentage: number;
   averageAllocation: number;
   totalAllocation: number;
+  ytdReturn?: number;
 }
 
 export interface PerformerStats {
@@ -33,6 +34,7 @@ export interface PerformerStats {
   copiers: number;
   cashPercentage: number;
   avatarUrl?: string;
+  trades: number;
 }
 
 export interface PortfolioStats {

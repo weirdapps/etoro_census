@@ -2,7 +2,7 @@ import { PopularInvestor, UserDetail } from '../models/user';
 import { UserPortfolio } from '../models/user-portfolio';
 import { CensusAnalysis, PortfolioStats, InstrumentHolding, PerformerStats } from '../models/census';
 import { getUserPortfolio, getUsersDetailsByUsernames, getUserAvatarUrl } from './user-service';
-import { getInstrumentDetails, getInstrumentDisplayName, getInstrumentSymbol, getInstrumentImageUrl, InstrumentDisplayData } from './instrument-service';
+import { getInstrumentDetails, getInstrumentDisplayName, getInstrumentSymbol, getInstrumentImageUrl, InstrumentDisplayData, getInstrumentRates } from './instrument-service';
 
 export interface ProgressCallback {
   (progress: number, message: string): void;
@@ -84,6 +84,9 @@ export async function performCensusAnalysis(
   
   const instrumentDetails = await getInstrumentDetails(allInstrumentIds);
   
+  updateProgress(85, 'Fetching instrument rates...');
+  const instrumentRates = await getInstrumentRates(allInstrumentIds);
+  
   updateProgress(90, 'Processing instrument data...');
   
   // Update instrument names with real data
@@ -95,7 +98,7 @@ export async function performCensusAnalysis(
     }
   });
   
-  updateProgress(90, 'Fetching user avatars...');
+  updateProgress(92, 'Fetching user avatars...');
   
   // Fetch user details for avatars using usernames (more reliable than customer IDs)
   const usernames = investors.map(investor => investor.userName);
@@ -109,10 +112,10 @@ export async function performCensusAnalysis(
     averageCashPercentage: calculateAverageCashPercentage(portfolioStats),
     averageGain: calculateAverageGain(investors),
     averageRiskScore: calculateAverageRiskScore(investors),
-    averageCopiers: calculateAverageCopiers(investors),
+    averageTrades: calculateAverageTrades(investors),
     uniqueInstrumentsDistribution: calculateUniqueInstrumentsDistribution(portfolioStats),
     cashPercentageDistribution: calculateCashPercentageDistribution(portfolioStats),
-    topHoldings: calculateTopHoldings(instrumentData, instrumentDetails, investors.length),
+    topHoldings: calculateTopHoldings(instrumentData, instrumentDetails, investors.length, instrumentRates),
     returnsDistribution: calculateReturnsDistribution(investors),
     riskScoreDistribution: calculateRiskScoreDistribution(investors),
     topPerformers: calculateTopPerformers(investors, portfolioStats, userDetails)
@@ -249,7 +252,8 @@ function calculateTopHoldings(
     allocations: number[];
   } },
   instrumentDetails?: Map<number, InstrumentDisplayData>,
-  totalInvestors: number = 1
+  totalInvestors: number = 1,
+  instrumentRates?: Map<number, number>
 ): InstrumentHolding[] {
   return Object.entries(instrumentData)
     .map(([instrumentId, data]) => {
@@ -281,7 +285,8 @@ function calculateTopHoldings(
         holdersCount: data.holdersCount,
         holdersPercentage: Math.round((data.holdersCount / totalInvestors) * 100 * 10) / 10,
         averageAllocation: Math.round(averageAllocation * 10) / 10,
-        totalAllocation: Math.round(data.totalAllocation * 10) / 10
+        totalAllocation: Math.round(data.totalAllocation * 10) / 10,
+        ytdReturn: instrumentRates?.get(id)
       };
     })
     .sort((a, b) => b.holdersCount - a.holdersCount)
@@ -357,7 +362,8 @@ function calculateTopPerformers(investors: PopularInvestor[], portfolioStats: Po
         winRatio: investor.winRatio || 0,
         copiers: investor.copiers || 0,
         cashPercentage: portfolio?.cashPercentage || 0,
-        avatarUrl: userDetail ? getUserAvatarUrl(userDetail) : investor.avatarUrl
+        avatarUrl: userDetail ? getUserAvatarUrl(userDetail) : investor.avatarUrl,
+        trades: investor.trades || 0
       };
     })
     .filter(performer => performer.username !== 'Unknown') // Filter out completely unknown investors
@@ -393,10 +399,10 @@ function calculateAverageRiskScore(investors: PopularInvestor[]): number {
   return Math.round((totalRiskScore / investors.length) * 10) / 10;
 }
 
-function calculateAverageCopiers(investors: PopularInvestor[]): number {
+function calculateAverageTrades(investors: PopularInvestor[]): number {
   if (investors.length === 0) return 0;
   
-  const totalCopiers = investors.reduce((sum, investor) => sum + (investor.copiers || 0), 0);
-  return Math.round(totalCopiers / investors.length);
+  const totalTrades = investors.reduce((sum, investor) => sum + (investor.trades || 0), 0);
+  return Math.round(totalTrades / investors.length);
 }
 
