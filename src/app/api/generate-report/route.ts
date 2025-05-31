@@ -4,7 +4,8 @@ import { getPopularInvestors } from '@/lib/services/user-service';
 import { performCensusAnalysis, ProgressCallback } from '@/lib/services/census-service';
 import { PeriodType, PopularInvestor } from '@/lib/models/user';
 import { getUserPortfolio } from '@/lib/services/user-service';
-import { getCountryFlag, getCountryName } from '@/lib/utils/country-mapping';
+import { getCountryFlag } from '@/lib/utils/country-mapping';
+import { truncateText } from '@/lib/utils';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -211,10 +212,6 @@ export async function POST(request: NextRequest) {
   });
 }
 
-function truncateText(text: string, maxLength: number): string {
-  if (text.length <= maxLength) return text;
-  return text.substring(0, maxLength - 3) + '...';
-}
 
 function formatDateTime(date: Date): string {
   // Always use UTC to avoid timezone confusion
