@@ -148,11 +148,9 @@ export async function POST(request: NextRequest) {
         // Generate timestamp for filename
         const date = new Date();
         const dateStr = date.toISOString().split('T')[0];
-        const timeStr = date.toISOString().replace(/:/g, '-').split('.')[0]; // YYYY-MM-DDTHH-MM-SS
-        const timestampStr = timeStr.replace('T', '-'); // YYYY-MM-DD-HH-MM-SS
-        const jsonTimestamp = `${dateStr}-${date.getUTCHours().toString().padStart(2, '0')}-${date.getUTCSeconds().toString().padStart(2, '0')}`; // YYYY-MM-DD-HH-SS
-        const htmlFileName = `etoro-census-${timestampStr}.html`;
-        const jsonFileName = `etoro-data-${jsonTimestamp}.json`;
+        const timestamp = `${dateStr}-${date.getUTCHours().toString().padStart(2, '0')}-${date.getUTCMinutes().toString().padStart(2, '0')}`; // YYYY-MM-DD-HH-MM
+        const htmlFileName = `etoro-census-${timestamp}.html`;
+        const jsonFileName = `etoro-data-${timestamp}.json`;
         const htmlFilePath = path.join(reportsDir, htmlFileName);
 
         // Log key investor positions for debugging
