@@ -35,6 +35,7 @@ export interface PerformerStats {
   cashPercentage: number;
   avatarUrl?: string;
   trades: number;
+  countryId?: number;
 }
 
 export interface PortfolioStats {

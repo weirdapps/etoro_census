@@ -363,7 +363,8 @@ function calculateTopPerformers(investors: PopularInvestor[], portfolioStats: Po
         copiers: investor.copiers || 0,
         cashPercentage: portfolio?.cashPercentage || 0,
         avatarUrl: userDetail ? getUserAvatarUrl(userDetail) : investor.avatarUrl,
-        trades: investor.trades || 0
+        trades: investor.trades || 0,
+        countryId: userDetail?.country
       };
     })
     .filter(performer => performer.username !== 'Unknown') // Filter out completely unknown investors

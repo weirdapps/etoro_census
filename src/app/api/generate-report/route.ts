@@ -4,6 +4,7 @@ import { getPopularInvestors } from '@/lib/services/user-service';
 import { performCensusAnalysis, ProgressCallback } from '@/lib/services/census-service';
 import { PeriodType, PopularInvestor } from '@/lib/models/user';
 import { getUserPortfolio } from '@/lib/services/user-service';
+import { getCountryFlag, getCountryName } from '@/lib/utils/country-mapping';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -1123,7 +1124,10 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                                                         `<div class="avatar-placeholder">${(performer.fullName || 'U').charAt(0).toUpperCase()}</div>`
                                                     }
                                                     <div>
-                                                        <div class="name-primary" title="${performer.fullName || performer.username || 'Unknown'}">${truncateText(performer.fullName || performer.username || 'Unknown', 24)}</div>
+                                                        <div class="name-primary" title="${performer.fullName || performer.username || 'Unknown'}">
+                                                            ${truncateText(performer.fullName || performer.username || 'Unknown', 24)}
+                                                            ${performer.countryId ? ` ${getCountryFlag(performer.countryId)}` : ''}
+                                                        </div>
                                                         <div class="name-secondary" title="@${performer.username}">@${truncateText(performer.username, 20)}</div>
                                                     </div>
                                                 </div>
