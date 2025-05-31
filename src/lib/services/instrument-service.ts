@@ -143,6 +143,7 @@ export async function getInstrumentRates(instrumentIds: number[]): Promise<Map<n
         const response = await fetchFromEtoroApi<InstrumentRatesResponse>(endpoint);
         
         if (response && response.rates && Array.isArray(response.rates)) {
+          console.log(`Received ${response.rates.length} rates in batch ${i + 1}`);
           response.rates.forEach(rate => {
             if (rate.currYear !== undefined) {
               ratesMap.set(rate.instrumentID, rate.currYear);
@@ -161,6 +162,15 @@ export async function getInstrumentRates(instrumentIds: number[]): Promise<Map<n
     }
 
     console.log(`Successfully fetched rates for ${ratesMap.size}/${instrumentIds.length} instruments`);
+    
+    // Log some sample rates for debugging
+    if (ratesMap.size > 0) {
+      const samples = Array.from(ratesMap.entries()).slice(0, 5);
+      console.log('Sample rates:', samples.map(([id, rate]) => `${id}: ${rate}%`).join(', '));
+    } else {
+      console.warn('No rates were fetched! Check API response format.');
+    }
+    
     return ratesMap;
   } catch (error) {
     console.error('Error fetching instrument rates:', error);

@@ -106,6 +106,12 @@ export async function performCensusAnalysis(
   
   updateProgress(95, 'Finalizing analysis...');
   
+  const topHoldings = calculateTopHoldings(instrumentData, instrumentDetails, investors.length, instrumentRates);
+  
+  // Debug: Check if ytdReturn is present
+  const holdingsWithReturns = topHoldings.filter(h => h.ytdReturn !== undefined).length;
+  console.log(`Top holdings: ${topHoldings.length} total, ${holdingsWithReturns} with YTD returns`);
+  
   const result = {
     fearGreedIndex: calculateFearGreedIndex(portfolioStats),
     averageUniqueInstruments: calculateAverageUniqueInstruments(portfolioStats),
@@ -115,7 +121,7 @@ export async function performCensusAnalysis(
     averageTrades: calculateAverageTrades(investors),
     uniqueInstrumentsDistribution: calculateUniqueInstrumentsDistribution(portfolioStats),
     cashPercentageDistribution: calculateCashPercentageDistribution(portfolioStats),
-    topHoldings: calculateTopHoldings(instrumentData, instrumentDetails, investors.length, instrumentRates),
+    topHoldings: topHoldings,
     returnsDistribution: calculateReturnsDistribution(investors),
     riskScoreDistribution: calculateRiskScoreDistribution(investors),
     topPerformers: calculateTopPerformers(investors, portfolioStats, userDetails)
@@ -277,6 +283,8 @@ function calculateTopHoldings(
         finalSymbol: symbol
       });
       
+      const ytdReturn = instrumentRates?.get(id);
+      
       return {
         instrumentId: id,
         instrumentName: instrumentName,
@@ -286,7 +294,7 @@ function calculateTopHoldings(
         holdersPercentage: Math.round((data.holdersCount / totalInvestors) * 100 * 10) / 10,
         averageAllocation: Math.round(averageAllocation * 10) / 10,
         totalAllocation: Math.round(data.totalAllocation * 10) / 10,
-        ytdReturn: instrumentRates?.get(id)
+        ytdReturn: ytdReturn
       };
     })
     .sort((a, b) => b.holdersCount - a.holdersCount)
