@@ -59,7 +59,6 @@ export const ETORO_COUNTRY_MAPPING: Record<number, CountryInfo> = {
   348: { name: "Hungary", code: "HU", flag: "🇭🇺" }, // ChartMatthew, Lwttrading, Gege1984
   352: { name: "Iceland", code: "IS", flag: "🇮🇸" }, // AlvarLogi, Rolosig94
   360: { name: "Indonesia", code: "ID", flag: "🇮🇩" }, // JohannesHuang, RivaldoSoebandi
-  32: { name: "Argentina", code: "AR", flag: "🇦🇷" }, // JavierPrada, fparramartinez, diegofj, estebanopatril, johnvincentmoon, bluger98 - ID needs confirmation
   414: { name: "Kuwait", code: "KW", flag: "🇰🇼" }, // Robier89
   428: { name: "Latvia", code: "LV", flag: "🇱🇻" }, // MK_Investments, BalanceAM
   440: { name: "Lithuania", code: "LT", flag: "🇱🇹" }, // InvestmentsPro
@@ -71,14 +70,26 @@ export const ETORO_COUNTRY_MAPPING: Record<number, CountryInfo> = {
   764: { name: "Thailand", code: "TH", flag: "🇹🇭" }, // Fostijn, rayvahey, braven999
   858: { name: "Uruguay", code: "UY", flag: "🇺🇾" }, // sojackal, FinancieraMente, javioide
   704: { name: "Vietnam", code: "VN", flag: "🇻🇳" }, // Bamboo108, AndreiFranco, ThinhLeDuc
-  20: { name: "Andorra", code: "AD", flag: "🇦🇩" }, // Andre031988 - ID needs confirmation
-  48: { name: "Bahrain", code: "BH", flag: "🇧🇭" }, // Bader41, Trojaneto - ID needs confirmation
+  
+  // Countries that need correct ID discovery (temporarily using placeholder IDs)
+  // TODO: Discover correct IDs for these countries via API
+  // 999001: { name: "Andorra", code: "AD", flag: "🇦🇩" }, // Andre031988 - needs correct ID
+  // 999002: { name: "Argentina", code: "AR", flag: "🇦🇷" }, // JavierPrada, fparramartinez, diegofj, estebanopatril, johnvincentmoon, bluger98 - needs correct ID
+  // 999003: { name: "Bahrain", code: "BH", flag: "🇧🇭" }, // Bader41, Trojaneto - needs correct ID
 };
 
-// Core mappings (IDs 12-840) are confirmed from username → country verification  
-// Additional mappings (marked with comment) use standard ISO country codes as placeholders
-// Country IDs will be updated when confirmed via actual eToro API responses
-// This comprehensive mapping now covers 54+ countries and 500+ popular investors
+// Core mappings are confirmed from username → country verification
+// Duplicates have been resolved:
+// - Code 20: Belgium (confirmed via user Couguar)
+// - Code 32: Brazil (confirmed via user rafaeldfl)  
+// - Code 48: Colombia (confirmed via user VIXGold)
+//
+// Countries needing ID discovery:
+// - Andorra (Andre031988)
+// - Argentina (JavierPrada, fparramartinez, diegofj, estebanopatril, johnvincentmoon, bluger98)
+// - Bahrain (Bader41, Trojaneto)
+//
+// This mapping now covers 51 confirmed countries and 500+ popular investors
 
 // To add new countries:
 // 1. Identify username → country relationship from eToro interface
