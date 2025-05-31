@@ -28,7 +28,7 @@ interface JSONExportData {
       winRatio: number;
       cashPercentage: number;
       riskScore: number;
-      countryId?: string;
+      countryId?: number;
     }>;
   }>;
 }
@@ -58,14 +58,19 @@ async function updateHTMLReport(htmlPath: string, jsonData: JSONExportData) {
           if (performer.countryId) {
             const flag = getCountryFlag(performer.countryId);
             
-            // Check if flag already exists to avoid duplicates
-            if (!row.includes(flag)) {
-              // Update the @username line to include flag
-              const updatedRow = row.replace(
-                /(@[^<\s]+)(\s+[\u{1F1E6}-\u{1F1FF}]{2})?<\/div>/u,
-                `@${performer.username} ${flag}</div>`
-              );
-              
+            // Debug logging for specific users
+            if (['Andre031988', 'JavierPrada', 'Bader41'].includes(performer.username)) {
+              console.log(`  - ${performer.username}: countryId=${performer.countryId}, flag=${flag}`);
+            }
+            
+            // Replace any existing flag (including globe) with the correct one
+            // Handle messy HTML with multiple flags/newlines
+            const updatedRow = row.replace(
+              /(@[^<\s]+)(?:\s+(?:[\u{1F1E6}-\u{1F1FF}]{2}|🌍))*(?:\s*\n\s*(?:[\u{1F1E6}-\u{1F1FF}]{2}|🌍))*<\/div>/gu,
+              `@${performer.username} ${flag}</div>`
+            );
+            
+            if (updatedRow !== row) {
               html = html.replace(row, updatedRow);
             }
           }
