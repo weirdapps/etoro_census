@@ -1126,9 +1126,10 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                                                     <div>
                                                         <div class="name-primary" title="${performer.fullName || performer.username || 'Unknown'}">
                                                             ${truncateText(performer.fullName || performer.username || 'Unknown', 24)}
-                                                            ${performer.countryId ? ` ${getCountryFlag(performer.countryId)}` : ''}
                                                         </div>
-                                                        <div class="name-secondary" title="@${performer.username}">@${truncateText(performer.username, 20)}</div>
+                                                        <div class="name-secondary" title="@${performer.username}">
+                                                            @${truncateText(performer.username, 20)}${performer.countryId ? ` ${getCountryFlag(performer.countryId)}` : ''}
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </td>
