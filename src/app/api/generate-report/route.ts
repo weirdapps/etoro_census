@@ -180,9 +180,6 @@ export async function POST(request: NextRequest) {
         // Write the HTML file
         await fs.writeFile(htmlFilePath, html, 'utf-8');
         
-        // Also copy to index.html to make it the latest report
-        const indexPath = path.join(reportsDir, 'index.html');
-        await fs.writeFile(indexPath, html, 'utf-8');
         
 
 

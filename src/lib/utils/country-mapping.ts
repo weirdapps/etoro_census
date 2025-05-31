@@ -59,7 +59,7 @@ export const ETORO_COUNTRY_MAPPING: Record<number, CountryInfo> = {
   348: { name: "Hungary", code: "HU", flag: "🇭🇺" }, // ChartMatthew, Lwttrading, Gege1984
   352: { name: "Iceland", code: "IS", flag: "🇮🇸" }, // AlvarLogi, Rolosig94
   360: { name: "Indonesia", code: "ID", flag: "🇮🇩" }, // JohannesHuang, RivaldoSoebandi
-  32: { name: "Argentina", code: "AR", flag: "🇦🇷" }, // JavierPrada, fparramartinez, diegofj, estebanopatril, johnvincentmoon, bluger98
+  32: { name: "Argentina", code: "AR", flag: "🇦🇷" }, // JavierPrada, fparramartinez, diegofj, estebanopatril, johnvincentmoon, bluger98 - ID needs confirmation
   414: { name: "Kuwait", code: "KW", flag: "🇰🇼" }, // Robier89
   428: { name: "Latvia", code: "LV", flag: "🇱🇻" }, // MK_Investments, BalanceAM
   440: { name: "Lithuania", code: "LT", flag: "🇱🇹" }, // InvestmentsPro
@@ -71,8 +71,8 @@ export const ETORO_COUNTRY_MAPPING: Record<number, CountryInfo> = {
   764: { name: "Thailand", code: "TH", flag: "🇹🇭" }, // Fostijn, rayvahey, braven999
   858: { name: "Uruguay", code: "UY", flag: "🇺🇾" }, // sojackal, FinancieraMente, javioide
   704: { name: "Vietnam", code: "VN", flag: "🇻🇳" }, // Bamboo108, AndreiFranco, ThinhLeDuc
-  20: { name: "Andorra", code: "AD", flag: "🇦🇩" }, // Andre031988
-  48: { name: "Bahrain", code: "BH", flag: "🇧🇭" }, // Bader41, Trojaneto
+  20: { name: "Andorra", code: "AD", flag: "🇦🇩" }, // Andre031988 - ID needs confirmation
+  48: { name: "Bahrain", code: "BH", flag: "🇧🇭" }, // Bader41, Trojaneto - ID needs confirmation
 };
 
 // Core mappings (IDs 12-840) are confirmed from username → country verification  

@@ -7,6 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Pagination } from '@/components/ui/pagination';
 import { PerformerStats } from '@/lib/models/census';
 import { truncateText } from '@/lib/utils';
+import { getCountryFlag } from '@/lib/utils/country-mapping';
 
 interface TopPerformersProps {
   performers: PerformerStats[];
@@ -31,7 +32,7 @@ export default function TopPerformers({ performers }: TopPerformersProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Most Followed Investors</CardTitle>
+        <CardTitle>Most Copied Investors</CardTitle>
         <CardDescription>
           Investors ranked by number of copiers ({performers.length} total)
         </CardDescription>
@@ -43,6 +44,7 @@ export default function TopPerformers({ performers }: TopPerformersProps) {
               <TableHead>Rank</TableHead>
               <TableHead>Investor</TableHead>
               <TableHead className="text-right">Gain (YTD)</TableHead>
+              <TableHead className="text-right">Trades</TableHead>
               <TableHead className="text-right">Win Ratio</TableHead>
               <TableHead className="text-right">Cash %</TableHead>
               <TableHead className="text-right">Risk Score</TableHead>
@@ -78,13 +80,16 @@ export default function TopPerformers({ performers }: TopPerformersProps) {
                         {truncateText(performer.fullName, 24)}
                       </div>
                       <div className="text-sm text-muted-foreground" title={performer.username}>
-                        @{truncateText(performer.username, 20)}
+                        @{truncateText(performer.username, 20)} {getCountryFlag(performer.countryId)}
                       </div>
                     </div>
                   </div>
                 </TableCell>
                 <TableCell className={`text-right font-medium ${getGainColor(performer.gain)}`}>
                   {formatGain(performer.gain)}
+                </TableCell>
+                <TableCell className="text-right">
+                  {performer.trades}
                 </TableCell>
                 <TableCell className="text-right">
                   {performer.winRatio.toFixed(1)}%

@@ -20,6 +20,18 @@ export default function TopHoldings({ holdings }: TopHoldingsProps) {
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedHoldings = holdings.slice(startIndex, startIndex + itemsPerPage);
 
+  const formatYtdReturn = (ytdReturn: number | undefined) => {
+    if (ytdReturn === undefined || ytdReturn === null) return '-';
+    return ytdReturn > 0 ? `+${ytdReturn.toFixed(1)}%` : `${ytdReturn.toFixed(1)}%`;
+  };
+
+  const getYtdReturnColor = (ytdReturn: number | undefined) => {
+    if (ytdReturn === undefined || ytdReturn === null) return 'text-muted-foreground';
+    if (ytdReturn > 0) return 'text-green-600';
+    if (ytdReturn < 0) return 'text-red-600';
+    return 'text-blue-600';
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -37,6 +49,7 @@ export default function TopHoldings({ holdings }: TopHoldingsProps) {
               <TableHead className="text-right">Holders</TableHead>
               <TableHead className="text-right">% of PIs</TableHead>
               <TableHead className="text-right">Avg Allocation</TableHead>
+              <TableHead className="text-right">Return (YTD)</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -88,6 +101,9 @@ export default function TopHoldings({ holdings }: TopHoldingsProps) {
                 </TableCell>
                 <TableCell className="text-right font-medium">
                   {holding.averageAllocation.toFixed(1)}%
+                </TableCell>
+                <TableCell className={`text-right font-medium ${getYtdReturnColor(holding.ytdReturn)}`}>
+                  {formatYtdReturn(holding.ytdReturn)}
                 </TableCell>
               </TableRow>
               );
