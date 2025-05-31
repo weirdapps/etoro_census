@@ -44,7 +44,7 @@ This is because the cron schedule uses UTC time (01:00 UTC).
 5. Calls the report generation API
 6. Commits the new reports
 7. Pushes to GitHub
-8. Triggers GitHub Pages deployment
+8. Automatically triggers the "Deploy Reports" workflow for GitHub Pages deployment
 
 ### Monitoring
 
