@@ -114,6 +114,22 @@ export interface InstrumentRatesResponse {
   rates: InstrumentRate[];
 }
 
+export interface InstrumentSearchItem {
+  instrumentId: number;
+  displayname: string;
+  symbol?: string;
+  currYearPriceChange?: number;
+  logo50x50?: string;
+  // Add other fields as needed
+}
+
+export interface InstrumentSearchResponse {
+  page: number;
+  pageSize: number;
+  totalItems: number;
+  items: InstrumentSearchItem[];
+}
+
 export async function getInstrumentRates(instrumentIds: number[]): Promise<Map<number, number>> {
   try {
     if (instrumentIds.length === 0) {
@@ -122,58 +138,88 @@ export async function getInstrumentRates(instrumentIds: number[]): Promise<Map<n
 
     const ratesMap = new Map<number, number>();
     
-    // Batch requests to avoid URL length limits
-    const batchSize = 50;
+    // First, get all instrument details to have their symbols
+    console.log(`Fetching details for ${instrumentIds.length} instruments to get symbols...`);
+    const allInstrumentDetails = await getInstrumentDetails(instrumentIds);
+    
+    // Create a map of symbol to instrumentId for reverse lookup
+    const symbolToId = new Map<string, number>();
+    allInstrumentDetails.forEach((details, id) => {
+      if (details.symbolFull) {
+        symbolToId.set(details.symbolFull.toUpperCase(), id);
+      }
+    });
+    
+    // Batch the symbols for search
+    const symbols = Array.from(symbolToId.keys());
+    const batchSize = 20; // Smaller batch size for search
     const batches = [];
     
-    for (let i = 0; i < instrumentIds.length; i += batchSize) {
-      batches.push(instrumentIds.slice(i, i + batchSize));
+    for (let i = 0; i < symbols.length; i += batchSize) {
+      batches.push(symbols.slice(i, i + batchSize));
     }
     
-    console.log(`Fetching instrument rates in ${batches.length} batches for ${instrumentIds.length} instruments`);
+    console.log(`Fetching YTD returns in ${batches.length} batches for ${symbols.length} symbols`);
     
     for (let i = 0; i < batches.length; i++) {
-      const batch = batches[i];
+      const batchSymbols = batches[i];
+      
       try {
-        const idsParam = batch.join(',');
-        const endpoint = `${API_ENDPOINTS.INSTRUMENT_RATES}?instrumentIDs=${idsParam}&period=CurrYear`;
+        // Search for multiple symbols at once
+        const searchText = batchSymbols.join(' OR ');
         
-        console.log(`Fetching rates batch ${i + 1}/${batches.length}: ${batch.length} instruments`);
+        const endpoint = `${API_ENDPOINTS.INSTRUMENT_SEARCH}?` + 
+          `searchText=${encodeURIComponent(searchText)}` +
+          `&fields=instrumentId,symbol,currYearPriceChange` +
+          `&pageSize=100` + // Get max results
+          `&pageNumber=1`;
         
-        const response = await fetchFromEtoroApi<InstrumentRatesResponse>(endpoint);
+        console.log(`Fetching batch ${i + 1}/${batches.length}: searching for ${batchSymbols.length} symbols`);
         
-        if (response && response.rates && Array.isArray(response.rates)) {
-          console.log(`Received ${response.rates.length} rates in batch ${i + 1}`);
-          response.rates.forEach(rate => {
-            if (rate.currYear !== undefined) {
-              ratesMap.set(rate.instrumentID, rate.currYear);
+        const response = await fetchFromEtoroApi<InstrumentSearchResponse>(endpoint);
+        
+        if (response && response.items && Array.isArray(response.items)) {
+          console.log(`Received ${response.items.length} items in batch ${i + 1}`);
+          
+          // Match results back to our instrument IDs
+          response.items.forEach(item => {
+            if (item.symbol && item.currYearPriceChange !== undefined) {
+              const originalId = symbolToId.get(item.symbol.toUpperCase());
+              if (originalId) {
+                ratesMap.set(originalId, item.currYearPriceChange);
+              } else {
+                // Try to match by instrumentId if available
+                if (instrumentIds.includes(item.instrumentId)) {
+                  ratesMap.set(item.instrumentId, item.currYearPriceChange);
+                }
+              }
             }
           });
         }
         
         // Add delay between batches
         if (i < batches.length - 1) {
-          await new Promise(resolve => setTimeout(resolve, 200));
+          await new Promise(resolve => setTimeout(resolve, 300));
         }
         
-      } catch (batchError) {
-        console.error(`Error fetching rates batch ${i + 1}:`, batchError);
+      } catch (error) {
+        console.error(`Error fetching YTD returns batch ${i + 1}:`, error);
       }
     }
 
-    console.log(`Successfully fetched rates for ${ratesMap.size}/${instrumentIds.length} instruments`);
+    console.log(`Successfully fetched YTD returns for ${ratesMap.size}/${instrumentIds.length} instruments`);
     
     // Log some sample rates for debugging
     if (ratesMap.size > 0) {
       const samples = Array.from(ratesMap.entries()).slice(0, 5);
-      console.log('Sample rates:', samples.map(([id, rate]) => `${id}: ${rate}%`).join(', '));
+      console.log('Sample YTD returns:', samples.map(([id, rate]) => `${id}: ${rate.toFixed(2)}%`).join(', '));
     } else {
-      console.warn('No rates were fetched! Check API response format.');
+      console.warn('No YTD returns were fetched! This might be due to API limitations or data availability.');
     }
     
     return ratesMap;
   } catch (error) {
-    console.error('Error fetching instrument rates:', error);
+    console.error('Error fetching instrument YTD returns:', error);
     return new Map();
   }
 }
