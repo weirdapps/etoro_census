@@ -38,36 +38,17 @@ async function updateHTMLReport(htmlPath: string, jsonData: JSONExportData) {
   
   let html = await fs.readFile(htmlPath, 'utf-8');
   
+  // First, clean up any existing double flags (matches any flag emoji)
+  html = html.replace(/(@[^<\s]+)\s+([\u{1F1E6}-\u{1F1FF}]{2})\s+\2/gu, '$1 $2');
+  
   // For each analysis/tab
   for (let tabIndex = 0; tabIndex < jsonData.analyses.length; tabIndex++) {
     const analysis = jsonData.analyses[tabIndex];
     
-    // Update YTD returns in holdings table
-    const holdingsRows = html.match(new RegExp(`<tr class="holdings-row-${tabIndex}[^>]*>.*?</tr>`, 'gs'));
-    if (holdingsRows) {
-      holdingsRows.forEach((row, idx) => {
-        if (idx < analysis.topHoldings.length) {
-          const holding = analysis.topHoldings[idx];
-          
-          // Find the YTD return cell (last td) and update it
-          if (holding.ytdReturn !== undefined) {
-            const color = holding.ytdReturn > 0 ? '#10b981' : holding.ytdReturn < 0 ? '#ef4444' : '#3b82f6';
-            const sign = holding.ytdReturn > 0 ? '+' : '';
-            const newCell = `<span style="color: ${color}">${sign}${holding.ytdReturn.toFixed(1)}%</span>`;
-            
-            // Replace the dash with actual return
-            const updatedRow = row.replace(
-              /<td class="text-right font-medium">\s*<span style="color: #6b7280">-<\/span>\s*<\/td>\s*<\/tr>/,
-              `<td class="text-right font-medium">${newCell}</td></tr>`
-            );
-            
-            html = html.replace(row, updatedRow);
-          }
-        }
-      });
-    }
+    // Note: YTD returns are not available in the JSON data, so we can't update them
+    // The data needs to be captured during the initial report generation
     
-    // Update country flags in performers table
+    // Update country flags in performers table (only if not already present)
     const performersRows = html.match(new RegExp(`<tr class="performers-row-${tabIndex}[^>]*>.*?</tr>`, 'gs'));
     if (performersRows) {
       performersRows.forEach((row, idx) => {
@@ -77,13 +58,16 @@ async function updateHTMLReport(htmlPath: string, jsonData: JSONExportData) {
           if (performer.countryId) {
             const flag = getCountryFlag(performer.countryId);
             
-            // Update the @username line to include flag
-            const updatedRow = row.replace(
-              /@([^<]+)<\/div>/,
-              `@$1 ${flag}</div>`
-            );
-            
-            html = html.replace(row, updatedRow);
+            // Check if flag already exists to avoid duplicates
+            if (!row.includes(flag)) {
+              // Update the @username line to include flag
+              const updatedRow = row.replace(
+                /(@[^<\s]+)(\s+[\u{1F1E6}-\u{1F1FF}]{2})?<\/div>/u,
+                `@${performer.username} ${flag}</div>`
+              );
+              
+              html = html.replace(row, updatedRow);
+            }
           }
         }
       });
@@ -91,7 +75,7 @@ async function updateHTMLReport(htmlPath: string, jsonData: JSONExportData) {
   }
   
   await fs.writeFile(htmlPath, html, 'utf-8');
-  console.log(`✅ Updated ${path.basename(htmlPath)}`);
+  console.log(`✅ Updated ${path.basename(htmlPath)} (Note: YTD returns not available in JSON data)`);
 }
 
 async function main() {
