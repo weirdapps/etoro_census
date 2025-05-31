@@ -27,14 +27,14 @@ export const ETORO_COUNTRY_MAPPING: Record<number, CountryInfo> = {
   79: { name: "Germany", code: "DE", flag: "🇩🇪" }, // gauravk_in, NabilSifo, KenanAbel, JvAnkershoffen, Social-Investor, Finanzzyklen
   82: { name: "Greece", code: "GR", flag: "🇬🇷" }, // plessas, GeorgeFatouros, DemonicoLag, ioatri
   372: { name: "Ireland", code: "IE", flag: "🇮🇪" }, // defense_investor, avfwwltd
-  109: { name: "Italy", code: "IT", flag: "🇮🇹" }, // IlMatematico, mick_repo, celesh, Marco199610, ca_sual, pino428, iBore99, SimoneRizzetto88, acetoandrea
+  102: { name: "Italy", code: "IT", flag: "🇮🇹" }, // IlMatematico, mick_repo, celesh, Marco199610, ca_sual, pino428, iBore99, SimoneRizzetto88, acetoandrea, 00hobbes00
   125: { name: "Luxembourg", code: "LU", flag: "🇱🇺" }, // Etcaetera, Aganowak91
   458: { name: "Malaysia", code: "MY", flag: "🇲🇾" }, // oceantan007
   144: { name: "Malta", code: "MT", flag: "🇲🇹" }, // MarianoPardo
   480: { name: "Mauritius", code: "MU", flag: "🇲🇺" }, // IshfaaqPeerally
-  528: { name: "Netherlands", code: "NL", flag: "🇳🇱" }, // JORDENBOER, SlowandSteady, basvw23, Marirs
+  143: { name: "Netherlands", code: "NL", flag: "🇳🇱" }, // JORDENBOER, SlowandSteady, basvw23, Marirs, 1579kong
   616: { name: "Poland", code: "PL", flag: "🇵🇱" }, // Wise_woman
-  620: { name: "Portugal", code: "PT", flag: "🇵🇹" }, // misterg23, hugomanenti95, ddvaz2097
+  165: { name: "Portugal", code: "PT", flag: "🇵🇹" }, // misterg23, hugomanenti95, ddvaz2097
   642: { name: "Romania", code: "RO", flag: "🇷🇴" }, // StefanULS, iliescu2605, Denisa-Andreea34
   702: { name: "Singapore", code: "SG", flag: "🇸🇬" }, // Alderique, Bees84
   703: { name: "Slovakia", code: "SK", flag: "🇸🇰" }, // TheDividendFund
@@ -42,7 +42,7 @@ export const ETORO_COUNTRY_MAPPING: Record<number, CountryInfo> = {
   710: { name: "South Africa", code: "ZA", flag: "🇿🇦" }, // reinhardtcoetzee
   724: { name: "Spain", code: "ES", flag: "🇪🇸" }, // Aukie2008, robchamow, brirap, CCalle, Analisisciclico, RobertMERC, TiuBuletaire2, jrotllant
   752: { name: "Sweden", code: "SE", flag: "🇸🇪" }, // ingruc
-  756: { name: "Switzerland", code: "CH", flag: "🇨🇭" }, // GreenbullInvest, Flaten, ANZOOOXX, OlenaL
+  197: { name: "Switzerland", code: "CH", flag: "🇨🇭" }, // GreenbullInvest, Flaten, ANZOOOXX, OlenaL
   158: { name: "Taiwan", code: "TW", flag: "🇹🇼" }, // steveli1029, booker03
   217: { name: "United Arab Emirates", code: "AE", flag: "🇦🇪" }, // JeppeKirkBonde, triangulacapital, saifsyn, campervans
   218: { name: "United Kingdom", code: "GB", flag: "🇬🇧" }, // thomaspj, jaynemesis, AmitKup, rubymza, Wesl3y, Enslinjaco, eddyb123, Gserdan, knw500, Onegirl, Cfranklin89, hugo13250, MCGINTYE, ValueBuddy, RickFortune, CapitalGains, LiamDavies, Cheetah26
@@ -67,7 +67,7 @@ export const ETORO_COUNTRY_MAPPING: Record<number, CountryInfo> = {
   440: { name: "Lithuania", code: "LT", flag: "🇱🇹" }, // InvestmentsPro
   484: { name: "Mexico", code: "MX", flag: "🇲🇽" }, // AgenteAngel, NestorArmstrong, Valueresort, ErikOmarMedina, rolando34, geniomtz
   504: { name: "Morocco", code: "MA", flag: "🇲🇦" }, // fastrading
-  578: { name: "Norway", code: "NO", flag: "🇳🇴" }, // sigurdsen94, SpeculatorOslo, panelg, Lordhumpe
+  154: { name: "Norway", code: "NO", flag: "🇳🇴" }, // sigurdsen94, SpeculatorOslo, panelg, Lordhumpe, 888roy
   604: { name: "Peru", code: "PE", flag: "🇵🇪" }, // khbardales, EstherEmilia, BryamDecava
   638: { name: "Reunion Island", code: "RE", flag: "🇷🇪" }, // Renoi974
   764: { name: "Thailand", code: "TH", flag: "🇹🇭" }, // Fostijn, rayvahey, braven999
