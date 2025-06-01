@@ -103,24 +103,17 @@ export function getInstrumentImageUrl(instrument: InstrumentDisplayData): string
   return preferredImage?.uri;
 }
 
-export interface InstrumentRate {
-  instrumentID: number;
-  currYear?: number;
-  ask?: number;
-  bid?: number;
-  // Alternative field names we might encounter
-  currentYear?: number;
-  ytd?: number;
-  ytdReturn?: number;
-  yearToDate?: number;
-  change?: number;
-  changePercent?: number;
-  [key: string]: any; // Allow any additional fields
-}
+// No longer used - keeping for reference
+// export interface InstrumentRate {
+//   instrumentID: number;
+//   currYear?: number;
+//   ask?: number;
+//   bid?: number;
+// }
 
-export interface InstrumentRatesResponse {
-  rates: InstrumentRate[];
-}
+// export interface InstrumentRatesResponse {
+//   rates: InstrumentRate[];
+// }
 
 export interface InstrumentSearchItem {
   instrumentId: number;
@@ -138,7 +131,7 @@ export interface InstrumentSearchResponse {
   items: InstrumentSearchItem[];
 }
 
-export async function getInstrumentRates(instrumentIds: number[]): Promise<Map<number, number>> {
+export async function getInstrumentRates(instrumentIds: number[], instrumentDetails?: Map<number, InstrumentDisplayData>): Promise<Map<number, number>> {
   try {
     if (instrumentIds.length === 0) {
       return new Map();
@@ -146,91 +139,55 @@ export async function getInstrumentRates(instrumentIds: number[]): Promise<Map<n
 
     const ratesMap = new Map<number, number>();
     
-    // Batch requests to avoid URL length limits
-    const batchSize = 50; // Same batch size as instrument details
-    const batches = [];
+    console.log(`Fetching YTD returns for ${instrumentIds.length} instruments using search API`);
     
-    for (let i = 0; i < instrumentIds.length; i += batchSize) {
-      batches.push(instrumentIds.slice(i, i + batchSize));
-    }
-    
-    console.log(`Fetching YTD returns in ${batches.length} batches for ${instrumentIds.length} instruments`);
-    
-    for (let i = 0; i < batches.length; i++) {
-      const batch = batches[i];
+    // Process each instrument individually using the search API
+    for (let i = 0; i < instrumentIds.length; i++) {
+      const instrumentId = instrumentIds[i];
       
       try {
-        const idsParam = batch.join(',');
-        const endpoint = `${API_ENDPOINTS.INSTRUMENT_RATES}?instrumentIDs=${idsParam}&period=CurrYear`;
+        // First try searching by instrumentID
+        let searchText = instrumentId.toString();
+        let endpoint = `${API_ENDPOINTS.INSTRUMENT_SEARCH}?searchText=${searchText}&fields=instrumentId,currYearPriceChange,displayname,symbol&pageSize=10&pageNumber=1`;
         
-        console.log(`Fetching rates batch ${i + 1}/${batches.length}: ${batch.length} instruments`);
+        console.log(`Searching for instrument ${instrumentId} (${i + 1}/${instrumentIds.length})`);
         
-        const response = await fetchFromEtoroApi<InstrumentRatesResponse>(endpoint);
+        let response = await fetchFromEtoroApi<InstrumentSearchResponse>(endpoint);
         
-        // Enhanced logging for debugging
-        console.log(`Raw response structure for batch ${i + 1}:`, {
-          hasResponse: !!response,
-          hasRates: !!(response && response.rates),
-          isRatesArray: response && Array.isArray(response.rates),
-          ratesLength: response && response.rates ? response.rates.length : 0,
-          sampleResponse: response && response.rates && response.rates.length > 0 ? response.rates[0] : null
-        });
+        // Find the matching instrument in results
+        let matchingInstrument = response?.items?.find(item => item.instrumentId === instrumentId);
         
-        if (response && response.rates && Array.isArray(response.rates)) {
-          console.log(`Received ${response.rates.length} rates in batch ${i + 1}`);
-          
-          response.rates.forEach((rate, index) => {
-            // Enhanced logging for first few rates
-            if (index < 3) {
-              console.log(`Rate ${index} structure:`, {
-                instrumentID: rate.instrumentID,
-                currYear: rate.currYear,
-                ask: rate.ask,
-                bid: rate.bid,
-                allFields: Object.keys(rate)
-              });
-            }
-            
-            // Try multiple possible field names for YTD return
-            let ytdValue = null;
-            const possibleFields = ['currYear', 'currentYear', 'ytd', 'ytdReturn', 'yearToDate', 'change', 'changePercent'];
-            
-            for (const field of possibleFields) {
-              if (rate[field] !== undefined && rate[field] !== null) {
-                ytdValue = rate[field];
-                if (index < 3) {
-                  console.log(`Found YTD return in field '${field}' for instrument ${rate.instrumentID}: ${ytdValue}`);
-                }
-                break;
-              }
-            }
-            
-            if (rate.instrumentID && ytdValue !== null && typeof ytdValue === 'number') {
-              ratesMap.set(rate.instrumentID, ytdValue);
-              if (index < 3) {
-                console.log(`Successfully mapped instrument ${rate.instrumentID} -> ${ytdValue}%`);
-              }
-            } else if (index < 3) {
-              console.log(`Skipping rate for instrument ${rate.instrumentID}: no valid YTD field found (tried: ${possibleFields.join(', ')})`);
-            }
-          });
-        } else {
-          console.warn(`Invalid rates response for batch ${i + 1}:`, {
-            response: response,
-            typeofResponse: typeof response,
-            hasRates: !!(response && response.rates),
-            ratesType: response && response.rates ? typeof response.rates : 'undefined'
-          });
+        // If not found by ID and we have instrument details, try searching by symbol
+        if (!matchingInstrument && instrumentDetails && instrumentDetails.has(instrumentId)) {
+          const details = instrumentDetails.get(instrumentId);
+          if (details && details.symbolFull) {
+            console.log(`Instrument ${instrumentId} not found by ID, trying symbol: ${details.symbolFull}`);
+            searchText = details.symbolFull;
+            endpoint = `${API_ENDPOINTS.INSTRUMENT_SEARCH}?searchText=${searchText}&fields=instrumentId,currYearPriceChange,displayname,symbol&pageSize=10&pageNumber=1`;
+            response = await fetchFromEtoroApi<InstrumentSearchResponse>(endpoint);
+            matchingInstrument = response?.items?.find(item => item.instrumentId === instrumentId);
+          }
         }
         
-        // Add delay between batches to avoid rate limiting
-        if (i < batches.length - 1) {
-          await new Promise(resolve => setTimeout(resolve, 200));
+        if (matchingInstrument && matchingInstrument.currYearPriceChange !== undefined && matchingInstrument.currYearPriceChange !== null) {
+          ratesMap.set(instrumentId, matchingInstrument.currYearPriceChange);
+          if (i < 5) {
+            console.log(`Found YTD return for ${instrumentId} (${matchingInstrument.displayname}): ${matchingInstrument.currYearPriceChange}%`);
+          }
+        } else {
+          if (i < 5) {
+            console.log(`No YTD return found for instrument ${instrumentId}`);
+          }
+        }
+        
+        // Add delay between requests to avoid rate limiting
+        if (i < instrumentIds.length - 1) {
+          await new Promise(resolve => setTimeout(resolve, 100)); // 100ms delay between requests
         }
         
       } catch (error) {
-        console.error(`Error fetching rates batch ${i + 1}:`, error);
-        // Continue with next batch even if one fails
+        console.error(`Error fetching rate for instrument ${instrumentId}:`, error);
+        // Continue with next instrument even if one fails
       }
     }
 

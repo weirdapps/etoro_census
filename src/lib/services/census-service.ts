@@ -85,7 +85,7 @@ export async function performCensusAnalysis(
   const instrumentDetails = await getInstrumentDetails(allInstrumentIds);
   
   updateProgress(85, 'Fetching instrument rates...');
-  const instrumentRates = await getInstrumentRates(allInstrumentIds);
+  const instrumentRates = await getInstrumentRates(allInstrumentIds, instrumentDetails);
   
   updateProgress(90, 'Processing instrument data...');
   

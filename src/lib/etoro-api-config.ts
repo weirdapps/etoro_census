@@ -7,7 +7,6 @@ const getApiKey = () => process.env.ETORO_API_KEY || '';
 export const API_ENDPOINTS = {
   PORTFOLIO: `${ETORO_API_BASE_URL}/v1/trading/info/portfolio`,
   INSTRUMENTS: `${ETORO_API_BASE_URL}/v1/market-data/instruments`,
-  INSTRUMENT_RATES: `${ETORO_API_BASE_URL}/v1/market-data/instruments/rates`,
   INSTRUMENT_SEARCH: `${ETORO_API_BASE_URL}/v1/market-data/search`,
   ASSET_FEED: `${ETORO_API_BASE_URL}/v1/feeds/instrument`,
   USER_FEED: `${ETORO_API_BASE_URL}/v1/feeds/user`,
