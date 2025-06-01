@@ -108,6 +108,14 @@ export interface InstrumentRate {
   currYear?: number;
   ask?: number;
   bid?: number;
+  // Alternative field names we might encounter
+  currentYear?: number;
+  ytd?: number;
+  ytdReturn?: number;
+  yearToDate?: number;
+  change?: number;
+  changePercent?: number;
+  [key: string]: any; // Allow any additional fields
 }
 
 export interface InstrumentRatesResponse {
@@ -159,17 +167,60 @@ export async function getInstrumentRates(instrumentIds: number[]): Promise<Map<n
         
         const response = await fetchFromEtoroApi<InstrumentRatesResponse>(endpoint);
         
+        // Enhanced logging for debugging
+        console.log(`Raw response structure for batch ${i + 1}:`, {
+          hasResponse: !!response,
+          hasRates: !!(response && response.rates),
+          isRatesArray: response && Array.isArray(response.rates),
+          ratesLength: response && response.rates ? response.rates.length : 0,
+          sampleResponse: response && response.rates && response.rates.length > 0 ? response.rates[0] : null
+        });
+        
         if (response && response.rates && Array.isArray(response.rates)) {
           console.log(`Received ${response.rates.length} rates in batch ${i + 1}`);
           
-          response.rates.forEach(rate => {
-            // currYear field contains the YTD return percentage
-            if (rate.instrumentID && rate.currYear !== undefined && rate.currYear !== null) {
-              ratesMap.set(rate.instrumentID, rate.currYear);
+          response.rates.forEach((rate, index) => {
+            // Enhanced logging for first few rates
+            if (index < 3) {
+              console.log(`Rate ${index} structure:`, {
+                instrumentID: rate.instrumentID,
+                currYear: rate.currYear,
+                ask: rate.ask,
+                bid: rate.bid,
+                allFields: Object.keys(rate)
+              });
+            }
+            
+            // Try multiple possible field names for YTD return
+            let ytdValue = null;
+            const possibleFields = ['currYear', 'currentYear', 'ytd', 'ytdReturn', 'yearToDate', 'change', 'changePercent'];
+            
+            for (const field of possibleFields) {
+              if (rate[field] !== undefined && rate[field] !== null) {
+                ytdValue = rate[field];
+                if (index < 3) {
+                  console.log(`Found YTD return in field '${field}' for instrument ${rate.instrumentID}: ${ytdValue}`);
+                }
+                break;
+              }
+            }
+            
+            if (rate.instrumentID && ytdValue !== null && typeof ytdValue === 'number') {
+              ratesMap.set(rate.instrumentID, ytdValue);
+              if (index < 3) {
+                console.log(`Successfully mapped instrument ${rate.instrumentID} -> ${ytdValue}%`);
+              }
+            } else if (index < 3) {
+              console.log(`Skipping rate for instrument ${rate.instrumentID}: no valid YTD field found (tried: ${possibleFields.join(', ')})`);
             }
           });
         } else {
-          console.warn(`Invalid rates response for batch ${i + 1}:`, response);
+          console.warn(`Invalid rates response for batch ${i + 1}:`, {
+            response: response,
+            typeofResponse: typeof response,
+            hasRates: !!(response && response.rates),
+            ratesType: response && response.rates ? typeof response.rates : 'undefined'
+          });
         }
         
         // Add delay between batches to avoid rate limiting
