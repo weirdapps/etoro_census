@@ -26,7 +26,10 @@ export interface InstrumentsResponse {
   instrumentDisplayDatas: InstrumentDisplayData[];
 }
 
-export async function getInstrumentDetails(instrumentIds: number[]): Promise<Map<number, InstrumentDisplayData>> {
+export async function getInstrumentDetails(
+  instrumentIds: number[], 
+  onProgress?: (progress: number, message: string) => void
+): Promise<Map<number, InstrumentDisplayData>> {
   try {
     if (instrumentIds.length === 0) {
       return new Map();
@@ -51,6 +54,12 @@ export async function getInstrumentDetails(instrumentIds: number[]): Promise<Map
         const endpoint = `${API_ENDPOINTS.INSTRUMENTS}?instrumentIDs=${idsParam}`;
         
         console.log(`Fetching batch ${i + 1}/${batches.length}: ${batch.length} instruments`);
+        
+        // Report progress during fetching
+        if (onProgress) {
+          const progress = Math.round((i / batches.length) * 100);
+          onProgress(progress, `Fetching instrument details batch ${i + 1}/${batches.length}...`);
+        }
         
         const response = await fetchFromEtoroApi<InstrumentsResponse>(endpoint);
         
@@ -142,7 +151,10 @@ export interface InstrumentReturns {
   monthTD: number;
 }
 
-export async function getInstrumentClosingPrices(instrumentIds: number[]): Promise<Map<number, InstrumentReturns>> {
+export async function getInstrumentClosingPrices(
+  instrumentIds: number[], 
+  onProgress?: (progress: number, message: string) => void
+): Promise<Map<number, InstrumentReturns>> {
   try {
     if (instrumentIds.length === 0) {
       return new Map();
@@ -167,6 +179,12 @@ export async function getInstrumentClosingPrices(instrumentIds: number[]): Promi
         const endpoint = `${API_ENDPOINTS.INSTRUMENT_CLOSING_PRICES}?instrumentIDs=${idsParam}`;
         
         console.log(`Fetching closing prices batch ${i + 1}/${batches.length}: ${batch.length} instruments`);
+        
+        // Report progress during fetching
+        if (onProgress) {
+          const progress = Math.round((i / batches.length) * 100);
+          onProgress(progress, `Fetching closing prices batch ${i + 1}/${batches.length}...`);
+        }
         
         const response = await fetchFromEtoroApi<ClosingPricesResponse>(endpoint);
         

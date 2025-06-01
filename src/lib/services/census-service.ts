@@ -33,6 +33,8 @@ export async function performCensusAnalysis(
   
   let processedCount = 0;
   let emptyPortfolioCount = 0;
+  let lastProgressUpdate = Date.now();
+  const PROGRESS_UPDATE_INTERVAL = 3000; // Update every 3 seconds minimum
   
   for (const investor of investors) {
     try {
@@ -61,8 +63,16 @@ export async function performCensusAnalysis(
       });
       
       processedCount++;
-      const progressPercent = 5 + Math.round((processedCount / investors.length) * 70);
-      updateProgress(progressPercent, `Processed ${processedCount}/${investors.length} portfolios...`);
+      
+      // Update progress every 3 seconds or every 10 portfolios, whichever comes first
+      const now = Date.now();
+      const shouldUpdate = (now - lastProgressUpdate >= PROGRESS_UPDATE_INTERVAL) || (processedCount % 10 === 0);
+      
+      if (shouldUpdate) {
+        const progressPercent = 5 + Math.round((processedCount / investors.length) * 70);
+        updateProgress(progressPercent, `Processed ${processedCount}/${investors.length} portfolios...`);
+        lastProgressUpdate = now;
+      }
       
       // Increase delay after first 100 to avoid rate limiting
       const delay = processedCount > 100 ? 200 : 50;
@@ -70,10 +80,21 @@ export async function performCensusAnalysis(
     } catch (error) {
       console.error(`Error fetching portfolio for ${investor.userName}:`, error);
       processedCount++;
-      const progressPercent = 5 + Math.round((processedCount / investors.length) * 70);
-      updateProgress(progressPercent, `Processed ${processedCount}/${investors.length} portfolios...`);
+      
+      // Update progress on errors too
+      const now = Date.now();
+      const shouldUpdate = (now - lastProgressUpdate >= PROGRESS_UPDATE_INTERVAL) || (processedCount % 10 === 0);
+      
+      if (shouldUpdate) {
+        const progressPercent = 5 + Math.round((processedCount / investors.length) * 70);
+        updateProgress(progressPercent, `Processed ${processedCount}/${investors.length} portfolios...`);
+        lastProgressUpdate = now;
+      }
     }
   }
+  
+  // Ensure final progress update for portfolio processing
+  updateProgress(75, `Completed processing ${processedCount} portfolios`);
   
   console.log(`[Census] Processed ${processedCount} portfolios, ${emptyPortfolioCount} were empty (${(emptyPortfolioCount/processedCount*100).toFixed(1)}%)`);
   console.log(`[Census] Found ${Object.keys(instrumentData).length} unique instruments across all portfolios`);
@@ -82,10 +103,18 @@ export async function performCensusAnalysis(
   const allInstrumentIds = Object.keys(instrumentData).map(id => parseInt(id));
   updateProgress(80, `Fetching details for ${allInstrumentIds.length} unique instruments...`);
   
-  const instrumentDetails = await getInstrumentDetails(allInstrumentIds);
+  const instrumentDetails = await getInstrumentDetails(allInstrumentIds, (progress, message) => {
+    // Map the internal progress (0-100) to our range (80-85)
+    const mappedProgress = 80 + (progress * 5 / 100);
+    updateProgress(Math.round(mappedProgress), message);
+  });
   
   updateProgress(85, 'Fetching instrument closing prices...');
-  const instrumentClosingPrices = await getInstrumentClosingPrices(allInstrumentIds);
+  const instrumentClosingPrices = await getInstrumentClosingPrices(allInstrumentIds, (progress, message) => {
+    // Map the internal progress (0-100) to our range (85-90)
+    const mappedProgress = 85 + (progress * 5 / 100);
+    updateProgress(Math.round(mappedProgress), message);
+  });
   
   updateProgress(90, 'Processing instrument data...');
   
@@ -102,7 +131,11 @@ export async function performCensusAnalysis(
   
   // Fetch user details for avatars using usernames (more reliable than customer IDs)
   const usernames = investors.map(investor => investor.userName);
-  const userDetails = await getUsersDetailsByUsernames(usernames);
+  const userDetails = await getUsersDetailsByUsernames(usernames, (progress, message) => {
+    // Map the internal progress (0-100) to our range (92-95)
+    const mappedProgress = 92 + (progress * 3 / 100);
+    updateProgress(Math.round(mappedProgress), message);
+  });
   
   updateProgress(95, 'Finalizing analysis...');
   

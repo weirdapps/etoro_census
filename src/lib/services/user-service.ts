@@ -114,7 +114,10 @@ export const clientUserService = {
   }
 };
 
-export async function getUsersDetailsByUsernames(usernames: string[]): Promise<Map<string, UserDetail>> {
+export async function getUsersDetailsByUsernames(
+  usernames: string[], 
+  onProgress?: (progress: number, message: string) => void
+): Promise<Map<string, UserDetail>> {
   try {
     if (usernames.length === 0) {
       return new Map();
@@ -141,6 +144,12 @@ export async function getUsersDetailsByUsernames(usernames: string[]): Promise<M
         console.log(`Fetching username batch ${i + 1}/${batches.length}: ${batch.length} users`);
         console.log(`API endpoint: ${endpoint}`);
         console.log(`Usernames in batch:`, batch);
+        
+        // Report progress during fetching
+        if (onProgress) {
+          const progress = Math.round((i / batches.length) * 100);
+          onProgress(progress, `Fetching user avatars batch ${i + 1}/${batches.length}...`);
+        }
         
         const response = await fetchFromEtoroApi<UserInfoResponse>(endpoint);
         
