@@ -138,72 +138,48 @@ export async function getInstrumentRates(instrumentIds: number[]): Promise<Map<n
 
     const ratesMap = new Map<number, number>();
     
-    // First, get all instrument details to have their symbols
-    console.log(`Fetching details for ${instrumentIds.length} instruments to get symbols...`);
-    const allInstrumentDetails = await getInstrumentDetails(instrumentIds);
-    
-    // Create a map of symbol to instrumentId for reverse lookup
-    const symbolToId = new Map<string, number>();
-    allInstrumentDetails.forEach((details, id) => {
-      if (details.symbolFull) {
-        symbolToId.set(details.symbolFull.toUpperCase(), id);
-      }
-    });
-    
-    // Batch the symbols for search
-    const symbols = Array.from(symbolToId.keys());
-    const batchSize = 20; // Smaller batch size for search
+    // Batch requests to avoid URL length limits
+    const batchSize = 50; // Same batch size as instrument details
     const batches = [];
     
-    for (let i = 0; i < symbols.length; i += batchSize) {
-      batches.push(symbols.slice(i, i + batchSize));
+    for (let i = 0; i < instrumentIds.length; i += batchSize) {
+      batches.push(instrumentIds.slice(i, i + batchSize));
     }
     
-    console.log(`Fetching YTD returns in ${batches.length} batches for ${symbols.length} symbols`);
+    console.log(`Fetching YTD returns in ${batches.length} batches for ${instrumentIds.length} instruments`);
     
     for (let i = 0; i < batches.length; i++) {
-      const batchSymbols = batches[i];
+      const batch = batches[i];
       
       try {
-        // Search for multiple symbols at once
-        const searchText = batchSymbols.join(' OR ');
+        const idsParam = batch.join(',');
+        const endpoint = `${API_ENDPOINTS.INSTRUMENT_RATES}?instrumentIDs=${idsParam}&period=CurrYear`;
         
-        const endpoint = `${API_ENDPOINTS.INSTRUMENT_SEARCH}?` + 
-          `searchText=${encodeURIComponent(searchText)}` +
-          `&fields=instrumentId,symbol,currYearPriceChange` +
-          `&pageSize=100` + // Get max results
-          `&pageNumber=1`;
+        console.log(`Fetching rates batch ${i + 1}/${batches.length}: ${batch.length} instruments`);
         
-        console.log(`Fetching batch ${i + 1}/${batches.length}: searching for ${batchSymbols.length} symbols`);
+        const response = await fetchFromEtoroApi<InstrumentRatesResponse>(endpoint);
         
-        const response = await fetchFromEtoroApi<InstrumentSearchResponse>(endpoint);
-        
-        if (response && response.items && Array.isArray(response.items)) {
-          console.log(`Received ${response.items.length} items in batch ${i + 1}`);
+        if (response && response.rates && Array.isArray(response.rates)) {
+          console.log(`Received ${response.rates.length} rates in batch ${i + 1}`);
           
-          // Match results back to our instrument IDs
-          response.items.forEach(item => {
-            if (item.symbol && item.currYearPriceChange !== undefined) {
-              const originalId = symbolToId.get(item.symbol.toUpperCase());
-              if (originalId) {
-                ratesMap.set(originalId, item.currYearPriceChange);
-              } else {
-                // Try to match by instrumentId if available
-                if (instrumentIds.includes(item.instrumentId)) {
-                  ratesMap.set(item.instrumentId, item.currYearPriceChange);
-                }
-              }
+          response.rates.forEach(rate => {
+            // currYear field contains the YTD return percentage
+            if (rate.instrumentID && rate.currYear !== undefined && rate.currYear !== null) {
+              ratesMap.set(rate.instrumentID, rate.currYear);
             }
           });
+        } else {
+          console.warn(`Invalid rates response for batch ${i + 1}:`, response);
         }
         
-        // Add delay between batches
+        // Add delay between batches to avoid rate limiting
         if (i < batches.length - 1) {
-          await new Promise(resolve => setTimeout(resolve, 300));
+          await new Promise(resolve => setTimeout(resolve, 200));
         }
         
       } catch (error) {
-        console.error(`Error fetching YTD returns batch ${i + 1}:`, error);
+        console.error(`Error fetching rates batch ${i + 1}:`, error);
+        // Continue with next batch even if one fails
       }
     }
 
