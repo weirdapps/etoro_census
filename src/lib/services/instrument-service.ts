@@ -103,17 +103,6 @@ export function getInstrumentImageUrl(instrument: InstrumentDisplayData): string
   return preferredImage?.uri;
 }
 
-// No longer used - keeping for reference
-// export interface InstrumentRate {
-//   instrumentID: number;
-//   currYear?: number;
-//   ask?: number;
-//   bid?: number;
-// }
-
-// export interface InstrumentRatesResponse {
-//   rates: InstrumentRate[];
-// }
 
 export interface InstrumentSearchItem {
   instrumentId: number;
