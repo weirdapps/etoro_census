@@ -20,16 +20,22 @@ export default function TopHoldings({ holdings }: TopHoldingsProps) {
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedHoldings = holdings.slice(startIndex, startIndex + itemsPerPage);
 
-  const formatYtdReturn = (ytdReturn: number | undefined) => {
-    if (ytdReturn === undefined || ytdReturn === null) return '-';
-    return ytdReturn > 0 ? `+${ytdReturn.toFixed(1)}%` : `${ytdReturn.toFixed(1)}%`;
+  const formatReturn = (returnValue: number | undefined) => {
+    if (returnValue === undefined || returnValue === null) return '-';
+    return returnValue > 0 ? `+${returnValue.toFixed(1)}%` : `${returnValue.toFixed(1)}%`;
   };
 
-  const getYtdReturnColor = (ytdReturn: number | undefined) => {
-    if (ytdReturn === undefined || ytdReturn === null) return 'text-muted-foreground';
-    if (ytdReturn > 0) return 'text-green-600';
-    if (ytdReturn < 0) return 'text-red-600';
-    return 'text-blue-600';
+  const getReturnBadgeClass = (returnValue: number | undefined) => {
+    if (returnValue === undefined || returnValue === null) {
+      return 'inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800';
+    }
+    if (returnValue > 0) {
+      return 'inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800';
+    }
+    if (returnValue < 0) {
+      return 'inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800';
+    }
+    return 'inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800';
   };
 
   return (
@@ -49,7 +55,9 @@ export default function TopHoldings({ holdings }: TopHoldingsProps) {
               <TableHead className="text-right">Holders</TableHead>
               <TableHead className="text-right">% of PIs</TableHead>
               <TableHead className="text-right">Avg Allocation</TableHead>
-              <TableHead className="text-right">Return (YTD)</TableHead>
+              <TableHead className="text-right">Yesterday</TableHead>
+              <TableHead className="text-right">Week TD</TableHead>
+              <TableHead className="text-right">Month TD</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -102,8 +110,20 @@ export default function TopHoldings({ holdings }: TopHoldingsProps) {
                 <TableCell className="text-right font-medium">
                   {holding.averageAllocation.toFixed(1)}%
                 </TableCell>
-                <TableCell className={`text-right font-medium ${getYtdReturnColor(holding.ytdReturn)}`}>
-                  {formatYtdReturn(holding.ytdReturn)}
+                <TableCell className="text-right">
+                  <span className={getReturnBadgeClass(holding.yesterdayReturn)}>
+                    {formatReturn(holding.yesterdayReturn)}
+                  </span>
+                </TableCell>
+                <TableCell className="text-right">
+                  <span className={getReturnBadgeClass(holding.weekTDReturn)}>
+                    {formatReturn(holding.weekTDReturn)}
+                  </span>
+                </TableCell>
+                <TableCell className="text-right">
+                  <span className={getReturnBadgeClass(holding.monthTDReturn)}>
+                    {formatReturn(holding.monthTDReturn)}
+                  </span>
                 </TableCell>
               </TableRow>
               );

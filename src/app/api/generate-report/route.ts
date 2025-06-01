@@ -1030,7 +1030,9 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                                         <th class="text-right">Holders</th>
                                         <th class="text-right">% of PIs</th>
                                         <th class="text-right">Avg Allocation</th>
-                                        <th class="text-right">Return (YTD)</th>
+                                        <th class="text-right">Yesterday</th>
+                                        <th class="text-right">Week TD</th>
+                                        <th class="text-right">Month TD</th>
                                     </tr>
                                 </thead>
                                 <tbody id="holdings-tbody-${index}">
@@ -1056,12 +1058,26 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                                             <td class="text-right font-medium">
                                                 ${(holding.averageAllocation || 0).toFixed(1)}%
                                             </td>
-                                            <td class="text-right font-medium">
-                                                ${holding.ytdReturn !== undefined ? `
-                                                    <span style="color: ${holding.ytdReturn > 0 ? '#10b981' : holding.ytdReturn < 0 ? '#ef4444' : '#3b82f6'}">
-                                                        ${holding.ytdReturn > 0 ? '+' : ''}${holding.ytdReturn.toFixed(1)}%
+                                            <td class="text-right">
+                                                ${holding.yesterdayReturn !== undefined ? `
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${holding.yesterdayReturn > 0 ? 'bg-green-100 text-green-800' : holding.yesterdayReturn < 0 ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'}">
+                                                        ${holding.yesterdayReturn > 0 ? '+' : ''}${holding.yesterdayReturn.toFixed(1)}%
                                                     </span>
-                                                ` : '<span style="color: #6b7280">-</span>'}
+                                                ` : '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">-</span>'}
+                                            </td>
+                                            <td class="text-right">
+                                                ${holding.weekTDReturn !== undefined ? `
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${holding.weekTDReturn > 0 ? 'bg-green-100 text-green-800' : holding.weekTDReturn < 0 ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'}">
+                                                        ${holding.weekTDReturn > 0 ? '+' : ''}${holding.weekTDReturn.toFixed(1)}%
+                                                    </span>
+                                                ` : '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">-</span>'}
+                                            </td>
+                                            <td class="text-right">
+                                                ${holding.monthTDReturn !== undefined ? `
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${holding.monthTDReturn > 0 ? 'bg-green-100 text-green-800' : holding.monthTDReturn < 0 ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'}">
+                                                        ${holding.monthTDReturn > 0 ? '+' : ''}${holding.monthTDReturn.toFixed(1)}%
+                                                    </span>
+                                                ` : '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">-</span>'}
                                             </td>
                                         </tr>
                                     `).join('')}

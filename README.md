@@ -23,7 +23,8 @@ A modern web application for analyzing the portfolios and performance metrics of
 - Most popular instruments with asset images
 - Average allocation percentages
 - Ownership statistics across portfolios
-- Year-to-Date (YTD) returns for each instrument
+- Yesterday, Week-to-Date (WTD), and Month-to-Date (MTD) returns for each instrument
+- Color-coded return indicators (green: positive, red: negative, blue: zero)
 - Pagination support (20 per page, unlimited total)
 
 ### ⚡ **Real-time Progress Tracking**
@@ -152,6 +153,7 @@ npm start
 - **Popular Investors**: `/v1/user-info/people/search`
 - **User Portfolios**: `/v1/user-info/people/{username}/portfolio/live`
 - **Instrument Details**: `/v1/market-data/instruments`
+- **Historical Closing Prices**: `/v1/market-data/instruments/history/closing-price`
 - **User Details**: `/v1/user-info/people` (for avatars)
 
 ## Performance Optimizations

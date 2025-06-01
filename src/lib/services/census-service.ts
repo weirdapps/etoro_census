@@ -2,7 +2,7 @@ import { PopularInvestor, UserDetail } from '../models/user';
 import { UserPortfolio } from '../models/user-portfolio';
 import { CensusAnalysis, PortfolioStats, InstrumentHolding, PerformerStats } from '../models/census';
 import { getUserPortfolio, getUsersDetailsByUsernames, getUserAvatarUrl } from './user-service';
-import { getInstrumentDetails, getInstrumentDisplayName, getInstrumentSymbol, getInstrumentImageUrl, InstrumentDisplayData, getInstrumentRates } from './instrument-service';
+import { getInstrumentDetails, getInstrumentDisplayName, getInstrumentSymbol, getInstrumentImageUrl, InstrumentDisplayData, getInstrumentClosingPrices, InstrumentReturns } from './instrument-service';
 
 export interface ProgressCallback {
   (progress: number, message: string): void;
@@ -84,8 +84,8 @@ export async function performCensusAnalysis(
   
   const instrumentDetails = await getInstrumentDetails(allInstrumentIds);
   
-  updateProgress(85, 'Fetching instrument rates...');
-  const instrumentRates = await getInstrumentRates(allInstrumentIds, instrumentDetails);
+  updateProgress(85, 'Fetching instrument closing prices...');
+  const instrumentClosingPrices = await getInstrumentClosingPrices(allInstrumentIds);
   
   updateProgress(90, 'Processing instrument data...');
   
@@ -106,7 +106,7 @@ export async function performCensusAnalysis(
   
   updateProgress(95, 'Finalizing analysis...');
   
-  const topHoldings = calculateTopHoldings(instrumentData, instrumentDetails, investors.length, instrumentRates);
+  const topHoldings = calculateTopHoldings(instrumentData, instrumentDetails, investors.length, instrumentClosingPrices);
   
   // Debug: Check if ytdReturn is present
   const holdingsWithReturns = topHoldings.filter(h => h.ytdReturn !== undefined).length;
@@ -259,7 +259,7 @@ function calculateTopHoldings(
   } },
   instrumentDetails?: Map<number, InstrumentDisplayData>,
   totalInvestors: number = 1,
-  instrumentRates?: Map<number, number>
+  instrumentClosingPrices?: Map<number, InstrumentReturns>
 ): InstrumentHolding[] {
   return Object.entries(instrumentData)
     .map(([instrumentId, data]) => {
@@ -283,7 +283,7 @@ function calculateTopHoldings(
         finalSymbol: symbol
       });
       
-      const ytdReturn = instrumentRates?.get(id);
+      const closingPricesData = instrumentClosingPrices?.get(id);
       
       return {
         instrumentId: id,
@@ -294,7 +294,10 @@ function calculateTopHoldings(
         holdersPercentage: Math.round((data.holdersCount / totalInvestors) * 100 * 10) / 10,
         averageAllocation: Math.round(averageAllocation * 10) / 10,
         totalAllocation: Math.round(data.totalAllocation * 10) / 10,
-        ytdReturn: ytdReturn
+        ytdReturn: undefined, // Keep for backward compatibility but use new fields
+        yesterdayReturn: closingPricesData?.yesterday,
+        weekTDReturn: closingPricesData?.weekTD,
+        monthTDReturn: closingPricesData?.monthTD
       };
     })
     .sort((a, b) => b.holdersCount - a.holdersCount)

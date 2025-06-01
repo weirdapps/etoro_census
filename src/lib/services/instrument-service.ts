@@ -120,6 +120,96 @@ export interface InstrumentSearchResponse {
   items: InstrumentSearchItem[];
 }
 
+export interface ClosingPricesData {
+  daily: number;
+  weekly: number;
+  monthly: number;
+}
+
+export interface InstrumentClosingPrice {
+  instrumentId: number;
+  officialClosingPrice: number;
+  closingPrices: ClosingPricesData;
+}
+
+export interface ClosingPricesResponse {
+  data: InstrumentClosingPrice[];
+}
+
+export interface InstrumentReturns {
+  yesterday: number;
+  weekTD: number;
+  monthTD: number;
+}
+
+export async function getInstrumentClosingPrices(instrumentIds: number[]): Promise<Map<number, InstrumentReturns>> {
+  try {
+    if (instrumentIds.length === 0) {
+      return new Map();
+    }
+
+    const returnsMap = new Map<number, InstrumentReturns>();
+    
+    // Batch requests to avoid URL length limits and API rate limits
+    const batchSize = 50;
+    const batches = [];
+    
+    for (let i = 0; i < instrumentIds.length; i += batchSize) {
+      batches.push(instrumentIds.slice(i, i + batchSize));
+    }
+    
+    console.log(`Fetching closing prices in ${batches.length} batches for ${instrumentIds.length} instruments`);
+    
+    for (let i = 0; i < batches.length; i++) {
+      const batch = batches[i];
+      try {
+        const idsParam = batch.join(',');
+        const endpoint = `${API_ENDPOINTS.INSTRUMENT_CLOSING_PRICES}?instrumentIDs=${idsParam}`;
+        
+        console.log(`Fetching closing prices batch ${i + 1}/${batches.length}: ${batch.length} instruments`);
+        
+        const response = await fetchFromEtoroApi<ClosingPricesResponse>(endpoint);
+        
+        if (response && response.data && Array.isArray(response.data)) {
+          response.data.forEach(item => {
+            if (item.closingPrices && item.officialClosingPrice) {
+              const current = item.officialClosingPrice;
+              const daily = item.closingPrices.daily;
+              const weekly = item.closingPrices.weekly;
+              const monthly = item.closingPrices.monthly;
+              
+              const returns: InstrumentReturns = {
+                yesterday: daily ? ((current - daily) / daily) * 100 : 0,
+                weekTD: weekly ? ((current - weekly) / weekly) * 100 : 0,
+                monthTD: monthly ? ((current - monthly) / monthly) * 100 : 0
+              };
+              
+              returnsMap.set(item.instrumentId, returns);
+            }
+          });
+        } else {
+          console.warn(`Invalid closing prices response for batch ${i + 1}:`, response);
+        }
+        
+        // Add delay between batches to avoid rate limiting
+        if (i < batches.length - 1) {
+          await new Promise(resolve => setTimeout(resolve, 200));
+        }
+        
+      } catch (batchError) {
+        console.error(`Error fetching closing prices batch ${i + 1}:`, batchError);
+        // Continue with next batch even if one fails
+      }
+    }
+
+    console.log(`Successfully fetched closing prices for ${returnsMap.size}/${instrumentIds.length} instruments`);
+    return returnsMap;
+  } catch (error) {
+    console.error('Error fetching instrument closing prices:', error);
+    return new Map();
+  }
+}
+
 export async function getInstrumentRates(instrumentIds: number[], instrumentDetails?: Map<number, InstrumentDisplayData>): Promise<Map<number, number>> {
   try {
     if (instrumentIds.length === 0) {

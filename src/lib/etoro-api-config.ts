@@ -8,6 +8,7 @@ export const API_ENDPOINTS = {
   PORTFOLIO: `${ETORO_API_BASE_URL}/v1/trading/info/portfolio`,
   INSTRUMENTS: `${ETORO_API_BASE_URL}/v1/market-data/instruments`,
   INSTRUMENT_SEARCH: `${ETORO_API_BASE_URL}/v1/market-data/search`,
+  INSTRUMENT_CLOSING_PRICES: `${ETORO_API_BASE_URL}/v1/market-data/instruments/history/closing-price`,
   ASSET_FEED: `${ETORO_API_BASE_URL}/v1/feeds/instrument`,
   USER_FEED: `${ETORO_API_BASE_URL}/v1/feeds/user`,
   USER_INFO: `${ETORO_API_BASE_URL}/v1/user-info/people`,

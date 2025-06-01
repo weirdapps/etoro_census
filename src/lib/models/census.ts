@@ -23,6 +23,9 @@ export interface InstrumentHolding {
   averageAllocation: number;
   totalAllocation: number;
   ytdReturn?: number;
+  yesterdayReturn?: number;
+  weekTDReturn?: number;
+  monthTDReturn?: number;
 }
 
 export interface PerformerStats {
