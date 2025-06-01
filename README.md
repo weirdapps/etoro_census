@@ -2,7 +2,7 @@
 
 A modern web application for analyzing the portfolios and performance metrics of eToro's most popular investors (PIs). Built with Next.js 15, TypeScript, and Tailwind CSS.
 
-![full page screenshot of etoro PI census](src/assets/etoro_census.png)
+![screenshots of etoro PI census](src/assets/census.gif)
 
 ## Features
 
