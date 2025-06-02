@@ -186,8 +186,12 @@ export default function TestOptimizedPage() {
                 <li>• Top 500: ~3-5 minutes</li>
                 <li>• Top 1000: ~8-12 minutes</li>
                 <li>• Top 1500: ~15-20 minutes</li>
-                <li>• Top 2000: ~20-30 minutes</li>
+                <li>• Top 2000: ~20-30 minutes*</li>
               </ul>
+              <p className="text-xs mt-2 italic">
+                * Note: eToro API currently limits results to ~1500 investors maximum.
+                If you request 2000, you'll get all available investors (typically 1500).
+              </p>
             </div>
           </div>
         </div>
