@@ -1,0 +1,7 @@
+Manual report generation request: 2025-06-02 15:45:00 UTC
+
+This file was created to request a manual trigger of the Daily Census Report Generation workflow.
+Please trigger the workflow manually at: https://github.com/weirdapps/etoro_census/actions/workflows/daily-census.yml
+
+Expected workflow duration: ~1.5 hours
+Expected outcome: New report with corrected color formatting (badge-positive, badge-negative, badge-neutral)
