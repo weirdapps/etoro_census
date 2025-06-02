@@ -85,7 +85,7 @@ export class AnalysisService {
    */
   async generateMultipleBandAnalyses(
     collectedData: ComprehensiveDataCollection,
-    bands: number[] = [100, 500, 1000, 1500],
+    bands: number[] = [100, 500, 1000, 1500, 2000],
     onProgress?: ProgressCallback
   ): Promise<{ count: number; analysis: CensusAnalysis }[]> {
     const updateProgress = (progress: number, message: string) => {

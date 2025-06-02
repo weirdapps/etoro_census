@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
 
         // Phase 2: Multi-band analysis (60-80%)
         sendProgress(60, 'Phase 2: Generating analyses for all investor bands...');
-        const investorBands = [100, 500, 1000, 1500].filter(count => count <= collectedData.investors.length);
+        const investorBands = [100, 500, 1000, 1500, 2000].filter(count => count <= collectedData.investors.length);
         const analyses = await analysisService.generateMultipleBandAnalyses(
           collectedData,
           investorBands,

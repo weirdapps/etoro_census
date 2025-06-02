@@ -44,13 +44,21 @@ export class DataCollectionService {
     this.startTime = Date.now();
     
     const updateProgress = (progress: number, message: string) => {
-      console.log(`Data Collection Progress: ${progress}% - ${message}`);
+      const elapsed = ((Date.now() - this.startTime) / 1000).toFixed(1);
+      console.log(`Data Collection [${elapsed}s]: ${progress}% - ${message}`);
       if (onProgress) {
         onProgress(progress, message);
       }
     };
 
-    updateProgress(0, 'Starting comprehensive data collection...');
+    updateProgress(0, `Starting comprehensive data collection for ${maxInvestors} investors...`);
+    
+    // Log dataset size for monitoring
+    if (maxInvestors >= 2000) {
+      console.warn(`Large dataset requested: ${maxInvestors} investors. This may take 15-30 minutes.`);
+    } else if (maxInvestors >= 1500) {
+      console.log(`Medium dataset requested: ${maxInvestors} investors. Estimated time: 10-20 minutes.`);
+    }
 
     // Step 1: Fetch all investors (always fetch maximum to ensure consistency)
     updateProgress(5, `Fetching top ${maxInvestors} popular investors...`);
@@ -204,22 +212,25 @@ export class DataCollectionService {
         lastProgressUpdate = now;
       }
       
-      // Adaptive delay based on error rate and progress
+      // Adaptive delay based on error rate and progress - more conservative for larger datasets
       const errorRate = errorCount / processedCount;
-      let delay = 50; // Base delay
+      let delay = 75; // Increased base delay for larger datasets
       
       if (errorRate > 0.2) { // If error rate > 20%, significantly slow down
-        delay = 1000;
+        delay = 1500;
       } else if (errorRate > 0.1) { // If error rate > 10%, slow down
-        delay = 500;
+        delay = 750;
+      } else if (processedCount > 500) { // After 500 requests, be very conservative
+        delay = 300;
       } else if (processedCount > 100) { // After 100 requests, be more conservative
-        delay = 150;
+        delay = 200;
       }
       
-      // Add extra delay every 50 requests to avoid rate limiting
+      // Add extra delay every 50 requests to avoid rate limiting, longer for large datasets
       if (processedCount % 50 === 0 && processedCount > 0) {
-        console.log(`Batch checkpoint: ${processedCount} processed. Taking extended break...`);
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        const batchDelay = investors.length > 1000 ? 2000 : 1500; // Longer delays for larger datasets
+        console.log(`Batch checkpoint: ${processedCount} processed. Taking ${batchDelay}ms break...`);
+        await new Promise(resolve => setTimeout(resolve, batchDelay));
       } else {
         await new Promise(resolve => setTimeout(resolve, delay));
       }

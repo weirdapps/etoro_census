@@ -7,12 +7,14 @@ export default function TestOptimizedPage() {
   const [progress, setProgress] = useState(0);
   const [message, setMessage] = useState('');
   const [result, setResult] = useState<{ reportUrl?: string; dataUrl?: string; error?: string } | null>(null);
+  const [selectedCount, setSelectedCount] = useState(500);
 
-  const generateOptimizedReport = async () => {
+  const generateOptimizedReport = async (investorCount: number) => {
     setIsGenerating(true);
     setProgress(0);
     setMessage('');
     setResult(null);
+    setSelectedCount(investorCount);
 
     try {
       const response = await fetch('/api/optimized-report', {
@@ -22,7 +24,7 @@ export default function TestOptimizedPage() {
         },
         body: JSON.stringify({
           period: 'CurrYear',
-          maxInvestors: 500 // Start with 500 for testing
+          maxInvestors: investorCount
         }),
       });
 
@@ -77,13 +79,42 @@ export default function TestOptimizedPage() {
           </h1>
 
           <div className="space-y-4">
-            <button
-              onClick={generateOptimizedReport}
-              disabled={isGenerating}
-              className="w-full bg-emerald-500 hover:bg-emerald-600 disabled:bg-gray-400 text-white font-medium py-2 px-4 rounded-md transition-colors"
-            >
-              {isGenerating ? 'Generating...' : 'Generate Optimized Report (Top 500)'}
-            </button>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                onClick={() => generateOptimizedReport(500)}
+                disabled={isGenerating}
+                className="bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white font-medium py-2 px-3 rounded-md transition-colors text-sm"
+              >
+                {isGenerating && selectedCount === 500 ? 'Generating...' : 'Top 500 PIs'}
+              </button>
+              <button
+                onClick={() => generateOptimizedReport(1000)}
+                disabled={isGenerating}
+                className="bg-emerald-500 hover:bg-emerald-600 disabled:bg-gray-400 text-white font-medium py-2 px-3 rounded-md transition-colors text-sm"
+              >
+                {isGenerating && selectedCount === 1000 ? 'Generating...' : 'Top 1000 PIs'}
+              </button>
+              <button
+                onClick={() => generateOptimizedReport(1500)}
+                disabled={isGenerating}
+                className="bg-orange-500 hover:bg-orange-600 disabled:bg-gray-400 text-white font-medium py-2 px-3 rounded-md transition-colors text-sm"
+              >
+                {isGenerating && selectedCount === 1500 ? 'Generating...' : 'Top 1500 PIs'}
+              </button>
+              <button
+                onClick={() => generateOptimizedReport(2000)}
+                disabled={isGenerating}
+                className="bg-red-500 hover:bg-red-600 disabled:bg-gray-400 text-white font-medium py-2 px-3 rounded-md transition-colors text-sm"
+              >
+                {isGenerating && selectedCount === 2000 ? 'Generating...' : 'Top 2000 PIs'}
+              </button>
+            </div>
+            
+            {isGenerating && (
+              <div className="text-center text-sm text-gray-600 bg-gray-50 p-2 rounded">
+                Generating report for <strong>Top {selectedCount} Popular Investors</strong>
+              </div>
+            )}
 
             {isGenerating && (
               <div className="space-y-3">
@@ -141,12 +172,23 @@ export default function TestOptimizedPage() {
             <p><strong>New Architecture Benefits:</strong></p>
             <ul className="list-disc list-inside space-y-1">
               <li>Single data collection phase (no repeated API calls)</li>
-              <li>Multiple analysis bands from same data</li>
+              <li>Multiple analysis bands from same data (100, 500, 1000, 1500, 2000)</li>
               <li>Better error handling with circuit breakers</li>
-              <li>Adaptive delays based on error rates</li>
-              <li>Comprehensive timeout handling</li>
+              <li>Adaptive delays based on error rates and dataset size</li>
+              <li>Comprehensive timeout handling (30s per request)</li>
               <li>No more rate limiting issues for large datasets</li>
+              <li>Accurate holdings counts and percentages</li>
             </ul>
+            
+            <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded text-yellow-800">
+              <p><strong>Estimated Generation Times:</strong></p>
+              <ul className="text-xs mt-1 space-y-1">
+                <li>• Top 500: ~3-5 minutes</li>
+                <li>• Top 1000: ~8-12 minutes</li>
+                <li>• Top 1500: ~15-20 minutes</li>
+                <li>• Top 2000: ~20-30 minutes</li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>
