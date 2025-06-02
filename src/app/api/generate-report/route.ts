@@ -6,6 +6,7 @@ import { PeriodType, PopularInvestor } from '@/lib/models/user';
 import { getUserPortfolio } from '@/lib/services/user-service';
 import { getCountryFlag } from '@/lib/utils/country-mapping';
 import { truncateText } from '@/lib/utils';
+import { getInstrumentPriceData } from '@/lib/services/instrument-service';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -1288,6 +1289,17 @@ interface InstrumentData {
   instrumentName: string;
   symbol: string;
   imageUrl?: string;
+  currentPrice?: number;
+  closingPrices?: {
+    daily: number;
+    weekly: number;
+    monthly: number;
+  };
+  returns?: {
+    yesterday: number;
+    weekTD: number;
+    monthTD: number;
+  };
 }
 
 interface AnalysisExport {
@@ -1406,8 +1418,10 @@ async function prepareJSONExport(
     }
   }
   
-  // Extract instrument details from all analyses
+  // Extract instrument details from all analyses and portfolios
   const allInstruments = new Map<number, InstrumentData>();
+  
+  // First, collect from analyses
   analyses.forEach(({ analysis }) => {
     analysis.topHoldings?.forEach(holding => {
       if (!allInstruments.has(holding.instrumentId)) {
@@ -1415,10 +1429,46 @@ async function prepareJSONExport(
           instrumentId: holding.instrumentId,
           instrumentName: holding.instrumentName,
           symbol: holding.symbol,
-          imageUrl: holding.imageUrl
+          imageUrl: holding.imageUrl,
+          returns: holding.yesterdayReturn !== undefined ? {
+            yesterday: holding.yesterdayReturn,
+            weekTD: holding.weekTDReturn || 0,
+            monthTD: holding.monthTDReturn || 0
+          } : undefined
         });
       }
     });
+  });
+  
+  // Also collect from all portfolios to ensure we have all instruments
+  investorsWithPortfolios.forEach(investor => {
+    if (investor.portfolio?.positions) {
+      investor.portfolio.positions.forEach(position => {
+        if (position.instrumentId && !allInstruments.has(position.instrumentId)) {
+          allInstruments.set(position.instrumentId, {
+            instrumentId: position.instrumentId,
+            instrumentName: position.instrumentName || `Instrument ${position.instrumentId}`,
+            symbol: `ID-${position.instrumentId}`,
+            imageUrl: undefined
+          });
+        }
+      });
+    }
+  });
+  
+  // Fetch closing prices for all instruments
+  console.log(`Fetching closing prices for ${allInstruments.size} instruments...`);
+  const instrumentIds = Array.from(allInstruments.keys());
+  const priceDataMap = await getInstrumentPriceData(instrumentIds);
+  
+  // Update instruments with price and return data
+  allInstruments.forEach((instrument, id) => {
+    const priceData = priceDataMap.get(id);
+    if (priceData) {
+      instrument.currentPrice = priceData.currentPrice;
+      instrument.closingPrices = priceData.closingPrices;
+      instrument.returns = priceData.returns;
+    }
   });
   
   return {
