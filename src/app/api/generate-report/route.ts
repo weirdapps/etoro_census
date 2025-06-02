@@ -642,6 +642,21 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
             color: #00C896;
         }
         
+        .badge-positive {
+            background-color: rgba(34, 197, 94, 0.1);
+            color: #16a34a;
+        }
+        
+        .badge-negative {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: #dc2626;
+        }
+        
+        .badge-neutral {
+            background-color: rgba(59, 130, 246, 0.1);
+            color: #2563eb;
+        }
+        
         .risk-badge {
             padding: 4px 8px;
             border-radius: 9999px;
@@ -1061,24 +1076,24 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                                             </td>
                                             <td class="text-right">
                                                 ${holding.yesterdayReturn !== undefined ? `
-                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${holding.yesterdayReturn > 0 ? 'bg-green-100 text-green-800' : holding.yesterdayReturn < 0 ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'}">
+                                                    <span class="badge ${holding.yesterdayReturn > 0 ? 'badge-positive' : holding.yesterdayReturn < 0 ? 'badge-negative' : 'badge-neutral'}">
                                                         ${holding.yesterdayReturn > 0 ? '+' : ''}${holding.yesterdayReturn.toFixed(1)}%
                                                     </span>
-                                                ` : '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">-</span>'}
+                                                ` : '<span class="badge badge-neutral">-</span>'}
                                             </td>
                                             <td class="text-right">
                                                 ${holding.weekTDReturn !== undefined ? `
-                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${holding.weekTDReturn > 0 ? 'bg-green-100 text-green-800' : holding.weekTDReturn < 0 ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'}">
+                                                    <span class="badge ${holding.weekTDReturn > 0 ? 'badge-positive' : holding.weekTDReturn < 0 ? 'badge-negative' : 'badge-neutral'}">
                                                         ${holding.weekTDReturn > 0 ? '+' : ''}${holding.weekTDReturn.toFixed(1)}%
                                                     </span>
-                                                ` : '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">-</span>'}
+                                                ` : '<span class="badge badge-neutral">-</span>'}
                                             </td>
                                             <td class="text-right">
                                                 ${holding.monthTDReturn !== undefined ? `
-                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${holding.monthTDReturn > 0 ? 'bg-green-100 text-green-800' : holding.monthTDReturn < 0 ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'}">
+                                                    <span class="badge ${holding.monthTDReturn > 0 ? 'badge-positive' : holding.monthTDReturn < 0 ? 'badge-negative' : 'badge-neutral'}">
                                                         ${holding.monthTDReturn > 0 ? '+' : ''}${holding.monthTDReturn.toFixed(1)}%
                                                     </span>
-                                                ` : '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">-</span>'}
+                                                ` : '<span class="badge badge-neutral">-</span>'}
                                             </td>
                                         </tr>
                                     `).join('')}
