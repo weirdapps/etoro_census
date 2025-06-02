@@ -46,12 +46,29 @@ export async function POST(request: NextRequest) {
 
         // Phase 2: Multi-band analysis (60-80%)
         sendProgress(60, 'Phase 2: Generating analyses for all investor bands...');
-        const investorBands = [100, 500, 1000, 1500, 2000].filter(count => count <= collectedData.investors.length);
+        
+        // Adjust bands based on actual data collected
+        let investorBands = [100, 500, 1000, 1500, 2000];
+        if (collectedData.investors.length < maxInvestors) {
+          sendProgress(61, `Note: eToro API returned only ${collectedData.investors.length} investors (max available)`);
+          investorBands = investorBands.filter(count => count <= collectedData.investors.length);
+          
+          // Add the actual count as the highest band if it's significant
+          if (collectedData.investors.length > 1000 && !investorBands.includes(collectedData.investors.length)) {
+            investorBands.push(collectedData.investors.length);
+            investorBands.sort((a, b) => a - b);
+          }
+        } else {
+          investorBands = investorBands.filter(count => count <= collectedData.investors.length);
+        }
+        
+        sendProgress(62, `Will generate ${investorBands.length} analysis bands: ${investorBands.join(', ')}`);
+        
         const analyses = await analysisService.generateMultipleBandAnalyses(
           collectedData,
           investorBands,
           (progress, message) => {
-            const scaledProgress = 60 + (progress * 20 / 100); // 60-80% range
+            const scaledProgress = 62 + (progress * 18 / 100); // 62-80% range
             sendProgress(Math.round(scaledProgress), `Analysis: ${message}`);
           }
         );

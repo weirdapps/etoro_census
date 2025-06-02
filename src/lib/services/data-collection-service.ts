@@ -68,6 +68,12 @@ export class DataCollectionService {
       throw new Error('No investors found');
     }
 
+    // Check if we hit API limit
+    if (investors.length < maxInvestors) {
+      console.warn(`API LIMIT: Requested ${maxInvestors} investors but only received ${investors.length}`);
+      updateProgress(8, `⚠️ eToro API limit: Only ${investors.length} investors available (requested ${maxInvestors})`);
+    }
+
     // Sort by copiers to ensure consistent ordering
     investors.sort((a, b) => b.copiers - a.copiers);
     updateProgress(10, `Found ${investors.length} investors, sorted by copiers`);

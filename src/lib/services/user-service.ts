@@ -7,13 +7,10 @@ export async function getPopularInvestors(
   limit: number = 50
 ): Promise<PopularInvestor[]> {
   try {
-    // eToro API has a maximum limit of around 1500 investors
-    const maxApiLimit = 1500;
-    const actualLimit = Math.min(limit, maxApiLimit);
+    // Let's test the actual API limit by requesting what user wants
+    console.log(`Requesting ${limit} investors from eToro API...`);
     
-    console.log(`Requesting ${limit} investors, API limit: ${actualLimit}`);
-    
-    const endpoint = `${API_ENDPOINTS.USER_INFO_SEARCH}?period=${period}&pageSize=${actualLimit}&page=1&sort=-copiers&`;
+    const endpoint = `${API_ENDPOINTS.USER_INFO_SEARCH}?period=${period}&pageSize=${limit}&page=1&sort=-copiers&`;
     
     console.log(`Fetching popular investors from: ${endpoint}`);
     
@@ -24,14 +21,27 @@ export async function getPopularInvestors(
       return [];
     }
 
-    console.log(`Found ${response.items.length} popular investors (requested: ${limit})`);
+    console.log(`API Response: Found ${response.items.length} popular investors (requested: ${limit})`);
     
-    // If user requested more than API returned, log a warning
-    if (limit > response.items.length) {
-      console.warn(`User requested ${limit} investors but API only returned ${response.items.length}`);
+    // Check response metadata
+    const metadata = {
+      itemsReturned: response.items.length,
+      requested: limit,
+      totalAvailable: (response as any).total || 'unknown',
+      totalPages: (response as any).totalPages || 'unknown',
+      currentPage: (response as any).page || 1,
+      pageSize: (response as any).pageSize || limit
+    };
+    
+    console.log('API Metadata:', metadata);
+    
+    // If we got less than requested, it's likely the API limit
+    if (response.items.length < limit) {
+      console.warn(`⚠️ eToro API limit reached: Only ${response.items.length} investors available (requested: ${limit})`);
+      console.log(`This appears to be the maximum number of popular investors for period: ${period}`);
     }
     
-    return response.items.slice(0, limit);
+    return response.items;
   } catch (error) {
     console.error('Error fetching popular investors:', error);
     throw error;
