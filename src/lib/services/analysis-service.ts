@@ -180,13 +180,24 @@ export class AnalysisService {
       }
     } = {};
 
+    // Track which investors hold which instruments to avoid double counting
+    const instrumentHolders = new Map<number, Set<string>>();
+
     investors.forEach(investor => {
       if (investor.portfolio?.positions) {
+        // Group positions by instrument ID to aggregate multiple positions of same instrument
+        const investorInstruments = new Map<number, number>();
+        
         investor.portfolio.positions.forEach(position => {
           if (position.instrumentId && position.investmentPct) {
             const id = position.instrumentId;
             const percentage = position.investmentPct;
-
+            
+            // Aggregate multiple positions of same instrument for this investor
+            const currentAllocation = investorInstruments.get(id) || 0;
+            investorInstruments.set(id, currentAllocation + percentage);
+            
+            // Initialize instrument data if not exists
             if (!instrumentData[id]) {
               instrumentData[id] = {
                 holdersCount: 0,
@@ -194,11 +205,21 @@ export class AnalysisService {
                 totalAllocation: 0,
                 allocations: []
               };
+              instrumentHolders.set(id, new Set());
             }
+          }
+        });
 
-            instrumentData[id].holdersCount++;
-            instrumentData[id].totalAllocation += percentage;
-            instrumentData[id].allocations.push(percentage);
+        // Now process aggregated instruments for this investor
+        investorInstruments.forEach((totalAllocation, instrumentId) => {
+          const holders = instrumentHolders.get(instrumentId)!;
+          
+          // Only count each investor once per instrument
+          if (!holders.has(investor.userName)) {
+            holders.add(investor.userName);
+            instrumentData[instrumentId].holdersCount++;
+            instrumentData[instrumentId].totalAllocation += totalAllocation;
+            instrumentData[instrumentId].allocations.push(totalAllocation);
           }
         });
       }
@@ -213,6 +234,8 @@ export class AnalysisService {
     instrumentPriceData: Map<number, any>,
     totalInvestors: number
   ): InstrumentHolding[] {
+    console.log(`Calculating top holdings for ${totalInvestors} investors, found ${Object.keys(instrumentData).length} unique instruments`);
+    
     return Object.entries(instrumentData)
       .map(([instrumentId, data]) => {
         const id = parseInt(instrumentId);
@@ -227,13 +250,22 @@ export class AnalysisService {
         const symbol = details ? getInstrumentSymbol(details) : `ID-${id}`;
         const imageUrl = details ? getInstrumentImageUrl(details) : undefined;
 
+        // Ensure holders count never exceeds total investors
+        const validHoldersCount = Math.min(data.holdersCount, totalInvestors);
+        const holdersPercentage = Math.round((validHoldersCount / totalInvestors) * 100 * 10) / 10;
+
+        // Validation logging for top instruments
+        if (data.holdersCount > totalInvestors) {
+          console.warn(`Instrument ${instrumentName} (${id}) has ${data.holdersCount} holders but only ${totalInvestors} total investors!`);
+        }
+
         return {
           instrumentId: id,
           instrumentName,
           symbol,
           imageUrl,
-          holdersCount: data.holdersCount,
-          holdersPercentage: Math.round((data.holdersCount / totalInvestors) * 100 * 10) / 10,
+          holdersCount: validHoldersCount,
+          holdersPercentage,
           averageAllocation: Math.round(averageAllocation * 10) / 10,
           totalAllocation: Math.round(data.totalAllocation * 10) / 10,
           ytdReturn: undefined, // Legacy field
