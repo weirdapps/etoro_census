@@ -327,15 +327,6 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
             text-decoration: underline;
         }
         
-        .optimization-note {
-            background: linear-gradient(135deg, #00C896, #00B085);
-            color: white;
-            padding: 16px;
-            margin: 0 24px 32px 24px;
-            border-radius: 8px;
-            text-align: center;
-            font-weight: 500;
-        }
         
         /* Tabs */
         .tabs {
@@ -835,10 +826,6 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
             <h1>eToro Popular Investors Census</h1>
             <p class="creator">created by <a href="https://www.etoro.com/people/plessas" target="_blank" rel="noopener noreferrer">@plessas</a> at ${generatedAt}</p>
         </div>
-    </div>
-
-    <div class="optimization-note">
-        🚀 <strong>Optimized Architecture:</strong> This report was generated using our new optimized data collection system - single API fetch for all data, then multiple analysis generations. No more rate limiting issues!
     </div>
 
     <div class="container">
