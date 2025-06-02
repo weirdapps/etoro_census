@@ -1,0 +1,15 @@
+Manual census generation request: 2025-06-02 16:45:00 UTC
+
+IMPORTANT FIXES INCLUDED IN THIS GENERATION:
+1. ✅ Color-coded return values (green/red/blue badges)
+2. ✅ Fixed missing returns for major instruments in top 1000/1500 bands
+3. ✅ Optimized API calls (no more duplicate price fetching)
+4. ✅ All closing price data saved to JSON export
+
+Expected improvements:
+- Consistent return values across all tabs (100, 500, 1000, 1500)
+- Proper color coding matching % OF PIs column style
+- Faster generation due to optimized API usage
+- Complete price data in JSON for future analysis
+
+To trigger: https://github.com/weirdapps/etoro_census/actions/workflows/daily-census.yml
