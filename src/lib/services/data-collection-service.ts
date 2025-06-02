@@ -38,7 +38,7 @@ export class DataCollectionService {
 
   async collectAllData(
     period: PeriodType = 'CurrYear',
-    maxInvestors: number = 1500,
+    maxInvestors: number = 2000,
     onProgress?: ProgressCallback
   ): Promise<ComprehensiveDataCollection> {
     this.startTime = Date.now();

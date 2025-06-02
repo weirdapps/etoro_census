@@ -7,41 +7,68 @@ export async function getPopularInvestors(
   limit: number = 50
 ): Promise<PopularInvestor[]> {
   try {
-    // Let's test the actual API limit by requesting what user wants
     console.log(`Requesting ${limit} investors from eToro API...`);
     
-    const endpoint = `${API_ENDPOINTS.USER_INFO_SEARCH}?period=${period}&pageSize=${limit}&page=1&sort=-copiers&`;
+    // eToro might have a max page size, let's check
+    const pageSize = Math.min(limit, 500); // Try smaller page size
+    const totalPages = Math.ceil(limit / pageSize);
+    const allInvestors: PopularInvestor[] = [];
     
-    console.log(`Fetching popular investors from: ${endpoint}`);
-    
-    const response = await fetchFromEtoroApi<PopularInvestorsResponse>(endpoint);
-    
-    if (!response || !response.items || !Array.isArray(response.items)) {
-      console.error('Invalid response format for popular investors:', response);
-      return [];
-    }
+    for (let page = 1; page <= totalPages; page++) {
+      const endpoint = `${API_ENDPOINTS.USER_INFO_SEARCH}?period=${period}&pageSize=${pageSize}&page=${page}&sort=-copiers&`;
+      
+      console.log(`Fetching page ${page} (pageSize: ${pageSize}) from: ${endpoint}`);
+      
+      const response = await fetchFromEtoroApi<PopularInvestorsResponse>(endpoint);
+      
+      if (!response || !response.items || !Array.isArray(response.items)) {
+        console.error(`Invalid response format for page ${page}:`, response);
+        break;
+      }
 
-    console.log(`API Response: Found ${response.items.length} popular investors (requested: ${limit})`);
-    
-    // Check response metadata
-    const metadata = {
-      itemsReturned: response.items.length,
-      requested: limit,
-      totalAvailable: (response as any).total || 'unknown',
-      totalPages: (response as any).totalPages || 'unknown',
-      currentPage: (response as any).page || 1,
-      pageSize: (response as any).pageSize || limit
-    };
-    
-    console.log('API Metadata:', metadata);
-    
-    // If we got less than requested, it's likely the API limit
-    if (response.items.length < limit) {
-      console.warn(`⚠️ eToro API limit reached: Only ${response.items.length} investors available (requested: ${limit})`);
-      console.log(`This appears to be the maximum number of popular investors for period: ${period}`);
+      console.log(`Page ${page}: Found ${response.items.length} investors`);
+      
+      // Check response metadata
+      const metadata = {
+        page,
+        itemsReturned: response.items.length,
+        totalRows: response.totalRows,
+        pageSize: response.items.length,
+        totalAvailable: (response as any).total || response.totalRows || 'unknown'
+      };
+      
+      console.log(`Page ${page} Metadata:`, metadata);
+      
+      allInvestors.push(...response.items);
+      
+      // Stop if we got less than a full page (no more data)
+      if (response.items.length < pageSize) {
+        console.log(`Reached end of available data at page ${page}`);
+        break;
+      }
+      
+      // Stop if we have enough
+      if (allInvestors.length >= limit) {
+        console.log(`Collected enough investors: ${allInvestors.length}`);
+        break;
+      }
+      
+      // Small delay between pages to avoid rate limiting
+      if (page < totalPages) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
     }
     
-    return response.items;
+    console.log(`Total investors collected: ${allInvestors.length} (requested: ${limit})`);
+    
+    // If we got less than requested, log it
+    if (allInvestors.length < limit) {
+      console.warn(`⚠️ Could only fetch ${allInvestors.length} investors (requested: ${limit})`);
+      console.log(`This appears to be all available popular investors for period: ${period}`);
+    }
+    
+    // Return only up to the requested limit
+    return allInvestors.slice(0, limit);
   } catch (error) {
     console.error('Error fetching popular investors:', error);
     throw error;
