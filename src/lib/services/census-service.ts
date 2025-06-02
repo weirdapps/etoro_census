@@ -2,7 +2,7 @@ import { PopularInvestor, UserDetail } from '../models/user';
 import { UserPortfolio } from '../models/user-portfolio';
 import { CensusAnalysis, PortfolioStats, InstrumentHolding, PerformerStats } from '../models/census';
 import { getUserPortfolio, getUsersDetailsByUsernames, getUserAvatarUrl } from './user-service';
-import { getInstrumentDetails, getInstrumentDisplayName, getInstrumentSymbol, getInstrumentImageUrl, InstrumentDisplayData, getInstrumentClosingPrices, InstrumentReturns } from './instrument-service';
+import { getInstrumentDetails, getInstrumentDisplayName, getInstrumentSymbol, getInstrumentImageUrl, InstrumentDisplayData, getInstrumentClosingPrices, InstrumentReturns, InstrumentPriceData } from './instrument-service';
 
 export interface ProgressCallback {
   (progress: number, message: string): void;
@@ -10,7 +10,8 @@ export interface ProgressCallback {
 
 export async function performCensusAnalysis(
   investors: PopularInvestor[], 
-  onProgress?: ProgressCallback
+  onProgress?: ProgressCallback,
+  preloadedPriceData?: Map<number, InstrumentPriceData>
 ): Promise<CensusAnalysis> {
   console.log(`Performing census analysis on ${investors.length} investors`);
   
@@ -109,12 +110,29 @@ export async function performCensusAnalysis(
     updateProgress(Math.round(mappedProgress), message);
   });
   
-  updateProgress(85, 'Fetching instrument closing prices...');
-  const instrumentClosingPrices = await getInstrumentClosingPrices(allInstrumentIds, (progress, message) => {
-    // Map the internal progress (0-100) to our range (85-90)
-    const mappedProgress = 85 + (progress * 5 / 100);
-    updateProgress(Math.round(mappedProgress), message);
-  });
+  updateProgress(85, 'Processing instrument closing prices...');
+  let instrumentClosingPrices: Map<number, InstrumentReturns>;
+  
+  if (preloadedPriceData) {
+    // Use preloaded price data if provided
+    console.log('[Census] Using preloaded price data for instruments');
+    instrumentClosingPrices = new Map();
+    allInstrumentIds.forEach(id => {
+      const priceData = preloadedPriceData.get(id);
+      if (priceData) {
+        instrumentClosingPrices.set(id, priceData.returns);
+      }
+    });
+    console.log(`[Census] Loaded price data for ${instrumentClosingPrices.size}/${allInstrumentIds.length} instruments from preloaded data`);
+  } else {
+    // Fetch closing prices if not preloaded
+    console.log('[Census] Fetching closing prices from API');
+    instrumentClosingPrices = await getInstrumentClosingPrices(allInstrumentIds, (progress, message) => {
+      // Map the internal progress (0-100) to our range (85-90)
+      const mappedProgress = 85 + (progress * 5 / 100);
+      updateProgress(Math.round(mappedProgress), message);
+    });
+  }
   
   updateProgress(90, 'Processing instrument data...');
   

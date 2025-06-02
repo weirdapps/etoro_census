@@ -4,11 +4,43 @@ import { getPopularInvestors } from '@/lib/services/user-service';
 import { performCensusAnalysis, ProgressCallback } from '@/lib/services/census-service';
 import { PeriodType, PopularInvestor } from '@/lib/models/user';
 import { getUserPortfolio } from '@/lib/services/user-service';
+import { UserPortfolio } from '@/lib/models/user-portfolio';
 import { getCountryFlag } from '@/lib/utils/country-mapping';
 import { truncateText } from '@/lib/utils';
 import { getInstrumentPriceData } from '@/lib/services/instrument-service';
 import fs from 'fs/promises';
 import path from 'path';
+
+// Helper function to fetch portfolios for a set of investors
+async function fetchPortfoliosForInstruments(
+  investors: PopularInvestor[],
+  onProgress?: (progress: number, message: string) => void
+): Promise<{ investor: PopularInvestor; portfolio: UserPortfolio | null }[]> {
+  const results: { investor: PopularInvestor; portfolio: UserPortfolio | null }[] = [];
+  
+  for (let i = 0; i < investors.length; i++) {
+    const investor = investors[i];
+    try {
+      const portfolio = await getUserPortfolio(investor.userName);
+      results.push({ investor, portfolio });
+    } catch (error) {
+      console.error(`Error fetching portfolio for ${investor.userName}:`, error);
+      results.push({ investor, portfolio: null });
+    }
+    
+    if (onProgress && i % 10 === 0) {
+      const progress = Math.round((i / investors.length) * 100);
+      onProgress(progress, `Fetched ${i}/${investors.length} portfolios`);
+    }
+    
+    // Small delay to avoid rate limiting
+    if (i % 20 === 0 && i > 0) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+  }
+  
+  return results;
+}
 
 export async function POST(request: NextRequest) {
   const encoder = new TextEncoder();
@@ -61,9 +93,43 @@ export async function POST(request: NextRequest) {
         
         sendProgress(15, `Preparing to analyze investor bands...`);
         
+        // Collect all unique instruments across all investor subsets first
+        console.log('Pre-fetching instrument data for all investor bands...');
+        const allUniqueInstruments = new Set<number>();
+        const subsetSizes = [100, 500, 1000, 1500].filter(size => size <= allInvestors.length);
+        
+        // Collect instrument IDs from all subsets
+        for (const size of subsetSizes) {
+          const subset = allInvestors.slice(0, size);
+          const portfolios = await fetchPortfoliosForInstruments(subset, (progress, message) => {
+            console.log(`Pre-fetch for top ${size}: ${message}`);
+          });
+          
+          portfolios.forEach(({ portfolio }) => {
+            if (portfolio?.positions) {
+              portfolio.positions.forEach(position => {
+                if (position.instrumentId) {
+                  allUniqueInstruments.add(position.instrumentId);
+                }
+              });
+            }
+          });
+        }
+        
+        console.log(`Found ${allUniqueInstruments.size} unique instruments across all bands`);
+        
+        // Fetch closing prices for ALL instruments once
+        sendProgress(20, `Fetching closing prices for ${allUniqueInstruments.size} instruments...`);
+        const allInstrumentIds = Array.from(allUniqueInstruments);
+        const globalPriceDataMap = await getInstrumentPriceData(allInstrumentIds, (progress, message) => {
+          const scaledProgress = 20 + (progress * 10 / 100);
+          sendProgress(Math.round(scaledProgress), message);
+        });
+        
+        console.log(`Successfully fetched price data for ${globalPriceDataMap.size}/${allInstrumentIds.length} instruments`);
+        
         // Generate multiple analyses for different investor counts
         const analyses: { count: number; analysis: CensusAnalysis }[] = [];
-        const subsetSizes = [100, 500, 1000, 1500].filter(size => size <= allInvestors.length);
         
         // Run separate analysis for each band
         for (let i = 0; i < subsetSizes.length; i++) {
@@ -114,7 +180,7 @@ export async function POST(request: NextRequest) {
             };
             console.log('Distribution:', distribution);
             
-            const analysis = await performCensusAnalysis(subset, onProgress);
+            const analysis = await performCensusAnalysis(subset, onProgress, globalPriceDataMap);
             
             if (!analysis) {
               console.error(`Failed to analyze top ${size} investors`);
