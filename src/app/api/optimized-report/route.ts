@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PeriodType } from '@/lib/models/user';
-import { dataCollectionService, ComprehensiveDataCollection } from '@/lib/services/data-collection-service';
+import { CensusAnalysis } from '@/lib/models/census';
+import { dataCollectionService } from '@/lib/services/data-collection-service';
 import { analysisService } from '@/lib/services/analysis-service';
 import { truncateText } from '@/lib/utils';
 import { getCountryFlag } from '@/lib/utils/country-mapping';
@@ -223,7 +224,7 @@ export async function POST(request: NextRequest) {
   });
 }
 
-function generateReportHTML(analyses: { count: number; analysis: any }[], generatedAt: string): string {
+function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis }[], generatedAt: string): string {
   // Helper functions for distribution charts
   const getReturnsColorClass = (range: string) => {
     if (range === 'Loss') return '#ef4444'; // red-500

@@ -1,4 +1,4 @@
-import { PopularInvestor, PeriodType } from '../models/user';
+import { PopularInvestor, PeriodType, UserDetail } from '../models/user';
 import { UserPortfolio } from '../models/user-portfolio';
 import { getPopularInvestors, getUserPortfolio, getUsersDetailsByUsernames } from './user-service';
 import { getInstrumentDetails, getInstrumentPriceData, InstrumentPriceData, InstrumentDisplayData } from './instrument-service';
@@ -26,7 +26,7 @@ export interface ComprehensiveDataCollection {
     details: Map<number, InstrumentDisplayData>;
     priceData: Map<number, InstrumentPriceData>;
   };
-  userDetails: Map<string, any>;
+  userDetails: Map<string, UserDetail>;
 }
 
 /**

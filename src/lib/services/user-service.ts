@@ -34,7 +34,7 @@ export async function getPopularInvestors(
         itemsReturned: response.items.length,
         totalRows: response.totalRows,
         pageSize: response.items.length,
-        totalAvailable: (response as any).total || response.totalRows || 'unknown'
+        totalAvailable: response.totalRows || 'unknown'
       };
       
       console.log(`Page ${page} Metadata:`, metadata);

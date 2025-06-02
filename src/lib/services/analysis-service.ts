@@ -1,7 +1,8 @@
 import { CensusAnalysis, PortfolioStats, InstrumentHolding, PerformerStats } from '../models/census';
 import { ComprehensiveDataCollection, CollectedInvestorData } from './data-collection-service';
-import { getInstrumentDisplayName, getInstrumentSymbol, getInstrumentImageUrl } from './instrument-service';
+import { getInstrumentDisplayName, getInstrumentSymbol, getInstrumentImageUrl, InstrumentDisplayData, InstrumentPriceData } from './instrument-service';
 import { getUserAvatarUrl } from './user-service';
+import { UserDetail } from '../models/user';
 
 export interface ProgressCallback {
   (progress: number, message: string): void;
@@ -230,8 +231,8 @@ export class AnalysisService {
 
   private calculateTopHoldings(
     instrumentData: { [instrumentId: number]: { holdersCount: number; name: string; totalAllocation: number; allocations: number[] } },
-    instrumentDetails: Map<number, any>,
-    instrumentPriceData: Map<number, any>,
+    instrumentDetails: Map<number, InstrumentDisplayData>,
+    instrumentPriceData: Map<number, InstrumentPriceData>,
     totalInvestors: number
   ): InstrumentHolding[] {
     console.log(`Calculating top holdings for ${totalInvestors} investors, found ${Object.keys(instrumentData).length} unique instruments`);
@@ -280,7 +281,7 @@ export class AnalysisService {
   private calculateTopPerformers(
     investors: CollectedInvestorData[],
     portfolioStats: PortfolioStats[],
-    userDetails: Map<string, any>
+    userDetails: Map<string, UserDetail>
   ): PerformerStats[] {
     return investors
       .map(investor => {
