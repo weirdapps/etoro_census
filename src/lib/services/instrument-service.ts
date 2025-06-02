@@ -129,21 +129,26 @@ export interface InstrumentSearchResponse {
   items: InstrumentSearchItem[];
 }
 
+export interface ClosingPriceItem {
+  price: number;
+  date: string;
+}
+
 export interface ClosingPricesData {
-  daily: number;
-  weekly: number;
-  monthly: number;
+  daily: ClosingPriceItem;
+  weekly: ClosingPriceItem;
+  monthly: ClosingPriceItem;
 }
 
 export interface InstrumentClosingPrice {
   instrumentId: number;
   officialClosingPrice: number;
+  isMarketOpen: boolean;
   closingPrices: ClosingPricesData;
 }
 
-export interface ClosingPricesResponse {
-  data: InstrumentClosingPrice[];
-}
+// The API returns an array directly, not wrapped in a data property
+export type ClosingPricesResponse = InstrumentClosingPrice[];
 
 export interface InstrumentReturns {
   yesterday: number;
@@ -198,13 +203,50 @@ export async function getInstrumentPriceData(
         
         const response = await fetchFromEtoroApi<ClosingPricesResponse>(endpoint);
         
-        if (response && response.data && Array.isArray(response.data)) {
-          response.data.forEach(item => {
+        // Detailed logging of the response
+        console.log(`[Closing Prices] Batch ${i + 1} response:`, {
+          hasResponse: !!response,
+          isArray: Array.isArray(response),
+          dataLength: response?.length || 0,
+          requestedIds: batch,
+          firstItem: response?.[0] || null
+        });
+        
+        if (response && Array.isArray(response)) {
+          console.log(`[Closing Prices] Processing ${response.length} items in batch ${i + 1}`);
+          let processedCount = 0;
+          let matchedCount = 0;
+          
+          response.forEach(item => {
+            // Log the structure of first item
+            if (processedCount === 0) {
+              console.log(`[Closing Prices] Sample item structure:`, {
+                hasClosingPrices: !!item.closingPrices,
+                hasOfficialClosingPrice: !!item.officialClosingPrice,
+                instrumentId: item.instrumentId,
+                officialClosingPrice: item.officialClosingPrice,
+                closingPrices: item.closingPrices
+              });
+            }
+            
+            // Check if this instrument was actually requested
+            if (!batch.includes(item.instrumentId)) {
+              return; // Skip instruments we didn't request
+            }
+            
+            matchedCount++;
+            
             if (item.closingPrices && item.officialClosingPrice) {
               const current = item.officialClosingPrice;
-              const daily = item.closingPrices.daily;
-              const weekly = item.closingPrices.weekly;
-              const monthly = item.closingPrices.monthly;
+              const daily = item.closingPrices.daily?.price;
+              const weekly = item.closingPrices.weekly?.price;
+              const monthly = item.closingPrices.monthly?.price;
+              
+              // Skip if prices are invalid (-1 means no data)
+              if (daily === -1 || weekly === -1 || monthly === -1) {
+                console.warn(`[Closing Prices] Instrument ${item.instrumentId} has invalid price data (-1)`);
+                return;
+              }
               
               const priceData: InstrumentPriceData = {
                 currentPrice: current,
@@ -214,17 +256,29 @@ export async function getInstrumentPriceData(
                   monthly: monthly || 0
                 },
                 returns: {
-                  yesterday: daily ? ((current - daily) / daily) * 100 : 0,
-                  weekTD: weekly ? ((current - weekly) / weekly) * 100 : 0,
-                  monthTD: monthly ? ((current - monthly) / monthly) * 100 : 0
+                  yesterday: daily && daily > 0 ? ((current - daily) / daily) * 100 : 0,
+                  weekTD: weekly && weekly > 0 ? ((current - weekly) / weekly) * 100 : 0,
+                  monthTD: monthly && monthly > 0 ? ((current - monthly) / monthly) * 100 : 0
                 }
               };
               
               priceDataMap.set(item.instrumentId, priceData);
+              processedCount++;
+            } else {
+              console.warn(`[Closing Prices] Item missing required fields:`, {
+                instrumentId: item.instrumentId,
+                hasClosingPrices: !!item.closingPrices,
+                hasOfficialClosingPrice: !!item.officialClosingPrice
+              });
             }
           });
+          
+          console.log(`[Closing Prices] Matched ${matchedCount}/${batch.length} requested instruments`);
+          console.log(`[Closing Prices] Processed ${processedCount} items with valid data in batch ${i + 1}`);
         } else {
-          console.warn(`Invalid closing prices response for batch ${i + 1}:`, response);
+          console.warn(`[Closing Prices] Invalid response for batch ${i + 1}:`, {
+            response: JSON.stringify(response).substring(0, 500)
+          });
         }
         
         // Add delay between batches to avoid rate limiting
@@ -283,25 +337,61 @@ export async function getInstrumentClosingPrices(
         
         const response = await fetchFromEtoroApi<ClosingPricesResponse>(endpoint);
         
-        if (response && response.data && Array.isArray(response.data)) {
-          response.data.forEach(item => {
+        // Detailed logging of the response
+        console.log(`[Closing Prices Returns] Batch ${i + 1} response:`, {
+          hasResponse: !!response,
+          isArray: Array.isArray(response),
+          dataLength: response?.length || 0,
+          requestedIds: batch,
+          endpoint: endpoint.substring(0, 100) + '...'
+        });
+        
+        if (response && Array.isArray(response)) {
+          console.log(`[Closing Prices Returns] Processing ${response.length} items`);
+          let processedCount = 0;
+          let matchedCount = 0;
+          
+          response.forEach(item => {
+            if (processedCount === 0) {
+              console.log(`[Closing Prices Returns] First item:`, JSON.stringify(item));
+            }
+            
+            // Check if this instrument was actually requested
+            if (!batch.includes(item.instrumentId)) {
+              return; // Skip instruments we didn't request
+            }
+            
+            matchedCount++;
+            
             if (item.closingPrices && item.officialClosingPrice) {
               const current = item.officialClosingPrice;
-              const daily = item.closingPrices.daily;
-              const weekly = item.closingPrices.weekly;
-              const monthly = item.closingPrices.monthly;
+              const daily = item.closingPrices.daily?.price;
+              const weekly = item.closingPrices.weekly?.price;
+              const monthly = item.closingPrices.monthly?.price;
+              
+              // Skip if prices are invalid (-1 means no data)
+              if (daily === -1 || weekly === -1 || monthly === -1) {
+                console.warn(`[Closing Prices Returns] Instrument ${item.instrumentId} has invalid price data (-1)`);
+                return;
+              }
               
               const returns: InstrumentReturns = {
-                yesterday: daily ? ((current - daily) / daily) * 100 : 0,
-                weekTD: weekly ? ((current - weekly) / weekly) * 100 : 0,
-                monthTD: monthly ? ((current - monthly) / monthly) * 100 : 0
+                yesterday: daily && daily > 0 ? ((current - daily) / daily) * 100 : 0,
+                weekTD: weekly && weekly > 0 ? ((current - weekly) / weekly) * 100 : 0,
+                monthTD: monthly && monthly > 0 ? ((current - monthly) / monthly) * 100 : 0
               };
               
               returnsMap.set(item.instrumentId, returns);
+              processedCount++;
             }
           });
+          
+          console.log(`[Closing Prices Returns] Matched ${matchedCount}/${batch.length} requested instruments`);
+          console.log(`[Closing Prices Returns] Processed ${processedCount} items with returns`);
         } else {
-          console.warn(`Invalid closing prices response for batch ${i + 1}:`, response);
+          console.warn(`[Closing Prices Returns] Invalid response for batch ${i + 1}:`, {
+            response: JSON.stringify(response).substring(0, 500)
+          });
         }
         
         // Add delay between batches to avoid rate limiting
