@@ -53,10 +53,10 @@ jobs:
       
       - name: Generate census report
         run: |
-          # Call the generate report endpoint
-          curl -X POST http://localhost:3000/api/generate-report \
+          # Call the optimized report endpoint with 1500 investors
+          curl -X POST http://localhost:3000/api/optimized-report \
             -H "Content-Type: application/json" \
-            -d '{"period": "CurrYear"}' \
+            -d '{"period": "CurrYear", "maxInvestors": 1500}' \
             --no-buffer \
             --silent \
             --show-error \
@@ -65,9 +65,11 @@ jobs:
               echo "$line"
               # Check if this is the complete event with the report URL
               if echo "$line" | grep -q '"type":"complete"'; then
-                # Extract the URL from the JSON
-                URL=$(echo "$line" | sed -n 's/.*"url":"\([^"]*\)".*/\1/p')
-                echo "Report generated at: $URL"
+                # Extract the URLs from the JSON
+                REPORT_URL=$(echo "$line" | sed -n 's/.*"reportUrl":"\([^"]*\)".*/\1/p')
+                DATA_URL=$(echo "$line" | sed -n 's/.*"dataUrl":"\([^"]*\)".*/\1/p')
+                echo "Report generated at: $REPORT_URL"
+                echo "Data saved at: $DATA_URL"
               fi
             done
       
