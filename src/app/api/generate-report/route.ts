@@ -7,7 +7,7 @@ import { getUserPortfolio } from '@/lib/services/user-service';
 import { UserPortfolio } from '@/lib/models/user-portfolio';
 import { getCountryFlag } from '@/lib/utils/country-mapping';
 import { truncateText } from '@/lib/utils';
-import { getInstrumentPriceData } from '@/lib/services/instrument-service';
+import { getInstrumentPriceData, InstrumentPriceData } from '@/lib/services/instrument-service';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -232,7 +232,7 @@ export async function POST(request: NextRequest) {
 
         // Prepare JSON data with all user portfolios
         sendProgress(96, 'Collecting portfolio data for JSON export...');
-        const jsonData = await prepareJSONExport(allInvestors, analyses, date);
+        const jsonData = await prepareJSONExport(allInvestors, analyses, date, globalPriceDataMap);
         
         // Write JSON file to data directory (will be committed to git)
         const jsonFilePath = path.join(dataDir, jsonFileName);
@@ -1420,7 +1420,8 @@ interface JSONExportData {
 async function prepareJSONExport(
   investors: PopularInvestor[], 
   analyses: { count: number; analysis: CensusAnalysis }[],
-  date: Date
+  date: Date,
+  preloadedPriceData?: Map<number, InstrumentPriceData>
 ): Promise<JSONExportData> {
   console.log('Preparing JSON export for', investors.length, 'investors');
   
@@ -1537,20 +1538,35 @@ async function prepareJSONExport(
     }
   });
   
-  // Fetch closing prices for all instruments
-  console.log(`Fetching closing prices for ${allInstruments.size} instruments...`);
-  const instrumentIds = Array.from(allInstruments.keys());
-  const priceDataMap = await getInstrumentPriceData(instrumentIds);
-  
-  // Update instruments with price and return data
-  allInstruments.forEach((instrument, id) => {
-    const priceData = priceDataMap.get(id);
-    if (priceData) {
-      instrument.currentPrice = priceData.currentPrice;
-      instrument.closingPrices = priceData.closingPrices;
-      instrument.returns = priceData.returns;
-    }
-  });
+  // Use preloaded price data or fetch if not available
+  if (preloadedPriceData) {
+    console.log(`Using preloaded closing prices for ${allInstruments.size} instruments...`);
+    
+    // Update instruments with preloaded price and return data
+    allInstruments.forEach((instrument, id) => {
+      const priceData = preloadedPriceData.get(id);
+      if (priceData) {
+        instrument.currentPrice = priceData.currentPrice;
+        instrument.closingPrices = priceData.closingPrices;
+        instrument.returns = priceData.returns;
+      }
+    });
+  } else {
+    // Fallback: fetch closing prices if not preloaded (shouldn't happen in normal flow)
+    console.log(`WARNING: No preloaded price data, fetching closing prices for ${allInstruments.size} instruments...`);
+    const instrumentIds = Array.from(allInstruments.keys());
+    const priceDataMap = await getInstrumentPriceData(instrumentIds);
+    
+    // Update instruments with price and return data
+    allInstruments.forEach((instrument, id) => {
+      const priceData = priceDataMap.get(id);
+      if (priceData) {
+        instrument.currentPrice = priceData.currentPrice;
+        instrument.closingPrices = priceData.closingPrices;
+        instrument.returns = priceData.returns;
+      }
+    });
+  }
   
   return {
     metadata: {
