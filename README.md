@@ -1,6 +1,6 @@
-# etoro PI Census
+# eToro Popular Investors Census
 
-A modern web application for analyzing the portfolios and performance metrics of eToro's most popular investors (PIs). Built with Next.js 15, TypeScript, and Tailwind CSS.
+A modern web application for analyzing the portfolios and performance metrics of eToro's most popular investors (PIs). Built with Next.js 15, TypeScript, and Tailwind CSS featuring an **optimized architecture** for robust data collection and analysis.
 
 ![screenshots of etoro PI census](src/assets/census.gif)
 
@@ -30,14 +30,14 @@ A modern web application for analyzing the portfolios and performance metrics of
 ### ⚡ **Real-time Progress Tracking**
 - Server-Sent Events for live analysis updates
 - Detailed progress messages during processing
-- Batch processing for optimal performance
+- Optimized batch processing for maximum performance
 
 ## Configuration
 
 ### **Investor Selection**
-- **Range**: 1-1000 investors (input validation)
+- **Range**: 1-1500 investors (input validation)
 - **Default**: 100 investors
-- **API Limit**: eToro API caps at ~1,500 investors
+- **API Limit**: eToro API caps at exactly 1,500 investors
 
 ### **Performance Periods**
 - Year to Date (default)
@@ -45,7 +45,19 @@ A modern web application for analyzing the portfolios and performance metrics of
 - Last Year/Two Years
 - Historical periods (1, 3, 6 months ago)
 
-## Technical Architecture
+## 🚀 Optimized Architecture
+
+### **Single-Pass Data Collection**
+- **One API fetch** collects ALL data (investors, portfolios, instruments, user details)
+- **Multiple analyses** generated from the same dataset
+- **No redundant API calls** - eliminates rate limiting issues
+- **Circuit breakers** and adaptive delays for reliability
+
+### **Efficient Processing**
+- **DataCollectionService**: Comprehensive data gathering with progress tracking
+- **AnalysisService**: Fast analysis generation without API dependencies
+- **Smart batching**: 50 items per API call with intelligent error handling
+- **Timeout protection**: 30-second timeouts with graceful fallbacks
 
 ### **Frontend**
 - **Framework**: Next.js 15.2.4 with App Router
@@ -54,15 +66,16 @@ A modern web application for analyzing the portfolios and performance metrics of
 - **Validation**: Zod schemas for data models
 
 ### **Backend**
-- **API Routes**: Server-side data fetching and processing
+- **Optimized Endpoint**: `/api/optimized-report` for all report generation
 - **Streaming**: Server-Sent Events for real-time progress
-- **Rate Limiting**: Intelligent batch processing (50 items at a time)
-- **Error Handling**: Comprehensive error boundaries and fallbacks
+- **Error Handling**: Comprehensive error boundaries and recovery
+- **Data Export**: JSON data export with all collected information
 
 ### **eToro API Integration**
 - **Authentication**: X-API-KEY, X-USER-KEY, X-REQUEST-ID headers
-- **Endpoints**: Popular investors, user portfolios, instrument details
+- **Endpoints**: Popular investors, user portfolios, instrument details, closing prices
 - **Data Models**: Strongly typed interfaces for all API responses
+- **Rate Limiting**: Intelligent delays and circuit breakers
 
 ## Project Structure
 
@@ -70,8 +83,10 @@ A modern web application for analyzing the portfolios and performance metrics of
 src/
 ├── app/                          # Next.js App Router
 │   ├── api/                     # API routes
-│   │   ├── census/             # Main analysis endpoint
-│   │   └── census-stream/      # Streaming analysis endpoint
+│   │   ├── optimized-report/   # Main optimized analysis endpoint
+│   │   ├── extract-instruments/ # Instrument extraction utility
+│   │   ├── list-reports/       # Report listing endpoint
+│   │   └── users/              # User data endpoint
 │   ├── globals.css             # Global styles
 │   ├── layout.tsx              # Root layout
 │   └── page.tsx                # Main dashboard page
@@ -91,10 +106,11 @@ src/
 │   │   ├── census.ts          # Analysis data models
 │   │   ├── user.ts            # User and investor models
 │   │   └── user-portfolio.ts  # Portfolio data models
-│   ├── services/              # Business logic
-│   │   ├── census-service.ts  # Main analysis service
-│   │   ├── instrument-service.ts # Asset data service
-│   │   └── user-service.ts    # User data service
+│   ├── services/              # Optimized business logic
+│   │   ├── data-collection-service.ts # Comprehensive data collection
+│   │   ├── analysis-service.ts        # Fast multi-band analysis
+│   │   ├── instrument-service.ts      # Asset data service
+│   │   └── user-service.ts            # User data service
 │   ├── etoro-api-config.ts    # API configuration
 │   └── utils.ts               # Utility functions
 └── middleware.ts              # Next.js middleware
@@ -156,22 +172,25 @@ npm start
 - **Historical Closing Prices**: `/v1/market-data/instruments/history/closing-price`
 - **User Details**: `/v1/user-info/people` (for avatars)
 
-## Performance Optimizations
+## 🔧 Performance Optimizations
 
-### **Batch Processing**
-- **User Details**: 50 users per API call
-- **Instruments**: 50 instruments per API call
-- **Rate Limiting**: 200ms delays between batches
+### **Optimized Data Collection**
+- **Single-pass collection**: One API fetch collects ALL required data
+- **Circuit breakers**: Automatic error recovery with adaptive delays
+- **Timeout protection**: 30-second timeouts prevent hanging requests
+- **Smart batching**: 50 items per API call with intelligent error handling
 
-### **Streaming Analysis**
-- Real-time progress updates via Server-Sent Events
-- Non-blocking UI during long-running analysis
-- Graceful error handling and recovery
+### **Multi-Band Analysis**
+- **Zero API calls**: Analysis generated from pre-collected data
+- **Multiple bands**: 100, 500, 1000, 1500 investor analyses simultaneously
+- **Shared data**: Same dataset used for all analysis bands
+- **Fast processing**: No waiting for redundant API calls
 
-### **Data Efficiency**
-- Intelligent caching of instrument details
-- Minimal API calls through batch processing
-- Efficient data structures and algorithms
+### **Streaming & Real-time Updates**
+- **Server-Sent Events**: Real-time progress via `/api/optimized-report`
+- **Detailed progress**: Phase-by-phase updates with error rates
+- **Non-blocking UI**: Responsive interface during long operations
+- **Graceful degradation**: Comprehensive error handling and recovery
 
 ## Contributing
 
