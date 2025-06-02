@@ -1,0 +1,53 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Find and copy latest report to root
+        run: |
+          cd public/reports
+          # Find the most recent report file by filename (excluding index.html)
+          LATEST_REPORT=$(ls etoro-census-*.html 2>/dev/null | sort -r | head -n 1)
+          if [ -n "$LATEST_REPORT" ]; then
+            echo "Copying $LATEST_REPORT to root index.html"
+            cp "$LATEST_REPORT" ../../index.html
+            echo "Latest report: $LATEST_REPORT" > ../../latest-report.txt
+          else
+            echo "No report files found"
+            # Create a placeholder if no reports exist
+            echo "<!DOCTYPE html><html><head><title>eToro Census</title></head><body><h1>No reports available yet</h1></body></html>" > ../../index.html
+          fi
+      
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+      
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # Upload entire repository root (this will include the latest report as index.html)
+          path: '.'
+      
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
