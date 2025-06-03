@@ -116,6 +116,36 @@ src/
 └── middleware.ts              # Next.js middleware
 ```
 
+## 🔍 Analysis Tools
+
+The project includes comprehensive analysis tools for deep data insights:
+
+### Quick Start
+```bash
+# Key market insights (start here)
+node analyze.js deltas
+
+# Bitcoin analysis
+node analyze.js btc
+
+# Any instrument trends
+node analyze.js instrument nvidia
+
+# Elite investor behavior
+node analyze.js top100
+
+# Help and all commands
+node analyze.js help
+```
+
+### Tool Categories
+- **📊 Market Behavior**: Investor vs position dynamics, trends, accumulation patterns
+- **📈 Instruments**: Individual asset analysis, top holders, trends over time  
+- **👑 Elite Insights**: Top 100 investor behavior vs general population
+- **📝 Examples**: Common queries and data exploration
+
+See [`analysis-tools/README.md`](analysis-tools/README.md) for detailed documentation.
+
 ## Getting Started
 
 ### **Prerequisites**
