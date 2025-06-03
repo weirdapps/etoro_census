@@ -85,23 +85,20 @@ jobs:
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "GitHub Actions Bot"
       
-      - name: Commit and push reports
+      - name: Commit and push reports with deployment trigger
         run: |
+          # Add reports and JSON files
           git add public/reports/*.html public/data/*.json
+          
+          # Add deployment trigger file
+          echo "$(date -u +'%Y-%m-%d %H:%M:%S UTC')" > .github/last-deployment-trigger
+          git add .github/last-deployment-trigger
+          
+          # Commit everything together if there are changes
           git diff --staged --quiet || {
             COMMIT_MSG="Daily census report - $(date -u +'%Y-%m-%d %H:%M UTC')"
             git commit -m "$COMMIT_MSG"
             git push
-          }
-      
-      - name: Trigger deployment
-        if: success()
-        run: |
-          # Trigger the deployment workflow by making a minimal commit
-          echo "$(date -u +'%Y-%m-%d %H:%M:%S UTC')" > .github/last-deployment-trigger
-          git add .github/last-deployment-trigger
-          git diff --staged --quiet || {
-            git commit -m "trigger: auto-deploy after census generation"
-            git push
+            echo "✅ Reports committed and pushed - this should trigger GitHub Pages deployment automatically"
           }
       
