@@ -192,8 +192,27 @@ export async function POST(request: NextRequest) {
 
         sendProgress(90, 'Generating HTML report...');
         
+        // Reconstruct the analyses structure from the saved JSON format
+        const htmlAnalyses = analyses.map(({ count, analysis }) => ({
+          count,
+          analysis: {
+            fearGreedIndex: analysis.fearGreedIndex,
+            averageUniqueInstruments: analysis.averageUniqueInstruments,
+            averageCashPercentage: analysis.averageCashPercentage,
+            averageGain: analysis.averageGain,
+            averageRiskScore: analysis.averageRiskScore,
+            averageTrades: analysis.averageTrades,
+            uniqueInstrumentsDistribution: analysis.uniqueInstrumentsDistribution,
+            cashPercentageDistribution: analysis.cashPercentageDistribution,
+            topHoldings: analysis.topHoldings,
+            returnsDistribution: analysis.returnsDistribution,
+            riskScoreDistribution: analysis.riskScoreDistribution,
+            topPerformers: analysis.topPerformers
+          }
+        }));
+        
         // Generate the HTML report
-        const html = generateReportHTML(analyses, collectedData.metadata.collectedAtUTC);
+        const html = generateReportHTML(htmlAnalyses, collectedData.metadata.collectedAtUTC);
         const htmlFilePath = path.join(reportsDir, htmlFileName);
         await fs.writeFile(htmlFilePath, html, 'utf-8');
 
@@ -1052,8 +1071,11 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                                     </tr>
                                 </thead>
                                 <tbody id="holdings-tbody-${index}">
-                                    ${(item.analysis.topHoldings || []).slice(0, 20).map((holding, idx) => `
-                                        <tr class="holdings-row-${index}" data-page="1">
+                                    ${(item.analysis.topHoldings || []).map((holding, idx) => {
+                                        const pageNum = Math.floor(idx / 20) + 1;
+                                        const displayStyle = pageNum === 1 ? '' : 'style="display: none;"';
+                                        return `
+                                        <tr class="holdings-row-${index}" data-page="${pageNum}" ${displayStyle}>
                                             <td class="rank">#${idx + 1}</td>
                                             <td>
                                                 <div class="name-cell">
@@ -1096,9 +1118,24 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                                                 ` : '<span class="badge badge-neutral">-</span>'}
                                             </td>
                                         </tr>
-                                    `).join('')}
+                                    `}).join('')}
                                 </tbody>
                             </table>
+                            ${(item.analysis.topHoldings || []).length > 20 ? `
+                            <div class="pagination">
+                                <div class="pagination-info">
+                                    Showing <span id="holdings-start-${index}">1</span>-<span id="holdings-end-${index}">20</span> of ${(item.analysis.topHoldings || []).length}
+                                </div>
+                                <div class="pagination-controls">
+                                    <button class="pagination-btn" onclick="showHoldingsPage(${index}, 'prev')" id="holdings-prev-${index}" disabled>
+                                        Previous
+                                    </button>
+                                    <button class="pagination-btn" onclick="showHoldingsPage(${index}, 'next')" id="holdings-next-${index}">
+                                        Next
+                                    </button>
+                                </div>
+                            </div>
+                            ` : ''}
                         </div>
                     </div>
 
@@ -1123,8 +1160,11 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                                     </tr>
                                 </thead>
                                 <tbody id="performers-tbody-${index}">
-                                    ${(item.analysis.topPerformers || []).slice(0, Math.min(20, item.count)).map((performer, idx) => `
-                                        <tr class="performers-row-${index}" data-page="1">
+                                    ${(item.analysis.topPerformers || []).slice(0, Math.min(item.analysis.topPerformers.length, item.count)).map((performer, idx) => {
+                                        const pageNum = Math.floor(idx / 20) + 1;
+                                        const displayStyle = pageNum === 1 ? '' : 'style="display: none;"';
+                                        return `
+                                        <tr class="performers-row-${index}" data-page="${pageNum}" ${displayStyle}>
                                             <td class="rank">#${idx + 1}</td>
                                             <td>
                                                 <div class="name-cell">
@@ -1159,9 +1199,24 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                                                 <span class="badge badge-purple">${(performer.copiers || 0).toLocaleString()}</span>
                                             </td>
                                         </tr>
-                                    `).join('')}
+                                    `}).join('')}
                                 </tbody>
                             </table>
+                            ${(item.analysis.topPerformers || []).filter((p, i) => i < item.count).length > 20 ? `
+                            <div class="pagination">
+                                <div class="pagination-info">
+                                    Showing <span id="performers-start-${index}">1</span>-<span id="performers-end-${index}">20</span> of ${Math.min((item.analysis.topPerformers || []).length, item.count)}
+                                </div>
+                                <div class="pagination-controls">
+                                    <button class="pagination-btn" onclick="showPerformersPage(${index}, 'prev')" id="performers-prev-${index}" disabled>
+                                        Previous
+                                    </button>
+                                    <button class="pagination-btn" onclick="showPerformersPage(${index}, 'next')" id="performers-next-${index}">
+                                        Next
+                                    </button>
+                                </div>
+                            </div>
+                            ` : ''}
                         </div>
                     </div>
                 </div>
@@ -1181,6 +1236,80 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
             
             document.querySelectorAll('.tab')[index].classList.add('active');
             document.getElementById('tab-' + index).classList.add('active');
+        }
+        
+        // Pagination for Holdings
+        const holdingsPages = {};
+        const performersPages = {};
+        
+        function showHoldingsPage(tabIndex, direction) {
+            if (!holdingsPages[tabIndex]) holdingsPages[tabIndex] = 1;
+            
+            const rows = document.querySelectorAll('.holdings-row-' + tabIndex);
+            const totalPages = Math.ceil(rows.length / 20);
+            
+            if (direction === 'next' && holdingsPages[tabIndex] < totalPages) {
+                holdingsPages[tabIndex]++;
+            } else if (direction === 'prev' && holdingsPages[tabIndex] > 1) {
+                holdingsPages[tabIndex]--;
+            }
+            
+            const currentPage = holdingsPages[tabIndex];
+            const start = (currentPage - 1) * 20 + 1;
+            const end = Math.min(currentPage * 20, rows.length);
+            
+            // Hide all rows
+            rows.forEach(row => row.style.display = 'none');
+            
+            // Show current page rows
+            rows.forEach(row => {
+                if (parseInt(row.getAttribute('data-page')) === currentPage) {
+                    row.style.display = '';
+                }
+            });
+            
+            // Update pagination info
+            document.getElementById('holdings-start-' + tabIndex).textContent = start;
+            document.getElementById('holdings-end-' + tabIndex).textContent = end;
+            
+            // Update button states
+            document.getElementById('holdings-prev-' + tabIndex).disabled = currentPage === 1;
+            document.getElementById('holdings-next-' + tabIndex).disabled = currentPage === totalPages;
+        }
+        
+        function showPerformersPage(tabIndex, direction) {
+            if (!performersPages[tabIndex]) performersPages[tabIndex] = 1;
+            
+            const rows = document.querySelectorAll('.performers-row-' + tabIndex);
+            const totalPages = Math.ceil(rows.length / 20);
+            
+            if (direction === 'next' && performersPages[tabIndex] < totalPages) {
+                performersPages[tabIndex]++;
+            } else if (direction === 'prev' && performersPages[tabIndex] > 1) {
+                performersPages[tabIndex]--;
+            }
+            
+            const currentPage = performersPages[tabIndex];
+            const start = (currentPage - 1) * 20 + 1;
+            const end = Math.min(currentPage * 20, rows.length);
+            
+            // Hide all rows
+            rows.forEach(row => row.style.display = 'none');
+            
+            // Show current page rows
+            rows.forEach(row => {
+                if (parseInt(row.getAttribute('data-page')) === currentPage) {
+                    row.style.display = '';
+                }
+            });
+            
+            // Update pagination info
+            document.getElementById('performers-start-' + tabIndex).textContent = start;
+            document.getElementById('performers-end-' + tabIndex).textContent = end;
+            
+            // Update button states
+            document.getElementById('performers-prev-' + tabIndex).disabled = currentPage === 1;
+            document.getElementById('performers-next-' + tabIndex).disabled = currentPage === totalPages;
         }
     </script>
 </body>
