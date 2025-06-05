@@ -192,27 +192,8 @@ export async function POST(request: NextRequest) {
 
         sendProgress(90, 'Generating HTML report...');
         
-        // Reconstruct the analyses structure from the saved JSON format
-        const htmlAnalyses = analyses.map(({ count, analysis }) => ({
-          count,
-          analysis: {
-            fearGreedIndex: analysis.fearGreedIndex,
-            averageUniqueInstruments: analysis.averageUniqueInstruments,
-            averageCashPercentage: analysis.averageCashPercentage,
-            averageGain: analysis.averageGain,
-            averageRiskScore: analysis.averageRiskScore,
-            averageTrades: analysis.averageTrades,
-            uniqueInstrumentsDistribution: analysis.uniqueInstrumentsDistribution,
-            cashPercentageDistribution: analysis.cashPercentageDistribution,
-            topHoldings: analysis.topHoldings,
-            returnsDistribution: analysis.returnsDistribution,
-            riskScoreDistribution: analysis.riskScoreDistribution,
-            topPerformers: analysis.topPerformers
-          }
-        }));
-        
-        // Generate the HTML report
-        const html = generateReportHTML(htmlAnalyses, collectedData.metadata.collectedAtUTC);
+        // Generate the HTML report using original analyses data
+        const html = generateReportHTML(analyses, collectedData.metadata.collectedAtUTC);
         const htmlFilePath = path.join(reportsDir, htmlFileName);
         await fs.writeFile(htmlFilePath, html, 'utf-8');
 
