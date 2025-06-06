@@ -274,10 +274,11 @@ export async function getUsersDetails(userIds: number[]): Promise<Map<number, Us
   }
 }
 
-export async function getUserTradeInfo(username: string): Promise<UserTradeInfo | null> {
+export async function getUserTradeInfo(username: string, period: PeriodType = 'CurrYear'): Promise<UserTradeInfo | null> {
   try {
-    const endpoint = API_ENDPOINTS.USER_TRADE_INFO.replace('{username}', username);
-    console.log(`[TradeInfo] Fetching trade info for user: ${username}`);
+    const baseEndpoint = API_ENDPOINTS.USER_TRADE_INFO.replace('{username}', username);
+    const endpoint = `${baseEndpoint}?period=${period}`;
+    console.log(`[TradeInfo] Fetching trade info for user: ${username}, period: ${period}`);
     
     const response = await fetchFromEtoroApi<UserTradeInfo>(endpoint);
     

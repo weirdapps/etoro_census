@@ -114,7 +114,7 @@ export class DataCollectionService {
 
     // Step 7: Fetch trade info to get accurate trades and win ratio data
     updateProgress(95, 'Fetching trade info for all investors...');
-    const investorsWithTradeInfo = await this.fetchAllTradeInfo(investorsWithPortfolios, (progress, message) => {
+    const investorsWithTradeInfo = await this.fetchAllTradeInfo(investorsWithPortfolios, period, (progress, message) => {
       const scaledProgress = 95 + (progress * 3 / 100); // 95-98% range
       updateProgress(Math.round(scaledProgress), message);
     });
@@ -269,6 +269,7 @@ export class DataCollectionService {
 
   private async fetchAllTradeInfo(
     investors: CollectedInvestorData[],
+    period: PeriodType,
     onProgress?: ProgressCallback
   ): Promise<CollectedInvestorData[]> {
     const results: CollectedInvestorData[] = [];
@@ -298,7 +299,7 @@ export class DataCollectionService {
       try {
         // Add timeout wrapper around trade info fetch
         const tradeInfo = await Promise.race([
-          getUserTradeInfo(investor.userName),
+          getUserTradeInfo(investor.userName, period),
           new Promise<never>((_, reject) => 
             setTimeout(() => reject(new Error('Trade info fetch timeout')), TIMEOUT_MS)
           )
