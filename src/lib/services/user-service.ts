@@ -1,5 +1,5 @@
 import { API_ENDPOINTS, fetchFromEtoroApi } from '../etoro-api-config';
-import { PopularInvestor, PopularInvestorsResponse, PeriodType, UserDetail, UserInfoResponse } from '../models/user';
+import { PopularInvestor, PopularInvestorsResponse, PeriodType, UserDetail, UserInfoResponse, UserTradeInfo } from '../models/user';
 import { UserPortfolio } from '../models/user-portfolio';
 
 export async function getPopularInvestors(
@@ -271,6 +271,27 @@ export async function getUsersDetails(userIds: number[]): Promise<Map<number, Us
   } catch (error) {
     console.error('Error fetching user details:', error);
     return new Map();
+  }
+}
+
+export async function getUserTradeInfo(username: string): Promise<UserTradeInfo | null> {
+  try {
+    const endpoint = API_ENDPOINTS.USER_TRADE_INFO.replace('{username}', username);
+    console.log(`[TradeInfo] Fetching trade info for user: ${username}`);
+    
+    const response = await fetchFromEtoroApi<UserTradeInfo>(endpoint);
+    
+    if (!response) {
+      console.warn(`[TradeInfo] No response for user ${username}`);
+      return null;
+    }
+    
+    console.log(`[TradeInfo] User ${username} has ${response.trades || 0} trades, win ratio: ${response.winRatio || 0}%`);
+    
+    return response;
+  } catch (error) {
+    console.error(`[TradeInfo] Error fetching trade info for user ${username}:`, error);
+    return null;
   }
 }
 

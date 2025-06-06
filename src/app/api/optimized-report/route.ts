@@ -192,6 +192,11 @@ export async function POST(request: NextRequest) {
 
         sendProgress(90, 'Generating HTML report...');
         
+        // Debug: Log the analyses data being passed to HTML generator
+        analyses.forEach((item, index) => {
+          console.log(`Analysis ${index}: count=${item.count}, holdings=${item.analysis.topHoldings?.length || 0}, performers=${item.analysis.topPerformers?.length || 0}`);
+        });
+        
         // Generate the HTML report using original analyses data
         const html = generateReportHTML(analyses, collectedData.metadata.collectedAtUTC);
         const htmlFilePath = path.join(reportsDir, htmlFileName);
@@ -225,6 +230,10 @@ export async function POST(request: NextRequest) {
 }
 
 function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis }[], generatedAt: string): string {
+  console.log(`HTML Generator received ${analyses.length} analyses`);
+  analyses.forEach((item, idx) => {
+    console.log(`  Analysis ${idx}: count=${item.count}, holdings=${item.analysis?.topHoldings?.length || 0}, performers=${item.analysis?.topPerformers?.length || 0}`);
+  });
   // Helper functions for distribution charts
   const getReturnsColorClass = (range: string) => {
     if (range === 'Loss') return '#ef4444'; // red-500

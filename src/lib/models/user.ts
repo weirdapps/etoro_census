@@ -71,3 +71,47 @@ export interface UserDetail {
 export interface UserInfoResponse {
   users: UserDetail[];
 }
+
+export interface UserTradeInfo {
+  userName: string;
+  fullName: string;
+  weeksSinceRegistration: number;
+  countryId: number;
+  affiliateId: number;
+  isPopularInvestor: boolean;
+  isFund: boolean;
+  hasAvatar: boolean;
+  gain: number;
+  dailyGain: number;
+  thisWeekGain: number;
+  riskScore: number;
+  maxDailyRiskScore: number;
+  maxMonthlyRiskScore: number;
+  copiers: number;
+  copiedTrades: number;
+  copyTradesPct: number;
+  copyInvestmentPct: number;
+  baseLineCopiers: number;
+  copiersGain: number;
+  aumTier: number;
+  aumTierDesc: string;
+  fundType: number;
+  virtualCopiers: number;
+  trades: number;
+  topTradedInstrumentId: number;
+  topTradedAssetId: number;
+  winRatio: number;
+  dailyDd: number;
+  weeklyDd: number;
+  peakToValley: number;
+  profitableWeeksPct: number;
+  profitableMonthsPct: number;
+  avgPosSize: number;
+  highLeveragePct: number;
+  mediumLeveragePct: number;
+  lowLeveragePct: number;
+  firstActivity: number;
+  lastActivity: number;
+  activeWeeksPct: number;
+  instrumentPct: number;
+}

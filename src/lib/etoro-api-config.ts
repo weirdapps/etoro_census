@@ -14,6 +14,7 @@ export const API_ENDPOINTS = {
   USER_INFO: `${ETORO_API_BASE_URL}/v1/user-info/people`,
   USER_INFO_SEARCH: `${ETORO_API_BASE_URL}/v1/user-info/people/search`,
   USER_PORTFOLIO_LIVE: `${ETORO_API_BASE_URL}/v1/user-info/people/{username}/portfolio/live`,
+  USER_TRADE_INFO: `${ETORO_API_BASE_URL}/v1/user-info/people/{username}/tradeinfo`,
   USER_DISCOVERY_INFO: `${ETORO_API_BASE_URL}/sapi/portfolio/discover/user-discovery-info`,
 };
 
