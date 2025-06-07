@@ -68,7 +68,6 @@ export class AnalysisService {
       averageCashPercentage: this.calculateAverageCashPercentage(portfolioStats),
       averageGain: this.calculateAverageGain(investors),
       averageRiskScore: this.calculateAverageRiskScore(investors),
-      averageTrades: this.calculateAverageTrades(investors),
       uniqueInstrumentsDistribution: this.calculateUniqueInstrumentsDistribution(portfolioStats),
       cashPercentageDistribution: this.calculateCashPercentageDistribution(portfolioStats),
       topHoldings,
@@ -293,11 +292,9 @@ export class AnalysisService {
           fullName: investor.fullName || investor.userName || 'Unknown Investor',
           gain: investor.gain || 0,
           riskScore: investor.riskScore || 0,
-          winRatio: investor.winRatio || 0,
           copiers: investor.copiers || 0,
           cashPercentage: portfolio?.cashPercentage || 0,
           avatarUrl: userDetail ? getUserAvatarUrl(userDetail) : investor.avatarUrl,
-          trades: investor.trades || 0,
           countryId: userDetail?.country
         };
       })
@@ -358,11 +355,6 @@ export class AnalysisService {
     return Math.round((totalRiskScore / investors.length) * 10) / 10;
   }
 
-  private calculateAverageTrades(investors: CollectedInvestorData[]): number {
-    if (investors.length === 0) return 0;
-    const totalTrades = investors.reduce((sum, investor) => sum + (investor.trades || 0), 0);
-    return Math.round(totalTrades / investors.length);
-  }
 
   private calculateUniqueInstrumentsDistribution(portfolioStats: PortfolioStats[]): { [range: string]: number } {
     const distribution = { '1-5': 0, '6-10': 0, '11-20': 0, '21-50': 0, '50+': 0 };

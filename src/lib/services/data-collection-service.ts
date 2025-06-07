@@ -1,6 +1,6 @@
 import { PopularInvestor, PeriodType, UserDetail } from '../models/user';
 import { UserPortfolio } from '../models/user-portfolio';
-import { getPopularInvestors, getUserPortfolio, getUsersDetailsByUsernames, getUserTradeInfo } from './user-service';
+import { getPopularInvestors, getUserPortfolio, getUsersDetailsByUsernames } from './user-service';
 import { getInstrumentDetails, getInstrumentPriceData, InstrumentPriceData, InstrumentDisplayData } from './instrument-service';
 
 export interface ProgressCallback {
@@ -108,18 +108,11 @@ export class DataCollectionService {
     updateProgress(90, 'Fetching user details and avatars...');
     const usernames = investors.map(inv => inv.userName);
     const userDetails = await getUsersDetailsByUsernames(usernames, (progress, message) => {
-      const scaledProgress = 90 + (progress * 5 / 100); // 90-95% range
+      const scaledProgress = 90 + (progress * 8 / 100); // 90-98% range
       updateProgress(Math.round(scaledProgress), message);
     });
 
-    // Step 7: Fetch trade info to get accurate trades and win ratio data
-    updateProgress(95, 'Fetching trade info for all investors...');
-    const investorsWithTradeInfo = await this.fetchAllTradeInfo(investorsWithPortfolios, period, (progress, message) => {
-      const scaledProgress = 95 + (progress * 3 / 100); // 95-98% range
-      updateProgress(Math.round(scaledProgress), message);
-    });
-
-    // Step 8: Compile final data structure
+    // Step 7: Compile final data structure
     updateProgress(98, 'Finalizing data collection...');
     const processingTime = Date.now() - this.startTime;
     const collectionDate = new Date();
@@ -133,7 +126,7 @@ export class DataCollectionService {
         dataSource: 'eToro API',
         processingTimeMs: processingTime
       },
-      investors: investorsWithTradeInfo,
+      investors: investorsWithPortfolios,
       instruments: {
         details: instrumentDetails,
         priceData: instrumentPriceData
@@ -262,129 +255,6 @@ export class DataCollectionService {
     // Log warning if error rate is high
     if (errorCount / processedCount > 0.1) {
       console.warn(`High error rate detected (${finalErrorRate}%). Consider investigating API issues or rate limits.`);
-    }
-    
-    return results;
-  }
-
-  private async fetchAllTradeInfo(
-    investors: CollectedInvestorData[],
-    period: PeriodType,
-    onProgress?: ProgressCallback
-  ): Promise<CollectedInvestorData[]> {
-    const results: CollectedInvestorData[] = [];
-    let processedCount = 0;
-    let successCount = 0;
-    let errorCount = 0;
-    let consecutiveErrors = 0;
-    let lastProgressUpdate = Date.now();
-    const PROGRESS_UPDATE_INTERVAL = 2000; // Update every 2 seconds
-    const MAX_CONSECUTIVE_ERRORS = 10; // Circuit breaker threshold
-    const TIMEOUT_MS = 30000; // 30 second timeout per request
-
-    const updateProgress = (progress: number, message: string) => {
-      if (onProgress) {
-        onProgress(progress, message);
-      }
-    };
-
-    for (const investor of investors) {
-      // Circuit breaker: if too many consecutive errors, increase delays
-      if (consecutiveErrors >= MAX_CONSECUTIVE_ERRORS) {
-        console.warn(`Trade Info Circuit breaker activated: ${consecutiveErrors} consecutive errors. Increasing delays.`);
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        consecutiveErrors = 0; // Reset after pause
-      }
-
-      try {
-        // Add timeout wrapper around trade info fetch
-        const tradeInfo = await Promise.race([
-          getUserTradeInfo(investor.userName, period),
-          new Promise<never>((_, reject) => 
-            setTimeout(() => reject(new Error('Trade info fetch timeout')), TIMEOUT_MS)
-          )
-        ]);
-        
-        // Update investor with trade info
-        const updatedInvestor = {
-          ...investor,
-          trades: tradeInfo?.trades ?? investor.trades,
-          winRatio: tradeInfo?.winRatio ?? investor.winRatio
-        };
-        
-        results.push(updatedInvestor);
-        successCount++;
-        consecutiveErrors = 0; // Reset consecutive error count on success
-        
-      } catch (error) {
-        consecutiveErrors++;
-        const errorMessage = error instanceof Error ? error.message : 'Failed to fetch trade info';
-        console.error(`Error fetching trade info for ${investor.userName} (consecutive errors: ${consecutiveErrors}):`, errorMessage);
-        
-        // Keep original investor data if trade info fails
-        results.push(investor);
-        errorCount++;
-
-        // If it's a timeout or rate limit error, increase delays
-        if (errorMessage.includes('timeout') || errorMessage.includes('rate') || errorMessage.includes('429')) {
-          console.warn('Detected timeout/rate limit during trade info fetch. Increasing delays...');
-          await new Promise(resolve => setTimeout(resolve, 1000));
-        }
-      }
-      
-      processedCount++;
-      
-      // Update progress with time-based throttling
-      const now = Date.now();
-      const shouldUpdate = (now - lastProgressUpdate >= PROGRESS_UPDATE_INTERVAL) || 
-                          (processedCount % 25 === 0) || 
-                          (processedCount === investors.length);
-      
-      if (shouldUpdate) {
-        const progress = Math.round((processedCount / investors.length) * 100);
-        const errorRate = (errorCount / processedCount * 100).toFixed(1);
-        const message = `Processed ${processedCount}/${investors.length} trade info (${successCount} success, ${errorCount} errors, ${errorRate}% error rate)`;
-        updateProgress(progress, message);
-        lastProgressUpdate = now;
-      }
-      
-      // Adaptive delay based on error rate - conservative for trade info
-      const errorRate = errorCount / processedCount;
-      let delay = 100; // Base delay for trade info
-      
-      if (errorRate > 0.2) { // If error rate > 20%, significantly slow down
-        delay = 1500;
-      } else if (errorRate > 0.1) { // If error rate > 10%, slow down
-        delay = 750;
-      } else if (processedCount > 500) { // After 500 requests, be conservative
-        delay = 400;
-      } else if (processedCount > 100) { // After 100 requests, be more conservative
-        delay = 250;
-      }
-      
-      // Add extra delay every 50 requests to avoid rate limiting
-      if (processedCount % 50 === 0 && processedCount > 0) {
-        const batchDelay = investors.length > 1000 ? 2000 : 1500;
-        console.log(`Trade Info batch checkpoint: ${processedCount} processed. Taking ${batchDelay}ms break...`);
-        await new Promise(resolve => setTimeout(resolve, batchDelay));
-      } else {
-        await new Promise(resolve => setTimeout(resolve, delay));
-      }
-
-      // Emergency brake: if error rate is too high, pause and warn
-      if (processedCount > 50 && errorRate > 0.3) {
-        console.warn(`High trade info error rate detected (${(errorRate * 100).toFixed(1)}%). Pausing for recovery...`);
-        await new Promise(resolve => setTimeout(resolve, 5000));
-        consecutiveErrors = 0; // Reset after pause
-      }
-    }
-
-    const finalErrorRate = (errorCount / processedCount * 100).toFixed(1);
-    console.log(`Trade info collection complete: ${successCount} success, ${errorCount} errors out of ${processedCount} total (${finalErrorRate}% error rate)`);
-    
-    // Log warning if error rate is high
-    if (errorCount / processedCount > 0.1) {
-      console.warn(`High trade info error rate detected (${finalErrorRate}%). Consider investigating API issues or rate limits.`);
     }
     
     return results;

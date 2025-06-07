@@ -383,7 +383,7 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
             margin-bottom: 32px;
         }
         
-        .grid-cols-4 {
+        .grid-cols-3 {
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
         }
         
@@ -810,7 +810,7 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
         }
         
         @media (max-width: 640px) {
-            .grid-cols-4 {
+            .grid-cols-3 {
                 grid-template-columns: 1fr;
             }
         }
@@ -886,7 +886,7 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                 </div>
                 
                 <!-- Key Metrics Grid -->
-                <div class="grid grid-cols-4" style="margin-bottom: 32px;">
+                <div class="grid grid-cols-3" style="margin-bottom: 32px;">
                         <div class="card">
                             <div class="card-header">
                                 <h3>Average Returns</h3>
@@ -907,13 +907,6 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                                 <p class="card-description">Risk Level (1-10)</p>
                             </div>
                             <div class="metric-value">${(item.analysis.averageRiskScore || 0).toFixed(1)}</div>
-                        </div>
-                        <div class="card">
-                            <div class="card-header">
-                                <h3>Average Trades</h3>
-                                <p class="card-description">Per Popular Investor</p>
-                            </div>
-                            <div class="metric-value">${(item.analysis.averageTrades || 0).toLocaleString()}</div>
                         </div>
                 </div>
 
@@ -1142,8 +1135,6 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                                         <th>Rank</th>
                                         <th>Investor</th>
                                         <th class="text-right">Gain (YTD)</th>
-                                        <th class="text-right">Trades</th>
-                                        <th class="text-right">Win Ratio</th>
                                         <th class="text-right">Cash %</th>
                                         <th class="text-right">Risk Score</th>
                                         <th class="text-right">Copiers</th>
@@ -1177,8 +1168,6 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                                                     ${(performer.gain || 0) > 0 ? '+' : ''}${(performer.gain || 0).toFixed(1)}%
                                                 </span>
                                             </td>
-                                            <td class="text-right">${performer.trades || 0}</td>
-                                            <td class="text-right">${(performer.winRatio || 0).toFixed(1)}%</td>
                                             <td class="text-right">
                                                 <span class="badge badge-blue">${(performer.cashPercentage || 0).toFixed(1)}%</span>
                                             </td>
