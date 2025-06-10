@@ -45,6 +45,35 @@ A modern web application for analyzing the portfolios and performance metrics of
 - Last Year/Two Years
 - Historical periods (1, 3, 6 months ago)
 
+## 🔧 Analysis Tools
+
+The project includes powerful analysis tools for deep behavioral insights:
+
+### **Multi-Band Investor Analysis**
+```bash
+# Analyze behavior across investor tiers (100, 500, 1000, 1500)
+node analysis-tools/market-behavior/analyze-investor-bands.js all
+```
+- Asset adoption/exit tracking by investor tier
+- Cash position changes across bands
+- Cross-band behavioral comparison
+
+### **Cash Position & Risk Sentiment Analysis**
+```bash
+# Individual investor cash tracking with sentiment analysis
+node analysis-tools/market-behavior/analyze-cash-trends.js 100
+```
+- Individual investor cash position changes
+- Risk sentiment indicators (defensive vs aggressive)
+- Performance correlation analysis
+
+### **Market Behavior Tools**
+- `analyze-investor-position-deltas.js` - Overall market sentiment
+- `analyze-popularity-trends-top100.js` - Elite vs masses behavior
+- `analyze-holdings-vs-positions.js` - Accumulation vs distribution patterns
+
+See `analysis-tools/README.md` for complete documentation.
+
 ## 🚀 Optimized Architecture
 
 ### **Single-Pass Data Collection**

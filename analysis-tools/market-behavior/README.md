@@ -67,6 +67,44 @@ node analysis-tools/market-behavior/analyze-holdings-vs-positions.js
 - **Growing & accumulating** = Both new adoption and accumulation
 - **Exodus & selling** = Coordinated exit
 
+### 🎯 `analyze-investor-bands.js`
+**Multi-Band Comprehensive Analysis (NEW)**
+```bash
+node analysis-tools/market-behavior/analyze-investor-bands.js [100|500|1000|1500|all]
+```
+
+**Shows:**
+- Cash position changes by investor tier (average & distribution)
+- New assets adopted vs completely dropped by band
+- Asset holder gains/losses across bands (unique investors, not positions)
+- Behavioral differences between investor tiers
+- Cross-band comparison insights
+
+**Key Features:**
+- ✅ Counts unique holders (not total positions)
+- ✅ Proper deduplication (each investor counted once per asset)
+- ✅ Multi-band analysis (100/500/1000/1500 investors)
+- ✅ Asset rotation tracking (adoption vs exit)
+
+### 💰 `analyze-cash-trends.js`
+**Deep Cash Position Analysis (NEW)**
+```bash
+node analysis-tools/market-behavior/analyze-cash-trends.js [100|500|1000|1500|all]
+```
+
+**Shows:**
+- Individual investor cash position changes (named investors)
+- Risk sentiment indicators (defensive vs aggressive positioning)
+- Cash distribution shifts across bands (0-5%, 5-10%, etc.)
+- Correlation between cash changes and performance
+- Top cash increasers/decreasers with investor details and copier counts
+
+**Key Features:**
+- ✅ Individual investor tracking (names + usernames)
+- ✅ Risk sentiment classification (Risk-On vs Risk-Off)
+- ✅ Cash-performance correlation analysis
+- ✅ Distribution band analysis (6 cash ranges)
+
 ## Use Cases
 
 - **Market sentiment analysis**: Is the market bullish or defensive?
@@ -74,6 +112,8 @@ node analysis-tools/market-behavior/analyze-holdings-vs-positions.js
 - **Rotation detection**: Which sectors are gaining/losing favor?
 - **Timing analysis**: Are we in accumulation or distribution phase?
 - **Conviction measurement**: Which assets have strongest holder conviction?
+- **Band comparison**: How do top 100 vs top 1500 behave differently?
+- **Risk appetite**: Are investors becoming more defensive or aggressive?
 
 ## Best Practices
 
