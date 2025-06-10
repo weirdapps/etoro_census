@@ -13,11 +13,14 @@
  *   node analysis-tools/market-behavior/analyze-investor-bands.js all
  * 
  * Outputs:
- * - Cash position changes by band
- * - New asset adoptions by band
- * - Asset exits by band  
- * - Position increase/decrease analysis
+ * - Cash position changes by band (0-100% of equity)
+ * - New asset adoptions by band (unique holders, not positions)
+ * - Asset exits by band (unique holders, not positions)
+ * - Holder increase/decrease analysis
  * - Behavioral differences between bands
+ * 
+ * Cash Calculation: 100% - (sum of all position investment percentages)
+ * Holders: Unique investors holding an asset (deduplicated across multiple positions)
  */
 
 const fs = require('fs');
@@ -53,7 +56,15 @@ function getInvestorBand(data, bandSize) {
 // Calculate cash positions for band
 function analyzeCashPositions(investors) {
     const cashData = investors.map(investor => {
-        const cash = investor.portfolio.realizedCreditPct + investor.portfolio.unrealizedCreditPct;
+        // Calculate cash as percentage not invested in positions
+        let cash = 0;
+        if (investor.portfolio && investor.portfolio.positions) {
+            const totalInvested = investor.portfolio.positions.reduce((sum, position) => {
+                return sum + (position.investmentPct || 0);
+            }, 0);
+            cash = Math.max(0, 100 - totalInvested);
+        }
+        
         return {
             userName: investor.userName,
             fullName: investor.fullName,

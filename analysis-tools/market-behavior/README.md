@@ -103,7 +103,8 @@ node analysis-tools/market-behavior/analyze-cash-trends.js [100|500|1000|1500|al
 - ✅ Individual investor tracking (names + usernames)
 - ✅ Risk sentiment classification (Risk-On vs Risk-Off)
 - ✅ Cash-performance correlation analysis
-- ✅ Distribution band analysis (6 cash ranges)
+- ✅ Distribution band analysis (6 cash ranges: 0-5%, 5-10%, 11-25%, 26-50%, 51-75%, 76-100%)
+- ✅ Accurate cash calculation: 100% - (sum of position investment percentages)
 
 ## Use Cases
 

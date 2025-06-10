@@ -60,6 +60,7 @@ Scripts analyze JSON files in `public/data/` with the format:
 - **Positions**: Individual trades/positions (one investor can have multiple positions in same asset)
 - **Holdings**: Whether an investor owns any amount of an asset
 - **Bands**: Investor tiers (Top 100, 500, 1000, 1500)
+- **Cash**: Percentage of equity not invested in positions (0-100%)
 
 ### Behavioral Patterns
 - **Accumulation**: Same investors adding more positions (conviction)

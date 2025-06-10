@@ -13,10 +13,13 @@
  *   node analysis-tools/market-behavior/analyze-cash-trends.js all
  * 
  * Outputs:
- * - Cash position distribution analysis
+ * - Cash position distribution analysis (0-100% of equity)
  * - Individual investor cash changes
  * - Risk sentiment indicators
  * - Correlation with performance metrics
+ * 
+ * Cash Calculation: 100% - (sum of all position investment percentages)
+ * This represents the percentage of investor's equity held in cash vs invested positions.
  */
 
 const fs = require('fs');
@@ -44,9 +47,20 @@ function loadData(filename) {
     return data;
 }
 
-// Calculate cash position for investor
+// Calculate cash position for investor (percentage of equity not invested in positions)
 function calculateCash(investor) {
-    return investor.portfolio.realizedCreditPct + investor.portfolio.unrealizedCreditPct;
+    if (!investor.portfolio || !investor.portfolio.positions) {
+        return 0;
+    }
+    
+    // Sum all position investments
+    const totalInvested = investor.portfolio.positions.reduce((sum, position) => {
+        return sum + (position.investmentPct || 0);
+    }, 0);
+    
+    // Cash is the percentage not invested in positions
+    const cashPct = Math.max(0, 100 - totalInvested);
+    return cashPct;
 }
 
 // Analyze cash trends for a specific band
