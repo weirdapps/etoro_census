@@ -302,20 +302,34 @@ export class AnalysisService {
       .sort((a, b) => b.copiers - a.copiers);
   }
 
-  // Distribution calculation methods (same logic as original)
+  // Distribution calculation methods (updated Fear & Greed scale: 20-7)
   private calculateFearGreedIndex(portfolioStats: PortfolioStats[]): number {
-    if (portfolioStats.length === 0) return 50;
+    if (portfolioStats.length === 0) return 13; // Neutral on new scale
     
     const avgCashPercentage = portfolioStats.reduce((sum, stats) => sum + stats.cashPercentage, 0) / portfolioStats.length;
     
+    // New scale: 20+ = Extreme Fear, 13 = Neutral, 7- = Extreme Greed
+    // High cash = Fear (higher numbers), Low cash = Greed (lower numbers)
     let fearGreedIndex: number;
-    if (avgCashPercentage >= 40) {
-      fearGreedIndex = 0;
+    
+    if (avgCashPercentage >= 35) {
+      // Very high cash = Extreme Fear (20+)
+      fearGreedIndex = Math.min(25, 20 + (avgCashPercentage - 35) * 0.3);
+    } else if (avgCashPercentage >= 20) {
+      // High cash = Fear (15-19)
+      fearGreedIndex = 15 + ((avgCashPercentage - 20) / 15) * 4;
+    } else if (avgCashPercentage >= 12) {
+      // Medium cash = Neutral (12-14)
+      fearGreedIndex = 12 + ((avgCashPercentage - 12) / 8) * 2;
+    } else if (avgCashPercentage >= 5) {
+      // Low-medium cash = Greed (8-11)
+      fearGreedIndex = 8 + ((avgCashPercentage - 5) / 7) * 3;
     } else {
-      fearGreedIndex = ((40 - avgCashPercentage) / 40) * 100;
+      // Very low cash = Extreme Greed (7-)
+      fearGreedIndex = Math.max(4, 7 - (5 - avgCashPercentage) * 0.6);
     }
     
-    return Math.round(Math.max(0, Math.min(100, fearGreedIndex)));
+    return Math.round(Math.max(4, Math.min(25, fearGreedIndex)));
   }
 
   private calculateAverageUniqueInstruments(portfolioStats: PortfolioStats[]): number {

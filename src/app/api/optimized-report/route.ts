@@ -860,7 +860,7 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                             <!-- Gradient background -->
                             <div style="position: absolute; width: 100%; height: 100%; background: linear-gradient(to right, #ef4444 0%, #f59e0b 25%, #fbbf24 50%, #84cc16 75%, #10b981 100%);"></div>
                             <!-- Marker -->
-                            <div style="position: absolute; left: ${item.analysis.fearGreedIndex}%; top: 50%; transform: translate(-50%, -50%); width: 40px; height: 40px; background: #111827; border-radius: 50%; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); display: flex; align-items: center; justify-content: center;">
+                            <div style="position: absolute; left: ${Math.max(0, Math.min(100, ((25 - item.analysis.fearGreedIndex) / (25 - 4)) * 100))}%; top: 50%; transform: translate(-50%, -50%); width: 40px; height: 40px; background: #111827; border-radius: 50%; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); display: flex; align-items: center; justify-content: center;">
                                 <span style="color: white; font-weight: 700; font-size: 1rem;">${item.analysis.fearGreedIndex}</span>
                             </div>
                         </div>
@@ -870,11 +870,11 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                                 <div style="font-size: 0.75rem; color: #6b7280;">0</div>
                             </div>
                             <div style="text-align: center;">
-                                <div style="font-size: 1.125rem; color: ${item.analysis.fearGreedIndex >= 60 ? '#84cc16' : item.analysis.fearGreedIndex >= 40 ? '#fbbf24' : '#ef4444'}; font-weight: 700;">
-                                    ${item.analysis.fearGreedIndex < 20 ? 'Extreme Fear' :
-                                      item.analysis.fearGreedIndex < 40 ? 'Fear' :
-                                      item.analysis.fearGreedIndex < 60 ? 'Neutral' :
-                                      item.analysis.fearGreedIndex < 80 ? 'Greed' : 'Extreme Greed'}
+                                <div style="font-size: 1.125rem; color: ${item.analysis.fearGreedIndex >= 20 ? '#ef4444' : item.analysis.fearGreedIndex >= 15 ? '#f97316' : item.analysis.fearGreedIndex >= 12 ? '#fbbf24' : item.analysis.fearGreedIndex >= 8 ? '#84cc16' : '#10b981'}; font-weight: 700;">
+                                    ${item.analysis.fearGreedIndex >= 20 ? 'Extreme Fear' :
+                                      item.analysis.fearGreedIndex >= 15 ? 'Fear' :
+                                      item.analysis.fearGreedIndex >= 12 ? 'Neutral' :
+                                      item.analysis.fearGreedIndex >= 8 ? 'Greed' : 'Extreme Greed'}
                                 </div>
                             </div>
                             <div style="text-align: right;">
