@@ -76,7 +76,7 @@ export default function FearGreedGauge({ value }: FearGreedGaugeProps) {
         
         <div className="text-center">
           <div className={`text-3xl font-bold ${getColor(value)}`}>
-            {value}
+            {Math.round(normalizedValue)}
           </div>
           <div className={`text-lg font-medium ${getColor(value)}`}>
             {getLabel(value)}
