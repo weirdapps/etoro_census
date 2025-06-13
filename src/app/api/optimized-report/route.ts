@@ -870,38 +870,17 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                             <div style="position: absolute; width: 100%; height: 100%; background: linear-gradient(to right, #ef4444 0%, #f59e0b 25%, #fbbf24 50%, #84cc16 75%, #10b981 100%);"></div>
                             <!-- Marker -->
                             <div style="position: absolute; left: ${(() => {
-                                // Map internal scale to 0-100 visual scale
-                                // Internal: 20+ = Extreme Fear, 15-19 = Fear, 12-14 = Neutral, 8-11 = Greed, 7- = Extreme Greed
-                                // Visual: 0 = Extreme Fear, 100 = Extreme Greed
-                                let visualPosition;
-                                if (item.analysis.fearGreedIndex >= 20) {
-                                    visualPosition = Math.max(0, 10 - (item.analysis.fearGreedIndex - 20) * 2); // 0-10
-                                } else if (item.analysis.fearGreedIndex >= 15) {
-                                    visualPosition = 10 + ((20 - item.analysis.fearGreedIndex) / 5) * 20; // 10-30
-                                } else if (item.analysis.fearGreedIndex >= 12) {
-                                    visualPosition = 30 + ((15 - item.analysis.fearGreedIndex) / 3) * 20; // 30-50
-                                } else if (item.analysis.fearGreedIndex >= 8) {
-                                    visualPosition = 50 + ((12 - item.analysis.fearGreedIndex) / 4) * 30; // 50-80
-                                } else {
-                                    visualPosition = Math.min(100, 80 + ((8 - item.analysis.fearGreedIndex) / 4) * 20); // 80-100
-                                }
-                                return Math.max(0, Math.min(100, visualPosition));
+                                // Linear mapping from 30-0% cash to 0-100% display scale
+                                // 30% cash = 0 display (Extreme Fear), 0% cash = 100 display (Extreme Greed)
+                                const cashPercentage = item.analysis.averageCashPercentage || 0;
+                                const visualPosition = Math.max(0, Math.min(100, 100 - (cashPercentage / 30) * 100));
+                                return visualPosition;
                             })()}%; top: 50%; transform: translate(-50%, -50%); width: 40px; height: 40px; background: #111827; border-radius: 50%; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); display: flex; align-items: center; justify-content: center;">
                                 <span style="color: white; font-weight: 700; font-size: 1rem;">${(() => {
-                                    // Convert internal scale to 0-100 display value
-                                    let displayValue;
-                                    if (item.analysis.fearGreedIndex >= 20) {
-                                        displayValue = Math.max(0, 10 - (item.analysis.fearGreedIndex - 20) * 2); // 0-10
-                                    } else if (item.analysis.fearGreedIndex >= 15) {
-                                        displayValue = 10 + ((20 - item.analysis.fearGreedIndex) / 5) * 20; // 10-30
-                                    } else if (item.analysis.fearGreedIndex >= 12) {
-                                        displayValue = 30 + ((15 - item.analysis.fearGreedIndex) / 3) * 20; // 30-50
-                                    } else if (item.analysis.fearGreedIndex >= 8) {
-                                        displayValue = 50 + ((12 - item.analysis.fearGreedIndex) / 4) * 30; // 50-80
-                                    } else {
-                                        displayValue = Math.min(100, 80 + ((8 - item.analysis.fearGreedIndex) / 4) * 20); // 80-100
-                                    }
-                                    return Math.round(Math.max(0, Math.min(100, displayValue)));
+                                    // Linear mapping from 30-0% cash to 0-100% display scale
+                                    const cashPercentage = item.analysis.averageCashPercentage || 0;
+                                    const displayValue = Math.max(0, Math.min(100, 100 - (cashPercentage / 30) * 100));
+                                    return Math.round(displayValue);
                                 })()}</span>
                             </div>
                         </div>
@@ -911,11 +890,24 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                                 <div style="font-size: 0.75rem; color: #6b7280;">0</div>
                             </div>
                             <div style="text-align: center;">
-                                <div style="font-size: 1.125rem; color: ${item.analysis.fearGreedIndex >= 20 ? '#ef4444' : item.analysis.fearGreedIndex >= 15 ? '#f97316' : item.analysis.fearGreedIndex >= 12 ? '#fbbf24' : item.analysis.fearGreedIndex >= 8 ? '#84cc16' : '#10b981'}; font-weight: 700;">
-                                    ${item.analysis.fearGreedIndex >= 20 ? 'Extreme Fear' :
-                                      item.analysis.fearGreedIndex >= 15 ? 'Fear' :
-                                      item.analysis.fearGreedIndex >= 12 ? 'Neutral' :
-                                      item.analysis.fearGreedIndex >= 8 ? 'Greed' : 'Extreme Greed'}
+                                <div style="font-size: 1.125rem; color: ${(() => {
+                                    const cashPercentage = item.analysis.averageCashPercentage || 0;
+                                    const displayValue = Math.max(0, Math.min(100, 100 - (cashPercentage / 30) * 100));
+                                    if (displayValue <= 20) return '#ef4444';
+                                    if (displayValue <= 40) return '#f97316';
+                                    if (displayValue <= 60) return '#fbbf24';
+                                    if (displayValue <= 80) return '#84cc16';
+                                    return '#10b981';
+                                })()}; font-weight: 700;">
+                                    ${(() => {
+                                        const cashPercentage = item.analysis.averageCashPercentage || 0;
+                                        const displayValue = Math.max(0, Math.min(100, 100 - (cashPercentage / 30) * 100));
+                                        if (displayValue <= 20) return 'Extreme Fear';
+                                        if (displayValue <= 40) return 'Fear';
+                                        if (displayValue <= 60) return 'Neutral';
+                                        if (displayValue <= 80) return 'Greed';
+                                        return 'Extreme Greed';
+                                    })()}
                                 </div>
                             </div>
                             <div style="text-align: right;">
@@ -1193,8 +1185,8 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                                         <th>Investor</th>
                                         <th class="text-right">Copiers</th>
                                         <th class="text-right">Gain (YTD)</th>
-                                        <th class="text-right">Win Ratio</th>
                                         <th class="text-right">Trades</th>
+                                        <th class="text-right">Win Ratio</th>
                                         <th class="text-right">Risk Score</th>
                                         <th class="text-right">Cash %</th>
                                     </tr>
@@ -1230,6 +1222,9 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                                                     ${(performer.gain || 0) > 0 ? '+' : ''}${(performer.gain || 0).toFixed(1)}%
                                                 </span>
                                             </td>
+                                            <td class="text-right font-medium">
+                                                ${(performer.trades || 0).toLocaleString()}
+                                            </td>
                                             <td class="text-right">
                                                 <span class="${
                                                     (performer.winRatio || 0) >= 65 ? 'badge badge-green' :
@@ -1237,14 +1232,15 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                                                     'badge badge-red'
                                                 }">${(performer.winRatio || 0).toFixed(1)}%</span>
                                             </td>
-                                            <td class="text-right font-medium">
-                                                ${(performer.trades || 0).toLocaleString()}
-                                            </td>
                                             <td class="text-right">
                                                 <span class="risk-badge risk-${performer.riskScore || 0}">${performer.riskScore || '-'}/10</span>
                                             </td>
-                                            <td class="text-right font-medium">
-                                                ${(performer.cashPercentage || 0).toFixed(1)}%
+                                            <td class="text-right">
+                                                <span class="badge ${
+                                                    (performer.cashPercentage || 0) > 25 ? 'badge-green' :
+                                                    (performer.cashPercentage || 0) >= 5 ? 'badge-blue' :
+                                                    'badge-red'
+                                                }">${(performer.cashPercentage || 0).toFixed(1)}%</span>
                                             </td>
                                         </tr>
                                     `}).join('')}
