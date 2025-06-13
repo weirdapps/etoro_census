@@ -7,7 +7,7 @@ A modern web application for analyzing the portfolios and performance metrics of
 ## Features
 
 ### 📊 **Comprehensive Analysis**
-- **Fear & Greed Index**: Market sentiment based on average cash allocation
+- **Fear & Greed Index**: Market sentiment using linear scale (30% cash = 0, 0% cash = 100)
 - **Portfolio Diversification**: Distribution of unique instruments per portfolio
 - **Cash Allocation**: Cash percentage distribution across investors
 - **Returns Distribution**: Performance ranges across analyzed investors
@@ -19,6 +19,7 @@ A modern web application for analyzing the portfolios and performance metrics of
 - Ranked by number of copiers (social proof)
 - Profile pictures and investor details
 - Performance metrics (YTD gain, trades count, win ratio, risk score)
+- Cash % with colored badges (green >25%, blue 5-25%, red <5%)
 - Pagination support (20 per page, unlimited total)
 
 ### 🏆 **Top Holdings Analysis**
