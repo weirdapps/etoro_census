@@ -876,7 +876,6 @@ function generateReportHTML(analyses, generatedAt) {
                                         <th>Rank</th>
                                         <th>Asset</th>
                                         <th class="text-right">Holders</th>
-                                        <th class="text-right">% of PIs</th>
                                         <th class="text-right">Avg Allocation</th>
                                         <th class="text-right">Yesterday</th>
                                         <th class="text-right">Week TD</th>
@@ -899,9 +898,8 @@ function generateReportHTML(analyses, generatedAt) {
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td class="text-right font-medium">${holding.holdersCount || 0}</td>
                                             <td class="text-right">
-                                                <span class="badge badge-primary">${(holding.holdersPercentage || 0).toFixed(1)}%</span>
+                                                <span class="badge badge-primary">${holding.holdersCount || 0}</span>
                                             </td>
                                             <td class="text-right font-medium">
                                                 ${(holding.averageAllocation || 0).toFixed(1)}%
@@ -946,12 +944,12 @@ function generateReportHTML(analyses, generatedAt) {
                                     <tr>
                                         <th>Rank</th>
                                         <th>Investor</th>
-                                        <th class="text-right">Gain (YTD)</th>
-                                        <th class="text-right">Cash %</th>
-                                        <th class="text-right">Risk Score</th>
-                                        <th class="text-right">Trades</th>
-                                        <th class="text-right">Win Ratio</th>
                                         <th class="text-right">Copiers</th>
+                                        <th class="text-right">Gain (YTD)</th>
+                                        <th class="text-right">Win Ratio</th>
+                                        <th class="text-right">Trades</th>
+                                        <th class="text-right">Risk Score</th>
+                                        <th class="text-right">Cash %</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -974,25 +972,29 @@ function generateReportHTML(analyses, generatedAt) {
                                                     </div>
                                                 </div>
                                             </td>
+                                            <td class="text-right">
+                                                <span class="badge badge-purple">${(performer.copiers || 0).toLocaleString()}</span>
+                                            </td>
                                             <td class="text-right font-medium">
                                                 <span class="${(performer.gain || 0) >= 0 ? 'badge badge-green' : 'badge badge-red'}">
                                                     ${(performer.gain || 0) > 0 ? '+' : ''}${(performer.gain || 0).toFixed(1)}%
                                                 </span>
                                             </td>
                                             <td class="text-right">
-                                                <span class="badge badge-blue">${(performer.cashPercentage || 0).toFixed(1)}%</span>
+                                                <span class="${
+                                                    (performer.winRatio || 0) >= 65 ? 'badge badge-green' :
+                                                    (performer.winRatio || 0) >= 55 ? 'badge badge-yellow' : 
+                                                    'badge badge-red'
+                                                }">${(performer.winRatio || 0).toFixed(1)}%</span>
+                                            </td>
+                                            <td class="text-right font-medium">
+                                                ${(performer.trades || 0).toLocaleString()}
                                             </td>
                                             <td class="text-right">
                                                 <span class="risk-badge risk-${performer.riskScore || 0}">${performer.riskScore || '-'}/10</span>
                                             </td>
-                                            <td class="text-right">
-                                                <span class="badge badge-yellow">${(performer.trades || 0).toLocaleString()}</span>
-                                            </td>
-                                            <td class="text-right">
-                                                <span class="badge badge-green">${(performer.winRatio || 0).toFixed(1)}%</span>
-                                            </td>
-                                            <td class="text-right">
-                                                <span class="badge badge-purple">${(performer.copiers || 0).toLocaleString()}</span>
+                                            <td class="text-right font-medium">
+                                                ${(performer.cashPercentage || 0).toFixed(1)}%
                                             </td>
                                         </tr>
                                     `).join('')}
