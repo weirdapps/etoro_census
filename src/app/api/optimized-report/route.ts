@@ -388,6 +388,10 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
             margin-bottom: 32px;
         }
         
+        .grid-cols-2 {
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        }
+        
         .grid-cols-3 {
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
         }
@@ -947,6 +951,24 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                         </div>
                 </div>
 
+                <!-- Second Row: Additional Metrics -->
+                <div class="grid grid-cols-2" style="margin-bottom: 32px;">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Average Trades</h3>
+                                <p class="card-description">Per investor (current year)</p>
+                            </div>
+                            <div class="metric-value">${(item.analysis.averageTrades || 0).toFixed(1)}</div>
+                        </div>
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Average Win Ratio</h3>
+                                <p class="card-description">Percentage of winning trades</p>
+                            </div>
+                            <div class="metric-value">${(item.analysis.averageWinRatio || 0).toFixed(1)}%</div>
+                        </div>
+                </div>
+
                 <!-- Distribution Charts -->
                 <div class="space-y-8">
                     <!-- Returns Distribution -->
@@ -1174,6 +1196,8 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                                         <th class="text-right">Gain (YTD)</th>
                                         <th class="text-right">Cash %</th>
                                         <th class="text-right">Risk Score</th>
+                                        <th class="text-right">Trades</th>
+                                        <th class="text-right">Win Ratio</th>
                                         <th class="text-right">Copiers</th>
                                     </tr>
                                 </thead>
@@ -1210,6 +1234,12 @@ function generateReportHTML(analyses: { count: number; analysis: CensusAnalysis 
                                             </td>
                                             <td class="text-right">
                                                 <span class="risk-badge risk-${performer.riskScore || 0}">${performer.riskScore || '-'}/10</span>
+                                            </td>
+                                            <td class="text-right">
+                                                <span class="badge badge-yellow">${(performer.trades || 0).toLocaleString()}</span>
+                                            </td>
+                                            <td class="text-right">
+                                                <span class="badge badge-green">${(performer.winRatio || 0).toFixed(1)}%</span>
                                             </td>
                                             <td class="text-right">
                                                 <span class="badge badge-purple">${(performer.copiers || 0).toLocaleString()}</span>
