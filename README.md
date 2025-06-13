@@ -12,6 +12,8 @@ A modern web application for analyzing the portfolios and performance metrics of
 - **Cash Allocation**: Cash percentage distribution across investors
 - **Returns Distribution**: Performance ranges across analyzed investors
 - **Risk Score Distribution**: Risk appetite analysis (Conservative, Moderate, Aggressive, Very High Risk)
+- **Average Trades**: Mean number of trades executed across investors (current year)
+- **Average Win Ratio**: Mean percentage of winning trades across investors
 
 ### 👥 **Most Copied Investors**
 - Ranked by number of copiers (social proof)
@@ -77,10 +79,11 @@ See `analysis-tools/README.md` for complete documentation.
 ## 🚀 Optimized Architecture
 
 ### **Single-Pass Data Collection**
-- **One API fetch** collects ALL data (investors, portfolios, instruments, user details)
+- **One API fetch** collects ALL data (investors, portfolios, trade info, instruments, user details)
 - **Multiple analyses** generated from the same dataset
 - **No redundant API calls** - eliminates rate limiting issues
 - **Circuit breakers** and adaptive delays for reliability
+- **Trade Info Integration** - Fetches trades count and win ratio with fallback handling
 
 ### **Efficient Processing**
 - **DataCollectionService**: Comprehensive data gathering with progress tracking
@@ -227,6 +230,7 @@ npm start
 ### **Key Endpoints**
 - **Popular Investors**: `/v1/user-info/people/search`
 - **User Portfolios**: `/v1/user-info/people/{username}/portfolio/live`
+- **Trade Info**: `/v1/user-info/people/{username}/tradeinfo?period=currYear`
 - **Instrument Details**: `/v1/market-data/instruments`
 - **Historical Closing Prices**: `/v1/market-data/instruments/history/closing-price`
 - **User Details**: `/v1/user-info/people` (for avatars)

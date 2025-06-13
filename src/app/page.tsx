@@ -209,6 +209,43 @@ export default function Home() {
                 </CardContent>
               </Card>
             </div>
+
+            {/* Second Row: Additional Metrics */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Average Trades</CardTitle>
+                  <CardDescription>Per investor (current year)</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-col items-center justify-center min-h-[120px] gap-3">
+                    <div className="text-6xl font-bold text-primary">
+                      {analysis.averageTrades}
+                    </div>
+                    <p className="text-sm text-muted-foreground text-left w-full px-5">
+                      Average number of trades executed
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Average Win Ratio</CardTitle>
+                  <CardDescription>Per investor (current year)</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-col items-center justify-center min-h-[120px] gap-3">
+                    <div className="text-6xl font-bold text-primary">
+                      {analysis.averageWinRatio.toFixed(1)}%
+                    </div>
+                    <p className="text-sm text-muted-foreground text-left w-full px-5">
+                      Average percentage of winning trades
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
             
             {/* Full Width Distribution Charts */}
             <PortfolioDiversification distribution={analysis.uniqueInstrumentsDistribution} />

@@ -68,6 +68,8 @@ export class AnalysisService {
       averageCashPercentage: this.calculateAverageCashPercentage(portfolioStats),
       averageGain: this.calculateAverageGain(investors),
       averageRiskScore: this.calculateAverageRiskScore(investors),
+      averageTrades: this.calculateAverageTrades(investors),
+      averageWinRatio: this.calculateAverageWinRatio(investors),
       uniqueInstrumentsDistribution: this.calculateUniqueInstrumentsDistribution(portfolioStats),
       cashPercentageDistribution: this.calculateCashPercentageDistribution(portfolioStats),
       topHoldings,
@@ -294,6 +296,8 @@ export class AnalysisService {
           riskScore: investor.riskScore || 0,
           copiers: investor.copiers || 0,
           cashPercentage: portfolio?.cashPercentage || 0,
+          trades: investor.tradeInfo?.trades || investor.trades || 0,
+          winRatio: investor.tradeInfo?.winRatio || investor.winRatio || 0,
           avatarUrl: userDetail ? getUserAvatarUrl(userDetail) : investor.avatarUrl,
           countryId: userDetail?.country
         };
@@ -367,6 +371,43 @@ export class AnalysisService {
     if (investors.length === 0) return 0;
     const totalRiskScore = investors.reduce((sum, investor) => sum + (investor.riskScore || 0), 0);
     return Math.round((totalRiskScore / investors.length) * 10) / 10;
+  }
+
+  private calculateAverageTrades(investors: CollectedInvestorData[]): number {
+    if (investors.length === 0) return 0;
+    
+    const validTrades = investors
+      .map(inv => inv.tradeInfo?.trades || inv.trades || 0)
+      .filter(trades => 
+        trades !== null && 
+        trades !== undefined && 
+        !isNaN(trades) && 
+        trades >= 0
+      );
+    
+    if (validTrades.length === 0) return 0;
+    
+    const totalTrades = validTrades.reduce((sum, trades) => sum + trades, 0);
+    return Math.round((totalTrades / validTrades.length) * 10) / 10;
+  }
+
+  private calculateAverageWinRatio(investors: CollectedInvestorData[]): number {
+    if (investors.length === 0) return 0;
+    
+    const validWinRatios = investors
+      .map(inv => inv.tradeInfo?.winRatio || inv.winRatio || 0)
+      .filter(winRatio => 
+        winRatio !== null && 
+        winRatio !== undefined && 
+        !isNaN(winRatio) && 
+        winRatio >= 0 && 
+        winRatio <= 100
+      );
+    
+    if (validWinRatios.length === 0) return 0;
+    
+    const totalWinRatio = validWinRatios.reduce((sum, winRatio) => sum + winRatio, 0);
+    return Math.round((totalWinRatio / validWinRatios.length) * 10) / 10;
   }
 
 

@@ -143,7 +143,11 @@ export async function POST(request: NextRequest) {
                 openTimestamp: trade.openTimestamp
               })) || []
             } : null,
-            portfolioError: investor.portfolioError
+            portfolioError: investor.portfolioError,
+            
+            // Trade info data
+            tradeInfo: investor.tradeInfo || null,
+            tradeInfoError: investor.tradeInfoError
           })),
           
           // Convert Maps to arrays for JSON serialization
@@ -172,6 +176,7 @@ export async function POST(request: NextRequest) {
               cashPercentage: analysis.averageCashPercentage,
               riskScore: analysis.averageRiskScore,
               trades: analysis.averageTrades,
+              winRatio: analysis.averageWinRatio,
               uniqueInstruments: analysis.averageUniqueInstruments
             },
             distributions: {

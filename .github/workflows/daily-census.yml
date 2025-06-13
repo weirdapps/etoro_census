@@ -54,6 +54,13 @@ jobs:
       
       - name: Generate census report
         run: |
+          echo "🚀 Starting census report generation for 1500 investors..."
+          echo "This process includes multiple phases:"
+          echo "1. Data Collection: Fetching investors, portfolios, trade info, instruments, and user details"
+          echo "2. Analysis: Generating insights for multiple investor bands"
+          echo "3. Report Generation: Creating HTML and JSON outputs"
+          echo ""
+          
           # Call the optimized report endpoint with 1500 investors
           curl -X POST http://localhost:3000/api/optimized-report \
             -H "Content-Type: application/json" \
@@ -63,14 +70,39 @@ jobs:
             --show-error \
             --fail-with-body \
             -w "\n\nHTTP Status: %{http_code}\n" | while IFS= read -r line; do
-              echo "$line"
+              
+              # Parse and display progress messages
+              if echo "$line" | grep -q '"type":"progress"'; then
+                PROGRESS=$(echo "$line" | sed -n 's/.*"progress":\([0-9]*\).*/\1/p')
+                MESSAGE=$(echo "$line" | sed -n 's/.*"message":"\([^"]*\)".*/\1/p')
+                
+                # Highlight different phases
+                if echo "$MESSAGE" | grep -q "trade info"; then
+                  echo "📊 [$PROGRESS%] Trade Info Phase: $MESSAGE"
+                elif echo "$MESSAGE" | grep -q "portfolio"; then
+                  echo "💼 [$PROGRESS%] Portfolio Phase: $MESSAGE"
+                elif echo "$MESSAGE" | grep -q "instrument"; then
+                  echo "📈 [$PROGRESS%] Instrument Phase: $MESSAGE"
+                elif echo "$MESSAGE" | grep -q "analysis"; then
+                  echo "🔍 [$PROGRESS%] Analysis Phase: $MESSAGE"
+                else
+                  echo "⏳ [$PROGRESS%] $MESSAGE"
+                fi
+                
               # Check if this is the complete event with the report URL
-              if echo "$line" | grep -q '"type":"complete"'; then
+              elif echo "$line" | grep -q '"type":"complete"'; then
                 # Extract the URLs from the JSON
                 REPORT_URL=$(echo "$line" | sed -n 's/.*"reportUrl":"\([^"]*\)".*/\1/p')
                 DATA_URL=$(echo "$line" | sed -n 's/.*"dataUrl":"\([^"]*\)".*/\1/p')
-                echo "Report generated at: $REPORT_URL"
-                echo "Data saved at: $DATA_URL"
+                echo ""
+                echo "✅ Report generation complete!"
+                echo "📄 Report generated at: $REPORT_URL"
+                echo "💾 Data saved at: $DATA_URL"
+                
+              # Display errors
+              elif echo "$line" | grep -q '"type":"error"'; then
+                ERROR=$(echo "$line" | sed -n 's/.*"error":"\([^"]*\)".*/\1/p')
+                echo "❌ Error: $ERROR"
               fi
             done
       

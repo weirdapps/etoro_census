@@ -4,6 +4,8 @@ export interface CensusAnalysis {
   averageCashPercentage: number;
   averageGain: number;
   averageRiskScore: number;
+  averageTrades: number;
+  averageWinRatio: number;
   uniqueInstrumentsDistribution: { [range: string]: number };
   cashPercentageDistribution: { [range: string]: number };
   riskScoreDistribution: { [range: string]: number };
@@ -34,6 +36,8 @@ export interface PerformerStats {
   riskScore: number;
   copiers: number;
   cashPercentage: number;
+  trades: number;
+  winRatio: number;
   avatarUrl?: string;
   countryId?: number;
 }
