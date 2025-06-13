@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
         controller.enqueue(encoder.encode(`data: ${data}\n\n`));
       };
 
-      const sendComplete = (analysis: any, investorCount: number) => {
+      const sendComplete = (analysis: object, investorCount: number) => {
         const data = JSON.stringify({ 
           type: 'complete', 
           analysis, 
