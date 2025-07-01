@@ -86,7 +86,7 @@ function generateWeeklyPost() {
   if (weeklyMovers.length > 0) {
     console.log('🔥 𝗠𝗼𝘀𝘁 𝗔𝗱𝗱𝗲𝗱:');
     weeklyMovers.slice(0, 3).forEach(m => {
-      console.log('• $' + m.symbol + ' (' + m.name + '): +' + m.change + ' holders (+' + 
+      console.log('• $' + m.symbol + ': +' + m.change + ' holders (+' + 
         m.percentChange.toFixed(1) + '%) | Week return: ' + 
         (m.weekReturn > 0 ? '+' : '') + m.weekReturn.toFixed(1) + '%');
     });
@@ -94,7 +94,7 @@ function generateWeeklyPost() {
     console.log('\n❄️ 𝗠𝗼𝘀𝘁 𝗗𝗿𝗼𝗽𝗽𝗲𝗱:');
     const negativeMovers = weeklyMovers.filter(m => m.change < 0).slice(0, 3);
     negativeMovers.forEach(m => {
-      console.log('• $' + m.symbol + ' (' + m.name + '): ' + m.change + ' holders (' + 
+      console.log('• $' + m.symbol + ': ' + m.change + ' holders (' + 
         m.percentChange.toFixed(1) + '%) | Week return: ' + 
         (m.weekReturn > 0 ? '+' : '') + m.weekReturn.toFixed(1) + '%');
     });

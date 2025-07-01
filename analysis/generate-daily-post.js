@@ -69,7 +69,7 @@ function generateDailyPost() {
     const percentOfInvestors = (h.holdersCount / 100 * 100).toFixed(1);
     const changeText = holderChange === 0 ? '--' : (holderChange > 0 ? '↑' : '↓') + Math.abs(holderChange);
     
-    console.log((i+1) + '. $' + h.symbol + ' (' + h.instrumentName + '): ' + percentOfInvestors + '% of investors (' + 
+    console.log((i+1) + '. $' + h.symbol + ': ' + percentOfInvestors + '% of investors (' + 
       h.holdersCount + ' ' + changeText + ')');
   });
   
@@ -81,7 +81,7 @@ function generateDailyPost() {
     const percentOfInvestors = (h.holdersCount / 1500 * 100).toFixed(1);
     const changeText = holderChange === 0 ? '--' : (holderChange > 0 ? '↑' : '↓') + Math.abs(holderChange);
     
-    console.log((i+1) + '. $' + h.symbol + ' (' + h.instrumentName + '): ' + percentOfInvestors + '% of investors (' + 
+    console.log((i+1) + '. $' + h.symbol + ': ' + percentOfInvestors + '% of investors (' + 
       h.holdersCount + ' ' + changeText + ')');
   });
   
