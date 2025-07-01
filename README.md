@@ -110,6 +110,21 @@ See `analysis-tools/README.md` for complete documentation.
 - **Data Models**: Strongly typed interfaces for all API responses
 - **Rate Limiting**: Intelligent delays and circuit breakers
 
+## Analysis Scripts
+
+Generate formatted posts for the eToro community:
+
+```bash
+# Daily census update
+node analysis/generate-daily-post.js
+
+# Weekly summary 
+node analysis/generate-weekly-post.js
+
+# Monthly report with insights
+node analysis/generate-monthly-post.js
+```
+
 ## Project Structure
 
 ```

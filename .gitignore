@@ -101,3 +101,7 @@ temp/
 # AI context files
 CLAUDE.md
 .claude/
+
+# Old/temporary analysis files
+analyze.js
+generate-daily-post-auto.js
