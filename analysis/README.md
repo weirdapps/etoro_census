@@ -9,30 +9,12 @@ analysis/
 ├── README.md                    # This file
 ├── generate-daily-post.js       # Daily report generator
 ├── generate-monthly-post.js     # Monthly report generator  
-├── generate-weekly-post.js      # Weekly report generator
-└── risk-return/                 # Risk-return analysis tools
-    ├── README.md                # Risk-return documentation
-    ├── run-analysis.js          # Main analysis runner
-    ├── generate-etoro-post.js   # eToro post generator
-    ├── risk-return-analysis.js  # Core analysis logic
-    ├── get-chart-data.js        # Chart data extractor
-    └── generate-risk-return-chart.js # MCP chart utility
+└── generate-weekly-post.js      # Weekly report generator
 ```
 
 ## Analysis Types
 
-### 1. Risk-Return Analysis
-**Location:** `risk-return/`
-**Purpose:** Analyzes risk-adjusted performance using Modern Portfolio Theory
-**Usage:** `node analysis/risk-return/run-analysis.js`
-
-Features:
-- Scatter plot analysis of risk vs return
-- Efficient frontier calculations
-- Outperformer identification
-- eToro post generation
-
-### 2. Daily Reports
+### 1. Daily Reports
 **Location:** `generate-daily-post.js`
 **Purpose:** Generates daily census summaries
 **Usage:** `node analysis/generate-daily-post.js`
@@ -57,8 +39,7 @@ All analysis tools require:
 ## Output Locations
 
 - **Analysis Results:** `public/analysis-results/`
-- **eToro Posts:** `public/analysis-results/etoro-post-YYYY-MM-DD.txt`
-- **Charts:** Available at `/risk-return` page
+- **Posts:** Various formats depending on analysis type
 
 ## Periodic Updates
 
@@ -66,14 +47,12 @@ All analysis tools require:
 1. **Daily:** Run daily post generator after census collection
 2. **Weekly:** Run weekly analysis on Sundays
 3. **Monthly:** Run monthly summary on 1st of month
-4. **Risk-Return:** Run when significant data changes occur
 
 ### Manual Process
 1. Ensure latest census data is available
 2. Run appropriate analysis script
 3. Review output for accuracy
 4. Post to eToro if applicable
-5. Update chart data if needed
 
 ## Development
 

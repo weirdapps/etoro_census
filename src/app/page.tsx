@@ -107,18 +107,6 @@ export default function Home() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-8">
-      {/* Navigation Section */}
-      <div className="flex justify-between items-center py-4 border-b">
-        <h1 className="text-2xl font-bold text-gray-900">eToro Census Analysis</h1>
-        <div className="flex space-x-4">
-          <a 
-            href="/risk-return" 
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            Risk vs Return Analysis
-          </a>
-        </div>
-      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
