@@ -8,7 +8,7 @@ const path = require('path');
 
 // Get all data files in chronological order
 function getDataFiles() {
-  const dataDir = path.join(__dirname, '../public/data');
+  const dataDir = path.join(__dirname, '../../public/data');
   return fs.readdirSync(dataDir)
     .filter(file => file.startsWith('etoro-data-') && file.endsWith('.json'))
     .sort(); // Chronological order by filename
@@ -17,7 +17,7 @@ function getDataFiles() {
 // Load and parse a data file
 function loadDataFile(filename) {
   try {
-    const filePath = path.join(__dirname, '../public/data', filename);
+    const filePath = path.join(__dirname, '../../public/data', filename);
     const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
     return data;
   } catch (error) {
@@ -157,21 +157,22 @@ function performQuadrantAnalysis(investors) {
   return quadrants;
 }
 
-// Generate scatter chart data using period returns
-function generateScatterData(investors, notableUsernames) {
+// Generate scatter chart data using period returns with custom highlighting
+function generateScatterData(investors, notableUsernames, highlightUsers = []) {
   return investors.map(investor => ({
     x: parseFloat(investor.averageRiskScore.toFixed(2)),
     y: parseFloat(investor.periodReturn.toFixed(2)),
-    label: notableUsernames.has(investor.username) ? 
+    label: notableUsernames.has(investor.username) || highlightUsers.includes(investor.username) ? 
       `@${investor.username} (${(investor.copiers/1000).toFixed(0)}K)` : undefined,
     copiers: investor.copiers,
     username: investor.username,
-    fullName: investor.fullName
+    fullName: investor.fullName,
+    isHighlighted: highlightUsers.includes(investor.username)
   }));
 }
 
 // Main analysis function
-async function analyzeRiskReturn() {
+async function analyzeRiskReturn(highlightUsers = []) {
   console.log('🎯 RISK VS RETURN ANALYSIS - TOP 100 ETORO INVESTORS\n');
   
   // Step 1: Load historical data
@@ -192,7 +193,7 @@ async function analyzeRiskReturn() {
   const quadrants = performQuadrantAnalysis(top100);
   
   // Step 6: Generate chart data
-  const scatterData = generateScatterData(top100, notableUsernames);
+  const scatterData = generateScatterData(top100, notableUsernames, highlightUsers);
   
   console.log(`\n📈 Chart data generated: ${scatterData.length} points, ${scatterData.filter(d => d.label).length} labeled`);
   

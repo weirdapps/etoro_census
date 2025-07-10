@@ -11,12 +11,12 @@ const { analyzeRiskReturn } = require('./risk-return-analysis');
 const fs = require('fs');
 const path = require('path');
 
-async function runRiskReturnAnalysis() {
+async function runRiskReturnAnalysis(highlightUsers = []) {
   console.log('🎯 Starting Risk vs Return Analysis...\n');
   
   try {
     // Run the analysis
-    const analysis = await analyzeRiskReturn();
+    const analysis = await analyzeRiskReturn(highlightUsers);
     
     // Create output directory if it doesn't exist
     const outputDir = path.join(__dirname, '../../public/analysis-results');
@@ -62,7 +62,15 @@ async function runRiskReturnAnalysis() {
 
 // Run if called directly
 if (require.main === module) {
-  runRiskReturnAnalysis();
+  // Parse command line arguments for highlighting specific users
+  const args = process.argv.slice(2);
+  const highlightUsers = args.length > 0 ? args : [];
+  
+  if (highlightUsers.length > 0) {
+    console.log(`🎯 Highlighting specific users: ${highlightUsers.join(', ')}`);
+  }
+  
+  runRiskReturnAnalysis(highlightUsers);
 }
 
 module.exports = { runRiskReturnAnalysis };

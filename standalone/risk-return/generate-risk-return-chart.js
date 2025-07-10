@@ -4,12 +4,12 @@ const { analyzeRiskReturn } = require('./risk-return-analysis');
  * Generate Risk vs Return Scatter Chart using MCP
  */
 
-async function generateRiskReturnChart() {
+async function generateRiskReturnChart(highlightUsers = []) {
   console.log('🎨 GENERATING RISK VS RETURN SCATTER CHART\n');
   
   try {
     // Get analysis data
-    const analysis = await analyzeRiskReturn();
+    const analysis = await analyzeRiskReturn(highlightUsers);
     
     // Prepare data for MCP scatter chart (simplified without labels for static chart)
     const chartData = analysis.scatterData.map(point => ({
@@ -59,8 +59,8 @@ async function generateRiskReturnChart() {
 }
 
 // For use with MCP chart generation
-async function getMcpChartData() {
-  const result = await generateRiskReturnChart();
+async function getMcpChartData(highlightUsers = []) {
+  const result = await generateRiskReturnChart(highlightUsers);
   return result.chartData;
 }
 
