@@ -24,18 +24,23 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       
-      - name: Find and copy latest report to root
+      - name: Find and copy latest report as index.html
         run: |
           cd public/reports
           # Find the most recent report file by filename (excluding index.html)
           LATEST_REPORT=$(ls etoro-census-*.html 2>/dev/null | sort -r | head -n 1)
           if [ -n "$LATEST_REPORT" ]; then
+            echo "Found latest report: $LATEST_REPORT"
+            echo "Copying $LATEST_REPORT to public/index.html"
+            cp "$LATEST_REPORT" ../index.html
             echo "Copying $LATEST_REPORT to root index.html"
             cp "$LATEST_REPORT" ../../index.html
             echo "Latest report: $LATEST_REPORT" > ../../latest-report.txt
+            echo "✅ Successfully updated index.html files"
           else
             echo "No report files found"
             # Create a placeholder if no reports exist
+            echo "<!DOCTYPE html><html><head><title>eToro Census</title></head><body><h1>No reports available yet</h1></body></html>" > ../index.html
             echo "<!DOCTYPE html><html><head><title>eToro Census</title></head><body><h1>No reports available yet</h1></body></html>" > ../../index.html
           fi
       
