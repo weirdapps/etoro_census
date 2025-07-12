@@ -3,7 +3,8 @@ const path = require('path');
 
 // Function to get monthly data files (approximately 30 days apart)
 function getMonthlyDataFiles() {
-  const dataDir = './public/data';
+  // Handle both running from project root and from analysis directory
+  const dataDir = fs.existsSync('./public/data') ? './public/data' : '../public/data';
   const files = fs.readdirSync(dataDir)
     .filter(f => f.startsWith('etoro-data-') && f.endsWith('.json'))
     .sort()
@@ -45,6 +46,14 @@ function generateMonthlyPost() {
   
   const currentData = JSON.parse(fs.readFileSync(files.latestPath));
   const monthAgoData = JSON.parse(fs.readFileSync(files.monthAgoPath));
+  
+  // Validate data structure
+  if (!currentData.analyses || !monthAgoData.analyses) {
+    throw new Error('Invalid data structure: missing analyses array');
+  }
+  if (currentData.analyses.length < 4 || monthAgoData.analyses.length < 4) {
+    throw new Error('Invalid data structure: insufficient analysis bands');
+  }
   
   const current1500 = currentData.analyses[3]; // Broad investors group
   const monthAgo1500 = monthAgoData.analyses[3];
@@ -134,13 +143,17 @@ function generateMonthlyPost() {
   monthlyMovers.sort((a, b) => b.change - a.change);
   
   if (monthlyMovers.length > 0) {
-    console.log('\n𝗠𝗼𝘀𝘁 𝗔𝗱𝗱𝗲𝗱:');
-    monthlyMovers.slice(0, 3).forEach(m => {
-      console.log('• $' + m.symbol + ': +' + m.change + ' investors (+' + 
-        m.percentChange.toFixed(1) + '%), now ' + m.current);
-    });
-    
+    const added = monthlyMovers.filter(m => m.change > 0).slice(0, 3);
     const dropped = monthlyMovers.filter(m => m.change < 0).slice(0, 3);
+    
+    if (added.length > 0) {
+      console.log('\n𝗠𝗼𝘀𝘁 𝗔𝗱𝗱𝗲𝗱:');
+      added.forEach(m => {
+        console.log('• $' + m.symbol + ': +' + m.change + ' investors (+' + 
+          m.percentChange.toFixed(1) + '%), now ' + m.current);
+      });
+    }
+    
     if (dropped.length > 0) {
       console.log('\n𝗠𝗼𝘀𝘁 𝗗𝗿𝗼𝗽𝗽𝗲𝗱:');
       dropped.forEach(m => {

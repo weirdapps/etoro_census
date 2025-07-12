@@ -111,102 +111,29 @@ function generateWeeklyPost() {
     console.log('• No significant moves (>10 holders) this week');
   }
   
-  // Top Holdings Weekly Changes - Most Copied
-  console.log('\n💎 𝗧𝗼𝗽 𝟱 𝗛𝗼𝗹𝗱𝗶𝗻𝗴𝘀 - 𝗠𝗼𝘀𝘁 𝗖𝗼𝗽𝗶𝗲𝗱 (𝗪𝗲𝗲𝗸𝗹𝘆 𝗖𝗵𝗮𝗻𝗴𝗲):');
-  latest100.topHoldings.slice(0, 5).forEach((h, i) => {
+  // Top 10 Holdings for Most Copied Investors
+  console.log('\n💎 𝗧𝗼𝗽 𝟭𝟬 𝗛𝗼𝗹𝗱𝗶𝗻𝗴𝘀 - 𝗠𝗼𝘀𝘁 𝗖𝗼𝗽𝗶𝗲𝗱 𝗜𝗻𝘃𝗲𝘀𝘁𝗼𝗿𝘀 (𝗪𝗲𝗲𝗸𝗹𝘆 𝗖𝗵𝗮𝗻𝗴𝗲):');
+  latest100.topHoldings.slice(0, 10).forEach((h, i) => {
     const prevHolding = weekAgo100.topHoldings.find(ph => ph.instrumentId === h.instrumentId);
     const holderChange = prevHolding ? h.holdersCount - prevHolding.holdersCount : h.holdersCount;
     const percentOfInvestors = (h.holdersCount / 100 * 100).toFixed(1);
-    const changeText = holderChange === 0 ? '→' : (holderChange > 0 ? '↗' : '↘') + Math.abs(holderChange);
-    const weekReturn = h.weekTDReturn ? ((h.weekTDReturn > 0 ? '+' : '') + h.weekTDReturn.toFixed(1) + '%') : 'N/A';
+    const changeText = holderChange === 0 ? '--' : (holderChange > 0 ? '↑' : '↓') + Math.abs(holderChange);
     
-    console.log((i+1) + '. $' + h.symbol + ': ' + percentOfInvestors + '% (' + changeText + ') | Week: ' + weekReturn);
+    console.log((i+1) + '. $' + h.symbol + ': ' + percentOfInvestors + '% of investors (' + 
+      h.holdersCount + ' ' + changeText + ')');
   });
   
-  // Elite vs Masses weekly comparison
-  console.log('\n🏆 𝗠𝗼𝘀𝘁 𝗖𝗼𝗽𝗶𝗲𝗱 𝘃𝘀 𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽:');
-  const eliteCashChange = latest100.averages.cashPercentage - weekAgo100.averages.cashPercentage;
-  const eliteGainChange = latest100.averages.gain - weekAgo100.averages.gain;
-  const eliteRiskChange = latest100.averages.riskScore - weekAgo100.averages.riskScore;
-  
-  console.log('• 𝗖𝗮𝘀𝗵 𝗛𝗼𝗹𝗱𝗶𝗻𝗴𝘀:');
-  console.log('  - Most Copied: ' + latest100.averages.cashPercentage.toFixed(1) + '% (' + 
-    (eliteCashChange > 0 ? '+' : '') + eliteCashChange.toFixed(1) + 'pp)');
-  console.log('  - Broad Group: ' + latest1500.averages.cashPercentage.toFixed(1) + '% (' + 
-    (cashChange > 0 ? '+' : '') + cashChange.toFixed(1) + 'pp)');
-  
-  console.log('• 𝗥𝗶𝘀𝗸 𝗦𝗰𝗼𝗿𝗲:');
-  console.log('  - Most Copied: ' + latest100.averages.riskScore.toFixed(1) + ' (' + 
-    (eliteRiskChange > 0 ? '+' : '') + eliteRiskChange.toFixed(2) + ')');
-  console.log('  - Broad Group: ' + latest1500.averages.riskScore.toFixed(1) + ' (' + 
-    (riskChange > 0 ? '+' : '') + riskChange.toFixed(2) + ')');
-  
-  console.log('• 𝗬𝗧𝗗 𝗣𝗲𝗿𝗳𝗼𝗿𝗺𝗮𝗻𝗰𝗲:');
-  console.log('  - Most Copied: ' + latest100.averages.gain.toFixed(1) + '% (' + 
-    (eliteGainChange > 0 ? '+' : '') + eliteGainChange.toFixed(1) + 'pp)');
-  console.log('  - Broad Group: ' + latest1500.averages.gain.toFixed(1) + '% (' + 
-    (gainChange > 0 ? '+' : '') + gainChange.toFixed(1) + 'pp)');
-  
-  // Weekly Insights Section
-  console.log('\n💡 𝗪𝗲𝗲𝗸𝗹𝘆 𝗜𝗻𝘀𝗶𝗴𝗵𝘁𝘀:');
-  
-  // Risk sentiment insight
-  if (eliteCashChange > 0.3 && cashChange > 0.3) {
-    console.log('• 𝗗𝗲𝗳𝗲𝗻𝘀𝗶𝘃𝗲 𝗪𝗲𝗲𝗸: Both groups increased cash holdings, signaling caution');
-  } else if (eliteCashChange < -0.3 && cashChange < -0.3) {
-    console.log('• 𝗥𝗶𝘀𝗸-𝗢𝗻 𝗪𝗲𝗲𝗸: Both groups reduced cash, deploying capital into markets');
-  } else if (Math.abs(eliteCashChange - cashChange) > 0.5) {
-    const divergence = eliteCashChange > cashChange ? 'Most Copied more defensive' : 'Broad Group more defensive';
-    console.log('• 𝗗𝗶𝘃𝗲𝗿𝗴𝗲𝗻𝗰𝗲: ' + divergence + ' than the other');
-  }
-  
-  // Performance gap insight
-  const currentPerfGap = latest100.averages.gain - latest1500.averages.gain;
-  const previousPerfGap = weekAgo100.averages.gain - weekAgo1500.averages.gain;
-  const gapChange = currentPerfGap - previousPerfGap;
-  if (gapChange > 0.3) {
-    console.log('• 𝗣𝗲𝗿𝗳𝗼𝗿𝗺𝗮𝗻𝗰𝗲 𝗚𝗮𝗽 𝗪𝗶𝗱𝗲𝗻𝗶𝗻𝗴: Elite investors pulling ahead this week');
-  } else if (gapChange < -0.3) {
-    console.log('• 𝗣𝗲𝗿𝗳𝗼𝗿𝗺𝗮𝗻𝗰𝗲 𝗖𝗼𝗻𝘃𝗲𝗿𝗴𝗲𝗻𝗰𝗲: Broad group catching up to elite this week');
-  }
-  
-  // Trading activity insight (if win ratio data available)
-  if (latest100.averages.winRatio && weekAgo100.averages.winRatio) {
-    const winRatioChange = latest100.averages.winRatio - weekAgo100.averages.winRatio;
-    if (Math.abs(winRatioChange) > 1) {
-      console.log('• 𝗧𝗿𝗮𝗱𝗶𝗻𝗴 𝗔𝗰𝘁𝗶𝘃𝗶𝘁𝘆: Most Copied win ratio ' + 
-        (winRatioChange > 0 ? 'improved' : 'declined') + ' by ' + 
-        Math.abs(winRatioChange).toFixed(1) + 'pp this week');
-    }
-  }
-  
-  // Market trend insight based on weekly movers
-  if (weeklyMovers.length > 0) {
-    const techMovers = weeklyMovers.filter(m => 
-      ['NVDA', 'MSFT', 'GOOG', 'META', 'AMZN', 'AAPL', 'AMD', 'TSM'].includes(m.symbol)
-    );
-    const cryptoMovers = weeklyMovers.filter(m => 
-      ['BTC', 'ETH', 'SOL', 'BNB', 'ADA'].includes(m.symbol)
-    );
+  // Top 10 Holdings for Broad Group
+  console.log('\n💎 𝗧𝗼𝗽 𝟭𝟬 𝗛𝗼𝗹𝗱𝗶𝗻𝗴𝘀 - 𝗕𝗿𝗼𝗮𝗱 𝗜𝗻𝘃𝗲𝘀𝘁𝗼𝗿𝘀 𝗚𝗿𝗼𝘂𝗽 (𝗪𝗲𝗲𝗸𝗹𝘆 𝗖𝗵𝗮𝗻𝗴𝗲):');
+  latest1500.topHoldings.slice(0, 10).forEach((h, i) => {
+    const prevHolding = weekAgo1500.topHoldings.find(ph => ph.instrumentId === h.instrumentId);
+    const holderChange = prevHolding ? h.holdersCount - prevHolding.holdersCount : h.holdersCount;
+    const percentOfInvestors = (h.holdersCount / 1500 * 100).toFixed(1);
+    const changeText = holderChange === 0 ? '--' : (holderChange > 0 ? '↑' : '↓') + Math.abs(holderChange);
     
-    if (techMovers.filter(m => m.change > 0).length >= 2) {
-      console.log('• 𝗧𝗲𝗰𝗵 𝗙𝗼𝗰𝘂𝘀: Increased accumulation in technology stocks this week');
-    }
-    if (cryptoMovers.filter(m => m.change > 0).length >= 1) {
-      console.log('• 𝗖𝗿𝘆𝗽𝘁𝗼 𝗠𝗼𝗺𝗲𝗻𝘁𝘂𝗺: Growing crypto interest among popular investors');
-    }
-    
-    // Check for sector rotation
-    const positiveMovers = weeklyMovers.filter(m => m.change > 0);
-    if (positiveMovers.length >= 3) {
-      const avgReturn = positiveMovers.reduce((sum, m) => sum + m.weekReturn, 0) / positiveMovers.length;
-      if (avgReturn > 2) {
-        console.log('• 𝗠𝗼𝗺𝗲𝗻𝘁𝘂𝗺 𝗧𝗿𝗮𝗱𝗶𝗻𝗴: Popular investors chasing positive weekly performers');
-      } else if (avgReturn < -2) {
-        console.log('• 𝗩𝗮𝗹𝘂𝗲 𝗛𝘂𝗻𝘁𝗶𝗻𝗴: Popular investors buying into weekly declines');
-      }
-    }
-  }
+    console.log((i+1) + '. $' + h.symbol + ': ' + percentOfInvestors + '% of investors (' + 
+      h.holdersCount + ' ' + changeText + ')');
+  });
   
   console.log('\n**\n');
   console.log('Check out the census dashboard at:');
