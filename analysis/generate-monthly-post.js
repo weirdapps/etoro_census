@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-// Function to get monthly data files (approximately 30 days apart)
+// Function to get first-of-month reports (current month's first to previous month's first)
 function getMonthlyDataFiles() {
   // Handle both running from project root and from analysis directory
   const dataDir = fs.existsSync('./public/data') ? './public/data' : '../public/data';
@@ -14,28 +14,46 @@ function getMonthlyDataFiles() {
     throw new Error('Need at least 2 data files to compare');
   }
   
-  // Try to find files approximately 30 days apart
-  const latestFile = files[0];
-  const latestDate = new Date(latestFile.match(/(\d{4}-\d{2}-\d{2})/)?.[1] || '');
-  
-  let monthAgoFile = files[files.length - 1]; // Fallback to oldest
-  
-  // Look for a file close to 30 days ago
-  for (const file of files) {
-    const fileDate = new Date(file.match(/(\d{4}-\d{2}-\d{2})/)?.[1] || '');
-    const daysDiff = (latestDate - fileDate) / (1000 * 60 * 60 * 24);
-    
-    if (daysDiff >= 25 && daysDiff <= 35) { // 25-35 days range
-      monthAgoFile = file;
-      break;
+  // Find first-of-month reports, prioritizing day 1, then day 2-3 for weekends
+  const firstOfMonthFiles = files.filter(file => {
+    const dateMatch = file.match(/(\d{4}-\d{2}-\d{2})/);
+    if (dateMatch) {
+      const date = new Date(dateMatch[1]);
+      const dayOfMonth = date.getDate();
+      return dayOfMonth >= 1 && dayOfMonth <= 3; // First 3 days of month
     }
+    return false;
+  });
+  
+  if (firstOfMonthFiles.length < 2) {
+    throw new Error('Need at least 2 first-of-month reports to compare');
   }
   
+  // Group by month and pick the earliest day in each month
+  const monthlyFiles = {};
+  firstOfMonthFiles.forEach(file => {
+    const dateMatch = file.match(/(\d{4}-\d{2})/);
+    if (dateMatch) {
+      const monthKey = dateMatch[1]; // YYYY-MM
+      if (!monthlyFiles[monthKey] || file < monthlyFiles[monthKey]) {
+        monthlyFiles[monthKey] = file; // Keep earliest file in month (lowest day)
+      }
+    }
+  });
+  
+  const monthKeys = Object.keys(monthlyFiles).sort().reverse();
+  if (monthKeys.length < 2) {
+    throw new Error('Need at least 2 months of first-of-month reports to compare');
+  }
+  
+  const currentMonthFirst = monthlyFiles[monthKeys[0]]; // Most recent month
+  const previousMonthFirst = monthlyFiles[monthKeys[1]]; // Previous month
+  
   return {
-    latest: latestFile,
-    monthAgo: monthAgoFile,
-    latestPath: path.join(dataDir, latestFile),
-    monthAgoPath: path.join(dataDir, monthAgoFile)
+    latest: currentMonthFirst,
+    monthAgo: previousMonthFirst,
+    latestPath: path.join(dataDir, currentMonthFirst),
+    monthAgoPath: path.join(dataDir, previousMonthFirst)
   };
 }
 
@@ -122,15 +140,15 @@ function generateMonthlyPost() {
   });
   
   // Biggest monthly moves
-  console.log('\n🔎 𝗕𝗶𝗴𝗴𝗲𝘀𝘁 𝗠𝗼𝗻𝘁𝗵𝗹𝘆 𝗠𝗼𝘃𝗲𝘀 (𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽):');
+  console.log('\n🔎 𝗕𝗶𝗴𝗴𝗲𝘀𝘁 𝗠𝗼𝗻𝘁𝗵𝗹𝘆 𝗠𝗼𝘃𝗲𝘀:');
   
-  const monthlyMovers = [];
-  current1500.topHoldings.slice(0, 50).forEach(h => {
-    const monthAgoHolding = monthAgo1500.topHoldings.find(mh => mh.instrumentId === h.instrumentId);
+  const monthlyMovers100 = [];
+  current100.topHoldings.slice(0, 50).forEach(h => {
+    const monthAgoHolding = monthAgo100.topHoldings.find(mh => mh.instrumentId === h.instrumentId);
     if (monthAgoHolding) {
       const change = h.holdersCount - monthAgoHolding.holdersCount;
-      if (Math.abs(change) >= 20) { // Only significant changes
-        monthlyMovers.push({
+      if (Math.abs(change) >= 3) { // Threshold for top 100
+        monthlyMovers100.push({
           symbol: h.symbol,
           change: change,
           current: h.holdersCount,
@@ -140,23 +158,63 @@ function generateMonthlyPost() {
     }
   });
   
-  monthlyMovers.sort((a, b) => b.change - a.change);
+  const monthlyMovers1500 = [];
+  current1500.topHoldings.slice(0, 50).forEach(h => {
+    const monthAgoHolding = monthAgo1500.topHoldings.find(mh => mh.instrumentId === h.instrumentId);
+    if (monthAgoHolding) {
+      const change = h.holdersCount - monthAgoHolding.holdersCount;
+      if (Math.abs(change) >= 20) { // Threshold for broad group
+        monthlyMovers1500.push({
+          symbol: h.symbol,
+          change: change,
+          current: h.holdersCount,
+          percentChange: (change / monthAgoHolding.holdersCount) * 100
+        });
+      }
+    }
+  });
   
-  if (monthlyMovers.length > 0) {
-    const added = monthlyMovers.filter(m => m.change > 0).slice(0, 3);
-    const dropped = monthlyMovers.filter(m => m.change < 0).slice(0, 3);
+  monthlyMovers100.sort((a, b) => b.change - a.change);
+  monthlyMovers1500.sort((a, b) => b.change - a.change);
+  
+  // Most Copied moves
+  if (monthlyMovers100.length > 0) {
+    const added100 = monthlyMovers100.filter(m => m.change > 0).slice(0, 3);
+    const dropped100 = monthlyMovers100.filter(m => m.change < 0).slice(0, 3);
     
-    if (added.length > 0) {
-      console.log('\n𝗠𝗼𝘀𝘁 𝗔𝗱𝗱𝗲𝗱:');
-      added.forEach(m => {
+    if (added100.length > 0) {
+      console.log('\n𝗠𝗼𝘀𝘁 𝗔𝗱𝗱𝗲𝗱 - 𝗠𝗼𝘀𝘁 𝗖𝗼𝗽𝗶𝗲𝗱:');
+      added100.forEach(m => {
         console.log('• $' + m.symbol + ': +' + m.change + ' investors (+' + 
           m.percentChange.toFixed(1) + '%), now ' + m.current);
       });
     }
     
-    if (dropped.length > 0) {
-      console.log('\n𝗠𝗼𝘀𝘁 𝗗𝗿𝗼𝗽𝗽𝗲𝗱:');
-      dropped.forEach(m => {
+    if (dropped100.length > 0) {
+      console.log('\n𝗠𝗼𝘀𝘁 𝗗𝗿𝗼𝗽𝗽𝗲𝗱 - 𝗠𝗼𝘀𝘁 𝗖𝗼𝗽𝗶𝗲𝗱:');
+      dropped100.forEach(m => {
+        console.log('• $' + m.symbol + ': ' + m.change + ' investors (' + 
+          m.percentChange.toFixed(1) + '%), now ' + m.current);
+      });
+    }
+  }
+  
+  // Broad Group moves
+  if (monthlyMovers1500.length > 0) {
+    const added1500 = monthlyMovers1500.filter(m => m.change > 0).slice(0, 3);
+    const dropped1500 = monthlyMovers1500.filter(m => m.change < 0).slice(0, 3);
+    
+    if (added1500.length > 0) {
+      console.log('\n𝗠𝗼𝘀𝘁 𝗔𝗱𝗱𝗲𝗱 - 𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽:');
+      added1500.forEach(m => {
+        console.log('• $' + m.symbol + ': +' + m.change + ' investors (+' + 
+          m.percentChange.toFixed(1) + '%), now ' + m.current);
+      });
+    }
+    
+    if (dropped1500.length > 0) {
+      console.log('\n𝗠𝗼𝘀𝘁 𝗗𝗿𝗼𝗽𝗽𝗲𝗱 - 𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽:');
+      dropped1500.forEach(m => {
         console.log('• $' + m.symbol + ': ' + m.change + ' investors (' + 
           m.percentChange.toFixed(1) + '%), now ' + m.current);
       });
@@ -195,11 +253,12 @@ function generateMonthlyPost() {
   }
   
   // Market trend insight based on biggest movers
-  if (monthlyMovers.length > 0) {
-    const techMovers = monthlyMovers.filter(m => 
+  const allMonthlyMovers = [...monthlyMovers100, ...monthlyMovers1500];
+  if (allMonthlyMovers.length > 0) {
+    const techMovers = allMonthlyMovers.filter(m => 
       ['NVDA', 'MSFT', 'GOOG', 'META', 'AMZN', 'AAPL', 'AMD', 'TSM'].includes(m.symbol)
     );
-    const cryptoMovers = monthlyMovers.filter(m => 
+    const cryptoMovers = allMonthlyMovers.filter(m => 
       ['BTC', 'ETH', 'SOL', 'BNB', 'ADA'].includes(m.symbol)
     );
     

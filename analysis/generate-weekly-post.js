@@ -1,26 +1,42 @@
 const fs = require('fs');
 const path = require('path');
 
-// Function to get weekly data files (last 7 days)
+// Function to get Saturday reports (newest Saturday to previous Saturday)
 function getWeeklyDataFiles() {
   // Handle both running from project root and from analysis directory
   const dataDir = fs.existsSync('./public/data') ? './public/data' : '../public/data';
   const files = fs.readdirSync(dataDir)
     .filter(f => f.startsWith('etoro-data-') && f.endsWith('.json'))
     .sort()
-    .reverse()
-    .slice(0, 7); // Get last 7 files
+    .reverse();
   
   if (files.length < 2) {
     throw new Error('Need at least 2 data files to compare');
   }
   
+  // Find Saturday reports (day 6 in JS, where 0=Sunday, 6=Saturday)
+  const saturdayFiles = files.filter(file => {
+    const dateMatch = file.match(/(\d{4}-\d{2}-\d{2})/);
+    if (dateMatch) {
+      const date = new Date(dateMatch[1]);
+      return date.getDay() === 6; // Saturday
+    }
+    return false;
+  });
+  
+  if (saturdayFiles.length < 2) {
+    throw new Error('Need at least 2 Saturday reports to compare');
+  }
+  
+  const latestSaturday = saturdayFiles[0]; // Most recent Saturday
+  const previousSaturday = saturdayFiles[1]; // Previous Saturday
+  
   return {
-    latest: files[0],
-    weekAgo: files[files.length - 1],
-    latestPath: path.join(dataDir, files[0]),
-    weekAgoPath: path.join(dataDir, files[files.length - 1]),
-    allFiles: files
+    latest: latestSaturday,
+    weekAgo: previousSaturday,
+    latestPath: path.join(dataDir, latestSaturday),
+    weekAgoPath: path.join(dataDir, previousSaturday),
+    allFiles: saturdayFiles
   };
 }
 
@@ -52,63 +68,103 @@ function generateWeeklyPost() {
   console.log('🎩 𝗲𝗧𝗼𝗿𝗼 𝗖𝗲𝗻𝘀𝘂𝘀 𝗪𝗲𝗲𝗸𝗹𝘆 𝗦𝘂𝗺𝗺𝗮𝗿𝘆 🎩');
   console.log(`${weekAgoDate} → ${latestDate}\n`);
   
-  // Weekly changes for broad group
-  console.log('📈 𝗪𝗲𝗲𝗸𝗹𝘆 𝗠𝗮𝗿𝗸𝗲𝘁 𝗦𝗲𝗻𝘁𝗶𝗺𝗲𝗻𝘁 (𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽):');
+  // Weekly changes for top 100 most copied
+  console.log('📈 𝗪𝗲𝗲𝗸𝗹𝘆 𝗠𝗮𝗿𝗸𝗲𝘁 𝗦𝗲𝗻𝘁𝗶𝗺𝗲𝗻𝘁 (𝗠𝗼𝘀𝘁 𝗖𝗼𝗽𝗶𝗲𝗱):');
   
-  const cashChange = latest1500.averages.cashPercentage - weekAgo1500.averages.cashPercentage;
-  console.log('• 𝗖𝗮𝘀𝗵 𝗛𝗼𝗹𝗱𝗶𝗻𝗴𝘀: ' + latest1500.averages.cashPercentage.toFixed(1) + '% (' + 
+  const cashChange = latest100.averages.cashPercentage - weekAgo100.averages.cashPercentage;
+  console.log('• 𝗖𝗮𝘀𝗵 𝗛𝗼𝗹𝗱𝗶𝗻𝗴𝘀: ' + latest100.averages.cashPercentage.toFixed(1) + '% (' + 
     (cashChange > 0 ? '+' : '') + cashChange.toFixed(1) + 'pp week/week)');
   
-  const riskChange = latest1500.averages.riskScore - weekAgo1500.averages.riskScore;
-  console.log('• 𝗥𝗶𝘀𝗸 𝗦𝗰𝗼𝗿𝗲: ' + latest1500.averages.riskScore.toFixed(1) + ' (' +
+  const riskChange = latest100.averages.riskScore - weekAgo100.averages.riskScore;
+  console.log('• 𝗥𝗶𝘀𝗸 𝗦𝗰𝗼𝗿𝗲: ' + latest100.averages.riskScore.toFixed(1) + ' (' +
     (riskChange > 0 ? '+' : '') + riskChange.toFixed(2) + ' week/week)');
   
-  const gainChange = latest1500.averages.gain - weekAgo1500.averages.gain;
-  console.log('• 𝗬𝗧𝗗 𝗣𝗲𝗿𝗳𝗼𝗿𝗺𝗮𝗻𝗰𝗲: ' + latest1500.averages.gain.toFixed(1) + '% (' +
+  const gainChange = latest100.averages.gain - weekAgo100.averages.gain;
+  console.log('• 𝗬𝗧𝗗 𝗣𝗲𝗿𝗳𝗼𝗿𝗺𝗮𝗻𝗰𝗲: ' + latest100.averages.gain.toFixed(1) + '% (' +
     (gainChange > 0 ? '+' : '') + gainChange.toFixed(1) + 'pp week/week)\n');
   
-  // Top weekly moves by holder count
-  console.log('📊 𝗕𝗶𝗴𝗴𝗲𝘀𝘁 𝗪𝗲𝗲𝗸𝗹𝘆 𝗠𝗼𝘃𝗲𝘀 (𝗯𝘆 𝗽𝗼𝗽𝘂𝗹𝗮𝗿𝗶𝘁𝘆):');
+  // Top weekly moves by holder count - Most Copied
+  console.log('📊 𝗕𝗶𝗴𝗴𝗲𝘀𝘁 𝗪𝗲𝗲𝗸𝗹𝘆 𝗠𝗼𝘃𝗲𝘀:');
   
-  const weeklyMovers = [];
+  const weeklyMovers100 = [];
+  latest100.topHoldings.slice(0, 50).forEach(h => {
+    const weekAgoHolding = weekAgo100.topHoldings.find(wh => wh.instrumentId === h.instrumentId);
+    if (weekAgoHolding) {
+      const change = h.holdersCount - weekAgoHolding.holdersCount;
+      const percentChange = ((change / weekAgoHolding.holdersCount) * 100);
+      
+      if (Math.abs(change) >= 2) { // Threshold for top 100
+        weeklyMovers100.push({
+          symbol: h.symbol,
+          name: h.instrumentName,
+          change: change,
+          percentChange: percentChange,
+          currentHolders: h.holdersCount
+        });
+      }
+    }
+  });
+  
+  const weeklyMovers1500 = [];
   latest1500.topHoldings.slice(0, 50).forEach(h => {
     const weekAgoHolding = weekAgo1500.topHoldings.find(wh => wh.instrumentId === h.instrumentId);
     if (weekAgoHolding) {
       const change = h.holdersCount - weekAgoHolding.holdersCount;
       const percentChange = ((change / weekAgoHolding.holdersCount) * 100);
       
-      if (Math.abs(change) >= 10) { // Only show significant moves
-        weeklyMovers.push({
+      if (Math.abs(change) >= 10) { // Threshold for broad group
+        weeklyMovers1500.push({
           symbol: h.symbol,
           name: h.instrumentName,
           change: change,
           percentChange: percentChange,
-          currentHolders: h.holdersCount,
-          weekReturn: h.weekTDReturn || 0
+          currentHolders: h.holdersCount
         });
       }
     }
   });
   
-  weeklyMovers.sort((a, b) => b.change - a.change);
+  weeklyMovers100.sort((a, b) => b.change - a.change);
+  weeklyMovers1500.sort((a, b) => b.change - a.change);
   
-  if (weeklyMovers.length > 0) {
-    console.log('🔥 𝗠𝗼𝘀𝘁 𝗔𝗱𝗱𝗲𝗱:');
-    weeklyMovers.slice(0, 3).forEach(m => {
+  // Most Copied moves
+  if (weeklyMovers100.length > 0) {
+    console.log('\n🔥 𝗠𝗼𝘀𝘁 𝗔𝗱𝗱𝗲𝗱 - 𝗠𝗼𝘀𝘁 𝗖𝗼𝗽𝗶𝗲𝗱:');
+    weeklyMovers100.slice(0, 3).forEach(m => {
       console.log('• $' + m.symbol + ': +' + m.change + ' holders (+' + 
-        m.percentChange.toFixed(1) + '%) | Week return: ' + 
-        (m.weekReturn > 0 ? '+' : '') + m.weekReturn.toFixed(1) + '%');
+        m.percentChange.toFixed(1) + '%)');
     });
     
-    console.log('\n❄️ 𝗠𝗼𝘀𝘁 𝗗𝗿𝗼𝗽𝗽𝗲𝗱:');
-    const negativeMovers = weeklyMovers.filter(m => m.change < 0).slice(0, 3);
-    negativeMovers.forEach(m => {
-      console.log('• $' + m.symbol + ': ' + m.change + ' holders (' + 
-        m.percentChange.toFixed(1) + '%) | Week return: ' + 
-        (m.weekReturn > 0 ? '+' : '') + m.weekReturn.toFixed(1) + '%');
+    const negativeMovers100 = weeklyMovers100.filter(m => m.change < 0).slice(0, 3);
+    if (negativeMovers100.length > 0) {
+      console.log('\n❄️ 𝗠𝗼𝘀𝘁 𝗗𝗿𝗼𝗽𝗽𝗲𝗱 - 𝗠𝗼𝘀𝘁 𝗖𝗼𝗽𝗶𝗲𝗱:');
+      negativeMovers100.forEach(m => {
+        console.log('• $' + m.symbol + ': ' + m.change + ' holders (' + 
+          m.percentChange.toFixed(1) + '%)');
+      });
+    }
+  }
+  
+  // Broad Group moves
+  if (weeklyMovers1500.length > 0) {
+    console.log('\n🔥 𝗠𝗼𝘀𝘁 𝗔𝗱𝗱𝗲𝗱 - 𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽:');
+    weeklyMovers1500.slice(0, 3).forEach(m => {
+      console.log('• $' + m.symbol + ': +' + m.change + ' holders (+' + 
+        m.percentChange.toFixed(1) + '%)');
     });
-  } else {
-    console.log('• No significant moves (>10 holders) this week');
+    
+    const negativeMovers1500 = weeklyMovers1500.filter(m => m.change < 0).slice(0, 3);
+    if (negativeMovers1500.length > 0) {
+      console.log('\n❄️ 𝗠𝗼𝘀𝘁 𝗗𝗿𝗼𝗽𝗽𝗲𝗱 - 𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽:');
+      negativeMovers1500.forEach(m => {
+        console.log('• $' + m.symbol + ': ' + m.change + ' holders (' + 
+          m.percentChange.toFixed(1) + '%)');
+      });
+    }
+  }
+  
+  if (weeklyMovers100.length === 0 && weeklyMovers1500.length === 0) {
+    console.log('• No significant moves this week');
   }
   
   // Top 10 Holdings for Most Copied Investors
