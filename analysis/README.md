@@ -6,10 +6,14 @@ This directory contains various analysis tools for processing eToro Popular Inve
 
 ```
 analysis/
-├── README.md                    # This file
-├── generate-daily-post.js       # Daily report generator
-├── generate-monthly-post.js     # Monthly report generator  
-└── generate-weekly-post.js      # Weekly report generator
+├── README.md                          # This file
+├── generate-daily-post.js            # Daily report generator
+├── generate-monthly-post.js          # Monthly report generator  
+├── generate-weekly-post.js           # Weekly report generator
+└── follower-distribution/            # Follower analysis tools
+    ├── README.md                      # Follower analysis documentation
+    ├── generate-follower-chart.js    # Interactive chart generator
+    └── extract-top-investors.js      # Top investor data extraction
 ```
 
 ## Analysis Types
@@ -19,15 +23,25 @@ analysis/
 **Purpose:** Generates daily census summaries
 **Usage:** `node analysis/generate-daily-post.js`
 
-### 3. Weekly Reports
+### 2. Weekly Reports
 **Location:** `generate-weekly-post.js`
 **Purpose:** Generates weekly trend analysis
 **Usage:** `node analysis/generate-weekly-post.js`
 
-### 4. Monthly Reports
+### 3. Monthly Reports
 **Location:** `generate-monthly-post.js`
 **Purpose:** Generates monthly performance summaries
 **Usage:** `node analysis/generate-monthly-post.js`
+
+### 4. Follower Distribution Analysis
+**Location:** `follower-distribution/`
+**Purpose:** Analyzes follower distribution across Popular Investors
+**Usage:** 
+```bash
+cd follower-distribution/
+node generate-follower-chart.js      # Creates interactive chart
+node extract-top-investors.js [N]    # Extracts top N investors (default: 10)
+```
 
 ## Data Requirements
 
