@@ -186,6 +186,53 @@ function generateDailyPost() {
     const perfDirection = perfChange100 > 0 ? 'gained' : 'lost';
     console.log('• 𝗗𝗮𝗶𝗹𝘆: Top 100 ' + perfDirection + ' ' + Math.abs(perfChange100).toFixed(1) + 'pp YTD vs yesterday');
   }
+  
+  // Daily Copier Changes for Top 100 Group
+  if (prevData.investors && prevData.investors.length >= 100) {
+    const copierChanges = [];
+    
+    currentData.investors.slice(0, 100).forEach(currentInv => {
+      const prevInv = prevData.investors.find(p => p.userName === currentInv.userName);
+      if (prevInv) {
+        const copierChange = currentInv.copiers - prevInv.copiers;
+        if (Math.abs(copierChange) >= 3) { // Lower threshold for top 5 lists
+          copierChanges.push({
+            investor: currentInv,
+            change: copierChange,
+            percentChange: (copierChange / prevInv.copiers) * 100
+          });
+        }
+      }
+    });
+    
+    if (copierChanges.length > 0) {
+      copierChanges.sort((a, b) => b.change - a.change);
+      
+      const gainers = copierChanges.filter(c => c.change > 0).slice(0, 5);
+      const losers = copierChanges.filter(c => c.change < 0).slice(0, 5);
+      
+      if (gainers.length > 0 || losers.length > 0) {
+        console.log('\n• 𝗗𝗮𝗶𝗹𝘆 𝗖𝗼𝗽𝗶𝗲𝗿 𝗔𝗰𝘁𝗶𝘃𝗶𝘁𝘆 (𝗧𝗼𝗽 𝟭𝟬𝟬):');
+        
+        if (gainers.length > 0) {
+          console.log('\n  📈 𝐌𝐨𝐬𝐭 𝐂𝐨𝐩𝐢𝐞𝐫𝐬 𝐀𝐝𝐝𝐞𝐝:');
+          gainers.forEach((g, i) => {
+            console.log('  ' + (i+1) + '. ' + (g.investor.fullName || g.investor.userName) + ' (@' + g.investor.userName + '): +' + 
+              g.change.toLocaleString() + ' (+' + g.percentChange.toFixed(1) + '%)');
+          });
+        }
+        
+        if (losers.length > 0) {
+          console.log('\n  📉 𝐌𝐨𝐬𝐭 𝐂𝐨𝐩𝐢𝐞𝐫𝐬 𝐋𝐨𝐬𝐭:');
+          losers.forEach((l, i) => {
+            console.log('  ' + (i+1) + '. ' + (l.investor.fullName || l.investor.userName) + ' (@' + l.investor.userName + '): ' + 
+              l.change.toLocaleString() + ' (' + l.percentChange.toFixed(1) + '%)');
+          });
+        }
+      }
+    }
+  }
+  
   console.log('');
   
   // Performance Insights Section
@@ -236,54 +283,6 @@ function generateDailyPost() {
   }
   
   console.log('');
-
-  // Daily Copier Changes Section
-  if (prevData.investors && prevData.investors.length >= 100) {
-    const copierChanges = [];
-    
-    currentData.investors.slice(0, 100).forEach(currentInv => {
-      const prevInv = prevData.investors.find(p => p.userName === currentInv.userName);
-      if (prevInv) {
-        const copierChange = currentInv.copiers - prevInv.copiers;
-        if (Math.abs(copierChange) >= 3) { // Lower threshold for top 5 lists
-          copierChanges.push({
-            investor: currentInv,
-            change: copierChange,
-            percentChange: (copierChange / prevInv.copiers) * 100
-          });
-        }
-      }
-    });
-    
-    if (copierChanges.length > 0) {
-      copierChanges.sort((a, b) => b.change - a.change);
-      
-      const gainers = copierChanges.filter(c => c.change > 0).slice(0, 5);
-      const losers = copierChanges.filter(c => c.change < 0).slice(0, 5);
-      
-      if (gainers.length > 0 || losers.length > 0) {
-        console.log('📊 𝗗𝗮𝗶𝗹𝘆 𝗖𝗼𝗽𝗶𝗲𝗿 𝗖𝗵𝗮𝗻𝗴𝗲𝘀 (𝗧𝗼𝗽 𝟭𝟬𝟬):');
-        
-        if (gainers.length > 0) {
-          console.log('\n📈 𝐌𝐨𝐬𝐭 𝐂𝐨𝐩𝐢𝐞𝐫𝐬 𝐀𝐝𝐝𝐞𝐝:');
-          gainers.forEach((g, i) => {
-            console.log((i+1) + '. ' + (g.investor.fullName || g.investor.userName) + ' (@' + g.investor.userName + '): +' + 
-              g.change.toLocaleString() + ' (+' + g.percentChange.toFixed(1) + '%)');
-          });
-        }
-        
-        if (losers.length > 0) {
-          console.log('\n📉 𝐌𝐨𝐬𝐭 𝐂𝐨𝐩𝐢𝐞𝐫𝐬 𝐋𝐨𝐬𝐭:');
-          losers.forEach((l, i) => {
-            console.log((i+1) + '. ' + (l.investor.fullName || l.investor.userName) + ' (@' + l.investor.userName + '): ' + 
-              l.change.toLocaleString() + ' (' + l.percentChange.toFixed(1) + '%)');
-          });
-        }
-        
-        console.log('');
-      }
-    }
-  }
 
   // Top 10 Holdings for Top 100 Group  
   console.log('💎 𝗧𝗼𝗽 𝟭𝟬 𝗛𝗼𝗹𝗱𝗶𝗻𝗴𝘀 - 𝗧𝗼𝗽 𝟭𝟬𝟬 𝗚𝗿𝗼𝘂𝗽:');
