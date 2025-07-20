@@ -199,8 +199,8 @@ function generateDailyPost() {
   const topPerformer = sortedInvestors[0];
   const bottomPerformer = sortedInvestors[sortedInvestors.length - 1];
   
-  console.log('🥇 𝐓𝐨𝐩 𝐏𝐞𝐫𝐟𝐨𝐫𝐦𝐞𝐫: ' + (topPerformer.fullName || topPerformer.userName) + ' (' + topPerformer.gain.toFixed(1) + '% YTD, ' + topPerformer.copiers.toLocaleString() + ' copiers)');
-  console.log('📉 𝐍𝐞𝐞𝐝𝐬 𝐖𝐨𝐫𝐤: ' + (bottomPerformer.fullName || bottomPerformer.userName) + ' (' + bottomPerformer.gain.toFixed(1) + '% YTD, ' + bottomPerformer.copiers.toLocaleString() + ' copiers)');
+  console.log('🥇 𝐓𝐨𝐩 𝐏𝐞𝐫𝐟𝐨𝐫𝐦𝐞𝐫: ' + (topPerformer.fullName || topPerformer.userName) + ' (@' + topPerformer.userName + ') (' + topPerformer.gain.toFixed(1) + '% YTD, ' + topPerformer.copiers.toLocaleString() + ' copiers)');
+  console.log('📉 𝐍𝐞𝐞𝐝𝐬 𝐖𝐨𝐫𝐤: ' + (bottomPerformer.fullName || bottomPerformer.userName) + ' (@' + bottomPerformer.userName + ') (' + bottomPerformer.gain.toFixed(1) + '% YTD, ' + bottomPerformer.copiers.toLocaleString() + ' copiers)');
   
   // Trading activity insight
   const avgTrades = current100.averages.trades;
@@ -227,7 +227,7 @@ function generateDailyPost() {
     .sort((a, b) => b.gain - a.gain)[0];
   
   if (spotlight) {
-    console.log('👤 ' + (spotlight.fullName || spotlight.userName));
+    console.log('👤 ' + (spotlight.fullName || spotlight.userName) + ' (@' + spotlight.userName + ')');
     console.log('• YTD Performance: ' + spotlight.gain.toFixed(1) + '%');
     console.log('• Copiers: ' + spotlight.copiers.toLocaleString());
     console.log('• Risk Score: ' + spotlight.riskScore + '/10');
