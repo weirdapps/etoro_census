@@ -82,10 +82,14 @@ function generateMonthlyPost() {
   const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
                       'July', 'August', 'September', 'October', 'November', 'December'];
   const currentDateStr = files.latest.match(/(\d{4}-\d{2}-\d{2})/)?.[1] || '';
-  const currentMonth = currentDateStr ? monthNames[new Date(currentDateStr).getMonth()] : 'Current';
+  const previousDateStr = files.monthAgo.match(/(\d{4}-\d{2}-\d{2})/)?.[1] || '';
+  
+  // For monthly report, show the month being analyzed (the most recent month)
+  const reportMonth = currentDateStr ? monthNames[new Date(currentDateStr).getMonth()] : 'Current';
+  const compareMonth = previousDateStr ? monthNames[new Date(previousDateStr).getMonth()] : 'Previous';
   
   console.log('🎩 𝗲𝗧𝗼𝗿𝗼 𝗖𝗲𝗻𝘀𝘂𝘀 𝗠𝗼𝗻𝘁𝗵𝗹𝘆 𝗥𝗲𝗽𝗼𝗿𝘁 🎩');
-  console.log(`${currentMonth} 2025\n`);
+  console.log(`${reportMonth} 2025 (vs ${compareMonth})\n`);
   
   // Most Copied vs Broad Group Monthly Changes
   console.log('🎩 𝗧𝗼𝗽 𝟭𝟬𝟬 𝘃𝘀 𝗔𝗹𝗹 𝗜𝗻𝘃𝗲𝘀𝘁𝗼𝗿𝘀:');
