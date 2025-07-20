@@ -115,7 +115,51 @@ function generateMonthlyPost() {
   console.log('  - Top 100: ' + current100.averages.gain.toFixed(1) + '% (was ' + 
     monthAgo100.averages.gain.toFixed(1) + '%, ' + (gain100Change > 0 ? '+' : '') + gain100Change.toFixed(1) + 'pp)');
   console.log('  - All Investors: ' + current1500.averages.gain.toFixed(1) + '% (was ' + 
-    monthAgo1500.averages.gain.toFixed(1) + '%, ' + (gain1500Change > 0 ? '+' : '') + gain1500Change.toFixed(1) + 'pp)\n');
+    monthAgo1500.averages.gain.toFixed(1) + '%, ' + (gain1500Change > 0 ? '+' : '') + gain1500Change.toFixed(1) + 'pp)');
+  
+  // Monthly Copier Changes for Top 100 Group
+  if (currentData.investors && monthAgoData.investors && currentData.investors.length >= 100 && monthAgoData.investors.length >= 100) {
+    const copierChanges = [];
+    
+    currentData.investors.slice(0, 100).forEach(currentInv => {
+      const prevInv = monthAgoData.investors.find(p => p.userName === currentInv.userName);
+      if (prevInv) {
+        const copierChange = currentInv.copiers - prevInv.copiers;
+        if (Math.abs(copierChange) >= 50) { // Higher threshold for monthly changes
+          copierChanges.push({
+            investor: currentInv,
+            change: copierChange,
+            percentChange: (copierChange / prevInv.copiers) * 100
+          });
+        }
+      }
+    });
+    
+    if (copierChanges.length > 0) {
+      copierChanges.sort((a, b) => b.change - a.change);
+      
+      const gainers = copierChanges.filter(c => c.change > 0).slice(0, 3);
+      const losers = copierChanges.filter(c => c.change < 0).slice(0, 3);
+      
+      if (gainers.length > 0) {
+        console.log('\n📈 𝐌𝐨𝐬𝐭 𝐂𝐨𝐩𝐢𝐞𝐫𝐬 𝐀𝐝𝐝𝐞𝐝 (𝐌𝐨𝐧𝐭𝐡):');
+        gainers.forEach((g, i) => {
+          console.log((i+1) + '. ' + (g.investor.fullName || g.investor.userName) + ' (@' + g.investor.userName + '): (' + 
+            g.investor.copiers.toLocaleString() + ' ↑' + g.change.toLocaleString() + ')');
+        });
+      }
+      
+      if (losers.length > 0) {
+        console.log('\n📉 𝐌𝐨𝐬𝐭 𝐂𝐨𝐩𝐢𝐞𝐫𝐬 𝐋𝐨𝐬𝐭 (𝐌𝐨𝐧𝐭𝐡):');
+        losers.forEach((l, i) => {
+          console.log((i+1) + '. ' + (l.investor.fullName || l.investor.userName) + ' (@' + l.investor.userName + '): (' + 
+            l.investor.copiers.toLocaleString() + ' ↓' + Math.abs(l.change).toLocaleString() + ')');
+        });
+      }
+    }
+  }
+  
+  console.log('\n');
   
   // Top Holdings Changes - Top 100
   console.log('💎 𝗧𝗼𝗽 𝟭𝟬 𝗛𝗼𝗹𝗱𝗶𝗻𝗴𝘀 - 𝗧𝗼𝗽 𝟭𝟬𝟬 (𝗠𝗼𝗻𝘁𝗵𝗹𝘆 𝗖𝗵𝗮𝗻𝗴𝗲):');

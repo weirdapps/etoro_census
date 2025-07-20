@@ -212,8 +212,6 @@ function generateDailyPost() {
       const losers = copierChanges.filter(c => c.change < 0).slice(0, 5);
       
       if (gainers.length > 0 || losers.length > 0) {
-        console.log('\n• 𝗗𝗮𝗶𝗹𝘆 𝗖𝗼𝗽𝗶𝗲𝗿 𝗔𝗰𝘁𝗶𝘃𝗶𝘁𝘆 (𝗧𝗼𝗽 𝟭𝟬𝟬):');
-        
         if (gainers.length > 0) {
           console.log('\n  📈 𝐌𝐨𝐬𝐭 𝐂𝐨𝐩𝐢𝐞𝐫𝐬 𝐀𝐝𝐝𝐞𝐝:');
           gainers.forEach((g, i) => {

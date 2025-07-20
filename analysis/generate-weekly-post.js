@@ -81,7 +81,51 @@ function generateWeeklyPost() {
   
   const gainChange = latest100.averages.gain - weekAgo100.averages.gain;
   console.log('• 𝗬𝗧𝗗 𝗣𝗲𝗿𝗳𝗼𝗿𝗺𝗮𝗻𝗰𝗲: ' + latest100.averages.gain.toFixed(1) + '% (' +
-    (gainChange > 0 ? '+' : '') + gainChange.toFixed(1) + 'pp week/week)\n');
+    (gainChange > 0 ? '+' : '') + gainChange.toFixed(1) + 'pp week/week)');
+  
+  // Weekly Copier Changes for Top 100 Group
+  if (latestData.investors && weekAgoData.investors && latestData.investors.length >= 100 && weekAgoData.investors.length >= 100) {
+    const copierChanges = [];
+    
+    latestData.investors.slice(0, 100).forEach(currentInv => {
+      const prevInv = weekAgoData.investors.find(p => p.userName === currentInv.userName);
+      if (prevInv) {
+        const copierChange = currentInv.copiers - prevInv.copiers;
+        if (Math.abs(copierChange) >= 10) { // Higher threshold for weekly changes
+          copierChanges.push({
+            investor: currentInv,
+            change: copierChange,
+            percentChange: (copierChange / prevInv.copiers) * 100
+          });
+        }
+      }
+    });
+    
+    if (copierChanges.length > 0) {
+      copierChanges.sort((a, b) => b.change - a.change);
+      
+      const gainers = copierChanges.filter(c => c.change > 0).slice(0, 3);
+      const losers = copierChanges.filter(c => c.change < 0).slice(0, 3);
+      
+      if (gainers.length > 0) {
+        console.log('\n📈 𝐌𝐨𝐬𝐭 𝐂𝐨𝐩𝐢𝐞𝐫𝐬 𝐀𝐝𝐝𝐞𝐝 (𝐖𝐞𝐞𝐤):');
+        gainers.forEach((g, i) => {
+          console.log((i+1) + '. ' + (g.investor.fullName || g.investor.userName) + ' (@' + g.investor.userName + '): (' + 
+            g.investor.copiers.toLocaleString() + ' ↑' + g.change.toLocaleString() + ')');
+        });
+      }
+      
+      if (losers.length > 0) {
+        console.log('\n📉 𝐌𝐨𝐬𝐭 𝐂𝐨𝐩𝐢𝐞𝐫𝐬 𝐋𝐨𝐬𝐭 (𝐖𝐞𝐞𝐤):');
+        losers.forEach((l, i) => {
+          console.log((i+1) + '. ' + (l.investor.fullName || l.investor.userName) + ' (@' + l.investor.userName + '): (' + 
+            l.investor.copiers.toLocaleString() + ' ↓' + Math.abs(l.change).toLocaleString() + ')');
+        });
+      }
+    }
+  }
+  
+  console.log('\n');
   
   // Top weekly moves by holder count - Most Copied
   console.log('📊 𝗕𝗶𝗴𝗴𝗲𝘀𝘁 𝗪𝗲𝗲𝗸𝗹𝘆 𝗠𝗼𝘃𝗲𝘀:');
