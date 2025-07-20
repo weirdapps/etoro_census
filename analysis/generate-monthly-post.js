@@ -88,37 +88,37 @@ function generateMonthlyPost() {
   console.log(`${currentMonth} 2025\n`);
   
   // Most Copied vs Broad Group Monthly Changes
-  console.log('🎩 𝗠𝗼𝘀𝘁 𝗖𝗼𝗽𝗶𝗲𝗱 𝘃𝘀 𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽:');
+  console.log('🎩 𝗧𝗼𝗽 𝟭𝟬𝟬 𝘃𝘀 𝗔𝗹𝗹 𝗜𝗻𝘃𝗲𝘀𝘁𝗼𝗿𝘀:');
   
   // Cash Holdings
   const cash100Change = current100.averages.cashPercentage - monthAgo100.averages.cashPercentage;
   const cash1500Change = current1500.averages.cashPercentage - monthAgo1500.averages.cashPercentage;
   console.log('• 𝗖𝗮𝘀𝗵 𝗛𝗼𝗹𝗱𝗶𝗻𝗴𝘀:');
-  console.log('  - Most Copied: ' + current100.averages.cashPercentage.toFixed(1) + '% (was ' + 
+  console.log('  - Top 100: ' + current100.averages.cashPercentage.toFixed(1) + '% (was ' + 
     monthAgo100.averages.cashPercentage.toFixed(1) + '%, ' + (cash100Change > 0 ? '+' : '') + cash100Change.toFixed(1) + 'pp)');
-  console.log('  - Broad Group: ' + current1500.averages.cashPercentage.toFixed(1) + '% (was ' + 
+  console.log('  - All Investors: ' + current1500.averages.cashPercentage.toFixed(1) + '% (was ' + 
     monthAgo1500.averages.cashPercentage.toFixed(1) + '%, ' + (cash1500Change > 0 ? '+' : '') + cash1500Change.toFixed(1) + 'pp)');
   
   // Risk Score
   const risk100Change = current100.averages.riskScore - monthAgo100.averages.riskScore;
   const risk1500Change = current1500.averages.riskScore - monthAgo1500.averages.riskScore;
   console.log('• 𝗲𝘁𝗼𝗿𝗼 𝗥𝗶𝘀𝗸 𝗦𝗰𝗼𝗿𝗲:');
-  console.log('  - Most Copied: ' + current100.averages.riskScore.toFixed(1) + ' (was ' + 
+  console.log('  - Top 100: ' + current100.averages.riskScore.toFixed(1) + ' (was ' + 
     monthAgo100.averages.riskScore.toFixed(1) + ', ' + (risk100Change > 0 ? '+' : '') + risk100Change.toFixed(2) + ')');
-  console.log('  - Broad Group: ' + current1500.averages.riskScore.toFixed(1) + ' (was ' + 
+  console.log('  - All Investors: ' + current1500.averages.riskScore.toFixed(1) + ' (was ' + 
     monthAgo1500.averages.riskScore.toFixed(1) + ', ' + (risk1500Change > 0 ? '+' : '') + risk1500Change.toFixed(2) + ')');
   
   // YTD Performance
   const gain100Change = current100.averages.gain - monthAgo100.averages.gain;
   const gain1500Change = current1500.averages.gain - monthAgo1500.averages.gain;
   console.log('• 𝗬𝗧𝗗 𝗣𝗲𝗿𝗳𝗼𝗿𝗺𝗮𝗻𝗰𝗲:');
-  console.log('  - Most Copied: ' + current100.averages.gain.toFixed(1) + '% (was ' + 
+  console.log('  - Top 100: ' + current100.averages.gain.toFixed(1) + '% (was ' + 
     monthAgo100.averages.gain.toFixed(1) + '%, ' + (gain100Change > 0 ? '+' : '') + gain100Change.toFixed(1) + 'pp)');
-  console.log('  - Broad Group: ' + current1500.averages.gain.toFixed(1) + '% (was ' + 
+  console.log('  - All Investors: ' + current1500.averages.gain.toFixed(1) + '% (was ' + 
     monthAgo1500.averages.gain.toFixed(1) + '%, ' + (gain1500Change > 0 ? '+' : '') + gain1500Change.toFixed(1) + 'pp)\n');
   
-  // Top Holdings Changes - Most Copied
-  console.log('💎 𝗧𝗼𝗽 𝟭𝟬 𝗛𝗼𝗹𝗱𝗶𝗻𝗴𝘀 - 𝗠𝗼𝘀𝘁 𝗖𝗼𝗽𝗶𝗲𝗱 (𝗠𝗼𝗻𝘁𝗵𝗹𝘆 𝗖𝗵𝗮𝗻𝗴𝗲):');
+  // Top Holdings Changes - Top 100
+  console.log('💎 𝗧𝗼𝗽 𝟭𝟬 𝗛𝗼𝗹𝗱𝗶𝗻𝗴𝘀 - 𝗧𝗼𝗽 𝟭𝟬𝟬 (𝗠𝗼𝗻𝘁𝗵𝗹𝘆 𝗖𝗵𝗮𝗻𝗴𝗲):');
   current100.topHoldings.slice(0, 10).forEach((h, i) => {
     const prevHolding = monthAgo100.topHoldings.find(ph => ph.instrumentId === h.instrumentId);
     const holderChange = prevHolding ? h.holdersCount - prevHolding.holdersCount : h.holdersCount;
@@ -128,8 +128,8 @@ function generateMonthlyPost() {
     console.log((i+1) + '. $' + h.symbol + ': ' + percentOfInvestors + '% of investors (' + changeText + ')');
   });
   
-  // Top Holdings Changes - Broad Group
-  console.log('\n💎 𝗧𝗼𝗽 𝟭𝟬 𝗛𝗼𝗹𝗱𝗶𝗻𝗴𝘀 - 𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽 (𝗠𝗼𝗻𝘁𝗵𝗹𝘆 𝗖𝗵𝗮𝗻𝗴𝗲):');
+  // Top Holdings Changes - All Investors
+  console.log('\n💎 𝗧𝗼𝗽 𝟭𝟬 𝗛𝗼𝗹𝗱𝗶𝗻𝗴𝘀 - 𝗔𝗹𝗹 𝗜𝗻𝘃𝗲𝘀𝘁𝗼𝗿𝘀 (𝗠𝗼𝗻𝘁𝗵𝗹𝘆 𝗖𝗵𝗮𝗻𝗴𝗲):');
   current1500.topHoldings.slice(0, 10).forEach((h, i) => {
     const prevHolding = monthAgo1500.topHoldings.find(ph => ph.instrumentId === h.instrumentId);
     const holderChange = prevHolding ? h.holdersCount - prevHolding.holdersCount : h.holdersCount;
@@ -183,7 +183,7 @@ function generateMonthlyPost() {
     const dropped100 = monthlyMovers100.filter(m => m.change < 0).slice(0, 3);
     
     if (added100.length > 0) {
-      console.log('\n𝗠𝗼𝘀𝘁 𝗔𝗱𝗱𝗲𝗱 - 𝗠𝗼𝘀𝘁 𝗖𝗼𝗽𝗶𝗲𝗱:');
+      console.log('\n𝗠𝗼𝘀𝘁 𝗔𝗱𝗱𝗲𝗱 - 𝗧𝗼𝗽 𝟭𝟬𝟬:');
       added100.forEach(m => {
         console.log('• $' + m.symbol + ': +' + m.change + ' investors (+' + 
           m.percentChange.toFixed(1) + '%), now ' + m.current);
@@ -191,7 +191,7 @@ function generateMonthlyPost() {
     }
     
     if (dropped100.length > 0) {
-      console.log('\n𝗠𝗼𝘀𝘁 𝗗𝗿𝗼𝗽𝗽𝗲𝗱 - 𝗠𝗼𝘀𝘁 𝗖𝗼𝗽𝗶𝗲𝗱:');
+      console.log('\n𝗠𝗼𝘀𝘁 𝗗𝗿𝗼𝗽𝗽𝗲𝗱 - 𝗧𝗼𝗽 𝟭𝟬𝟬:');
       dropped100.forEach(m => {
         console.log('• $' + m.symbol + ': ' + m.change + ' investors (' + 
           m.percentChange.toFixed(1) + '%), now ' + m.current);
@@ -205,7 +205,7 @@ function generateMonthlyPost() {
     const dropped1500 = monthlyMovers1500.filter(m => m.change < 0).slice(0, 3);
     
     if (added1500.length > 0) {
-      console.log('\n𝗠𝗼𝘀𝘁 𝗔𝗱𝗱𝗲𝗱 - 𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽:');
+      console.log('\n𝗠𝗼𝘀𝘁 𝗔𝗱𝗱𝗲𝗱 - 𝗔𝗹𝗹 𝗜𝗻𝘃𝗲𝘀𝘁𝗼𝗿𝘀:');
       added1500.forEach(m => {
         console.log('• $' + m.symbol + ': +' + m.change + ' investors (+' + 
           m.percentChange.toFixed(1) + '%), now ' + m.current);
@@ -213,7 +213,7 @@ function generateMonthlyPost() {
     }
     
     if (dropped1500.length > 0) {
-      console.log('\n𝗠𝗼𝘀𝘁 𝗗𝗿𝗼𝗽𝗽𝗲𝗱 - 𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽:');
+      console.log('\n𝗠𝗼𝘀𝘁 𝗗𝗿𝗼𝗽𝗽𝗲𝗱 - 𝗔𝗹𝗹 𝗜𝗻𝘃𝗲𝘀𝘁𝗼𝗿𝘀:');
       dropped1500.forEach(m => {
         console.log('• $' + m.symbol + ': ' + m.change + ' investors (' + 
           m.percentChange.toFixed(1) + '%), now ' + m.current);
@@ -230,7 +230,7 @@ function generateMonthlyPost() {
   } else if (cash100Change < -0.5 && cash1500Change < -0.5) {
     console.log('• 𝗥𝗶𝘀𝗸-𝗢𝗻 𝗠𝗼𝗼𝗱: Both groups reduced cash, deploying capital into markets');
   } else if (Math.abs(cash100Change - cash1500Change) > 1) {
-    const divergence = cash100Change > cash1500Change ? 'Most Copied more defensive' : 'Broad Group more defensive';
+    const divergence = cash100Change > cash1500Change ? 'Top 100 more defensive' : 'All Investors more defensive';
     console.log('• 𝗗𝗶𝘃𝗲𝗿𝗴𝗲𝗻𝗰𝗲: ' + divergence + ' than the other');
   }
   
@@ -238,18 +238,18 @@ function generateMonthlyPost() {
   const perfGap = current100.averages.gain - current1500.averages.gain;
   const prevPerfGap = monthAgo100.averages.gain - monthAgo1500.averages.gain;
   if (perfGap > prevPerfGap + 0.5) {
-    console.log('• 𝗣𝗲𝗿𝗳𝗼𝗿𝗺𝗮𝗻𝗰𝗲 𝗚𝗮𝗽 𝗪𝗶𝗱𝗲𝗻𝗶𝗻𝗴: Elite investors pulling further ahead');
+    console.log('• 𝗣𝗲𝗿𝗳𝗼𝗿𝗺𝗮𝗻𝗰𝗲 𝗚𝗮𝗽 𝗪𝗶𝗱𝗲𝗻𝗶𝗻𝗴: Top 100 investors pulling further ahead');
   } else if (perfGap < prevPerfGap - 0.5) {
-    console.log('• 𝗣𝗲𝗿𝗳𝗼𝗿𝗺𝗮𝗻𝗰𝗲 𝗖𝗼𝗻𝘃𝗲𝗿𝗴𝗲𝗻𝗰𝗲: Broad group catching up to elite');
+    console.log('• 𝗣𝗲𝗿𝗳𝗼𝗿𝗺𝗮𝗻𝗰𝗲 𝗖𝗼𝗻𝘃𝗲𝗿𝗴𝗲𝗻𝗰𝗲: All investors catching up to top 100');
   }
   
   // Win ratio insight
   const winRatio100Change = current100.averages.winRatio - monthAgo100.averages.winRatio;
   const winRatio1500Change = current1500.averages.winRatio - monthAgo1500.averages.winRatio;
   if (winRatio100Change > 2) {
-    console.log('• 𝗘𝗹𝗶𝘁𝗲 𝗦𝗸𝗶𝗹𝗹 𝗨𝗽: Most Copied win ratio improved by ' + winRatio100Change.toFixed(1) + 'pp');
+    console.log('• 𝗧𝗼𝗽 𝟭𝟬𝟬 𝗦𝗸𝗶𝗹𝗹 𝗨𝗽: Top 100 win ratio improved by ' + winRatio100Change.toFixed(1) + 'pp');
   } else if (winRatio100Change < -2) {
-    console.log('• 𝗧𝗿𝗮𝗱𝗶𝗻𝗴 𝗖𝗵𝗮𝗹𝗹𝗲𝗻𝗴𝗲𝘀: Most Copied win ratio declined by ' + Math.abs(winRatio100Change).toFixed(1) + 'pp');
+    console.log('• 𝗧𝗿𝗮𝗱𝗶𝗻𝗴 𝗖𝗵𝗮𝗹𝗹𝗲𝗻𝗴𝗲𝘀: Top 100 win ratio declined by ' + Math.abs(winRatio100Change).toFixed(1) + 'pp');
   }
   
   // Market trend insight based on biggest movers

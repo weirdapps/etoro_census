@@ -69,7 +69,7 @@ function generateWeeklyPost() {
   console.log(`${weekAgoDate} → ${latestDate}\n`);
   
   // Weekly changes for top 100 most copied
-  console.log('📈 𝗪𝗲𝗲𝗸𝗹𝘆 𝗠𝗮𝗿𝗸𝗲𝘁 𝗦𝗲𝗻𝘁𝗶𝗺𝗲𝗻𝘁 (𝗠𝗼𝘀𝘁 𝗖𝗼𝗽𝗶𝗲𝗱):');
+  console.log('📈 𝗪𝗲𝗲𝗸𝗹𝘆 𝗠𝗮𝗿𝗸𝗲𝘁 𝗦𝗲𝗻𝘁𝗶𝗺𝗲𝗻𝘁 (𝗧𝗼𝗽 𝟭𝟬𝟬):');
   
   const cashChange = latest100.averages.cashPercentage - weekAgo100.averages.cashPercentage;
   console.log('• 𝗖𝗮𝘀𝗵 𝗛𝗼𝗹𝗱𝗶𝗻𝗴𝘀: ' + latest100.averages.cashPercentage.toFixed(1) + '% (' + 
@@ -129,15 +129,18 @@ function generateWeeklyPost() {
   
   // Most Copied moves
   if (weeklyMovers100.length > 0) {
-    console.log('\n🔥 𝗠𝗼𝘀𝘁 𝗔𝗱𝗱𝗲𝗱 - 𝗠𝗼𝘀𝘁 𝗖𝗼𝗽𝗶𝗲𝗱:');
-    weeklyMovers100.slice(0, 3).forEach(m => {
-      console.log('• $' + m.symbol + ': +' + m.change + ' holders (+' + 
-        m.percentChange.toFixed(1) + '%)');
-    });
+    const positiveMovers100 = weeklyMovers100.filter(m => m.change > 0).slice(0, 3);
+    if (positiveMovers100.length > 0) {
+      console.log('\n🔥 𝗠𝗼𝘀𝘁 𝗔𝗱𝗱𝗲𝗱 - 𝗧𝗼𝗽 𝟭𝟬𝟬:');
+      positiveMovers100.forEach(m => {
+        console.log('• $' + m.symbol + ': +' + m.change + ' holders (+' + 
+          m.percentChange.toFixed(1) + '%)');
+      });
+    }
     
     const negativeMovers100 = weeklyMovers100.filter(m => m.change < 0).slice(0, 3);
     if (negativeMovers100.length > 0) {
-      console.log('\n❄️ 𝗠𝗼𝘀𝘁 𝗗𝗿𝗼𝗽𝗽𝗲𝗱 - 𝗠𝗼𝘀𝘁 𝗖𝗼𝗽𝗶𝗲𝗱:');
+      console.log('\n❄️ 𝗠𝗼𝘀𝘁 𝗗𝗿𝗼𝗽𝗽𝗲𝗱 - 𝗧𝗼𝗽 𝟭𝟬𝟬:');
       negativeMovers100.forEach(m => {
         console.log('• $' + m.symbol + ': ' + m.change + ' holders (' + 
           m.percentChange.toFixed(1) + '%)');
@@ -147,11 +150,14 @@ function generateWeeklyPost() {
   
   // Broad Group moves
   if (weeklyMovers1500.length > 0) {
-    console.log('\n🔥 𝗠𝗼𝘀𝘁 𝗔𝗱𝗱𝗲𝗱 - 𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽:');
-    weeklyMovers1500.slice(0, 3).forEach(m => {
-      console.log('• $' + m.symbol + ': +' + m.change + ' holders (+' + 
-        m.percentChange.toFixed(1) + '%)');
-    });
+    const positiveMovers1500 = weeklyMovers1500.filter(m => m.change > 0).slice(0, 3);
+    if (positiveMovers1500.length > 0) {
+      console.log('\n🔥 𝗠𝗼𝘀𝘁 𝗔𝗱𝗱𝗲𝗱 - 𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽:');
+      positiveMovers1500.forEach(m => {
+        console.log('• $' + m.symbol + ': +' + m.change + ' holders (+' + 
+          m.percentChange.toFixed(1) + '%)');
+      });
+    }
     
     const negativeMovers1500 = weeklyMovers1500.filter(m => m.change < 0).slice(0, 3);
     if (negativeMovers1500.length > 0) {
@@ -168,7 +174,7 @@ function generateWeeklyPost() {
   }
   
   // Top 10 Holdings for Most Copied Investors
-  console.log('\n💎 𝗧𝗼𝗽 𝟭𝟬 𝗛𝗼𝗹𝗱𝗶𝗻𝗴𝘀 - 𝗠𝗼𝘀𝘁 𝗖𝗼𝗽𝗶𝗲𝗱 𝗜𝗻𝘃𝗲𝘀𝘁𝗼𝗿𝘀 (𝗪𝗲𝗲𝗸𝗹𝘆 𝗖𝗵𝗮𝗻𝗴𝗲):');
+  console.log('\n💎 𝗧𝗼𝗽 𝟭𝟬 𝗛𝗼𝗹𝗱𝗶𝗻𝗴𝘀 - 𝗧𝗼𝗽 𝟭𝟬𝟬 𝗜𝗻𝘃𝗲𝘀𝘁𝗼𝗿𝘀 (𝗪𝗲𝗲𝗸𝗹𝘆 𝗖𝗵𝗮𝗻𝗴𝗲):');
   latest100.topHoldings.slice(0, 10).forEach((h, i) => {
     const prevHolding = weekAgo100.topHoldings.find(ph => ph.instrumentId === h.instrumentId);
     const holderChange = prevHolding ? h.holdersCount - prevHolding.holdersCount : h.holdersCount;
@@ -180,7 +186,7 @@ function generateWeeklyPost() {
   });
   
   // Top 10 Holdings for Broad Group
-  console.log('\n💎 𝗧𝗼𝗽 𝟭𝟬 𝗛𝗼𝗹𝗱𝗶𝗻𝗴𝘀 - 𝗕𝗿𝗼𝗮𝗱 𝗜𝗻𝘃𝗲𝘀𝘁𝗼𝗿𝘀 𝗚𝗿𝗼𝘂𝗽 (𝗪𝗲𝗲𝗸𝗹𝘆 𝗖𝗵𝗮𝗻𝗴𝗲):');
+  console.log('\n💎 𝗧𝗼𝗽 𝟭𝟬 𝗛𝗼𝗹𝗱𝗶𝗻𝗴𝘀 - 𝗔𝗹𝗹 𝗜𝗻𝘃𝗲𝘀𝘁𝗼𝗿𝘀 (𝗪𝗲𝗲𝗸𝗹𝘆 𝗖𝗵𝗮𝗻𝗴𝗲):');
   latest1500.topHoldings.slice(0, 10).forEach((h, i) => {
     const prevHolding = weekAgo1500.topHoldings.find(ph => ph.instrumentId === h.instrumentId);
     const holderChange = prevHolding ? h.holdersCount - prevHolding.holdersCount : h.holdersCount;
