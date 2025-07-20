@@ -202,42 +202,6 @@ function generateDailyPost() {
   console.log('🥇 𝐓𝐨𝐩 𝐏𝐞𝐫𝐟𝐨𝐫𝐦𝐞𝐫: ' + (topPerformer.fullName || topPerformer.userName) + ' (@' + topPerformer.userName + ') (' + topPerformer.gain.toFixed(1) + '% YTD, ' + topPerformer.copiers.toLocaleString() + ' copiers)');
   console.log('📉 𝐍𝐞𝐞𝐝𝐬 𝐖𝐨𝐫𝐤: ' + (bottomPerformer.fullName || bottomPerformer.userName) + ' (@' + bottomPerformer.userName + ') (' + bottomPerformer.gain.toFixed(1) + '% YTD, ' + bottomPerformer.copiers.toLocaleString() + ' copiers)');
   
-  // Find top gainers/losers by copier count (requires previous day data for comparison)
-  if (prevData.investors && prevData.investors.length >= 100) {
-    const copierChanges = [];
-    
-    currentData.investors.slice(0, 100).forEach(currentInv => {
-      const prevInv = prevData.investors.find(p => p.userName === currentInv.userName);
-      if (prevInv) {
-        const copierChange = currentInv.copiers - prevInv.copiers;
-        if (Math.abs(copierChange) >= 5) { // Only show significant changes
-          copierChanges.push({
-            investor: currentInv,
-            change: copierChange,
-            percentChange: (copierChange / prevInv.copiers) * 100
-          });
-        }
-      }
-    });
-    
-    if (copierChanges.length > 0) {
-      copierChanges.sort((a, b) => b.change - a.change);
-      
-      const topGainer = copierChanges[0];
-      const topLoser = copierChanges[copierChanges.length - 1];
-      
-      if (topGainer && topGainer.change > 0) {
-        console.log('📈 𝐌𝐨𝐬𝐭 𝐅𝐨𝐥𝐥𝐨𝐰𝐞𝐝: ' + (topGainer.investor.fullName || topGainer.investor.userName) + ' (@' + topGainer.investor.userName + ') (+' + 
-          topGainer.change.toLocaleString() + ' copiers, +' + topGainer.percentChange.toFixed(1) + '%)');
-      }
-      
-      if (topLoser && topLoser.change < 0) {
-        console.log('📉 𝐌𝐨𝐬𝐭 𝐔𝐧𝐟𝐨𝐥𝐥𝐨𝐰𝐞𝐝: ' + (topLoser.investor.fullName || topLoser.investor.userName) + ' (@' + topLoser.investor.userName + ') (' + 
-          topLoser.change.toLocaleString() + ' copiers, ' + topLoser.percentChange.toFixed(1) + '%)');
-      }
-    }
-  }
-  
   // Trading activity insight
   const avgTrades = current100.averages.trades;
   const prevAvgTrades = prev100.averages.trades;
@@ -272,6 +236,54 @@ function generateDailyPost() {
   }
   
   console.log('');
+
+  // Daily Copier Changes Section
+  if (prevData.investors && prevData.investors.length >= 100) {
+    const copierChanges = [];
+    
+    currentData.investors.slice(0, 100).forEach(currentInv => {
+      const prevInv = prevData.investors.find(p => p.userName === currentInv.userName);
+      if (prevInv) {
+        const copierChange = currentInv.copiers - prevInv.copiers;
+        if (Math.abs(copierChange) >= 3) { // Lower threshold for top 5 lists
+          copierChanges.push({
+            investor: currentInv,
+            change: copierChange,
+            percentChange: (copierChange / prevInv.copiers) * 100
+          });
+        }
+      }
+    });
+    
+    if (copierChanges.length > 0) {
+      copierChanges.sort((a, b) => b.change - a.change);
+      
+      const gainers = copierChanges.filter(c => c.change > 0).slice(0, 5);
+      const losers = copierChanges.filter(c => c.change < 0).slice(0, 5);
+      
+      if (gainers.length > 0 || losers.length > 0) {
+        console.log('📊 𝗗𝗮𝗶𝗹𝘆 𝗖𝗼𝗽𝗶𝗲𝗿 𝗖𝗵𝗮𝗻𝗴𝗲𝘀 (𝗧𝗼𝗽 𝟭𝟬𝟬):');
+        
+        if (gainers.length > 0) {
+          console.log('\n📈 𝐌𝐨𝐬𝐭 𝐂𝐨𝐩𝐢𝐞𝐫𝐬 𝐀𝐝𝐝𝐞𝐝:');
+          gainers.forEach((g, i) => {
+            console.log((i+1) + '. ' + (g.investor.fullName || g.investor.userName) + ' (@' + g.investor.userName + '): +' + 
+              g.change.toLocaleString() + ' (+' + g.percentChange.toFixed(1) + '%)');
+          });
+        }
+        
+        if (losers.length > 0) {
+          console.log('\n📉 𝐌𝐨𝐬𝐭 𝐂𝐨𝐩𝐢𝐞𝐫𝐬 𝐋𝐨𝐬𝐭:');
+          losers.forEach((l, i) => {
+            console.log((i+1) + '. ' + (l.investor.fullName || l.investor.userName) + ' (@' + l.investor.userName + '): ' + 
+              l.change.toLocaleString() + ' (' + l.percentChange.toFixed(1) + '%)');
+          });
+        }
+        
+        console.log('');
+      }
+    }
+  }
 
   // Top 10 Holdings for Top 100 Group  
   console.log('💎 𝗧𝗼𝗽 𝟭𝟬 𝗛𝗼𝗹𝗱𝗶𝗻𝗴𝘀 - 𝗧𝗼𝗽 𝟭𝟬𝟬 𝗚𝗿𝗼𝘂𝗽:');
