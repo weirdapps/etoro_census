@@ -202,6 +202,42 @@ function generateDailyPost() {
   console.log('🥇 𝐓𝐨𝐩 𝐏𝐞𝐫𝐟𝐨𝐫𝐦𝐞𝐫: ' + (topPerformer.fullName || topPerformer.userName) + ' (@' + topPerformer.userName + ') (' + topPerformer.gain.toFixed(1) + '% YTD, ' + topPerformer.copiers.toLocaleString() + ' copiers)');
   console.log('📉 𝐍𝐞𝐞𝐝𝐬 𝐖𝐨𝐫𝐤: ' + (bottomPerformer.fullName || bottomPerformer.userName) + ' (@' + bottomPerformer.userName + ') (' + bottomPerformer.gain.toFixed(1) + '% YTD, ' + bottomPerformer.copiers.toLocaleString() + ' copiers)');
   
+  // Find top gainers/losers by copier count (requires previous day data for comparison)
+  if (prevData.investors && prevData.investors.length >= 100) {
+    const copierChanges = [];
+    
+    currentData.investors.slice(0, 100).forEach(currentInv => {
+      const prevInv = prevData.investors.find(p => p.userName === currentInv.userName);
+      if (prevInv) {
+        const copierChange = currentInv.copiers - prevInv.copiers;
+        if (Math.abs(copierChange) >= 5) { // Only show significant changes
+          copierChanges.push({
+            investor: currentInv,
+            change: copierChange,
+            percentChange: (copierChange / prevInv.copiers) * 100
+          });
+        }
+      }
+    });
+    
+    if (copierChanges.length > 0) {
+      copierChanges.sort((a, b) => b.change - a.change);
+      
+      const topGainer = copierChanges[0];
+      const topLoser = copierChanges[copierChanges.length - 1];
+      
+      if (topGainer && topGainer.change > 0) {
+        console.log('📈 𝐌𝐨𝐬𝐭 𝐅𝐨𝐥𝐥𝐨𝐰𝐞𝐝: ' + (topGainer.investor.fullName || topGainer.investor.userName) + ' (@' + topGainer.investor.userName + ') (+' + 
+          topGainer.change.toLocaleString() + ' copiers, +' + topGainer.percentChange.toFixed(1) + '%)');
+      }
+      
+      if (topLoser && topLoser.change < 0) {
+        console.log('📉 𝐌𝐨𝐬𝐭 𝐔𝐧𝐟𝐨𝐥𝐥𝐨𝐰𝐞𝐝: ' + (topLoser.investor.fullName || topLoser.investor.userName) + ' (@' + topLoser.investor.userName + ') (' + 
+          topLoser.change.toLocaleString() + ' copiers, ' + topLoser.percentChange.toFixed(1) + '%)');
+      }
+    }
+  }
+  
   // Trading activity insight
   const avgTrades = current100.averages.trades;
   const prevAvgTrades = prev100.averages.trades;
