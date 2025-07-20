@@ -217,16 +217,16 @@ function generateDailyPost() {
         if (gainers.length > 0) {
           console.log('\n  📈 𝐌𝐨𝐬𝐭 𝐂𝐨𝐩𝐢𝐞𝐫𝐬 𝐀𝐝𝐝𝐞𝐝:');
           gainers.forEach((g, i) => {
-            console.log('  ' + (i+1) + '. ' + (g.investor.fullName || g.investor.userName) + ' (@' + g.investor.userName + '): +' + 
-              g.change.toLocaleString() + ' (+' + g.percentChange.toFixed(1) + '%)');
+            console.log('  ' + (i+1) + '. ' + (g.investor.fullName || g.investor.userName) + ' (@' + g.investor.userName + '): (' + 
+              g.investor.copiers.toLocaleString() + ' ↑' + g.change.toLocaleString() + ')');
           });
         }
         
         if (losers.length > 0) {
           console.log('\n  📉 𝐌𝐨𝐬𝐭 𝐂𝐨𝐩𝐢𝐞𝐫𝐬 𝐋𝐨𝐬𝐭:');
           losers.forEach((l, i) => {
-            console.log('  ' + (i+1) + '. ' + (l.investor.fullName || l.investor.userName) + ' (@' + l.investor.userName + '): ' + 
-              l.change.toLocaleString() + ' (' + l.percentChange.toFixed(1) + '%)');
+            console.log('  ' + (i+1) + '. ' + (l.investor.fullName || l.investor.userName) + ' (@' + l.investor.userName + '): (' + 
+              l.investor.copiers.toLocaleString() + ' ↓' + Math.abs(l.change).toLocaleString() + ')');
           });
         }
       }
