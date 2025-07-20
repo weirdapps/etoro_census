@@ -84,12 +84,23 @@ function generateMonthlyPost() {
   const currentDateStr = files.latest.match(/(\d{4}-\d{2}-\d{2})/)?.[1] || '';
   const previousDateStr = files.monthAgo.match(/(\d{4}-\d{2}-\d{2})/)?.[1] || '';
   
-  // For monthly report, show the month being analyzed (the most recent month)
-  const reportMonth = currentDateStr ? monthNames[new Date(currentDateStr).getMonth()] : 'Current';
-  const compareMonth = previousDateStr ? monthNames[new Date(previousDateStr).getMonth()] : 'Previous';
+  // For monthly report, show the month of changes being reported
+  // If comparing July 1st vs June 1st, we're reporting on changes during June
+  // The report month is the month that elapsed between the two data points
+  const currentDate = currentDateStr ? new Date(currentDateStr) : null;
+  const previousDate = previousDateStr ? new Date(previousDateStr) : null;
+  
+  // The report covers the month between previous and current data points
+  let reportMonth = 'Current';
+  if (currentDate && previousDate) {
+    // The month being reported is the month that just completed
+    // If current is July 1st and previous is June 1st, we're reporting on June
+    const reportMonthIndex = previousDate.getMonth();
+    reportMonth = monthNames[reportMonthIndex];
+  }
   
   console.log('🎩 𝗲𝗧𝗼𝗿𝗼 𝗖𝗲𝗻𝘀𝘂𝘀 𝗠𝗼𝗻𝘁𝗵𝗹𝘆 𝗥𝗲𝗽𝗼𝗿𝘁 🎩');
-  console.log(`${reportMonth} 2025 (vs ${compareMonth})\n`);
+  console.log(`${reportMonth} 2025\n`);
   
   // Most Copied vs Broad Group Monthly Changes
   console.log('🎩 𝗧𝗼𝗽 𝟭𝟬𝟬 𝘃𝘀 𝗔𝗹𝗹 𝗜𝗻𝘃𝗲𝘀𝘁𝗼𝗿𝘀:');
