@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Risk vs Return: Top 100 eToro Investors</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/recharts@2.8.0/umd/Recharts.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f8fafc;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        .title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+        .subtitle {
+            font-size: 16px;
+            color: #64748b;
+        }
+        .chart-container {
+            margin: 24px 0;
+        }
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #475569;
+        }
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 24px;
+        }
+        .stat-card {
+            background: #f1f5f9;
+            padding: 16px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #00C896;
+        }
+        .stat-label {
+            font-size: 14px;
+            color: #64748b;
+            margin-top: 4px;
+        }
+        .chart-label {
+            font-size: 11px;
+            font-weight: 600;
+            fill: #374151;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+        const { ComposedChart, Scatter, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, LabelList } = Recharts;
+
+        // Real investor data from May 31 - July 27, 2025
+        const realInvestorData = [
+            { x: 5.42, y: 15.38, username: 'thomaspj', fullName: 'Thomas Parry Jones', copiers: 39564, label: '@thomaspj' },
+            { x: 4.88, y: 11.71, username: 'JeppeKirkBonde', fullName: 'Jeppe Kirk Bonde', copiers: 28664, label: '@JeppeKirkBonde' },
+            { x: 4.84, y: 3.89, username: 'triangulacapital', fullName: 'Pietari Laurila', copiers: 14498, label: '@triangulacapital' },
+            { x: 5.18, y: 8.14, username: 'CPHequities', fullName: 'Blue Screen Media ApS', copiers: 13785, label: '@CPHequities' },
+            { x: 5.55, y: 9.43, username: 'jaynemesis', fullName: 'Jay Smith', copiers: 10269, label: '@jaynemesis' },
+            { x: 5.76, y: 22.39, username: 'Napoleon-X', fullName: 'CoinShares France SAS', copiers: 9600 },
+            { x: 4.89, y: 14.36, username: 'FundManagerZech', fullName: 'Zechariah Bin Zheng', copiers: 9563 },
+            { x: 5.8, y: 0.72, username: 'AmitKup', fullName: 'Amit Kupfer', copiers: 8088 },
+            { x: 4.62, y: 10.06, username: 'saifsyn', fullName: 'Saif Alnaqbi', copiers: 6880, label: '@saifsyn' },
+            { x: 5.14, y: 7.92, username: 'GreenbullInvest', fullName: 'Greenbull Investments Sarl', copiers: 6757 },
+            { x: 5.57, y: 12.92, username: 'rubymza', fullName: 'Heloise Greeff', copiers: 6307 },
+            { x: 4.72, y: 9.33, username: 'defense_investor', fullName: 'Stewart Fitzell', copiers: 6000 },
+            { x: 5.78, y: 18.32, username: 'misterg23', fullName: 'George Thomson', copiers: 4122 },
+            { x: 5.7, y: 13.86, username: 'Wesl3y', fullName: 'Wesley Nolte', copiers: 3594 },
+            { x: 4.7, y: 8.03, username: 'IlMatematico', fullName: 'Roberto Anzellotti', copiers: 3531 },
+            { x: 4.84, y: 5.95, username: 'Richardstroud', fullName: 'Richard Stroud', copiers: 3515 },
+            { x: 4.89, y: 16.94, username: 'Smudliczek', fullName: 'Dan Hamerník', copiers: 3292, label: '@Smudliczek' },
+            { x: 4.89, y: 12.62, username: 'ingruc', fullName: 'Ingvar Rueckemann', copiers: 3255 },
+            { x: 5.85, y: 12.35, username: 'MarianoPardo', fullName: 'Mariano Daniel Pardo', copiers: 3207 },
+            { x: 4.15, y: 6.6, username: 'Aukie2008', fullName: 'Mike Moest', copiers: 3037, label: '@Aukie2008' },
+            { x: 4.78, y: 20.22, username: 'mick_repo', fullName: 'Miska Repo', copiers: 2984, label: '@mick_repo' },
+            { x: 6.61, y: -2.59, username: 'JORDENBOER', fullName: 'Jorden Boer', copiers: 2786 },
+            { x: 5.85, y: 17.23, username: 'steveli1029', fullName: 'Shao Feng Li', copiers: 2740 },
+            { x: 5.34, y: 8.5, username: 'robchamow', fullName: 'Roberto Chamorro gilaberte', copiers: 2405 },
+            { x: 5.68, y: 21.14, username: 'Enslinjaco', fullName: 'Jacobus Enslin', copiers: 2235, label: '@Enslinjaco' },
+            { x: 4.88, y: 3.85, username: 'adams302', fullName: 'Rhys Adams', copiers: 2154 },
+            { x: 4.86, y: 19.62, username: 'Michalhla', fullName: 'Michal Hlavacka', copiers: 2044 },
+            { x: 5.09, y: 14.19, username: 'Anders_', fullName: 'Anders Jensen', copiers: 1974 },
+            { x: 0, y: 0, username: 'crypto101_kevin', fullName: 'Kevin Stanley', copiers: 1945, label: '@crypto101_kevin' },
+            { x: 5.81, y: 18.14, username: 'KoraTrades', fullName: 'Mimi Ho', copiers: 1865 },
+            { x: 4.85, y: 7.62, username: 'eddyb123', fullName: 'Ed Butler', copiers: 1833 },
+            { x: 5.7, y: 12.47, username: 'TheDividendFund', fullName: 'Jakub Rochlitz', copiers: 1787 },
+            { x: 6.31, y: 7.28, username: 'Kevin_Pando', fullName: 'Kevin Pando', copiers: 1786 },
+            { x: 4.91, y: 3.49, username: 'CCalle', fullName: 'Cristia Calle Mercado', copiers: 1776 },
+            { x: 4.58, y: 4.18, username: 'celesh', fullName: 'Celestino Brunetti', copiers: 1768 },
+            { x: 5.88, y: 10.81, username: 'NabilSifo', fullName: 'Nabil Sifo', copiers: 1768 },
+            { x: 6.65, y: 8.69, username: 'kasperpatrick1', fullName: 'Kasper Patrick Knudsen', copiers: 1723 },
+            { x: 6.18, y: 7.97, username: 'brirap', fullName: 'Brian Rapose', copiers: 1689 },
+            { x: 6.19, y: 13.85, username: 'hugomanenti95', fullName: 'Hugo Angelo Lucien Manenti', copiers: 1680 },
+            { x: 4.7, y: 4.32, username: 'Nezatron', fullName: 'Neza Molk', copiers: 1483 },
+            { x: 5.15, y: 5.07, username: 'liborvasa', fullName: 'Libor Vasa', copiers: 1475 },
+            { x: 5.66, y: 6.61, username: 'Gserdan', fullName: 'Guillaume Serdan', copiers: 1472 },
+            { x: 5.88, y: 26.33, username: 'Flaten', fullName: 'Sondre Flateraaker', copiers: 1465, label: '@Flaten' },
+            { x: 5.31, y: 10.76, username: 'Miyoshi', fullName: 'Victor Pedersen', copiers: 1444 },
+            { x: 4.89, y: 5.93, username: 'GeorgeFatouros', fullName: 'Georgios Fatouros', copiers: 1435 },
+            { x: 5.74, y: 14.68, username: 'Marco199610', fullName: 'Marco De Lio', copiers: 1424 },
+            { x: 5.78, y: 11.57, username: 'StefanULS', fullName: 'Stefan Uleia', copiers: 1386 },
+            { x: 5.84, y: 12.24, username: 'SharonConnolly', fullName: 'Sharon Connolly', copiers: 1361 },
+            { x: 3, y: 4.62, username: 'knw500', fullName: 'Kieran Neil Wilkinson', copiers: 1292 },
+            { x: 5.91, y: 10.03, username: 'Linsanity1', fullName: 'Lin Liu', copiers: 1251 },
+            { x: 4.86, y: 1.87, username: 'Rayeiris', fullName: 'Rayeiris Maduro Rondon', copiers: 1249 },
+            { x: 5.65, y: 8.21, username: 'gauravk_in', fullName: 'Gaurav Kukreja', copiers: 1218 },
+            { x: 4.89, y: 13.4, username: 'Chrochtik', fullName: 'Jiri Gregor', copiers: 1199 },
+            { x: 4.84, y: 9.61, username: 'pino428', fullName: 'Alberto Poli', copiers: 1188 },
+            { x: 4.88, y: 16.73, username: 'DemonicoLag', fullName: 'Ntomeniko Lagos', copiers: 1165 },
+            { x: 3.58, y: 4.33, username: 'ca_sual', fullName: 'Alessandro Casali', copiers: 1142 },
+            { x: 4.91, y: 9.76, username: 'Jenelleb123', fullName: 'Jennifer Davies', copiers: 1138 },
+            { x: 5.09, y: 14.84, username: 'rambod59', fullName: 'Rambod Hakhamaneshi', copiers: 1108 },
+            { x: 1.97, y: 1.33, username: 'VIXGold', fullName: 'Catalina Norena Valderrama', copiers: 1082 },
+            { x: 6.11, y: -7.42, username: 'Analisisciclico', fullName: 'JOSE ANGEL ZABALEGUI LABARTA', copiers: 1067, label: '@Analisisciclico' },
+            { x: 5.85, y: 5.58, username: 'JvAnkershoffen', fullName: 'Johann-Nepomuk Ernst Josef Hoffer von Ankershoffen', copiers: 1053 },
+            { x: 6.39, y: 12.35, username: 'KenanAbel', fullName: 'Kenan Abel', copiers: 1015 },
+            { x: 5, y: 9.37, username: 'Fostijn', fullName: 'Justin Seda E Cauberghe', copiers: 1008 },
+            { x: 4.05, y: 3.35, username: 'edu-inversor', fullName: 'eduardo serrano cañizares', copiers: 1003 },
+            { x: 4.89, y: 4.55, username: 'onk342', fullName: 'Lubomir Kramar', copiers: 1002 },
+            { x: 5.76, y: 7.24, username: 'ioatri', fullName: 'Ioannis Triantafyllou', copiers: 980 },
+            { x: 5.76, y: 8.9, username: 'II-Disruptive', fullName: 'Disruptive Stocks Strategy', copiers: 976 },
+            { x: 5.85, y: 7.84, username: 'KeshavLohiya', fullName: 'Keshav Lohiya', copiers: 967 },
+            { x: 3.86, y: 5.26, username: 'Wise_woman', fullName: 'Veronika Tykhonova', copiers: 965 },
+            { x: 6.42, y: 13.32, username: 'PROJECT10X', fullName: 'Filip Brnadic', copiers: 958 },
+            { x: 5.88, y: 13.93, username: 'Onegirl', fullName: 'Lena Birse', copiers: 939 },
+            { x: 6.5, y: 13.68, username: 'RobertMERC', fullName: 'Robert John Reynolds', copiers: 927 },
+            { x: 5.53, y: 7.46, username: 'Cfranklin89', fullName: 'Courtney eveston Franklin', copiers: 891 },
+            { x: 3.68, y: 4.18, username: 'Slow_and_Steady', fullName: 'Patryk Peltonen', copiers: 876 },
+            { x: 5.3, y: 5.85, username: 'SparkLiang', fullName: 'Teoh Khai Liang', copiers: 848 },
+            { x: 6.55, y: 27.43, username: 'MercedesSotelo', fullName: 'Mercedes Sotelo Miranda', copiers: 847, label: '@MercedesSotelo' },
+            { x: 4.85, y: 9.22, username: 'Matteospaggiari', fullName: 'Matteo Spaggiari', copiers: 833 },
+            { x: 3.01, y: 4.4, username: 'DevonToogood', fullName: 'Devon Toogood', copiers: 827 },
+            { x: 6.82, y: 9.47, username: 'LoukasBW', fullName: 'Loukenti Billa', copiers: 825, label: '@LoukasBW' },
+            { x: 6.23, y: 24.31, username: 'hugo13250', fullName: 'Hugo Biolchini', copiers: 814 },
+            { x: 3.89, y: 10.94, username: 'Marirs', fullName: 'Ramanathan Varadharajan', copiers: 811, label: '@Marirs' },
+            { x: 3.91, y: 9.38, username: 'ReturnInvest', fullName: 'Matej Kranjc', copiers: 802 },
+            { x: 5.45, y: 10.39, username: 'rafaeldfl', fullName: 'Rafael Lopez', copiers: 800 },
+            { x: 3.27, y: 3.06, username: 'iliescu2605', fullName: 'Vasile Iliescu', copiers: 792 },
+            { x: 5.82, y: 12.8, username: 'Social-Investor', fullName: 'JS Media GmbH', copiers: 789 },
+            { x: 4.38, y: 9.23, username: 'ANZOOOXX', fullName: 'Davide Anzini', copiers: 783 },
+            { x: 3.58, y: 6.97, username: 'TiuBuletaire2', fullName: 'Arnau Palacín I Sallan', copiers: 782 },
+            { x: 3.7, y: 8.47, username: 'plessas', fullName: 'Dimitris Plessas', copiers: 774, label: '@plessas' },
+            { x: 4.86, y: 3.03, username: 'ThomasRoddy', fullName: 'Thomas Roddy', copiers: 767 },
+            { x: 4.85, y: 15.53, username: 'Space-Investor', fullName: 'Jason Horton', copiers: 767 },
+            { x: 4.86, y: 7.8, username: 'reinhardtcoetzee', fullName: 'Reinhardt Gert Coetzee', copiers: 760 },
+            { x: 4.85, y: 6.54, username: 'Alderique', fullName: 'Aaron Chong En Wee', copiers: 755 },
+            { x: 5.76, y: 19.81, username: 'victorlee448', fullName: 'Victor Lee', copiers: 750 },
+            { x: 5.82, y: 7.36, username: 'ALTIA-Investment', fullName: 'Altia Investment SAS', copiers: 741 },
+            { x: 4.91, y: 11.71, username: 'SimoneRizzetto88', fullName: 'Simone Rizzetto', copiers: 736 },
+            { x: 4.86, y: 8.77, username: 'Benaymo23', fullName: 'Omar Ben Ayed', copiers: 732 },
+            { x: 5.82, y: 2.67, username: 'IshfaaqPeerally', fullName: 'Mohammad Ishfaaq Peerally', copiers: 728 },
+            { x: 4.61, y: 3.22, username: 'ddvaz2097', fullName: 'Daniel Diogo Vaz', copiers: 724 },
+            { x: 4.84, y: 1.17, username: 'AlexZy', fullName: 'Mihai-Alexandru Patru', copiers: 720 },
+            { x: 3, y: 5.66, username: 'emge2116', fullName: 'Marko Grecs', copiers: 718 },
+        ];
+
+        // Efficient frontier curve data (theoretical optimal risk-return combinations)
+        const efficientFrontier = [
+            { x: 4.0, y: 4.5 },
+            { x: 4.2, y: 6.8 },
+            { x: 4.5, y: 8.5 },
+            { x: 5.0, y: 10.8 },
+            { x: 5.5, y: 12.5 },
+            { x: 6.0, y: 13.9 },
+            { x: 6.5, y: 15.1 },
+            { x: 7.0, y: 16.2 }
+        ];
+
+        const CustomTooltip = ({ active, payload, label }) => {
+            if (active && payload && payload.length) {
+                const data = payload[0].payload;
+                return (
+                    <div style={{
+                        background: 'white',
+                        border: '1px solid #e2e8f0',
+                        borderRadius: '8px',
+                        padding: '12px',
+                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                    }}>
+                        <p style={{ margin: 0, fontWeight: 600, color: '#1e293b' }}>
+                            @{data.username}
+                        </p>
+                        <p style={{ margin: '4px 0 0', fontSize: '14px', color: '#64748b' }}>
+                            {data.fullName}
+                        </p>
+                        <p style={{ margin: '4px 0 0', fontSize: '14px', color: '#64748b' }}>
+                            Risk: {data.x} | Return: {data.y}%
+                        </p>
+                        <p style={{ margin: '4px 0 0', fontSize: '14px', color: '#64748b' }}>
+                            Copiers: {data.copiers?.toLocaleString()}
+                        </p>
+                    </div>
+                );
+            }
+            return null;
+        };
+
+        const CustomLabel = (props) => {
+            const { x, y, payload } = props;
+            if (payload.label) {
+                return (
+                    <text x={x} y={y - 10} textAnchor="middle" className="chart-label">
+                        {payload.label}
+                    </text>
+                );
+            }
+            return null;
+        };
+
+        const RiskReturnChart = () => {
+            const getPointColor = (entry) => {
+                if (entry.y < 0) {
+                    return '#ef4444'; // Red for negative returns
+                }
+                return '#00C896'; // eToro green for positive returns
+            };
+
+            const getPointSize = (entry) => {
+                // Size based on copiers count
+                return Math.max(3, Math.min(8, entry.copiers / 5000));
+            };
+
+            return (
+                <div className="container">
+                    <div className="header">
+                        <h1 className="title">Risk vs Return: Top 100 eToro Investors</h1>
+                        <p className="subtitle">Analysis Period: May 31 - July 27, 2025</p>
+                    </div>
+
+                    <div className="chart-container">
+                        <ResponsiveContainer width="100%" height={700}>
+                            <ComposedChart
+                                data={realInvestorData}
+                                margin={{ top: 40, right: 50, left: 20, bottom: 60 }}
+                            >
+                                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                                <XAxis 
+                                    type="number" 
+                                    dataKey="x" 
+                                    domain={[0, 7]}
+                                    tickCount={8}
+                                    label={{ value: 'Average Risk Score', position: 'insideBottom', offset: -5 }}
+                                />
+                                <YAxis 
+                                    type="number" 
+                                    dataKey="y" 
+                                    domain={[-10, 30]}
+                                    label={{ value: 'Period Return (%)', angle: -90, position: 'insideLeft' }}
+                                />
+                                <Tooltip content={<CustomTooltip />} />
+                                
+                                {/* Efficient Frontier */}
+                                <Line 
+                                    data={efficientFrontier} 
+                                    type="monotone" 
+                                    dataKey="y" 
+                                    stroke="#9333ea" 
+                                    strokeWidth={3}
+                                    dot={false}
+                                    connectNulls={false}
+                                />
+                                
+                                {/* Scatter points */}
+                                <Scatter dataKey="y" fill="#00C896">
+                                    {realInvestorData.map((entry, index) => (
+                                        <Cell 
+                                            key={`cell-${index}`} 
+                                            fill={getPointColor(entry)}
+                                            r={getPointSize(entry)}
+                                        />
+                                    ))}
+                                    <LabelList content={<CustomLabel />} />
+                                </Scatter>
+                            </ComposedChart>
+                        </ResponsiveContainer>
+                    </div>
+
+                    <div className="legend">
+                        <div className="legend-item">
+                            <div className="legend-dot" style={{ background: '#00C896' }}></div>
+                            <span>Positive Returns</span>
+                        </div>
+                        <div className="legend-item">
+                            <div className="legend-dot" style={{ background: '#ef4444' }}></div>
+                            <span>Negative Returns</span>
+                        </div>
+                        <div className="legend-item">
+                            <div style={{ width: '20px', height: '3px', background: '#9333ea' }}></div>
+                            <span>Efficient Frontier</span>
+                        </div>
+                    </div>
+
+                    <div className="stats">
+                        <div className="stat-card">
+                            <div className="stat-value">100</div>
+                            <div className="stat-label">Total Investors</div>
+                        </div>
+                        <div className="stat-card">
+                            <div className="stat-value">0.0 - 6.8</div>
+                            <div className="stat-label">Risk Range</div>
+                        </div>
+                        <div className="stat-card">
+                            <div className="stat-value">-7.4% - 27.4%</div>
+                            <div className="stat-label">Return Range</div>
+                        </div>
+                        <div className="stat-card">
+                            <div className="stat-value">~2 months</div>
+                            <div className="stat-label">Analysis Period</div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        ReactDOM.render(<RiskReturnChart />, document.getElementById('root'));
+    </script>
+</body>
+</html>
