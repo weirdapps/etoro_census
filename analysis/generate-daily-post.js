@@ -63,7 +63,7 @@ function findDailyMovers(currentHoldings, prevHoldings, threshold) {
     }
   });
   
-  return movers.sort((a, b) => b.change - a.change);
+  return movers.sort((a, b) => Math.abs(b.change) - Math.abs(a.change));
 }
 
 // Generate daily post
