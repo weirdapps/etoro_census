@@ -1,126 +1,89 @@
-# Risk vs Return Analysis
+# Risk vs Return Analysis - eToro Popular Investors
 
-This directory contains tools for analyzing risk-adjusted performance of eToro Popular Investors.
+## 📊 Analysis Overview
 
-## Files
+This folder contains the complete risk vs return analysis for the top 100 eToro Popular Investors, showing their performance over the period May 31 - July 31, 2025.
 
-### Core Analysis
-- `risk-return-analysis.js` - Main analysis engine that processes eToro data
-- `run-analysis.js` - Complete analysis runner with JSON output
-- `generate-etoro-post.js` - Creates formatted eToro social media posts
+## 📁 Files
 
-### Interactive Charts
-- `clean-chart.html` - **PRIMARY CHART** - Professional risk-return visualization with mathematically correct efficient frontier
-- `chart-viewer.html` - Legacy chart viewer (React-based)
-- `updated-chart-viewer.html` - Updated chart viewer with real data
-- `simple-chart.html` - Simplified version for reference
+### Essential Files
 
-### Data Utilities
-- `get-chart-data.js` - Extracts data for chart visualization
-- `generate-risk-return-chart.js` - MCP chart generation utility
-- `generate-custom-chart.js` - Custom chart generation
-- `show-chart-with-menago76.js` - Special chart highlighting specific investor
+- **`simple-working-chart.html`** - Main interactive risk vs return chart with Chart.js
+  - Shows all 100 investors positioned by risk score (x-axis) and period return (y-axis)
+  - Features labeled top performers and smooth efficient frontier curve
+  - Mathematical formula: `y = 8.165 * sqrt(x - 1)` (starts at 1,0 ends at 7,20)
 
-### Component Files
-- `risk-return-chart.jsx` - React component for chart integration
-- `chart-data.json` - Exported chart data
-- `analysis-summary.md` - Analysis documentation
+- **`calculate-proper-metrics.js`** - Data processing script
+  - Processes 62 daily data files from May 31 - July 31, 2025
+  - Calculates daily averaged risk scores and total period returns
+  - Ranks investors by copier count (not performance)
+  - Run with: `node calculate-proper-metrics.js`
 
-## Quick Start
+### Documentation
 
-### 1. View Risk-Return Chart
-Open `clean-chart.html` in your browser to see the complete risk-return analysis with:
-- 99 eToro Popular Investors plotted by risk vs return
-- Mathematically correct hyperbolic efficient frontier
-- 6 labeled exceptional performers above the frontier
-- Interactive tooltips with investor details
+- **`etoro-post.md`** - Social media post template for sharing the analysis
+- **`analysis-summary.md`** - Detailed methodology and findings summary
+- **`chart-data.json`** - Processed data output (if generated)
 
-### 2. Run Complete Analysis
-```bash
-# From project root
-node standalone/risk-return/run-analysis.js
-```
+## 🚀 Quick Start
 
-### 3. Generate eToro Post
-```bash
-# From project root
-node standalone/risk-return/generate-etoro-post.js
-```
+1. **View the Chart**: Open `simple-working-chart.html` in any browser
+2. **Replicate Analysis**: Run `node calculate-proper-metrics.js` 
+3. **Share Results**: Use content from `etoro-post.md`
 
-## Chart Features
+## 📈 Key Insights
 
-### clean-chart.html (Primary Chart)
-- **99 Investors**: Risk range 2.5-7.5, properly scaled coordinates
-- **Mathematical Efficiency Frontier**: True hyperbolic curve σ = √(a + b/μ)
-- **Labeled Outperformers**: @MercedesSotelo, @Flaten, @hugo13250, @Napoleon-X, @mick_repo, @Michalhla
-- **Analysis Period**: May 31 - July 27, 2025
-- **Interactive Tooltips**: Hover for investor details
-- **Professional Styling**: eToro branding with clean design
+- **Top Performers**: @hugo13250 (27.1%), @MercedesSotelo (25.9%), @Flaten (24.7%)
+- **Most Copied**: @thomaspj (39K copiers), @JeppeKirkBonde (28K copiers)
+- **Methodology**: Risk = daily average over 62 days, Return = total period performance
+- **Efficient Frontier**: Mathematical curve showing optimal risk/return trade-offs
 
-### Technical Details
-- **X-axis Scaling**: Risk 2.5-7.5 → Coordinates 150-1150
-- **Y-axis Scaling**: Return -10% to 30% → Coordinates 550-50
-- **Coordinate Formula**: X = 150 + (risk - 2.5) × 200, Y = 550 - (return + 10) × 12.5
-- **Efficient Frontier**: Moved up 5% to be more selective
+## 🔧 Technical Details
 
-## Data Structure
-```javascript
-{
-  metadata: {
-    analysisDate: "2025-07-27T12:00:00Z",
-    dataPoints: 99,
-    period: "May 31 - July 27, 2025"
-  },
-  scatterData: [
-    {
-      x: 5.42,           // Risk score
-      y: 15.38,          // Period return %
-      username: "thomaspj",
-      fullName: "Thomas Parry Jones", 
-      copiers: 39564,
-      averageRiskScore: 5.42
-    }
-  ]
-}
-```
+- **Data Period**: May 31 - July 31, 2025 (62 daily snapshots)
+- **Sample Size**: Top 100 investors by copier count
+- **Chart Library**: Chart.js with custom plugins for labels
+- **Mathematical Model**: Square root efficient frontier theory
 
-## Theory
+## 📊 Chart Features
 
-The analysis applies Modern Portfolio Theory:
-- **Risk Score**: eToro's risk assessment (2.5-7.5 range)
-- **Returns**: Period percentage returns
-- **Efficient Frontier**: Mathematical hyperbola representing optimal risk-return combinations
-- **Outperformers**: Investors above the efficient frontier demonstrating superior risk-adjusted returns
+### Interactive Elements
+- **100 Investor Data Points**: Sized by copier count, colored by performance
+- **Smart Label Positioning**: 9 top performers labeled with strategic positioning
+- **Efficient Frontier Curve**: Smooth mathematical curve from (1,0) to (7,20)
+- **Responsive Design**: Works on desktop and mobile browsers
 
 ### Mathematical Foundation
-- **Hyperbolic Efficient Frontier**: Uses equation σ = √(a + b/μ) where σ is risk and μ is return
-- **Continuous Rising Curve**: Demonstrates diminishing marginal returns as risk increases
-- **Scientifically Accurate**: Based on Modern Portfolio Theory literature
+- **Square Root Formula**: `y = 8.165 * sqrt(x - 1)`
+- **Diminishing Returns**: Classic efficient frontier shape
+- **Risk Scale**: 1-7 eToro risk scores (daily averaged)
+- **Return Scale**: -5% to 30% period returns
 
-## Recent Updates (July 2025)
+## 🎯 Labeled Performers
 
-✅ **Fixed Mathematical Accuracy**: Implemented true hyperbolic efficient frontier  
-✅ **Corrected Scaling**: All 99 investors properly positioned according to risk/return values  
-✅ **Removed Outliers**: Excluded 2 investors outside 2.5-7.5 risk range  
-✅ **Enhanced Labeling**: 6 exceptional performers clearly labeled  
-✅ **Professional Styling**: Clean, publication-ready visualization  
+**Above Efficient Frontier:**
+- @hugo13250 (27.09% return)
+- @MercedesSotelo (25.94% return)  
+- @Flaten (24.72% return)
+- @Napoleon-X (23.1% return)
+- @victorlee448 (20.66% return)
 
-## Usage
+**High Volume Leaders:**
+- @thomaspj (39K copiers, 14.8% return)
+- @JeppeKirkBonde (28K copiers, 10.15% return)
 
-1. **For Analysis**: Use `clean-chart.html` as the primary chart
-2. **For Development**: Reference other chart files for different approaches
-3. **For Integration**: Use the React component and data files for web integration
-4. **For Updates**: Run analysis scripts when new data is available
+**Rising Stars:**
+- @Michalhla (18% return)
+- @mick_repo (17.92% return)
 
-## Troubleshooting
+## 🔄 Replication Steps
 
-### Common Issues
-1. **Chart not loading**: Ensure all data-tooltip attributes are properly formatted
-2. **Scaling issues**: Verify coordinate calculations match the formulas
-3. **Missing investors**: Check if risk scores are within 2.5-7.5 range
-4. **Curve problems**: Mathematical hyperbola should continuously rise
+1. **Data Collection**: Process 62 daily eToro census files
+2. **Risk Calculation**: Average daily risk scores per investor
+3. **Return Calculation**: Total period return (end gain - start gain)
+4. **Ranking**: Sort by copier count, select top 100
+5. **Visualization**: Plot with efficient frontier overlay
 
-### Requirements
-- Modern web browser for HTML charts
-- Node.js for analysis scripts
-- eToro census data in proper JSON format
+## 📝 Usage Rights
+
+This analysis is for educational purposes. Past performance doesn't guarantee future results. Always do your own research before making investment decisions.

@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Risk vs Return: Top 100 eToro Investors</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f8fafc;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        .title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+        .subtitle {
+            font-size: 16px;
+            color: #64748b;
+        }
+        .chart-container {
+            position: relative;
+            height: 600px;
+            margin: 24px 0;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 24px;
+        }
+        .stat-card {
+            background: #f1f5f9;
+            padding: 16px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #00C896;
+        }
+        .stat-label {
+            font-size: 14px;
+            color: #64748b;
+            margin-top: 4px;
+        }
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #475569;
+        }
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">Risk vs Return: Top 100 eToro Popular Investors</h1>
+            <p class="subtitle">Period Analysis: May 31 - July 31, 2025 (2 Months)</p>
+        </div>
+
+        <div class="chart-container">
+            <canvas id="riskReturnChart"></canvas>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-dot" style="background: #00C896;"></div>
+                <span>Positive Returns</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-dot" style="background: #ef4444;"></div>
+                <span>Negative Returns</span>
+            </div>
+            <div class="legend-item">
+                <div style="width: 20px; height: 3px; background: #9333ea;"></div>
+                <span>Efficient Frontier</span>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-value">100</div>
+                <div class="stat-label">Top Investors</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">1.9 - 6.7</div>
+                <div class="stat-label">Risk Score Range</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">-3.0% - 27.1%</div>
+                <div class="stat-label">Period Return Range</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">9.0%</div>
+                <div class="stat-label">Average Period Return</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Top 100 Popular Investors by Copier Count with Corrected Risk/Return Calculations
+        // Risk = Daily average over May 31 - July 31 (62 data points)
+        // Return = Total period return (end gain - start gain)
+        const topInvestors = [
+            { x: 5.31, y: 14.8, name: 'thomaspj', copiers: 39439, label: '@thomaspj' },
+            { x: 4.79, y: 10.15, name: 'JeppeKirkBonde', copiers: 28580, label: '@JeppeKirkBonde' },
+            { x: 4.74, y: 2.35, name: 'triangulacapital', copiers: 14687 },
+            { x: 5, y: 6.04, name: 'CPHequities', copiers: 13779 },
+            { x: 5.34, y: 8.37, name: 'jaynemesis', copiers: 10268 },
+            { x: 5.65, y: 23.1, name: 'Napoleon-X', copiers: 9797, label: '@Napoleon-X' },
+            { x: 4.81, y: 15.11, name: 'FundManagerZech', copiers: 9653 },
+            { x: 5.71, y: -0.89, name: 'AmitKup', copiers: 8029 },
+            { x: 4.5, y: 9.96, name: 'saifsyn', copiers: 7022 },
+            { x: 4.97, y: 7.46, name: 'GreenbullInvest', copiers: 6736 },
+            { x: 4.6, y: 8.84, name: 'defense_investor', copiers: 6557 },
+            { x: 5.35, y: 12.88, name: 'rubymza', copiers: 6338 },
+            { x: 5.68, y: 17.99, name: 'misterg23', copiers: 4230 },
+            { x: 5.52, y: 12.74, name: 'Wesl3y', copiers: 3594 },
+            { x: 4.52, y: 6.39, name: 'IlMatematico', copiers: 3537 },
+            { x: 4.69, y: 5.59, name: 'Richardstroud', copiers: 3497 },
+            { x: 4.81, y: 15.71, name: 'Smudliczek', copiers: 3444 },
+            { x: 4.81, y: 10.36, name: 'ingruc', copiers: 3279 },
+            { x: 5.69, y: 12.2, name: 'MarianoPardo', copiers: 3214 },
+            { x: 3.98, y: 5.62, name: 'Aukie2008', copiers: 3045 },
+            { x: 4.68, y: 17.92, name: 'mick_repo', copiers: 2993, label: '@mick_repo' },
+            { x: 5.76, y: 18.57, name: 'steveli1029', copiers: 2796 },
+            { x: 6.4, y: -3.01, name: 'JORDENBOER', copiers: 2768 },
+            { x: 5.11, y: 7.09, name: 'robchamow', copiers: 2408 },
+            { x: 5.63, y: 13.11, name: 'Enslinjaco', copiers: 2236 },
+            { x: 4.79, y: 2.69, name: 'adams302', copiers: 2139 },
+            { x: 4.77, y: 18, name: 'Michalhla', copiers: 2111, label: '@Michalhla' },
+            { x: 5.08, y: 14.51, name: 'Anders_', copiers: 1994 },
+            { x: 4, y: 0, name: 'crypto101_kevin', copiers: 1945 },
+            { x: 5.71, y: 17.5, name: 'KoraTrades', copiers: 1864 },
+            { x: 4.76, y: 6.97, name: 'eddyb123', copiers: 1822 },
+            { x: 5.52, y: 11.87, name: 'TheDividendFund', copiers: 1795 },
+            { x: 4.82, y: 3.59, name: 'CCalle', copiers: 1790 },
+            { x: 5.79, y: 9.88, name: 'NabilSifo', copiers: 1784 },
+            { x: 6.1, y: 7.32, name: 'Kevin_Pando', copiers: 1781 },
+            { x: 4.44, y: 5.81, name: 'celesh', copiers: 1763 },
+            { x: 6.45, y: 9, name: 'kasperpatrick1', copiers: 1747 },
+            { x: 5.98, y: 7.12, name: 'brirap', copiers: 1672 },
+            { x: 6.02, y: 12.26, name: 'hugomanenti95', copiers: 1672 },
+            { x: 5.79, y: 24.72, name: 'Flaten', copiers: 1511, label: '@Flaten' },
+            { x: 4.98, y: 4.63, name: 'liborvasa', copiers: 1478 },
+            { x: 4.58, y: 3.51, name: 'Nezatron', copiers: 1472 },
+            { x: 5.47, y: 5.47, name: 'Gserdan', copiers: 1472 },
+            { x: 5.08, y: 10.79, name: 'Miyoshi', copiers: 1434 },
+            { x: 5.63, y: 13.84, name: 'Marco199610', copiers: 1431 },
+            { x: 4.84, y: 5.43, name: 'GeorgeFatouros', copiers: 1410 },
+            { x: 5.61, y: 11.74, name: 'StefanULS', copiers: 1391 },
+            { x: 5.68, y: 12.26, name: 'SharonConnolly', copiers: 1361 },
+            { x: 3, y: 4.01, name: 'knw500', copiers: 1291 },
+            { x: 4.77, y: 1.13, name: 'Rayeiris', copiers: 1241 },
+            { x: 5.82, y: 9.51, name: 'Linsanity1', copiers: 1238 },
+            { x: 5.45, y: 7.55, name: 'gauravk_in', copiers: 1220 },
+            { x: 4.81, y: 9.88, name: 'Chrochtik', copiers: 1199 },
+            { x: 4.74, y: 9.36, name: 'pino428', copiers: 1190 },
+            { x: 4.79, y: 14.83, name: 'DemonicoLag', copiers: 1166 },
+            { x: 4.82, y: 8.54, name: 'Jenelleb123', copiers: 1135 },
+            { x: 3.29, y: 4.01, name: 'ca_sual', copiers: 1130 },
+            { x: 5.08, y: 15.18, name: 'rambod59', copiers: 1111 },
+            { x: 5.76, y: 1.42, name: 'JvAnkershoffen', copiers: 1087 },
+            { x: 1.95, y: 1.23, name: 'VIXGold', copiers: 1075 },
+            { x: 6.13, y: -1.01, name: 'Analisisciclico', copiers: 1058 },
+            { x: 6.08, y: 12.07, name: 'KenanAbel', copiers: 1018 },
+            { x: 4.81, y: 1.66, name: 'onk342', copiers: 1008 },
+            { x: 5, y: 7.5, name: 'Fostijn', copiers: 1007 },
+            { x: 4.13, y: 3.23, name: 'edu-inversor', copiers: 1003 },
+            { x: 3.76, y: 4.93, name: 'Wise_woman', copiers: 992 },
+            { x: 3.02, y: 4.46, name: 'DevonToogood', copiers: 984 },
+            { x: 5.68, y: 5.46, name: 'ioatri', copiers: 980 },
+            { x: 5.58, y: 8.86, name: 'II-Disruptive', copiers: 975 },
+            { x: 6.21, y: 11.15, name: 'PROJECT10X', copiers: 971 },
+            { x: 5.76, y: 8.01, name: 'KeshavLohiya', copiers: 956 },
+            { x: 5.79, y: 14.68, name: 'Onegirl', copiers: 940 },
+            { x: 6.37, y: 11.07, name: 'RobertMERC', copiers: 923 },
+            { x: 5.31, y: 6.7, name: 'Cfranklin89', copiers: 888 },
+            { x: 3.68, y: 3.64, name: 'Slow_and_Steady', copiers: 870 },
+            { x: 6.34, y: 25.94, name: 'MercedesSotelo', copiers: 844, label: '@MercedesSotelo' },
+            { x: 5.08, y: 5.13, name: 'SparkLiang', copiers: 843 },
+            { x: 4.69, y: 9.7, name: 'Matteospaggiari', copiers: 829 },
+            { x: 6.73, y: 8.22, name: 'LoukasBW', copiers: 824 },
+            { x: 6.15, y: 27.09, name: 'hugo13250', copiers: 821, label: '@hugo13250' },
+            { x: 3.81, y: 10.54, name: 'Marirs', copiers: 820 },
+            { x: 3.58, y: 7.29, name: 'plessas', copiers: 805 },
+            { x: 3.82, y: 9.17, name: 'ReturnInvest', copiers: 801 },
+            { x: 5.31, y: 9.64, name: 'rafaeldfl', copiers: 794 },
+            { x: 3.05, y: 2.92, name: 'iliescu2605', copiers: 792 },
+            { x: 5.66, y: 12.9, name: 'Social-Investor', copiers: 792 },
+            { x: 4.77, y: 7.62, name: 'Benaymo23', copiers: 790 },
+            { x: 4.16, y: 9.12, name: 'ANZOOOXX', copiers: 782 },
+            { x: 3.56, y: 6.81, name: 'TiuBuletaire2', copiers: 777 },
+            { x: 4.76, y: 13.62, name: 'Space-Investor', copiers: 764 },
+            { x: 4.77, y: 7.82, name: 'reinhardtcoetzee', copiers: 760 },
+            { x: 4.76, y: 4.94, name: 'Alderique', copiers: 756 },
+            { x: 4.77, y: 1.99, name: 'ThomasRoddy', copiers: 754 },
+            { x: 5.65, y: 20.66, name: 'victorlee448', copiers: 749, label: '@victorlee448' },
+            { x: 5.66, y: 6.77, name: 'ALTIA-Investment', copiers: 738 },
+            { x: 4.82, y: 11.08, name: 'SimoneRizzetto88', copiers: 738 },
+            { x: 5.73, y: 1.75, name: 'IshfaaqPeerally', copiers: 727 },
+            { x: 4.4, y: 2.85, name: 'ddvaz2097', copiers: 723 },
+            { x: 3, y: 5.35, name: 'emge2116', copiers: 717 },
+            { x: 4.73, y: 0.13, name: 'AlexZy', copiers: 707 }
+        ];
+
+        // Generate smooth efficient frontier using mathematical formula
+        // Square root formula: y = a * sqrt(x - b)
+        // Calibrated to start at (1, 0) and end at (7, 20)
+        const generateEfficientFrontier = () => {
+            const points = [];
+            
+            // Two point calibration: (1, 0) and (7, 20)
+            // 0 = a * sqrt(1 - 1) = 0 (satisfied for any a)
+            // 20 = a * sqrt(7 - 1) = a * sqrt(6)
+            // Therefore: a = 20 / sqrt(6) ≈ 8.165
+            
+            const a = 20 / Math.sqrt(6);  // ≈ 8.165
+            const b = 1;  // x-offset (start point)
+            
+            // Generate very smooth curve with fine increments
+            // Formula: y = 8.165 * sqrt(x - 1)
+            for (let x = 1.0; x <= 7; x += 0.02) {
+                const y = a * Math.sqrt(x - b);
+                points.push({ x: parseFloat(x.toFixed(2)), y: parseFloat(y.toFixed(2)) });
+            }
+            return points;
+        };
+        
+        const efficientFrontier = generateEfficientFrontier();
+
+        const ctx = document.getElementById('riskReturnChart').getContext('2d');
+        
+        const chart = new Chart(ctx, {
+            type: 'scatter',
+            data: {
+                datasets: [
+                    {
+                        label: 'Popular Investors',
+                        data: topInvestors.map(inv => ({
+                            x: inv.x,
+                            y: inv.y,
+                            name: inv.name,
+                            copiers: inv.copiers
+                        })),
+                        backgroundColor: function(context) {
+                            const point = context.parsed;
+                            return point.y >= 0 ? '#00C896' : '#ef4444';
+                        },
+                        borderColor: function(context) {
+                            const point = context.parsed;
+                            return point.y >= 0 ? '#00A678' : '#dc2626';
+                        },
+                        pointRadius: function(context) {
+                            const copiers = topInvestors[context.dataIndex].copiers;
+                            return Math.max(4, Math.min(12, copiers / 3000));
+                        }
+                    },
+                    {
+                        label: 'Efficient Frontier',
+                        data: efficientFrontier,
+                        type: 'line',
+                        borderColor: '#9333ea',
+                        backgroundColor: 'transparent',
+                        borderWidth: 3,
+                        pointRadius: 0,
+                        fill: false,
+                        tension: 0,
+                        spanGaps: true,
+                        stepped: false
+                    }
+                ]
+            },
+            plugins: [{
+                id: 'customLabels',
+                afterDraw: function(chart) {
+                    const ctx = chart.ctx;
+                    const topPerformers = topInvestors.filter(inv => inv.label);
+                    
+                    // Smart positioning to avoid overlaps
+                    const labelPositions = {
+                        '@hugo13250': { offsetX: 0, offsetY: -15, align: 'center' },
+                        '@MercedesSotelo': { offsetX: 15, offsetY: -5, align: 'left' },
+                        '@Flaten': { offsetX: -15, offsetY: -5, align: 'right' },
+                        '@Napoleon-X': { offsetX: -15, offsetY: -5, align: 'right' },
+                        '@victorlee448': { offsetX: 15, offsetY: -5, align: 'left' },
+                        '@Michalhla': { offsetX: 15, offsetY: -5, align: 'left' },
+                        '@mick_repo': { offsetX: -15, offsetY: -5, align: 'right' },
+                        '@thomaspj': { offsetX: 15, offsetY: 5, align: 'left' },
+                        '@JeppeKirkBonde': { offsetX: -15, offsetY: -5, align: 'right' }
+                    };
+                    
+                    topPerformers.forEach(investor => {
+                        const meta = chart.getDatasetMeta(0);
+                        const index = topInvestors.findIndex(inv => inv.name === investor.name);
+                        if (index !== -1 && meta.data[index]) {
+                            const point = meta.data[index];
+                            const position = labelPositions[investor.label] || { offsetX: 0, offsetY: -15, align: 'center' };
+                            
+                            const x = point.x + position.offsetX;
+                            const y = point.y + position.offsetY;
+                            
+                            ctx.save();
+                            ctx.fillStyle = '#374151';
+                            ctx.font = 'bold 11px system-ui';
+                            ctx.textAlign = position.align;
+                            ctx.fillText(investor.label, x, y);
+                            ctx.restore();
+                        }
+                    });
+                }
+            }],
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: false
+                    },
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            title: function(context) {
+                                const point = context[0];
+                                const investor = topInvestors[point.dataIndex];
+                                return '@' + investor.name;
+                            },
+                            label: function(context) {
+                                const investor = topInvestors[context.dataIndex];
+                                return [
+                                    `Risk Score: ${context.parsed.x}`,
+                                    `Period Return: ${context.parsed.y}%`,
+                                    `Copiers: ${investor.copiers.toLocaleString()}`
+                                ];
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        type: 'linear',
+                        position: 'bottom',
+                        title: {
+                            display: true,
+                            text: 'Average Risk Score'
+                        },
+                        min: 1,
+                        max: 7
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Period Return (%)'
+                        },
+                        min: -5,
+                        max: 30
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
