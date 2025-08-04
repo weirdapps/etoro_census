@@ -67,7 +67,7 @@ function generateWeeklyPost() {
   
   console.log('🎩 𝐞𝐓𝐨𝐫𝐨 𝐂𝐞𝐧𝐬𝐮𝐬 𝐖𝐞𝐞𝐤𝐥𝐲 𝐑𝐞𝐩𝐨𝐫𝐭 🎩');
   console.log(`${weekAgoDate} → ${latestDate}`);
-  console.log('Top 100 vs Broad (1500) Popular Investors Analysis\n');
+  console.log('');
   
   // 1. Weekly Performance Comparison
   const cashChange100 = latest100.averages.cashPercentage - weekAgo100.averages.cashPercentage;
@@ -283,8 +283,10 @@ function generateWeeklyPost() {
   
   console.log(insight);
   
-  console.log('\n📊 Full weekly insights: weirdapps.github.io/etoro_census');
-  console.log('🕐 Updated daily at 02:00 UTC');
+  console.log('\n**\n');
+  console.log('Check out the census dashboard at:\n');
+  console.log('weirdapps.github.io/etoro_census');
+  console.log('\n..updated daily at 02:00 UTC');
 }
 
 // Run the weekly post generation

@@ -111,7 +111,7 @@ function generateDailyPost() {
   const perfChange1500 = current1500.averages.gain - prev1500.averages.gain;
   
   console.log('🎩 𝐞𝐓𝐨𝐫𝐨 𝐂𝐞𝐧𝐬𝐮𝐬 𝐃𝐚𝐢𝐥𝐲 𝐔𝐩𝐝𝐚𝐭𝐞 ' + displayDate + ' 🎩');
-  console.log('Top 100 vs Broad (1500) Popular Investors Analysis\n');
+  console.log('');
   
   // 1. Portfolio Performance Comparison
   console.log('📊 𝐏𝐞𝐫𝐟𝐨𝐫𝐦𝐚𝐧𝐜𝐞 𝐂𝐨𝐦𝐩𝐚𝐫𝐢𝐬𝐨𝐧:');
@@ -253,8 +253,10 @@ function generateDailyPost() {
   
   console.log(insight);
   
-  console.log('\n📊 Full census: weirdapps.github.io/etoro_census');
-  console.log('🕐 Next: Tomorrow 02:00 UTC');
+  console.log('\n**\n');
+  console.log('Check out the census dashboard at:\n');
+  console.log('weirdapps.github.io/etoro_census');
+  console.log('\n..updated daily at 02:00 UTC');
 }
 
 // Run the daily post generation

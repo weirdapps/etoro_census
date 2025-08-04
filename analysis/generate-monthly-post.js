@@ -101,7 +101,7 @@ function generateMonthlyPost() {
   
   console.log('🎩 𝐞𝐓𝐨𝐫𝐨 𝐂𝐞𝐧𝐬𝐮𝐬 𝐌𝐨𝐧𝐭𝐡𝐥𝐲 𝐑𝐞𝐩𝐨𝐫𝐭 🎩');
   console.log(`${reportMonth} 2025`);
-  console.log('Top 100 vs Broad (1500) Popular Investors Analysis\n');
+  console.log('');
   
   // Calculate key monthly changes
   const cash100Change = current100.averages.cashPercentage - monthAgo100.averages.cashPercentage;
