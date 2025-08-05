@@ -76,21 +76,21 @@ function generateWeeklyPost() {
   const gainChange1500 = latest1500.averages.gain - weekAgo1500.averages.gain;
   
   console.log('📊 𝐖𝐞𝐞𝐤𝐥𝐲 𝐏𝐞𝐫𝐟𝐨𝐫𝐦𝐚𝐧𝐜𝐞:');
-  console.log('**Top 100**: ' + latest100.averages.gain.toFixed(1) + '% YTD (' + 
+  console.log('𝗧𝗼𝗽 𝟭𝟬𝟬: ' + latest100.averages.gain.toFixed(1) + '% YTD (' + 
     (gainChange100 > 0 ? '+' : '') + gainChange100.toFixed(1) + 'pp weekly)');
-  console.log('**Broad Group**: ' + latest1500.averages.gain.toFixed(1) + '% YTD (' + 
+  console.log('𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽: ' + latest1500.averages.gain.toFixed(1) + '% YTD (' + 
     (gainChange1500 > 0 ? '+' : '') + gainChange1500.toFixed(1) + 'pp weekly)');
-  console.log('**Elite advantage**: +' + (latest100.averages.gain - latest1500.averages.gain).toFixed(1) + 'pp');
+  console.log('𝗧𝗼𝗽 𝟭𝟬𝟬 𝗮𝗱𝘃𝗮𝗻𝘁𝗮𝗴𝗲: +' + (latest100.averages.gain - latest1500.averages.gain).toFixed(1) + 'pp');
   
   console.log('\n💰 𝐂𝐚𝐬𝐡 𝐏𝐨𝐬𝐢𝐭𝐢𝐨𝐧 𝐂𝐡𝐚𝐧𝐠𝐞𝐬:');
-  console.log('**Top 100**: ' + latest100.averages.cashPercentage.toFixed(1) + '% (' + 
+  console.log('𝗧𝗼𝗽 𝟭𝟬𝟬: ' + latest100.averages.cashPercentage.toFixed(1) + '% (' + 
     (cashChange100 > 0 ? '+' : '') + cashChange100.toFixed(1) + 'pp weekly)');
-  console.log('**Broad Group**: ' + latest1500.averages.cashPercentage.toFixed(1) + '% (' + 
+  console.log('𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽: ' + latest1500.averages.cashPercentage.toFixed(1) + '% (' + 
     (cashChange1500 > 0 ? '+' : '') + cashChange1500.toFixed(1) + 'pp weekly)\n');
   
   // 2. Top Portfolio Holdings
   console.log('💎 𝐓𝐨𝐩 𝟏𝟎 𝐏𝐨𝐫𝐭𝐟𝐨𝐥𝐢𝐨 𝐇𝐨𝐥𝐝𝐢𝐧𝐠𝐬:');
-  console.log('**Top 100 Elite**:');
+  console.log('𝗧𝗼𝗽 𝟭𝟬𝟬:');
   latest100.topHoldings.slice(0, 10).forEach((h, i) => {
     const prevHolding = weekAgo100.topHoldings.find(ph => ph.instrumentId === h.instrumentId);
     const holderChange = prevHolding ? h.holdersCount - prevHolding.holdersCount : 0;
@@ -99,7 +99,7 @@ function generateWeeklyPost() {
     console.log((i+1) + '. $' + h.symbol + ' (' + percentage + '% ' + changeText + ')');
   });
   
-  console.log('\n**Broad Group**:');
+  console.log('\n𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽:');
   latest1500.topHoldings.slice(0, 10).forEach((h, i) => {
     const prevHolding = weekAgo1500.topHoldings.find(ph => ph.instrumentId === h.instrumentId);
     const holderChange = prevHolding ? h.holdersCount - prevHolding.holdersCount : 0;
@@ -149,7 +149,7 @@ function generateWeeklyPost() {
     const reductions100 = weeklyMovers100.filter(m => m.change < 0).slice(0, 5);
     
     if (additions100.length > 0) {
-      console.log('**Top 100 - Most Added**:');
+      console.log('𝗧𝗼𝗽 𝟭𝟬𝟬 - 𝗠𝗼𝘀𝘁 𝗔𝗱𝗱𝗲𝗱:');
       additions100.forEach((move, i) => {
         console.log((i+1) + '. $' + move.symbol + ': +' + move.change + ' investors (+' + 
           move.percentChange.toFixed(1) + '%)');
@@ -157,7 +157,7 @@ function generateWeeklyPost() {
     }
     
     if (reductions100.length > 0) {
-      console.log('\n**Top 100 - Most Reduced**:');
+      console.log('\n𝗧𝗼𝗽 𝟭𝟬𝟬 - 𝗠𝗼𝘀𝘁 𝗥𝗲𝗱𝘂𝗰𝗲𝗱:');
       reductions100.forEach((move, i) => {
         console.log((i+1) + '. $' + move.symbol + ': ' + move.change + ' investors (' + 
           move.percentChange.toFixed(1) + '%)');
@@ -171,7 +171,7 @@ function generateWeeklyPost() {
     const reductions1500 = weeklyMovers1500.filter(m => m.change < 0).slice(0, 5);
     
     if (additions1500.length > 0) {
-      console.log('\n**Broad Group - Most Added**:');
+      console.log('\n𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽 - 𝗠𝗼𝘀𝘁 𝗔𝗱𝗱𝗲𝗱:');
       additions1500.forEach((move, i) => {
         console.log((i+1) + '. $' + move.symbol + ': +' + move.change + ' investors (+' + 
           move.percentChange.toFixed(1) + '%)');
@@ -179,7 +179,7 @@ function generateWeeklyPost() {
     }
     
     if (reductions1500.length > 0) {
-      console.log('\n**Broad Group - Most Reduced**:');
+      console.log('\n𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽 - 𝗠𝗼𝘀𝘁 𝗥𝗲𝗱𝘂𝗰𝗲𝗱:');
       reductions1500.forEach((move, i) => {
         console.log((i+1) + '. $' + move.symbol + ': ' + move.change + ' investors (' + 
           move.percentChange.toFixed(1) + '%)');
@@ -216,7 +216,7 @@ function generateWeeklyPost() {
       const losers = copierChanges.filter(c => c.change < 0).sort((a, b) => a.change - b.change).slice(0, 5);
       
       if (gainers.length > 0) {
-        console.log('🚀 **Top 5 Gainers**:');
+        console.log('🚀 𝗧𝗼𝗽 𝟱 𝗚𝗮𝗶𝗻𝗲𝗿𝘀:');
         gainers.forEach((change, i) => {
           console.log((i+1) + '. ' + (change.investor.fullName || change.investor.userName) + 
             ' (@' + change.investor.userName + '): +' + change.change.toLocaleString() + ' copiers');
@@ -224,7 +224,7 @@ function generateWeeklyPost() {
       }
       
       if (losers.length > 0) {
-        console.log('\n📉 **Top 5 Losers**:');
+        console.log('\n📉 𝗧𝗼𝗽 𝟱 𝗟𝗼𝘀𝗲𝗿𝘀:');
         losers.forEach((change, i) => {
           console.log((i+1) + '. ' + (change.investor.fullName || change.investor.userName) + 
             ' (@' + change.investor.userName + '): ' + change.change.toLocaleString() + ' copiers');
@@ -269,16 +269,16 @@ function generateWeeklyPost() {
   
   if (Math.abs(cashChange100 - cashChange1500) > 0.5) {
     const direction = cashChange100 > cashChange1500 ? 'more defensive' : 'more aggressive';
-    insight = 'Elite investors turned ' + direction + ' than broad market - behavioral divergence emerging';
+    insight = 'Top 100 investors turned ' + direction + ' than broad market - behavioral divergence emerging';
   } else if (Math.abs(gainChange100 - gainChange1500) > 1) {
     const direction = gainChange100 > gainChange1500 ? 'outperformed' : 'underperformed';
     insight = 'Top 100 ' + direction + ' broad group this week by ' + Math.abs(gainChange100 - gainChange1500).toFixed(1) + 'pp';
   } else if (weeklyMovers100.length > 3 || weeklyMovers1500.length > 3) {
     insight = 'Active portfolio reshuffling signals changing market conditions and new positioning';
   } else if (Math.abs(gainGap) > 4) {
-    insight = 'Elite advantage holds steady at ' + gainGap.toFixed(1) + 'pp - consistent skill premium';
+    insight = 'Top 100 advantage holds steady at ' + gainGap.toFixed(1) + 'pp - consistent skill premium';
   } else {
-    insight = 'Synchronized week between elite and broad investors - market consensus prevailing';
+    insight = 'Synchronized week between Top 100 and broad investors - market consensus prevailing';
   }
   
   console.log(insight);
