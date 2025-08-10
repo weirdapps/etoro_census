@@ -208,8 +208,8 @@ function generateDailyPost() {
   const copierChanges = findTopCopierChanges(currentData.investors, prevData.investors, 3);
   
   if (copierChanges.length > 0) {
-    const gainers = copierChanges.filter(c => c.change > 0).slice(0, 5);
-    const losers = copierChanges.filter(c => c.change < 0).slice(0, 5);
+    const gainers = copierChanges.filter(c => c.change > 0).sort((a, b) => b.change - a.change).slice(0, 5);
+    const losers = copierChanges.filter(c => c.change < 0).sort((a, b) => a.change - b.change).slice(0, 5);
     
     if (gainers.length > 0) {
       console.log('🚀 𝗧𝗼𝗽 𝟱 𝗚𝗮𝗶𝗻𝗲𝗿𝘀:');
