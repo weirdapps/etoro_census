@@ -1,15 +1,35 @@
 # eToro Census Analysis Tools
 
-This directory contains various analysis tools for processing eToro Popular Investor data.
+This directory contains comprehensive analysis tools for processing eToro Popular Investor data and generating actionable insights.
+
+## 🔥 Featured Scripts
+
+### **Dynamic Hot Hands Analysis** (RECOMMENDED)
+**Location:** `dynamic-hot-hands-analysis.js`  
+**Purpose:** Identifies top momentum investors with recent performance tracking  
+**Features:** Auto-updates date thresholds, trending assets, performance metrics  
+**Usage:** `node analysis/dynamic-hot-hands-analysis.js`
+
+### **Performance Analysis Suite**
+**Location:** `corrected-stock-analysis.js`, `top100-performance-analysis.js`  
+**Purpose:** Risk-adjusted performance analysis with proper unique investor counting  
+**Usage:** `node analysis/corrected-stock-analysis.js`
 
 ## Directory Structure
 
 ```
 analysis/
 ├── README.md                          # This file
-├── generate-daily-post.js            # Daily report generator
-├── generate-monthly-post.js          # Monthly report generator  
-├── generate-weekly-post.js           # Weekly report generator
+├── dynamic-hot-hands-analysis.js     # 🔥 Primary analysis tool
+├── hot-hands-recent-additions.js     # Legacy fixed-date version
+├── corrected-stock-analysis.js       # Fixed algorithm for stock recommendations
+├── top100-performance-analysis.js    # Risk-adjusted performance scoring
+├── stock-recommendations-report.js   # ⚠️ DEPRECATED - Contains algorithm bug
+├── CORRECTED_INVESTMENT_REPORT.md    # Honest assessment after fixes
+├── INVESTMENT_INSIGHTS_REPORT.md     # Original flawed analysis (reference)
+├── generate-daily-post.js            # 📱 Daily social media posts
+├── generate-weekly-post.js           # 📱 Weekly trend analysis  
+├── generate-monthly-post.js          # 📱 Monthly insights
 └── follower-distribution/            # Follower analysis tools
     ├── README.md                      # Follower analysis documentation
     ├── generate-follower-chart.js    # Interactive chart generator
@@ -18,24 +38,46 @@ analysis/
 
 ## Analysis Types
 
-### 1. Daily Reports
-**Location:** `generate-daily-post.js`
-**Purpose:** Generates daily census summaries
-**Usage:** `node analysis/generate-daily-post.js`
+### 1. 🔥 Hot Hands Analysis (Primary Tool)
+**Location:** `dynamic-hot-hands-analysis.js`  
+**Purpose:** Real-time momentum analysis with trending positions  
+**Features:** 
+- Auto-finds latest data files
+- Dynamic 90/45-day thresholds
+- Hot hands scoring (YTD 70% + recent momentum 30%)
+- Trending assets identification
+- Performance win rate tracking
+**Usage:** `node analysis/dynamic-hot-hands-analysis.js`
 
-### 2. Weekly Reports
-**Location:** `generate-weekly-post.js`
-**Purpose:** Generates weekly trend analysis
-**Usage:** `node analysis/generate-weekly-post.js`
+### 2. 📊 Performance Analysis
+**Location:** `corrected-stock-analysis.js`  
+**Purpose:** Fixed algorithm for accurate stock overlap analysis  
+**Features:**
+- Proper unique investor counting
+- Risk-adjusted scoring
+- Core holdings identification
+- Realistic conviction levels
+**Usage:** `node analysis/corrected-stock-analysis.js`
 
-### 3. Monthly Reports
-**Location:** `generate-monthly-post.js`
-**Purpose:** Generates monthly performance summaries
-**Usage:** `node analysis/generate-monthly-post.js`
+### 3. 📱 Social Media Posts (Enhanced July 2025)
+**Locations:** `generate-daily-post.js`, `generate-weekly-post.js`, `generate-monthly-post.js`  
+**Purpose:** Social media content with Fear & Greed Index, copier tracking, insights  
+**Features:**
+- Fear & Greed Index calculation with market mood emojis
+- Copier activity tracking (gains/losses with thresholds)
+- Username format: "Name (@username)" for social compatibility
+- Unicode sans serif bold fonts (eToro-compatible)
+- Trading activity metrics and top holdings analysis
+**Usage:** 
+```bash
+node analysis/generate-daily-post.js    # Daily + Fear & Greed Index
+node analysis/generate-weekly-post.js   # Weekly trends + copier changes
+node analysis/generate-monthly-post.js  # Monthly insights + risk sentiment
+```
 
-### 4. Follower Distribution Analysis
-**Location:** `follower-distribution/`
-**Purpose:** Analyzes follower distribution across Popular Investors
+### 4. 📈 Follower Distribution Analysis
+**Location:** `follower-distribution/`  
+**Purpose:** Power law distribution analysis with interactive charts  
 **Usage:** 
 ```bash
 cd follower-distribution/
