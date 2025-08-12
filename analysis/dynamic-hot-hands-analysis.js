@@ -41,10 +41,12 @@ try {
 const today = new Date();
 const recentThreshold = new Date(today.getTime() - (90 * 24 * 60 * 60 * 1000)); // 90 days ago
 const veryRecentThreshold = new Date(today.getTime() - (45 * 24 * 60 * 60 * 1000)); // 45 days ago
+const hotActivityThreshold = new Date(today.getTime() - (3 * 24 * 60 * 60 * 1000)); // 3 days ago - TREND CATCHING
 
 console.log(`📅 DYNAMIC DATE THRESHOLDS:`);
 console.log(`Recent threshold (90 days ago): ${recentThreshold.toISOString().split('T')[0]}`);
 console.log(`Very recent threshold (45 days ago): ${veryRecentThreshold.toISOString().split('T')[0]}`);
+console.log(`🔥 Hot Activity threshold (3 days ago): ${hotActivityThreshold.toISOString().split('T')[0]}`);
 console.log(`Analysis date: ${today.toISOString().split('T')[0]}`);
 
 // Get top 100 investors
@@ -108,6 +110,7 @@ hotHands.forEach((investor, i) => {
 // Analyze recent additions with DYNAMIC date filtering
 const recentAdditions = [];
 const veryRecentAdditions = [];
+const hotActivityAdditions = []; // 🔥 NEW: 3-day trend catching
 
 hotHands.forEach(investor => {
     if (!investor.portfolio?.positions) return;
@@ -134,6 +137,11 @@ hotHands.forEach(investor => {
             
             if (openDate >= veryRecentThreshold) {
                 veryRecentAdditions.push(positionData);
+                
+                // 🔥 NEW: Track hot activity (last 3 days)
+                if (openDate >= hotActivityThreshold) {
+                    hotActivityAdditions.push(positionData);
+                }
             }
         }
     });
@@ -142,10 +150,12 @@ hotHands.forEach(investor => {
 // Sort by date (newest first)
 recentAdditions.sort((a, b) => new Date(b.openTimestamp) - new Date(a.openTimestamp));
 veryRecentAdditions.sort((a, b) => new Date(b.openTimestamp) - new Date(a.openTimestamp));
+hotActivityAdditions.sort((a, b) => new Date(b.openTimestamp) - new Date(a.openTimestamp)); // 🔥 NEW
 
 console.log(`\n📊 DYNAMIC ANALYSIS RESULTS:`);
 console.log(`Total recent positions (last 90 days): ${recentAdditions.length}`);
 console.log(`Very recent positions (last 45 days): ${veryRecentAdditions.length}`);
+console.log(`🔥 Hot activity positions (last 3 days): ${hotActivityAdditions.length}`);
 
 // Show most recent additions
 console.log('\n🚀 MOST RECENT ADDITIONS (Last 45 Days):');
@@ -208,6 +218,76 @@ trendingAssets.slice(0, 10).forEach((asset, i) => {
     console.log(`   📊 Type: ${asset.type}\n`);
 });
 
+// 🔥 NEW: HOT ACTIVITY ANALYSIS (Last 3 Days - Trend Catching)
+console.log('\n🚀 HOT ACTIVITY - TREND CATCHING (Last 3 Days):');
+console.log('===============================================');
+
+if (hotActivityAdditions.length === 0) {
+    console.log('No positions opened by hot hands investors in the last 3 days.');
+} else {
+    console.log(`${hotActivityAdditions.length} positions opened in last 3 days by hot hands investors:\n`);
+    
+    // Show all hot activity positions
+    hotActivityAdditions.slice(0, 20).forEach((pos, i) => {
+        const hoursAgo = Math.floor((today - pos.openDate) / (1000 * 60 * 60));
+        const timeDisplay = hoursAgo < 24 ? `${hoursAgo} hours ago` : `${pos.daysSinceOpen} days ago`;
+        
+        console.log(`${i + 1}. ${pos.name} (${pos.type})`);
+        console.log(`   👤 Investor: @${pos.investor} (${pos.investorGain}% YTD, ${pos.investorCopiers.toLocaleString()} copiers)`);
+        console.log(`   ⏱️ Opened: ${timeDisplay}`);
+        console.log(`   💼 Allocation: ${pos.allocation.toFixed(1)}%`);
+        console.log(`   💰 Current P&L: ${pos.netProfit.toFixed(2)}%`);
+        console.log('');
+    });
+    
+    // Aggregate hot activity by asset
+    const hotTrendingMap = new Map();
+    hotActivityAdditions.forEach(pos => {
+        if (!hotTrendingMap.has(pos.instrumentId)) {
+            hotTrendingMap.set(pos.instrumentId, {
+                instrumentId: pos.instrumentId,
+                symbol: pos.symbol,
+                name: pos.name,
+                type: pos.type,
+                additionCount: 0,
+                investors: new Set(),
+                totalAllocation: 0,
+                performanceSum: 0,
+                avgPerformance: 0
+            });
+        }
+        
+        const asset = hotTrendingMap.get(pos.instrumentId);
+        asset.additionCount++;
+        asset.investors.add(pos.investor);
+        asset.totalAllocation += pos.allocation;
+        asset.performanceSum += pos.investorGain;
+    });
+    
+    const hotTrendingAssets = Array.from(hotTrendingMap.values())
+        .map(asset => ({
+            ...asset,
+            uniqueInvestors: asset.investors.size,
+            investorsList: Array.from(asset.investors),
+            avgAllocation: asset.totalAllocation / asset.additionCount,
+            avgInvestorPerformance: asset.performanceSum / asset.additionCount
+        }))
+        .sort((a, b) => b.additionCount - a.additionCount);
+    
+    if (hotTrendingAssets.length > 0) {
+        console.log('🔥 MOST ACTIVE ASSETS (Last 3 Days):');
+        console.log('====================================');
+        
+        hotTrendingAssets.slice(0, 5).forEach((asset, i) => {
+            console.log(`${i + 1}. ${asset.name} (${asset.type})`);
+            console.log(`   🔥 ${asset.additionCount} positions by ${asset.uniqueInvestors} hot hands investor(s)`);
+            console.log(`   👤 Investors: ${asset.investorsList.join(', ')}`);
+            console.log(`   💼 Avg allocation: ${asset.avgAllocation.toFixed(1)}%`);
+            console.log(`   📊 Avg investor YTD: ${asset.avgInvestorPerformance.toFixed(1)}%\n`);
+        });
+    }
+}
+
 // Performance analysis
 const profitableRecent = veryRecentAdditions.filter(pos => pos.netProfit > 0);
 const winRate = veryRecentAdditions.length > 0 ? (profitableRecent.length / veryRecentAdditions.length) * 100 : 0;
@@ -235,9 +315,11 @@ const results = {
         dataFile: dataFiles[0],
         recentThresholdDays: 90,
         veryRecentThresholdDays: 45,
+        hotActivityThresholdDays: 3,
         dynamicThresholds: {
             recentThreshold: recentThreshold.toISOString(),
-            veryRecentThreshold: veryRecentThreshold.toISOString()
+            veryRecentThreshold: veryRecentThreshold.toISOString(),
+            hotActivityThreshold: hotActivityThreshold.toISOString()
         }
     },
     hotHandsInvestors: hotHands.map(inv => ({
@@ -251,8 +333,47 @@ const results = {
         hotHandsScore: inv.hotHandsScore
     })),
     trendingAssets: trendingAssets.slice(0, 15),
+    hotActivity: {
+        positions: hotActivityAdditions.slice(0, 20),
+        trendingAssets: hotActivityAdditions.length > 0 ? (() => {
+            // Aggregate hot activity by asset for results
+            const hotTrendingMap = new Map();
+            hotActivityAdditions.forEach(pos => {
+                if (!hotTrendingMap.has(pos.instrumentId)) {
+                    hotTrendingMap.set(pos.instrumentId, {
+                        instrumentId: pos.instrumentId,
+                        symbol: pos.symbol,
+                        name: pos.name,
+                        type: pos.type,
+                        additionCount: 0,
+                        investors: new Set(),
+                        totalAllocation: 0,
+                        performanceSum: 0
+                    });
+                }
+                const asset = hotTrendingMap.get(pos.instrumentId);
+                asset.additionCount++;
+                asset.investors.add(pos.investor);
+                asset.totalAllocation += pos.allocation;
+                asset.performanceSum += pos.investorGain;
+            });
+            
+            return Array.from(hotTrendingMap.values())
+                .map(asset => ({
+                    ...asset,
+                    uniqueInvestors: asset.investors.size,
+                    investorsList: Array.from(asset.investors),
+                    avgAllocation: asset.totalAllocation / asset.additionCount,
+                    avgInvestorPerformance: asset.performanceSum / asset.additionCount
+                }))
+                .sort((a, b) => b.additionCount - a.additionCount)
+                .slice(0, 10);
+        })() : [],
+        totalPositions: hotActivityAdditions.length
+    },
     performanceMetrics: {
         recentPositions: veryRecentAdditions.length,
+        hotActivityPositions: hotActivityAdditions.length,
         winRate: winRate,
         profitablePositions: profitableRecent.length
     },
