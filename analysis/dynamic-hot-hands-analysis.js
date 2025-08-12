@@ -223,7 +223,7 @@ if (profitableRecent.length > 0) {
         .sort((a, b) => b.netProfit - a.netProfit)
         .slice(0, 10)
         .forEach((pos, i) => {
-            console.log(`${i + 1}. ${pos.symbol} by @${pos.investor}: +${pos.netProfit.toFixed(2)}% (${pos.daysSinceOpen} days)`);
+            console.log(`${i + 1}. ${pos.name} by @${pos.investor}: +${pos.netProfit.toFixed(2)}% (${pos.daysSinceOpen} days)`);
         });
 }
 
