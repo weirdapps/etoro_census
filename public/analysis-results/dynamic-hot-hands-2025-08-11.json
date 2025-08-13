@@ -1,12 +1,12 @@
 {
   "metadata": {
-    "analysisDate": "2025-08-11T16:30:40.928Z",
+    "analysisDate": "2025-08-11T16:36:04.909Z",
     "dataFile": "etoro-data-2025-08-11-02-07.json",
     "recentThresholdDays": 90,
     "veryRecentThresholdDays": 45,
     "dynamicThresholds": {
-      "recentThreshold": "2025-05-13T16:30:40.928Z",
-      "veryRecentThreshold": "2025-06-27T16:30:40.928Z"
+      "recentThreshold": "2025-05-13T16:36:04.909Z",
+      "veryRecentThreshold": "2025-06-27T16:36:04.909Z"
     }
   },
   "hotHandsInvestors": [
