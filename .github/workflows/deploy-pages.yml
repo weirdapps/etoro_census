@@ -47,11 +47,33 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v4
       
+      - name: Prepare deployment files
+        run: |
+          # Create deployment directory with only necessary files
+          mkdir -p deploy-temp
+          
+          # Copy essential files for website
+          cp index.html deploy-temp/
+          cp -r public/reports deploy-temp/reports
+          cp -r public/analysis-results deploy-temp/analysis-results
+          
+          # Copy latest data file only (not entire data directory)
+          mkdir -p deploy-temp/data
+          cd public/data
+          LATEST_DATA=$(ls etoro-data-*.json 2>/dev/null | sort -r | head -n 1)
+          if [ -n "$LATEST_DATA" ]; then
+            echo "Including latest data file: $LATEST_DATA"
+            cp "$LATEST_DATA" ../../deploy-temp/data/
+          fi
+          cd ../..
+          
+          echo "✅ Deployment files prepared, excluding large historical data"
+      
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # Upload entire repository root (this will include the latest report as index.html)
-          path: '.'
+          # Upload only necessary files for GitHub Pages
+          path: 'deploy-temp'
       
       - name: Deploy to GitHub Pages
         id: deployment
