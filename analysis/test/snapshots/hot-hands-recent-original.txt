@@ -1,0 +1,377 @@
+🔥 HOT HANDS ANALYSIS - Recent Additions by Top Performers
+===========================================================
+✅ Loaded data from 2025.08.11 at 02:07 UTC
+
+🔥 TOP 15 HOT HANDS INVESTORS (Recent + Overall Performance):
+=============================================================
+1. @hugo13250 (Hugo Biolchini)
+   🎯 YTD: 23.93% | Daily: 8.71% | Win Rate: 86.32%
+   👥 Copiers: 841 | Risk: 6
+   🔥 Hot Hands Score: 26.848
+
+2. @Napoleon-X (CoinShares France SAS)
+   🎯 YTD: 30.57% | Daily: 5.41% | Win Rate: 87.3%
+   👥 Copiers: 10,099 | Risk: 5
+   🔥 Hot Hands Score: 25.787
+
+3. @misterg23 (George Thomson)
+   🎯 YTD: 20.09% | Daily: 5.9% | Win Rate: 81.25%
+   👥 Copiers: 4,303 | Risk: 5
+   🔥 Hot Hands Score: 21.638
+
+4. @thomaspj (Thomas Parry Jones)
+   🎯 YTD: 39.11% | Daily: 0.09% | Win Rate: 75.97%
+   👥 Copiers: 39,168 | Risk: 4
+   🔥 Hot Hands Score: 20.515
+
+5. @PROJECT10X (Filip Brnadic)
+   🎯 YTD: 26.68% | Daily: 5.1% | Win Rate: 78.95%
+   👥 Copiers: 998 | Risk: 5
+   🔥 Hot Hands Score: 16.100
+
+6. @victorlee448 (Victor Lee)
+   🎯 YTD: 26.3% | Daily: 5.02% | Win Rate: 90.16%
+   👥 Copiers: 754 | Risk: 5
+   🔥 Hot Hands Score: 15.849
+
+7. @KoraTrades (Mimi Ho)
+   🎯 YTD: 8.84% | Daily: 4.86% | Win Rate: 68.3%
+   👥 Copiers: 1,888 | Risk: 5
+   🔥 Hot Hands Score: 15.382
+
+8. @triangulacapital (Pietari Laurila)
+   🎯 YTD: 29.11% | Daily: 2.17% | Win Rate: 53.16%
+   👥 Copiers: 15,279 | Risk: 4
+   🔥 Hot Hands Score: 14.767
+
+9. @LoukasBW (Loukenti Billa)
+   🎯 YTD: 28.05% | Daily: 3.43% | Win Rate: 81.66%
+   👥 Copiers: 860 | Risk: 6
+   🔥 Hot Hands Score: 11.132
+
+10. @Kevin_Pando (Kevin Pando)
+   🎯 YTD: 47.53% | Daily: 2.11% | Win Rate: 91.3%
+   👥 Copiers: 1,730 | Risk: 5
+   🔥 Hot Hands Score: 11.086
+
+11. @NabilSifo (Nabil Sifo)
+   🎯 YTD: 41.63% | Daily: 2.46% | Win Rate: 68.59%
+   👥 Copiers: 1,843 | Risk: 5
+   🔥 Hot Hands Score: 11.073
+
+12. @mick_repo (Miska Repo)
+   🎯 YTD: 42.29% | Daily: 0.76% | Win Rate: 88.11%
+   👥 Copiers: 2,976 | Risk: 4
+   🔥 Hot Hands Score: 10.660
+
+13. @JeppeKirkBonde (Jeppe Kirk Bonde)
+   🎯 YTD: 19% | Daily: 0.47% | Win Rate: 77.67%
+   👥 Copiers: 28,424 | Risk: 4
+   🔥 Hot Hands Score: 10.624
+
+14. @Aukie2008 (Mike Moest)
+   🎯 YTD: 20.15% | Daily: 1.58% | Win Rate: 90.65%
+   👥 Copiers: 3,042 | Risk: 3
+   🔥 Hot Hands Score: 10.086
+
+15. @Smudliczek (Dan Hamerník)
+   🎯 YTD: 59.67% | Daily: -1% | Win Rate: 82.3%
+   👥 Copiers: 3,680 | Risk: 4
+   🔥 Hot Hands Score: 9.987
+
+
+📅 ANALYZING RECENT ADDITIONS:
+Recent threshold: 2025-05-11
+Very recent threshold: 2025-07-01
+
+📊 RECENT ADDITIONS SUMMARY:
+Total recent positions (last 3 months): 576
+Very recent positions (last 1.5 months): 319
+
+🚀 VERY RECENT ADDITIONS (Last 1.5 Months):
+==============================================
+1. ETORO:100043 - Dogecoin
+   👤 Investor: @KoraTrades (8.84% YTD)
+   📅 Opened: 2025-08-10 (9 days ago)
+   💼 Allocation: 0.6%
+   💰 P&L: 0.83%
+   📊 Type: Crypto
+
+2. ETORO:100061 - Hedera Hashgraph
+   👤 Investor: @KoraTrades (8.84% YTD)
+   📅 Opened: 2025-08-10 (9 days ago)
+   💼 Allocation: 0.6%
+   💰 P&L: 1.34%
+   📊 Type: Crypto
+
+3. ETORO:100003 - XRP
+   👤 Investor: @KoraTrades (8.84% YTD)
+   📅 Opened: 2025-08-10 (9 days ago)
+   💼 Allocation: 0.6%
+   💰 P&L: 0.13%
+   📊 Type: Crypto
+
+4. ETORO:100418 - Bittensor (Experimental)
+   👤 Investor: @KoraTrades (8.84% YTD)
+   📅 Opened: 2025-08-10 (9 days ago)
+   💼 Allocation: 0.4%
+   💰 P&L: 0.86%
+   📊 Type: Crypto
+
+5. ETORO:100334 - Render Token
+   👤 Investor: @KoraTrades (8.84% YTD)
+   📅 Opened: 2025-08-10 (9 days ago)
+   💼 Allocation: 0.5%
+   💰 P&L: 1.82%
+   📊 Type: Crypto
+
+6. ETORO:100418 - Bittensor (Experimental)
+   👤 Investor: @KoraTrades (8.84% YTD)
+   📅 Opened: 2025-08-09 (10 days ago)
+   💼 Allocation: 0.4%
+   💰 P&L: 0.64%
+   📊 Type: Crypto
+
+7. ETORO:100323 - Ondo Finance
+   👤 Investor: @KoraTrades (8.84% YTD)
+   📅 Opened: 2025-08-09 (10 days ago)
+   💼 Allocation: 0.6%
+   💰 P&L: -1.82%
+   📊 Type: Crypto
+
+8. ETORO:100323 - Ondo Finance
+   👤 Investor: @hugo13250 (23.93% YTD)
+   📅 Opened: 2025-08-09 (10 days ago)
+   💼 Allocation: 1.3%
+   💰 P&L: -1.06%
+   📊 Type: Crypto
+
+9. ETORO:100079 - Fetch.ai
+   👤 Investor: @hugo13250 (23.93% YTD)
+   📅 Opened: 2025-08-09 (10 days ago)
+   💼 Allocation: 2.0%
+   💰 P&L: 1.72%
+   📊 Type: Crypto
+
+10. ETORO:100340 - Sui
+   👤 Investor: @KoraTrades (8.84% YTD)
+   📅 Opened: 2025-08-09 (10 days ago)
+   💼 Allocation: 0.5%
+   💰 P&L: -2.73%
+   📊 Type: Crypto
+
+11. ETORO:100017 - Cardano
+   👤 Investor: @KoraTrades (8.84% YTD)
+   📅 Opened: 2025-08-09 (10 days ago)
+   💼 Allocation: 0.6%
+   💰 P&L: -1.66%
+   📊 Type: Crypto
+
+12. ETORO:100020 - Stellar
+   👤 Investor: @KoraTrades (8.84% YTD)
+   📅 Opened: 2025-08-09 (10 days ago)
+   💼 Allocation: 0.5%
+   💰 P&L: -2.44%
+   📊 Type: Crypto
+
+13. ETORO:100079 - Fetch.ai
+   👤 Investor: @hugo13250 (23.93% YTD)
+   📅 Opened: 2025-08-08 (11 days ago)
+   💼 Allocation: 3.3%
+   💰 P&L: 2.08%
+   📊 Type: Crypto
+
+14. ETORO:100040 - Chainlink
+   👤 Investor: @hugo13250 (23.93% YTD)
+   📅 Opened: 2025-08-08 (11 days ago)
+   💼 Allocation: 0.1%
+   💰 P&L: 12.32%
+   📊 Type: Crypto
+
+15. ETORO:100040 - Chainlink
+   👤 Investor: @hugo13250 (23.93% YTD)
+   📅 Opened: 2025-08-08 (11 days ago)
+   💼 Allocation: 0.0%
+   💰 P&L: 12.40%
+   📊 Type: Crypto
+
+16. ETORO:100040 - Chainlink
+   👤 Investor: @hugo13250 (23.93% YTD)
+   📅 Opened: 2025-08-08 (11 days ago)
+   💼 Allocation: 0.1%
+   💰 P&L: 12.41%
+   📊 Type: Crypto
+
+17. ETORO:100040 - Chainlink
+   👤 Investor: @hugo13250 (23.93% YTD)
+   📅 Opened: 2025-08-08 (11 days ago)
+   💼 Allocation: 0.1%
+   💰 P&L: 12.30%
+   📊 Type: Crypto
+
+18. ETORO:100040 - Chainlink
+   👤 Investor: @hugo13250 (23.93% YTD)
+   📅 Opened: 2025-08-08 (11 days ago)
+   💼 Allocation: 0.3%
+   💰 P&L: 12.19%
+   📊 Type: Crypto
+
+19. ETORO:100040 - Chainlink
+   👤 Investor: @hugo13250 (23.93% YTD)
+   📅 Opened: 2025-08-08 (11 days ago)
+   💼 Allocation: 0.3%
+   💰 P&L: 12.23%
+   📊 Type: Crypto
+
+20. ETORO:100040 - Chainlink
+   👤 Investor: @hugo13250 (23.93% YTD)
+   📅 Opened: 2025-08-08 (11 days ago)
+   💼 Allocation: 1.3%
+   💰 P&L: 12.07%
+   📊 Type: Crypto
+
+
+📈 TRENDING ASSETS (Most Recent Additions):
+============================================
+1. ETORO:100040 - Chainlink
+   🔥 15 recent positions by 2 investors
+   👤 Investors: hugo13250, KoraTrades
+   💼 Avg allocation: 2.3%
+   📊 Avg investor YTD: 21.9%
+   📊 Type: Crypto
+
+2. ETORO:1127 - Netflix, Inc.
+   🔥 13 recent positions by 2 investors
+   👤 Investors: NabilSifo, thomaspj
+   💼 Avg allocation: 0.8%
+   📊 Avg investor YTD: 39.7%
+   📊 Type: Stock
+
+3. ETORO:100301 - Bonk Inu (in millions) (Experimental)
+   🔥 11 recent positions by 1 investors
+   👤 Investors: misterg23
+   💼 Avg allocation: 0.3%
+   📊 Avg investor YTD: 20.1%
+   📊 Type: Crypto
+
+4. ETORO:1009 - American Express CO
+   🔥 10 recent positions by 1 investors
+   👤 Investors: thomaspj
+   💼 Avg allocation: 0.5%
+   📊 Avg investor YTD: 39.1%
+   📊 Type: Stock
+
+5. ETORO:1037 - Citigroup
+   🔥 9 recent positions by 2 investors
+   👤 Investors: thomaspj, Aukie2008
+   💼 Avg allocation: 0.5%
+   📊 Avg investor YTD: 34.9%
+   📊 Type: Stock
+
+6. ETORO:7999 - Snowflake Inc.
+   🔥 9 recent positions by 1 investors
+   👤 Investors: thomaspj
+   💼 Avg allocation: 0.4%
+   📊 Avg investor YTD: 39.1%
+   📊 Type: Stock
+
+7. ETORO:100063 - Solana
+   🔥 8 recent positions by 4 investors
+   👤 Investors: KoraTrades, Napoleon-X, PROJECT10X, misterg23
+   💼 Avg allocation: 0.4%
+   📊 Avg investor YTD: 16.6%
+   📊 Type: Crypto
+
+8. ETORO:1467 - Goldman Sachs Group Inc
+   🔥 8 recent positions by 1 investors
+   👤 Investors: thomaspj
+   💼 Avg allocation: 0.5%
+   📊 Avg investor YTD: 39.1%
+   📊 Type: Stock
+
+9. ETORO:4509 - ASML Holding NV
+   🔥 7 recent positions by 3 investors
+   👤 Investors: Aukie2008, JeppeKirkBonde, Smudliczek
+   💼 Avg allocation: 0.6%
+   📊 Avg investor YTD: 25.3%
+   📊 Type: Stock
+
+10. ETORO:1316 - BBVA
+   🔥 7 recent positions by 1 investors
+   👤 Investors: triangulacapital
+   💼 Avg allocation: 1.0%
+   📊 Avg investor YTD: 29.1%
+   📊 Type: Stock
+
+11. ETORO:1407 - Julius Baer Gruppe AG
+   🔥 7 recent positions by 1 investors
+   👤 Investors: triangulacapital
+   💼 Avg allocation: 1.0%
+   📊 Avg investor YTD: 29.1%
+   📊 Type: Stock
+
+12. ETORO:100003 - XRP
+   🔥 6 recent positions by 2 investors
+   👤 Investors: KoraTrades, Napoleon-X
+   💼 Avg allocation: 1.7%
+   📊 Avg investor YTD: 19.7%
+   📊 Type: Crypto
+
+13. ETORO:1203 - Bayer AG
+   🔥 6 recent positions by 1 investors
+   👤 Investors: Aukie2008
+   💼 Avg allocation: 0.3%
+   📊 Avg investor YTD: 20.2%
+   📊 Type: Stock
+
+14. ETORO:1003 - Meta Platforms Inc
+   🔥 6 recent positions by 1 investors
+   👤 Investors: thomaspj
+   💼 Avg allocation: 1.0%
+   📊 Avg investor YTD: 39.1%
+   📊 Type: Stock
+
+15. ETORO:1032 - UnitedHealth
+   🔥 6 recent positions by 2 investors
+   👤 Investors: NabilSifo, KoraTrades
+   💼 Avg allocation: 0.8%
+   📊 Avg investor YTD: 30.7%
+   📊 Type: Stock
+
+
+🏭 SECTOR TRENDS IN RECENT ADDITIONS:
+=====================================
+Other: 176 positions by 11 investors
+Crypto: 86 positions by 8 investors
+Big Tech: 32 positions by 4 investors
+Finance: 19 positions by 2 investors
+Energy: 4 positions by 2 investors
+EV/Auto: 1 positions by 1 investors
+Defense: 1 positions by 1 investors
+
+💹 PERFORMANCE OF RECENT ADDITIONS:
+===================================
+Profitable recent positions: 190/319 (59.6%)
+
+🏆 BEST PERFORMING RECENT ADDITIONS:
+1. ETORO:100068 by @KoraTrades: +94.83% (46 days)
+2. ETORO:100061 by @KoraTrades: +59.74% (47 days)
+3. ETORO:100009 by @KoraTrades: +56.69% (35 days)
+4. ETORO:100068 by @KoraTrades: +53.83% (37 days)
+5. ETORO:100009 by @hugo13250: +50.00% (33 days)
+6. ETORO:100009 by @hugo13250: +49.28% (33 days)
+7. ETORO:100003 by @KoraTrades: +42.33% (46 days)
+8. ETORO:100040 by @KoraTrades: +42.32% (37 days)
+9. ETORO:100001 by @NabilSifo: +40.48% (36 days)
+10. ETORO:7991 by @thomaspj: +39.66% (43 days)
+
+💾 Hot hands analysis saved to: /Users/plessas/SourceCode/etoro_census/public/analysis-results/hot-hands-analysis-2025-08-19.json
+
+🎯 KEY INSIGHTS - RECENT ADDITIONS:
+===================================
+🔥 Top hot hands investor: @hugo13250 (23.93% YTD)
+📈 Most added recent asset: ETORO:100040 (15 additions)
+🏭 Hot sector: Other (176 positions)
+💹 Recent additions win rate: 59.6%
+
+✅ Hot Hands Analysis Complete!
