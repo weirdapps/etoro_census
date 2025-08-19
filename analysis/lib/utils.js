@@ -15,7 +15,8 @@ function getDataDirectory() {
   const possiblePaths = [
     './public/data',
     '../public/data',
-    '/Users/plessas/SourceCode/etoro_census/public/data'
+    path.join(process.cwd(), 'public/data'),
+    path.join(__dirname, '../../public/data')
   ];
   
   for (const dataPath of possiblePaths) {
