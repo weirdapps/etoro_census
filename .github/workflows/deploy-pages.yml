@@ -55,7 +55,6 @@ jobs:
           # Copy essential files for website
           cp index.html deploy-temp/
           cp -r public/reports deploy-temp/reports
-          cp -r public/analysis-results deploy-temp/analysis-results
           
           # Copy latest data file only (not entire data directory)
           mkdir -p deploy-temp/data
