@@ -326,7 +326,7 @@ function formatNumber(value) {
  * Ensures output directory exists
  */
 function ensureOutputDirectory() {
-  const outputDir = path.join(getDataDirectory(), '../../analysis-results');
+  const outputDir = path.join(__dirname, '../output');
   if (!fs.existsSync(outputDir)) {
     fs.mkdirSync(outputDir, { recursive: true });
   }
