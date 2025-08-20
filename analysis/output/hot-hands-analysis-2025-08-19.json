@@ -1,0 +1,356 @@
+{
+  "metadata": {
+    "analysisDate": "2025-08-19T22:58:29.062Z",
+    "dataCollectedAt": "2025.08.19 at 02:01 UTC",
+    "thresholds": {
+      "recent": "2025-08-12T22:58:29.061Z",
+      "veryRecent": "2025-08-16T22:58:29.061Z"
+    }
+  },
+  "hotHands": [
+    {
+      "userName": "thomaspj",
+      "fullName": "Thomas Parry Jones",
+      "gain": 41.19,
+      "dailyGain": 0,
+      "copiers": 38999,
+      "riskScore": 4,
+      "hotHandsScore": 21.865382277096344
+    },
+    {
+      "userName": "Smudliczek",
+      "fullName": "Dan Hamerník",
+      "gain": 60.36,
+      "dailyGain": 0.01,
+      "copiers": 3777,
+      "riskScore": 4,
+      "hotHandsScore": 13.30381274320062
+    },
+    {
+      "userName": "Napoleon-X",
+      "fullName": "CoinShares France SAS",
+      "gain": 32.99,
+      "dailyGain": 0.41,
+      "copiers": 10516,
+      "riskScore": 5,
+      "hotHandsScore": 11.706673300031182
+    },
+    {
+      "userName": "hugo13250",
+      "fullName": "Hugo Biolchini",
+      "gain": 27.8,
+      "dailyGain": 3.38,
+      "copiers": 890,
+      "riskScore": 6,
+      "hotHandsScore": 10.973999999999998
+    },
+    {
+      "userName": "JeppeKirkBonde",
+      "fullName": "Jeppe Kirk Bonde",
+      "gain": 20.58,
+      "dailyGain": 0,
+      "copiers": 28266,
+      "riskScore": 4,
+      "hotHandsScore": 10.073289519809858
+    },
+    {
+      "userName": "triangulacapital",
+      "fullName": "Pietari Laurila",
+      "gain": 32.63,
+      "dailyGain": 0.01,
+      "copiers": 16162,
+      "riskScore": 4,
+      "hotHandsScore": 9.455864678578525
+    },
+    {
+      "userName": "mick_repo",
+      "fullName": "Miska Repo",
+      "gain": 45.2,
+      "dailyGain": 0,
+      "copiers": 2988,
+      "riskScore": 4,
+      "hotHandsScore": 8.92337146509233
+    },
+    {
+      "userName": "rubymza",
+      "fullName": "Heloise Greeff",
+      "gain": 27.73,
+      "dailyGain": 0.03,
+      "copiers": 6544,
+      "riskScore": 4,
+      "hotHandsScore": 7.637750551128534
+    },
+    {
+      "userName": "saifsyn",
+      "fullName": "Saif Alnaqbi",
+      "gain": 29.27,
+      "dailyGain": 0,
+      "copiers": 7889,
+      "riskScore": 5,
+      "hotHandsScore": 7.496008117770299
+    },
+    {
+      "userName": "defense_investor",
+      "fullName": "Stewart Fitzell",
+      "gain": 23.8,
+      "dailyGain": 0.01,
+      "copiers": 8341,
+      "riskScore": 4,
+      "hotHandsScore": 7.432772316478036
+    },
+    {
+      "userName": "FundManagerZech",
+      "fullName": "Zechariah Bin Zheng",
+      "gain": 21.56,
+      "dailyGain": 0.16,
+      "copiers": 10091,
+      "riskScore": 4,
+      "hotHandsScore": 7.220744420935788
+    },
+    {
+      "userName": "Kevin_Pando",
+      "fullName": "Kevin Pando",
+      "gain": 49.75,
+      "dailyGain": 0,
+      "copiers": 1865,
+      "riskScore": 4,
+      "hotHandsScore": 6.446681354229307
+    },
+    {
+      "userName": "Aukie2008",
+      "fullName": "Mike Moest",
+      "gain": 21.69,
+      "dailyGain": 0.01,
+      "copiers": 3041,
+      "riskScore": 3,
+      "hotHandsScore": 5.811328790231567
+    },
+    {
+      "userName": "Michalhla",
+      "fullName": "Michal Hlavacka",
+      "gain": 28.85,
+      "dailyGain": 0,
+      "copiers": 2252,
+      "riskScore": 3,
+      "hotHandsScore": 5.753300255688328
+    },
+    {
+      "userName": "Flaten",
+      "fullName": "Sondre Flateraaker",
+      "gain": 62.24,
+      "dailyGain": 0.04,
+      "copiers": 1670,
+      "riskScore": 5,
+      "hotHandsScore": 5.379715530988092
+    },
+    {
+      "userName": "NabilSifo",
+      "fullName": "Nabil Sifo",
+      "gain": 45.51,
+      "dailyGain": 0.03,
+      "copiers": 1886,
+      "riskScore": 4,
+      "hotHandsScore": 5.197034351064185
+    },
+    {
+      "userName": "CPHequities",
+      "fullName": "Blue Screen Media ApS",
+      "gain": 14.13,
+      "dailyGain": 0,
+      "copiers": 13766,
+      "riskScore": 4,
+      "hotHandsScore": 5.126132669354399
+    },
+    {
+      "userName": "misterg23",
+      "fullName": "George Thomson",
+      "gain": 22.84,
+      "dailyGain": 0.55,
+      "copiers": 4439,
+      "riskScore": 6,
+      "hotHandsScore": 5.094993133746181
+    },
+    {
+      "userName": "jaynemesis",
+      "fullName": "Jay Smith",
+      "gain": 14.1,
+      "dailyGain": 0,
+      "copiers": 10262,
+      "riskScore": 4,
+      "hotHandsScore": 4.421255056739474
+    },
+    {
+      "userName": "steveli1029",
+      "fullName": "Shao Feng Li",
+      "gain": 25.71,
+      "dailyGain": 0.2,
+      "copiers": 3008,
+      "riskScore": 4,
+      "hotHandsScore": 4.382896346796311
+    }
+  ],
+  "recentAdditions": [],
+  "veryRecentAdditions": [],
+  "accumulationPatterns": [
+    {
+      "instrumentId": 1005,
+      "holders": 76,
+      "totalAllocation": 0,
+      "recentAdds": 0,
+      "avgAllocation": 0,
+      "recentRatio": 0
+    },
+    {
+      "instrumentId": 1003,
+      "holders": 23,
+      "totalAllocation": 0,
+      "recentAdds": 0,
+      "avgAllocation": 0,
+      "recentRatio": 0
+    },
+    {
+      "instrumentId": 1037,
+      "holders": 19,
+      "totalAllocation": 0,
+      "recentAdds": 0,
+      "avgAllocation": 0,
+      "recentRatio": 0
+    },
+    {
+      "instrumentId": 7991,
+      "holders": 28,
+      "totalAllocation": 0,
+      "recentAdds": 0,
+      "avgAllocation": 0,
+      "recentRatio": 0
+    },
+    {
+      "instrumentId": 1004,
+      "holders": 83,
+      "totalAllocation": 0,
+      "recentAdds": 0,
+      "avgAllocation": 0,
+      "recentRatio": 0
+    },
+    {
+      "instrumentId": 1002,
+      "holders": 51,
+      "totalAllocation": 0,
+      "recentAdds": 0,
+      "avgAllocation": 0,
+      "recentRatio": 0
+    },
+    {
+      "instrumentId": 1023,
+      "holders": 13,
+      "totalAllocation": 0,
+      "recentAdds": 0,
+      "avgAllocation": 0,
+      "recentRatio": 0
+    },
+    {
+      "instrumentId": 1467,
+      "holders": 20,
+      "totalAllocation": 0,
+      "recentAdds": 0,
+      "avgAllocation": 0,
+      "recentRatio": 0
+    },
+    {
+      "instrumentId": 2040,
+      "holders": 7,
+      "totalAllocation": 0,
+      "recentAdds": 0,
+      "avgAllocation": 0,
+      "recentRatio": 0
+    },
+    {
+      "instrumentId": 7999,
+      "holders": 25,
+      "totalAllocation": 0,
+      "recentAdds": 0,
+      "avgAllocation": 0,
+      "recentRatio": 0
+    },
+    {
+      "instrumentId": 1009,
+      "holders": 21,
+      "totalAllocation": 0,
+      "recentAdds": 0,
+      "avgAllocation": 0,
+      "recentRatio": 0
+    },
+    {
+      "instrumentId": 2072,
+      "holders": 62,
+      "totalAllocation": 0,
+      "recentAdds": 0,
+      "avgAllocation": 0,
+      "recentRatio": 0
+    },
+    {
+      "instrumentId": 1137,
+      "holders": 68,
+      "totalAllocation": 0,
+      "recentAdds": 0,
+      "avgAllocation": 0,
+      "recentRatio": 0
+    },
+    {
+      "instrumentId": 1127,
+      "holders": 29,
+      "totalAllocation": 0,
+      "recentAdds": 0,
+      "avgAllocation": 0,
+      "recentRatio": 0
+    },
+    {
+      "instrumentId": 1832,
+      "holders": 38,
+      "totalAllocation": 0,
+      "recentAdds": 0,
+      "avgAllocation": 0,
+      "recentRatio": 0
+    },
+    {
+      "instrumentId": 6434,
+      "holders": 31,
+      "totalAllocation": 0,
+      "recentAdds": 0,
+      "avgAllocation": 0,
+      "recentRatio": 0
+    },
+    {
+      "instrumentId": 2587,
+      "holders": 75,
+      "totalAllocation": 0,
+      "recentAdds": 0,
+      "avgAllocation": 0,
+      "recentRatio": 0
+    },
+    {
+      "instrumentId": 1141,
+      "holders": 8,
+      "totalAllocation": 0,
+      "recentAdds": 0,
+      "avgAllocation": 0,
+      "recentRatio": 0
+    },
+    {
+      "instrumentId": 1210,
+      "holders": 7,
+      "totalAllocation": 0,
+      "recentAdds": 0,
+      "avgAllocation": 0,
+      "recentRatio": 0
+    },
+    {
+      "instrumentId": 1331,
+      "holders": 13,
+      "totalAllocation": 0,
+      "recentAdds": 0,
+      "avgAllocation": 0,
+      "recentRatio": 0
+    }
+  ]
+}

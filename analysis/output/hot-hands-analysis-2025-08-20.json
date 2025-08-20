@@ -1,0 +1,356 @@
+{
+  "metadata": {
+    "analysisDate": "2025-08-20T14:41:24.811Z",
+    "dataCollectedAt": "2025.08.20 at 01:58 UTC",
+    "thresholds": {
+      "recent": "2025-08-13T14:41:24.810Z",
+      "veryRecent": "2025-08-17T14:41:24.810Z"
+    }
+  },
+  "hotHands": [
+    {
+      "userName": "thomaspj",
+      "fullName": "Thomas Parry Jones",
+      "gain": 40.72,
+      "dailyGain": -0.33,
+      "copiers": 38997,
+      "riskScore": 4,
+      "hotHandsScore": 20.578610254734798
+    },
+    {
+      "userName": "Smudliczek",
+      "fullName": "Dan Hamerník",
+      "gain": 61.34,
+      "dailyGain": 0.61,
+      "copiers": 3794,
+      "riskScore": 4,
+      "hotHandsScore": 15.450298022144361
+    },
+    {
+      "userName": "JeppeKirkBonde",
+      "fullName": "Jeppe Kirk Bonde",
+      "gain": 20.8,
+      "dailyGain": 0.18,
+      "copiers": 28264,
+      "riskScore": 4,
+      "hotHandsScore": 10.732933903771858
+    },
+    {
+      "userName": "FundManagerZech",
+      "fullName": "Zechariah Bin Zheng",
+      "gain": 22.75,
+      "dailyGain": 0.98,
+      "copiers": 10134,
+      "riskScore": 4,
+      "hotHandsScore": 10.024058043500947
+    },
+    {
+      "userName": "saifsyn",
+      "fullName": "Saif Alnaqbi",
+      "gain": 29.55,
+      "dailyGain": 0.22,
+      "copiers": 7959,
+      "riskScore": 5,
+      "hotHandsScore": 8.149881925918727
+    },
+    {
+      "userName": "defense_investor",
+      "fullName": "Stewart Fitzell",
+      "gain": 24,
+      "dailyGain": 0.16,
+      "copiers": 8382,
+      "riskScore": 4,
+      "hotHandsScore": 7.992718960468729
+    },
+    {
+      "userName": "Analisisciclico",
+      "fullName": "JOSE ANGEL ZABALEGUI LABARTA",
+      "gain": -38.05,
+      "dailyGain": 2.98,
+      "copiers": 1033,
+      "riskScore": 6,
+      "hotHandsScore": 7.719114700665126
+    },
+    {
+      "userName": "triangulacapital",
+      "fullName": "Pietari Laurila",
+      "gain": 31.92,
+      "dailyGain": -0.54,
+      "copiers": 16369,
+      "riskScore": 4,
+      "hotHandsScore": 7.638557731622422
+    },
+    {
+      "userName": "Kevin_Pando",
+      "fullName": "Kevin Pando",
+      "gain": 50.14,
+      "dailyGain": 0.26,
+      "copiers": 1883,
+      "riskScore": 4,
+      "hotHandsScore": 7.3541665207971345
+    },
+    {
+      "userName": "Michalhla",
+      "fullName": "Michal Hlavacka",
+      "gain": 29.23,
+      "dailyGain": 0.3,
+      "copiers": 2279,
+      "riskScore": 3,
+      "hotHandsScore": 6.839985085201588
+    },
+    {
+      "userName": "Aukie2008",
+      "fullName": "Mike Moest",
+      "gain": 21.97,
+      "dailyGain": 0.23,
+      "copiers": 3054,
+      "riskScore": 3,
+      "hotHandsScore": 6.572761534763969
+    },
+    {
+      "userName": "mick_repo",
+      "fullName": "Miska Repo",
+      "gain": 44.14,
+      "dailyGain": -0.73,
+      "copiers": 2994,
+      "riskScore": 4,
+      "hotHandsScore": 6.5376496187596125
+    },
+    {
+      "userName": "Flaten",
+      "fullName": "Sondre Flateraaker",
+      "gain": 62.67,
+      "dailyGain": 0.27,
+      "copiers": 1683,
+      "riskScore": 5,
+      "hotHandsScore": 6.171864476446596
+    },
+    {
+      "userName": "CPHequities",
+      "fullName": "Blue Screen Media ApS",
+      "gain": 14.39,
+      "dailyGain": 0.23,
+      "copiers": 13787,
+      "riskScore": 4,
+      "hotHandsScore": 5.938347560444075
+    },
+    {
+      "userName": "rubymza",
+      "fullName": "Heloise Greeff",
+      "gain": 27.11,
+      "dailyGain": -0.48,
+      "copiers": 6564,
+      "riskScore": 4,
+      "hotHandsScore": 5.921094319616853
+    },
+    {
+      "userName": "NabilSifo",
+      "fullName": "Nabil Sifo",
+      "gain": 45.64,
+      "dailyGain": 0.09,
+      "copiers": 1916,
+      "riskScore": 4,
+      "hotHandsScore": 5.5176791545906365
+    },
+    {
+      "userName": "davoyu",
+      "fullName": "Fu Kuei Yu",
+      "gain": 38.49,
+      "dailyGain": 1.37,
+      "copiers": 899,
+      "riskScore": 4,
+      "hotHandsScore": 5.2646999999999995
+    },
+    {
+      "userName": "steveli1029",
+      "fullName": "Shao Feng Li",
+      "gain": 26.31,
+      "dailyGain": 0.48,
+      "copiers": 3037,
+      "riskScore": 4,
+      "hotHandsScore": 5.237780688670666
+    },
+    {
+      "userName": "jaynemesis",
+      "fullName": "Jay Smith",
+      "gain": 14.24,
+      "dailyGain": 0.12,
+      "copiers": 10270,
+      "riskScore": 4,
+      "hotHandsScore": 4.8079312542330355
+    },
+    {
+      "userName": "Fostijn",
+      "fullName": "Justin Seda E Cauberghe",
+      "gain": 36.32,
+      "dailyGain": 1.15,
+      "copiers": 1007,
+      "riskScore": 4,
+      "hotHandsScore": 4.575362224932972
+    }
+  ],
+  "recentAdditions": [],
+  "veryRecentAdditions": [],
+  "accumulationPatterns": [
+    {
+      "instrumentId": 1005,
+      "holders": 75,
+      "totalAllocation": 0,
+      "recentAdds": 0,
+      "avgAllocation": 0,
+      "recentRatio": 0
+    },
+    {
+      "instrumentId": 1003,
+      "holders": 22,
+      "totalAllocation": 0,
+      "recentAdds": 0,
+      "avgAllocation": 0,
+      "recentRatio": 0
+    },
+    {
+      "instrumentId": 1037,
+      "holders": 11,
+      "totalAllocation": 0,
+      "recentAdds": 0,
+      "avgAllocation": 0,
+      "recentRatio": 0
+    },
+    {
+      "instrumentId": 7991,
+      "holders": 30,
+      "totalAllocation": 0,
+      "recentAdds": 0,
+      "avgAllocation": 0,
+      "recentRatio": 0
+    },
+    {
+      "instrumentId": 1004,
+      "holders": 85,
+      "totalAllocation": 0,
+      "recentAdds": 0,
+      "avgAllocation": 0,
+      "recentRatio": 0
+    },
+    {
+      "instrumentId": 1002,
+      "holders": 52,
+      "totalAllocation": 0,
+      "recentAdds": 0,
+      "avgAllocation": 0,
+      "recentRatio": 0
+    },
+    {
+      "instrumentId": 1023,
+      "holders": 10,
+      "totalAllocation": 0,
+      "recentAdds": 0,
+      "avgAllocation": 0,
+      "recentRatio": 0
+    },
+    {
+      "instrumentId": 1467,
+      "holders": 15,
+      "totalAllocation": 0,
+      "recentAdds": 0,
+      "avgAllocation": 0,
+      "recentRatio": 0
+    },
+    {
+      "instrumentId": 7999,
+      "holders": 25,
+      "totalAllocation": 0,
+      "recentAdds": 0,
+      "avgAllocation": 0,
+      "recentRatio": 0
+    },
+    {
+      "instrumentId": 2040,
+      "holders": 7,
+      "totalAllocation": 0,
+      "recentAdds": 0,
+      "avgAllocation": 0,
+      "recentRatio": 0
+    },
+    {
+      "instrumentId": 1009,
+      "holders": 10,
+      "totalAllocation": 0,
+      "recentAdds": 0,
+      "avgAllocation": 0,
+      "recentRatio": 0
+    },
+    {
+      "instrumentId": 2072,
+      "holders": 66,
+      "totalAllocation": 0,
+      "recentAdds": 0,
+      "avgAllocation": 0,
+      "recentRatio": 0
+    },
+    {
+      "instrumentId": 1137,
+      "holders": 70,
+      "totalAllocation": 0,
+      "recentAdds": 0,
+      "avgAllocation": 0,
+      "recentRatio": 0
+    },
+    {
+      "instrumentId": 1127,
+      "holders": 30,
+      "totalAllocation": 0,
+      "recentAdds": 0,
+      "avgAllocation": 0,
+      "recentRatio": 0
+    },
+    {
+      "instrumentId": 1832,
+      "holders": 40,
+      "totalAllocation": 0,
+      "recentAdds": 0,
+      "avgAllocation": 0,
+      "recentRatio": 0
+    },
+    {
+      "instrumentId": 6434,
+      "holders": 31,
+      "totalAllocation": 0,
+      "recentAdds": 0,
+      "avgAllocation": 0,
+      "recentRatio": 0
+    },
+    {
+      "instrumentId": 2587,
+      "holders": 76,
+      "totalAllocation": 0,
+      "recentAdds": 0,
+      "avgAllocation": 0,
+      "recentRatio": 0
+    },
+    {
+      "instrumentId": 1141,
+      "holders": 16,
+      "totalAllocation": 0,
+      "recentAdds": 0,
+      "avgAllocation": 0,
+      "recentRatio": 0
+    },
+    {
+      "instrumentId": 1210,
+      "holders": 7,
+      "totalAllocation": 0,
+      "recentAdds": 0,
+      "avgAllocation": 0,
+      "recentRatio": 0
+    },
+    {
+      "instrumentId": 1331,
+      "holders": 13,
+      "totalAllocation": 0,
+      "recentAdds": 0,
+      "avgAllocation": 0,
+      "recentRatio": 0
+    }
+  ]
+}

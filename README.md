@@ -2,6 +2,9 @@
 
 A modern web application for analyzing the portfolios and performance metrics of eToro's most popular investors (PIs). Built with Next.js 15, TypeScript, and Tailwind CSS featuring an **optimized architecture** for robust data collection and analysis.
 
+🔗 **Live Dashboard**: [weirdapps.github.io/etoro_census](https://weirdapps.github.io/etoro_census)  
+👤 **Author's eToro Profile**: [@plessas](https://www.etoro.com/people/plessas)
+
 ![screenshots of etoro PI census](src/assets/census.gif)
 
 ## Features
@@ -48,34 +51,29 @@ A modern web application for analyzing the portfolios and performance metrics of
 - Last Year/Two Years
 - Historical periods (1, 3, 6 months ago)
 
-## 🔧 Analysis Tools
+## 📱 Social Media Post Generators
 
-The project includes powerful analysis tools for deep behavioral insights:
+Generate formatted posts for the eToro community:
 
-### **Multi-Band Investor Analysis**
 ```bash
-# Analyze behavior across investor tiers (100, 500, 1000, 1500)
-node analysis-tools/market-behavior/analyze-investor-bands.js all
+# Daily census update with Fear & Greed Index
+node analysis/daily-post.js
+
+# Weekly summary with trend analysis
+node analysis/weekly-post.js
+
+# Monthly report with comprehensive insights
+node analysis/monthly-post.js
+
+# Hot hands analysis - investors with winning streaks
+node analysis/hot-hands.js
 ```
-- Asset adoption/exit tracking by investor tier
-- Cash position changes across bands
-- Cross-band behavioral comparison
 
-### **Cash Position & Risk Sentiment Analysis**
-```bash
-# Individual investor cash tracking with sentiment analysis
-node analysis-tools/market-behavior/analyze-cash-trends.js 100
-```
-- Individual investor cash position changes
-- Risk sentiment indicators (defensive vs aggressive)
-- Performance correlation analysis
-
-### **Market Behavior Tools**
-- `analyze-investor-position-deltas.js` - Overall market sentiment
-- `analyze-popularity-trends-top100.js` - Elite vs masses behavior
-- `analyze-holdings-vs-positions.js` - Accumulation vs distribution patterns
-
-See `analysis-tools/README.md` for complete documentation.
+All posts feature:
+- Sans-serif bold formatting for eToro compatibility
+- Top 5 copier gainers/losers tracking
+- Performance comparisons between Top 100 and broad market
+- Smart insights based on market conditions
 
 ## 🚀 Optimized Architecture
 
@@ -110,20 +108,6 @@ See `analysis-tools/README.md` for complete documentation.
 - **Data Models**: Strongly typed interfaces for all API responses
 - **Rate Limiting**: Intelligent delays and circuit breakers
 
-## Analysis Scripts
-
-Generate formatted posts for the eToro community:
-
-```bash
-# Daily census update
-node analysis/generate-daily-post.js
-
-# Weekly summary 
-node analysis/generate-weekly-post.js
-
-# Monthly report with insights
-node analysis/generate-monthly-post.js
-```
 
 ## Project Structure
 
@@ -162,6 +146,16 @@ src/
 │   ├── etoro-api-config.ts    # API configuration
 │   └── utils.ts               # Utility functions
 └── middleware.ts              # Next.js middleware
+
+analysis/
+├── daily-post.js              # Daily census update generator
+├── weekly-post.js             # Weekly summary generator  
+├── monthly-post.js            # Monthly report generator
+├── hot-hands.js               # Hot hands analysis
+├── risk-return/               # Risk-return chart viewer
+├── lib/                       # Shared utilities
+│   └── utils.js              # Common functions
+└── output/                    # Analysis results
 ```
 
 ## 🔍 Analysis Tools
