@@ -1,0 +1,185 @@
+🔥 HOT HANDS RECENT ADDITIONS ANALYSIS
+=====================================
+✅ Loaded data from 2025.08.19 at 02:01 UTC
+
+🎯 TOP 20 HOT HANDS INVESTORS:
+================================
+1. @thomaspj (Thomas Parry Jones)
+   Gain: 41.2% | Daily: 0.00%
+   Copiers: 38,999 | Risk: 4
+   Hot Score: 21.87
+
+2. @Smudliczek (Dan Hamerník)
+   Gain: 60.4% | Daily: 0.01%
+   Copiers: 3,777 | Risk: 4
+   Hot Score: 13.30
+
+3. @Napoleon-X (CoinShares France SAS)
+   Gain: 33.0% | Daily: 0.41%
+   Copiers: 10,516 | Risk: 5
+   Hot Score: 11.71
+
+4. @hugo13250 (Hugo Biolchini)
+   Gain: 27.8% | Daily: 3.38%
+   Copiers: 890 | Risk: 6
+   Hot Score: 10.97
+
+5. @JeppeKirkBonde (Jeppe Kirk Bonde)
+   Gain: 20.6% | Daily: 0.00%
+   Copiers: 28,266 | Risk: 4
+   Hot Score: 10.07
+
+6. @triangulacapital (Pietari Laurila)
+   Gain: 32.6% | Daily: 0.01%
+   Copiers: 16,162 | Risk: 4
+   Hot Score: 9.46
+
+7. @mick_repo (Miska Repo)
+   Gain: 45.2% | Daily: 0.00%
+   Copiers: 2,988 | Risk: 4
+   Hot Score: 8.92
+
+8. @rubymza (Heloise Greeff)
+   Gain: 27.7% | Daily: 0.03%
+   Copiers: 6,544 | Risk: 4
+   Hot Score: 7.64
+
+9. @saifsyn (Saif Alnaqbi)
+   Gain: 29.3% | Daily: 0.00%
+   Copiers: 7,889 | Risk: 5
+   Hot Score: 7.50
+
+10. @defense_investor (Stewart Fitzell)
+   Gain: 23.8% | Daily: 0.01%
+   Copiers: 8,341 | Risk: 4
+   Hot Score: 7.43
+
+11. @FundManagerZech (Zechariah Bin Zheng)
+   Gain: 21.6% | Daily: 0.16%
+   Copiers: 10,091 | Risk: 4
+   Hot Score: 7.22
+
+12. @Kevin_Pando (Kevin Pando)
+   Gain: 49.8% | Daily: 0.00%
+   Copiers: 1,865 | Risk: 4
+   Hot Score: 6.45
+
+13. @Aukie2008 (Mike Moest)
+   Gain: 21.7% | Daily: 0.01%
+   Copiers: 3,041 | Risk: 3
+   Hot Score: 5.81
+
+14. @Michalhla (Michal Hlavacka)
+   Gain: 28.9% | Daily: 0.00%
+   Copiers: 2,252 | Risk: 3
+   Hot Score: 5.75
+
+15. @Flaten (Sondre Flateraaker)
+   Gain: 62.2% | Daily: 0.04%
+   Copiers: 1,670 | Risk: 5
+   Hot Score: 5.38
+
+16. @NabilSifo (Nabil Sifo)
+   Gain: 45.5% | Daily: 0.03%
+   Copiers: 1,886 | Risk: 4
+   Hot Score: 5.20
+
+17. @CPHequities (Blue Screen Media ApS)
+   Gain: 14.1% | Daily: 0.00%
+   Copiers: 13,766 | Risk: 4
+   Hot Score: 5.13
+
+18. @misterg23 (George Thomson)
+   Gain: 22.8% | Daily: 0.55%
+   Copiers: 4,439 | Risk: 6
+   Hot Score: 5.09
+
+19. @jaynemesis (Jay Smith)
+   Gain: 14.1% | Daily: 0.00%
+   Copiers: 10,262 | Risk: 4
+   Hot Score: 4.42
+
+20. @steveli1029 (Shao Feng Li)
+   Gain: 25.7% | Daily: 0.20%
+   Copiers: 3,008 | Risk: 4
+   Hot Score: 4.38
+
+
+🆕 ANALYZING RECENT POSITION ADDITIONS:
+=========================================
+
+📈 POSITIONS ADDED IN LAST 7 DAYS:
+------------------------------------
+No new positions opened by hot hands investors in the last 7 days.
+
+
+🔥 HOT ADDITIONS (LAST 3 DAYS):
+--------------------------------
+No significant new positions in the last 3 days.
+
+
+📊 ACCUMULATION PATTERNS:
+==========================
+Assets with strongest accumulation (recent adds / total holders):
+
+1. AMZN - Amazon.com Inc
+   Held by: 76/20 hot hands (380%)
+   Recent adds: 0 (0.0% are new positions)
+   Avg allocation: 0.00%
+
+2. META - Meta Platforms Inc
+   Held by: 23/20 hot hands (115%)
+   Recent adds: 0 (0.0% are new positions)
+   Avg allocation: 0.00%
+
+3. C - Citigroup
+   Held by: 19/20 hot hands (95%)
+   Recent adds: 0 (0.0% are new positions)
+   Avg allocation: 0.00%
+
+4. PLTR - Palantir Technologies Inc.
+   Held by: 28/20 hot hands (140%)
+   Recent adds: 0 (0.0% are new positions)
+   Avg allocation: 0.00%
+
+5. MSFT - Microsoft
+   Held by: 83/20 hot hands (415%)
+   Recent adds: 0 (0.0% are new positions)
+   Avg allocation: 0.00%
+
+6. GOOG - Alphabet
+   Held by: 51/20 hot hands (255%)
+   Recent adds: 0 (0.0% are new positions)
+   Avg allocation: 0.00%
+
+7. JPM - JPMorgan Chase & Co
+   Held by: 13/20 hot hands (65%)
+   Recent adds: 0 (0.0% are new positions)
+   Avg allocation: 0.00%
+
+8. GS - Goldman Sachs Group Inc
+   Held by: 20/20 hot hands (100%)
+   Recent adds: 0 (0.0% are new positions)
+   Avg allocation: 0.00%
+
+9. IAG.L - International Consolidated Airlines
+   Held by: 7/20 hot hands (35%)
+   Recent adds: 0 (0.0% are new positions)
+   Avg allocation: 0.00%
+
+10. SNOW - Snowflake Inc.
+   Held by: 25/20 hot hands (125%)
+   Recent adds: 0 (0.0% are new positions)
+   Avg allocation: 0.00%
+
+
+💡 KEY INSIGHTS:
+================
+• 0 different assets added in last 7 days
+• 0 assets added in last 3 days (hot momentum)
+• Average 0.0 new positions per hot hands investor
+
+💾 Analysis saved to: hot-hands-analysis-2025-08-19.json
+
+✅ Hot Hands Recent Additions Analysis Complete!
+📊 Monitor these assets for momentum continuation

@@ -1,0 +1,64 @@
+Monthly analysis: etoro-data-2025-07-01-02-07.json to etoro-data-2025-08-01-02-12.json
+
+📈 𝐞𝐓𝐨𝐫𝐨 𝐂𝐞𝐧𝐬𝐮𝐬 𝐌𝐨𝐧𝐭𝐡𝐥𝐲 𝐑𝐞𝐩𝐨𝐫𝐭
+Period: 2025-07-01 to 2025-08-01
+════════════════════════════════════════════════════════════
+
+🎯 𝐌𝐨𝐧𝐭𝐡𝐥𝐲 𝐏𝐞𝐫𝐟𝐨𝐫𝐦𝐚𝐧𝐜𝐞 𝐎𝐯𝐞𝐫𝐯𝐢𝐞𝐰
+
+𝗧𝗼𝗽 𝟭𝟬𝟬 𝗜𝗻𝘃𝗲𝘀𝘁𝗼𝗿𝘀:
+• Current Gain: 17.8% YTD
+• Monthly Change: +6.7%pp
+• Cash Position: 12.8% (+0.8%pp)
+• Avg Trades: 276 (+31)
+• Win Ratio: 69.0% (+2.9%pp)
+
+𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽 (𝟭,𝟱𝟬𝟬):
+• Current Gain: 13.7% YTD
+• Monthly Change: +6.1%pp
+• Cash Position: 14.3% (+0.5%pp)
+• Avg Trades: 264 (+37)
+• Win Ratio: 64.2% (+3.1%pp)
+
+👥 𝐌𝐨𝐧𝐭𝐡𝐥𝐲 𝐂𝐨𝐩𝐢𝐞𝐫 𝐓𝐫𝐞𝐧𝐝𝐬
+
+𝗧𝗼𝗽 𝟯 𝗠𝗼𝗻𝘁𝗵𝗹𝘆 𝗚𝗮𝗶𝗻𝗲𝗿𝘀:
+1. Thomas Parry Jones (@thomaspj): (39,405 ↑2993)
+2. Michal Hlavacka (@Michalhla): (2,146 ↑1852)
+3. Pietari Laurila (@triangulacapital): (14,732 ↑1650)
+
+𝗧𝗼𝗽 𝟯 𝗠𝗼𝗻𝘁𝗵𝗹𝘆 𝗟𝗼𝘀𝗲𝗿𝘀:
+1. Jeppe Kirk Bonde (@JeppeKirkBonde): (28,570 ↓544)
+2. Amit Kupfer (@AmitKup): (7,995 ↓354)
+3. Georgios Fatouros (@GeorgeFatouros): (1,402 ↓175)
+
+🔄 𝐌𝐚𝐣𝐨𝐫 𝐏𝐨𝐫𝐭𝐟𝐨𝐥𝐢𝐨 𝐒𝐡𝐢𝐟𝐭𝐬
+
+𝗧𝗼𝗽 𝟭𝟬𝟬 - 𝗕𝗶𝗴𝗴𝗲𝘀𝘁 𝗦𝗲𝗹𝗹𝘀:
+• $MSFT: -5 investors (-12.5%)
+• $AMD: -5 investors (-20.8%)
+
+𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽 - 𝗦𝘁𝗿𝗼𝗻𝗴𝗲𝘀𝘁 𝗕𝘂𝘆𝘀:
+• $ETOR: +28 investors (+20.1%)
+• $NFLX: +21 investors (+10.9%)
+
+⚖️ 𝐌𝐨𝐧𝐭𝐡𝐥𝐲 𝐑𝐢𝐬𝐤 𝐒𝐞𝐧𝐭𝐢𝐦𝐞𝐧𝐭
+
+𝗥𝗶𝘀𝗸 𝗦𝗲𝗻𝘁𝗶𝗺𝗲𝗻𝘁: 📉 MODERATELY DEFENSIVE - Cautious positioning
+
+📊 𝐓𝐫𝐚𝐝𝐢𝐧𝐠 𝐀𝐜𝐭𝐢𝐯𝐢𝐭𝐲 𝐀𝐧𝐚𝐥𝐲𝐬𝐢𝐬
+• Trading activity significantly increased (+34 trades/month)
+• Indicates: Active market engagement and repositioning
+
+💡 𝐊𝐞𝐲 𝐌𝐨𝐧𝐭𝐡𝐥𝐲 𝐈𝐧𝐬𝐢𝐠𝐡𝐭𝐬:
+• Performance gap widened by 0.6pp this month
+• Improving win ratios indicate better trade selection
+
+🔮 𝐋𝐨𝐨𝐤𝐢𝐧𝐠 𝐅𝐨𝐫𝐰𝐚𝐫𝐝:
+• Cash accumulation indicates cautious stance
+• Increased trading activity may signal volatility ahead
+• Wide performance gap favors following Top 100 strategies
+
+════════════════════════════════════════════════════════════
+📊 Full census: weirdapps.github.io/etoro_census
+Data updated daily at 02:00 UTC
