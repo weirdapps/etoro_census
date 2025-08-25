@@ -23,8 +23,8 @@ function generateWeeklyPost() {
   const currentDate = files.latest.match(/(\d{4}-\d{2}-\d{2})/)[1];
   const weekAgoDate = files.weekAgo.match(/(\d{4}-\d{2}-\d{2})/)[1];
   
-  // Header with emoji
-  console.log('📊 𝗲𝗧𝗼𝗿𝗼 𝗖𝗲𝗻𝘀𝘂𝘀 𝗪𝗲𝗲𝗸𝗹𝘆 𝗨𝗽𝗱𝗮𝘁𝗲 ' + currentDate + ' 📊');
+  // Header with date range
+  console.log('📊 𝗲𝗧𝗼𝗿𝗼 𝗖𝗲𝗻𝘀𝘂𝘀 𝗪𝗲𝗲𝗸𝗹𝘆 𝗨𝗽𝗱𝗮𝘁𝗲 (' + weekAgoDate + ' → ' + currentDate + ') 📊');
   
   // 1. Performance Comparison
   console.log('\n📈 𝗣𝗲𝗿𝗳𝗼𝗿𝗺𝗮𝗻𝗰𝗲 𝗖𝗼𝗺𝗽𝗮𝗿𝗶𝘀𝗼𝗻:');
@@ -103,10 +103,11 @@ function generateWeeklyPost() {
   // 5. Biggest Weekly Asset Moves
   console.log('\n🔄 𝗕𝗶𝗴𝗴𝗲𝘀𝘁 𝗪𝗲𝗲𝗸𝗹𝘆 𝗔𝘀𝘀𝗲𝘁 𝗠𝗼𝘃𝗲𝘀:');
   
-  // Find weekly movers
-  const weeklyMovers100 = utils.findDailyMovers(holdings100, weekAgoHoldings100, 2);
+  // Find weekly movers - use current100 topHoldings for consistency
+  const weeklyMovers100 = utils.findDailyMovers(current100.topHoldings, weekAgo100.topHoldings, 2);
   const weeklyMovers1500 = utils.findDailyMovers(current1500.topHoldings, weekAgo1500.topHoldings, 5);
   
+  // Top 100 moves
   if (weeklyMovers100.length > 0) {
     const adds100 = weeklyMovers100.filter(m => m.change > 0).slice(0, 3);
     const drops100 = weeklyMovers100.filter(m => m.change < 0).slice(0, 3);
@@ -124,8 +125,11 @@ function generateWeeklyPost() {
         console.log(`• $${m.symbol}: ${m.change} investors (${m.percentChange.toFixed(1)}%)`);
       });
     }
+  } else {
+    console.log('𝗧𝗼𝗽 𝟭𝟬𝟬: Minimal portfolio changes this week');
   }
   
+  // Broad Group moves
   if (weeklyMovers1500.length > 0) {
     const adds1500 = weeklyMovers1500.filter(m => m.change > 0).slice(0, 3);
     const drops1500 = weeklyMovers1500.filter(m => m.change < 0).slice(0, 3);
@@ -143,14 +147,16 @@ function generateWeeklyPost() {
         console.log(`• $${m.symbol}: ${m.change} investors (${m.percentChange.toFixed(1)}%)`);
       });
     }
+  } else {
+    console.log('𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽: Minimal portfolio changes this week');
   }
   
   // 6. Weekly Copier Trends
   console.log('\n👥 𝗪𝗲𝗲𝗸𝗹𝘆 𝗖𝗼𝗽𝗶𝗲𝗿 𝗧𝗿𝗲𝗻𝗱𝘀:');
   
   const copierChanges = utils.findTopCopierChanges(currentData.investors, weekAgoData.investors, 10);
-  const gainers = copierChanges.filter(c => c.change > 0).slice(0, 5);
-  const losers = copierChanges.filter(c => c.change < 0).slice(0, 5);
+  const gainers = copierChanges.filter(c => c.change > 0).sort((a, b) => b.change - a.change).slice(0, 5);
+  const losers = copierChanges.filter(c => c.change < 0).sort((a, b) => a.change - b.change).slice(0, 5);
   
   if (gainers.length > 0) {
     console.log('🚀 𝗧𝗼𝗽 𝟱 𝗚𝗮𝗶𝗻𝗲𝗿𝘀:');
@@ -166,6 +172,10 @@ function generateWeeklyPost() {
       const name = change.investor.fullName || change.investor.userName;
       console.log(`${i+1}. ${name} (@${change.investor.userName}): (${utils.formatNumber(change.investor.copiers)} ↓${Math.abs(change.change)})`);
     });
+  }
+  
+  if (gainers.length === 0 && losers.length === 0) {
+    console.log('Stable copier counts - minimal changes (under ±10) in investor following this week');
   }
   
   // 7. Weekly Market Insights (expanded for weekly timeframe)
@@ -212,9 +222,10 @@ function generateWeeklyPost() {
   insights.forEach(insight => console.log(insight));
   
   // Footer
-  console.log('\n══════════════════════════════════════════════════');
-  console.log('📊 Full census at: weirdapps.github.io/etoro_census');
-  console.log('📅 Updated weekly every Saturday');
+  console.log('\n**\n');
+  console.log('Check out the census dashboard at:\n');
+  console.log('weirdapps.github.io/etoro_census');
+  console.log('\n..updated daily at 02:00 UTC');
 }
 
 // Run the weekly post generation

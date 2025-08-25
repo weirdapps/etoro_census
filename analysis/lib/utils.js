@@ -73,7 +73,7 @@ function getLatestDataFiles() {
 }
 
 /**
- * Gets Saturday reports for weekly analysis
+ * Gets reports ~7 days apart for weekly analysis
  */
 function getWeeklyDataFiles() {
   const dataDir = getDataDirectory();
@@ -83,29 +83,60 @@ function getWeeklyDataFiles() {
     throw new Error('Need at least 2 data files to compare');
   }
   
-  // Find Saturday reports (day 6 in JS, where 0=Sunday, 6=Saturday)
-  const saturdayFiles = files.filter(file => {
-    const dateMatch = file.match(/(\d{4}-\d{2}-\d{2})/);
-    if (dateMatch) {
-      const date = new Date(dateMatch[1]);
-      return date.getDay() === 6; // Saturday
-    }
-    return false;
-  });
-  
-  if (saturdayFiles.length < 2) {
-    throw new Error('Need at least 2 Saturday reports to compare');
+  // Get the latest file
+  const latestFile = files[0];
+  const latestDateMatch = latestFile.match(/(\d{4}-\d{2}-\d{2})/);
+  if (!latestDateMatch) {
+    throw new Error('Cannot parse date from latest file');
   }
   
-  const latestSaturday = saturdayFiles[0]; // Most recent Saturday
-  const previousSaturday = saturdayFiles[1]; // Previous Saturday
+  const latestDate = new Date(latestDateMatch[1]);
+  const targetDate = new Date(latestDate);
+  targetDate.setDate(targetDate.getDate() - 7); // 7 days ago
+  
+  // Find the file closest to 7 days ago
+  let weekAgoFile = null;
+  let minDiff = Infinity;
+  
+  for (const file of files) {
+    const dateMatch = file.match(/(\d{4}-\d{2}-\d{2})/);
+    if (dateMatch) {
+      const fileDate = new Date(dateMatch[1]);
+      const diffDays = Math.abs((targetDate - fileDate) / (1000 * 60 * 60 * 24));
+      
+      // Look for files within 1 day of the target (6-8 days ago)
+      if (diffDays < minDiff && diffDays <= 1) {
+        minDiff = diffDays;
+        weekAgoFile = file;
+      }
+    }
+  }
+  
+  if (!weekAgoFile) {
+    // Fallback: just get a file that's at least 6 days old
+    for (const file of files) {
+      const dateMatch = file.match(/(\d{4}-\d{2}-\d{2})/);
+      if (dateMatch) {
+        const fileDate = new Date(dateMatch[1]);
+        const diffDays = (latestDate - fileDate) / (1000 * 60 * 60 * 24);
+        if (diffDays >= 6 && diffDays <= 8) {
+          weekAgoFile = file;
+          break;
+        }
+      }
+    }
+  }
+  
+  if (!weekAgoFile) {
+    throw new Error('No data file found from approximately 7 days ago');
+  }
   
   return {
-    latest: latestSaturday,
-    weekAgo: previousSaturday,
-    latestPath: path.join(dataDir, latestSaturday),
-    weekAgoPath: path.join(dataDir, previousSaturday),
-    allFiles: saturdayFiles
+    latest: latestFile,
+    weekAgo: weekAgoFile,
+    latestPath: path.join(dataDir, latestFile),
+    weekAgoPath: path.join(dataDir, weekAgoFile),
+    allFiles: files
   };
 }
 
