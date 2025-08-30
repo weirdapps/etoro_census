@@ -104,8 +104,10 @@ function generateMonthlyPost() {
     const monthAgoHolding = monthAgoHoldings1500.find(h => h.instrumentId === holding.instrumentId);
     const holderChange = monthAgoHolding ? holding.holdersCount - monthAgoHolding.holdersCount : holding.holdersCount;
     const changeIcon = holderChange > 10 ? '🔥' : holderChange > 0 ? '↑' : holderChange < -10 ? '❄️' : holderChange < 0 ? '↓' : '→';
+    // Use holdersPercentage for broad group instead of holdersCount
+    const percentage = holding.holdersPercentage || (holding.holdersCount / 15 || 0);
     
-    console.log(`${i+1}. $${asset.symbol} (${holding.holdersCount}% ${changeIcon}${Math.abs(holderChange)})`);
+    console.log(`${i+1}. $${asset.symbol} (${percentage.toFixed(0)}% ${changeIcon}${Math.abs(holderChange)})`);
   });
   
   // 5. Major Monthly Moves
