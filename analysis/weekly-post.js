@@ -227,6 +227,7 @@ function generateWeeklyPost() {
   console.log('\n**\n');
   console.log('Check out the census dashboard at:\n');
   console.log('weirdapps.github.io/etoro_census');
+  console.log('\nupdated daily at 02:00 UTC!');
 }
 
 // Run the weekly post generation
