@@ -223,11 +223,10 @@ function generateWeeklyPost() {
   
   insights.forEach(insight => console.log(insight));
   
-  // Footer
+  // Footer (aligned with daily post format)
   console.log('\n**\n');
   console.log('Check out the census dashboard at:\n');
   console.log('weirdapps.github.io/etoro_census');
-  console.log('\n..updated daily at 02:00 UTC');
 }
 
 // Run the weekly post generation

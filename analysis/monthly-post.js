@@ -179,11 +179,11 @@ function generateMonthlyPost() {
   console.log('\n👥 𝗖𝗼𝗽𝗶𝗲𝗿 𝗔𝗰𝘁𝗶𝘃𝗶𝘁𝘆 (𝗠𝗼𝗻𝘁𝗵𝗹𝘆):');
   
   const copierChanges = utils.findTopCopierChanges(currentData.investors, monthAgoData.investors, 50);
-  const gainers = copierChanges.filter(c => c.change > 0).sort((a, b) => b.change - a.change).slice(0, 3);
-  const losers = copierChanges.filter(c => c.change < 0).sort((a, b) => a.change - b.change).slice(0, 3);
+  const gainers = copierChanges.filter(c => c.change > 0).sort((a, b) => b.change - a.change).slice(0, 5);
+  const losers = copierChanges.filter(c => c.change < 0).sort((a, b) => a.change - b.change).slice(0, 5);
   
   if (gainers.length > 0) {
-    console.log('𝗚𝗮𝗶𝗻𝗲𝗿𝘀 (≥50 copiers):');
+    console.log('𝗧𝗼𝗽 𝟱 𝗚𝗮𝗶𝗻𝗲𝗿𝘀 (≥50 copiers):');
     gainers.forEach((change, i) => {
       const name = change.investor.fullName || change.investor.userName;
       console.log(`${i+1}. ${name} (@${change.investor.userName}): (${utils.formatNumber(change.investor.copiers)} ↑${change.change})`);
@@ -191,7 +191,7 @@ function generateMonthlyPost() {
   }
   
   if (losers.length > 0) {
-    console.log('𝗟𝗼𝘀𝗲𝗿𝘀 (≥50 copiers):');
+    console.log('𝗧𝗼𝗽 𝟱 𝗟𝗼𝘀𝗲𝗿𝘀 (≥50 copiers):');
     losers.forEach((change, i) => {
       const name = change.investor.fullName || change.investor.userName;
       console.log(`${i+1}. ${name} (@${change.investor.userName}): (${utils.formatNumber(change.investor.copiers)} ↓${Math.abs(change.change)})`);
@@ -269,11 +269,10 @@ function generateMonthlyPost() {
   
   takeaways.forEach(takeaway => console.log(takeaway));
   
-  // Footer
-  console.log('\n════════════════════════════════════════════════════');
-  console.log('📊 Full census: weirdapps.github.io/etoro_census');
-  console.log('📅 Monthly reports on the 1st');
-  console.log('📈 Daily updates at 02:00 UTC');
+  // Footer (aligned with daily post format)
+  console.log('\n**\n');
+  console.log('Check out the census dashboard at:\n');
+  console.log('weirdapps.github.io/etoro_census');
 }
 
 // Run the monthly post generation
