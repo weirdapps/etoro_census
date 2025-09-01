@@ -280,6 +280,42 @@ function calculateRiskAdjustedScore(investor) {
 }
 
 /**
+ * Calculates Fear & Greed Index based on cash percentage
+ * Linear mapping: 30% cash = 0 (Extreme Fear), 0% cash = 100 (Extreme Greed)
+ */
+function calculateFearGreedIndex(cashPercentage) {
+  // Linear scale: 30% cash = 0, 0% cash = 100
+  const indexValue = Math.round(100 - (cashPercentage / 30) * 100);
+  const clampedValue = Math.max(0, Math.min(100, indexValue));
+  
+  // Determine status and emoji
+  let status, emoji;
+  if (clampedValue <= 20) {
+    status = 'Extreme Fear';
+    emoji = '😱';
+  } else if (clampedValue <= 40) {
+    status = 'Fear';
+    emoji = '😟';
+  } else if (clampedValue <= 60) {
+    status = 'Neutral';
+    emoji = '😐';
+  } else if (clampedValue <= 80) {
+    status = 'Greed';
+    emoji = '😃';
+  } else {
+    status = 'Extreme Greed';
+    emoji = '🤑';
+  }
+  
+  return {
+    value: clampedValue,
+    status,
+    emoji,
+    cashPercentage
+  };
+}
+
+/**
  * Finds top copier changes between two investor lists
  */
 function findTopCopierChanges(currentInvestors, prevInvestors, threshold = 10) {
@@ -397,6 +433,9 @@ module.exports = {
   // Asset/Instrument utilities
   createInstrumentMap,
   getAssetInfo,
+  
+  // Calculations
+  calculateFearGreedIndex,
   
   // Investor analysis
   calculateRiskAdjustedScore,
