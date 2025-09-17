@@ -1,0 +1,4960 @@
+{
+  "timestamp": "2025-09-15T10:54:41.333Z",
+  "hotHands": [
+    {
+      "userName": "Smudliczek",
+      "fullName": "Dan Hamerník",
+      "gain": 73.62,
+      "riskScore": 4,
+      "hotHandsScore": 25.964452052742526
+    },
+    {
+      "userName": "thomaspj",
+      "fullName": "Thomas Parry Jones",
+      "gain": 44.68,
+      "riskScore": 4,
+      "hotHandsScore": 25.618092279017706
+    },
+    {
+      "userName": "Kevin_Pando",
+      "fullName": "Kevin Pando",
+      "gain": 57.74,
+      "riskScore": 4,
+      "hotHandsScore": 21.282322372281293
+    },
+    {
+      "userName": "Napoleon-X",
+      "fullName": "CoinShares France SAS",
+      "gain": 32.21,
+      "riskScore": 4,
+      "hotHandsScore": 19.576650125286392
+    },
+    {
+      "userName": "misterg23",
+      "fullName": "George Thomson",
+      "gain": 30.04,
+      "riskScore": 6,
+      "hotHandsScore": 18.978343669405795
+    },
+    {
+      "userName": "LoukasBW",
+      "fullName": "Loukenti Billa",
+      "gain": 34.73,
+      "riskScore": 5,
+      "hotHandsScore": 18.561899999999998
+    },
+    {
+      "userName": "PROJECT10X",
+      "fullName": "Filip Brnadic",
+      "gain": 43.42,
+      "riskScore": 5,
+      "hotHandsScore": 18.341304937020833
+    },
+    {
+      "userName": "JvAnkershoffen",
+      "fullName": "Johann-Nepomuk Ernst Josef Hoffer von Ankershoffen",
+      "gain": 25.56,
+      "riskScore": 4,
+      "hotHandsScore": 16.040613800156006
+    },
+    {
+      "userName": "JeppeKirkBonde",
+      "fullName": "Jeppe Kirk Bonde",
+      "gain": 25.48,
+      "riskScore": 4,
+      "hotHandsScore": 15.540059943849801
+    },
+    {
+      "userName": "Flaten",
+      "fullName": "Sondre Flateraaker",
+      "gain": 71.45,
+      "riskScore": 5,
+      "hotHandsScore": 14.423336246794541
+    },
+    {
+      "userName": "Fostijn",
+      "fullName": "Justin Seda E Cauberghe",
+      "gain": 51.39,
+      "riskScore": 5,
+      "hotHandsScore": 13.438691592215527
+    },
+    {
+      "userName": "Michalhla",
+      "fullName": "Michal Hlavacka",
+      "gain": 34.18,
+      "riskScore": 3,
+      "hotHandsScore": 13.408474180943601
+    },
+    {
+      "userName": "ingruc",
+      "fullName": "Ingvar Rueckemann",
+      "gain": 28.76,
+      "riskScore": 4,
+      "hotHandsScore": 13.0823561064635
+    },
+    {
+      "userName": "rubymza",
+      "fullName": "Heloise Greeff",
+      "gain": 31.2,
+      "riskScore": 4,
+      "hotHandsScore": 12.77190930376377
+    },
+    {
+      "userName": "defense_investor",
+      "fullName": "Stewart Fitzell",
+      "gain": 28.76,
+      "riskScore": 4,
+      "hotHandsScore": 12.036369876874017
+    }
+  ],
+  "assetMomentum": [
+    {
+      "id": 1005,
+      "symbol": "AMZN",
+      "name": "Amazon.com Inc",
+      "count": 46,
+      "totalAllocation": 0,
+      "investors": [
+        {
+          "userName": "thomaspj",
+          "allocation": 0
+        },
+        {
+          "userName": "JeppeKirkBonde",
+          "allocation": 0
+        },
+        {
+          "userName": "CPHequities",
+          "allocation": 0
+        },
+        {
+          "userName": "jaynemesis",
+          "allocation": 0
+        },
+        {
+          "userName": "defense_investor",
+          "allocation": 0
+        },
+        {
+          "userName": "rubymza",
+          "allocation": 0
+        },
+        {
+          "userName": "Smudliczek",
+          "allocation": 0
+        },
+        {
+          "userName": "Wesl3y",
+          "allocation": 0
+        },
+        {
+          "userName": "Richardstroud",
+          "allocation": 0
+        },
+        {
+          "userName": "MarianoPardo",
+          "allocation": 0
+        },
+        {
+          "userName": "Michalhla",
+          "allocation": 0
+        },
+        {
+          "userName": "Kevin_Pando",
+          "allocation": 0
+        },
+        {
+          "userName": "robchamow",
+          "allocation": 0
+        },
+        {
+          "userName": "NabilSifo",
+          "allocation": 0
+        },
+        {
+          "userName": "KoraTrades",
+          "allocation": 0
+        },
+        {
+          "userName": "celesh",
+          "allocation": 0
+        },
+        {
+          "userName": "TheDividendFund",
+          "allocation": 0
+        },
+        {
+          "userName": "eddyb123",
+          "allocation": 0
+        },
+        {
+          "userName": "Marirs",
+          "allocation": 0
+        },
+        {
+          "userName": "brirap",
+          "allocation": 0
+        },
+        {
+          "userName": "Gserdan",
+          "allocation": 0
+        },
+        {
+          "userName": "StefanULS",
+          "allocation": 0
+        },
+        {
+          "userName": "SharonConnolly",
+          "allocation": 0
+        },
+        {
+          "userName": "Chrochtik",
+          "allocation": 0
+        },
+        {
+          "userName": "knw500",
+          "allocation": 0
+        },
+        {
+          "userName": "gauravk_in",
+          "allocation": 0
+        },
+        {
+          "userName": "pino428",
+          "allocation": 0
+        },
+        {
+          "userName": "Jenelleb123",
+          "allocation": 0
+        },
+        {
+          "userName": "Compound72",
+          "allocation": 0
+        },
+        {
+          "userName": "onk342",
+          "allocation": 0
+        },
+        {
+          "userName": "Le_kousou",
+          "allocation": 0
+        },
+        {
+          "userName": "ioatri",
+          "allocation": 0
+        },
+        {
+          "userName": "II-Disruptive",
+          "allocation": 0
+        },
+        {
+          "userName": "Onegirl",
+          "allocation": 0
+        },
+        {
+          "userName": "hugo13250",
+          "allocation": 0
+        },
+        {
+          "userName": "plessas",
+          "allocation": 0
+        },
+        {
+          "userName": "Cfranklin89",
+          "allocation": 0
+        },
+        {
+          "userName": "LoukasBW",
+          "allocation": 0
+        },
+        {
+          "userName": "Mexploder",
+          "allocation": 0
+        },
+        {
+          "userName": "rafaeldfl",
+          "allocation": 0
+        },
+        {
+          "userName": "Matteospaggiari",
+          "allocation": 0
+        },
+        {
+          "userName": "Social-Investor",
+          "allocation": 0
+        },
+        {
+          "userName": "ReturnInvest",
+          "allocation": 0
+        },
+        {
+          "userName": "iliescu2605",
+          "allocation": 0
+        },
+        {
+          "userName": "ALTIA-Investment",
+          "allocation": 0
+        },
+        {
+          "userName": "ThomasRoddy",
+          "allocation": 0
+        }
+      ],
+      "avgAllocation": 0,
+      "penetration": 46,
+      "momentum": {
+        "change_1d": 0,
+        "percent_1d": 0,
+        "change_3d": -1,
+        "percent_3d": -2.127659574468085,
+        "change_7d": -1,
+        "percent_7d": -2.127659574468085,
+        "change_30d": -1,
+        "percent_30d": -2.127659574468085,
+        "velocity": 0.5,
+        "signal": "🟡 WATCH",
+        "phase": "Momentum ↑↑"
+      }
+    },
+    {
+      "id": 100000,
+      "symbol": "BTC",
+      "name": "Bitcoin",
+      "count": 40,
+      "totalAllocation": 0,
+      "investors": [
+        {
+          "userName": "CPHequities",
+          "allocation": 0
+        },
+        {
+          "userName": "Napoleon-X",
+          "allocation": 0
+        },
+        {
+          "userName": "defense_investor",
+          "allocation": 0
+        },
+        {
+          "userName": "rubymza",
+          "allocation": 0
+        },
+        {
+          "userName": "GreenbullInvest",
+          "allocation": 0
+        },
+        {
+          "userName": "misterg23",
+          "allocation": 0
+        },
+        {
+          "userName": "IlMatematico",
+          "allocation": 0
+        },
+        {
+          "userName": "Wesl3y",
+          "allocation": 0
+        },
+        {
+          "userName": "steveli1029",
+          "allocation": 0
+        },
+        {
+          "userName": "robchamow",
+          "allocation": 0
+        },
+        {
+          "userName": "NabilSifo",
+          "allocation": 0
+        },
+        {
+          "userName": "Anders_",
+          "allocation": 0
+        },
+        {
+          "userName": "KoraTrades",
+          "allocation": 0
+        },
+        {
+          "userName": "kasperpatrick1",
+          "allocation": 0
+        },
+        {
+          "userName": "Flaten",
+          "allocation": 0
+        },
+        {
+          "userName": "DevonToogood",
+          "allocation": 0
+        },
+        {
+          "userName": "hugomanenti95",
+          "allocation": 0
+        },
+        {
+          "userName": "brirap",
+          "allocation": 0
+        },
+        {
+          "userName": "Marco199610",
+          "allocation": 0
+        },
+        {
+          "userName": "Gserdan",
+          "allocation": 0
+        },
+        {
+          "userName": "StefanULS",
+          "allocation": 0
+        },
+        {
+          "userName": "SharonConnolly",
+          "allocation": 0
+        },
+        {
+          "userName": "Chrochtik",
+          "allocation": 0
+        },
+        {
+          "userName": "knw500",
+          "allocation": 0
+        },
+        {
+          "userName": "pino428",
+          "allocation": 0
+        },
+        {
+          "userName": "rambod59",
+          "allocation": 0
+        },
+        {
+          "userName": "JvAnkershoffen",
+          "allocation": 0
+        },
+        {
+          "userName": "PROJECT10X",
+          "allocation": 0
+        },
+        {
+          "userName": "Benaymo23",
+          "allocation": 0
+        },
+        {
+          "userName": "Onegirl",
+          "allocation": 0
+        },
+        {
+          "userName": "hugo13250",
+          "allocation": 0
+        },
+        {
+          "userName": "plessas",
+          "allocation": 0
+        },
+        {
+          "userName": "MercedesSotelo",
+          "allocation": 0
+        },
+        {
+          "userName": "LoukasBW",
+          "allocation": 0
+        },
+        {
+          "userName": "Mexploder",
+          "allocation": 0
+        },
+        {
+          "userName": "victorlee448",
+          "allocation": 0
+        },
+        {
+          "userName": "Matteospaggiari",
+          "allocation": 0
+        },
+        {
+          "userName": "ReturnInvest",
+          "allocation": 0
+        },
+        {
+          "userName": "iliescu2605",
+          "allocation": 0
+        },
+        {
+          "userName": "ThomasRoddy",
+          "allocation": 0
+        }
+      ],
+      "avgAllocation": 0,
+      "penetration": 40,
+      "momentum": {
+        "change_1d": 0,
+        "percent_1d": 0,
+        "change_3d": -1,
+        "percent_3d": -2.4390243902439024,
+        "change_7d": -1,
+        "percent_7d": -2.4390243902439024,
+        "change_30d": -2,
+        "percent_30d": -4.761904761904762,
+        "velocity": 0.5,
+        "signal": "🟡 WATCH",
+        "phase": "Momentum ↑↑"
+      }
+    },
+    {
+      "id": 1002,
+      "symbol": "GOOG",
+      "name": "Alphabet",
+      "count": 39,
+      "totalAllocation": 0,
+      "investors": [
+        {
+          "userName": "thomaspj",
+          "allocation": 0
+        },
+        {
+          "userName": "CPHequities",
+          "allocation": 0
+        },
+        {
+          "userName": "jaynemesis",
+          "allocation": 0
+        },
+        {
+          "userName": "defense_investor",
+          "allocation": 0
+        },
+        {
+          "userName": "rubymza",
+          "allocation": 0
+        },
+        {
+          "userName": "misterg23",
+          "allocation": 0
+        },
+        {
+          "userName": "Wesl3y",
+          "allocation": 0
+        },
+        {
+          "userName": "MarianoPardo",
+          "allocation": 0
+        },
+        {
+          "userName": "robchamow",
+          "allocation": 0
+        },
+        {
+          "userName": "Enslinjaco",
+          "allocation": 0
+        },
+        {
+          "userName": "NabilSifo",
+          "allocation": 0
+        },
+        {
+          "userName": "KoraTrades",
+          "allocation": 0
+        },
+        {
+          "userName": "celesh",
+          "allocation": 0
+        },
+        {
+          "userName": "TheDividendFund",
+          "allocation": 0
+        },
+        {
+          "userName": "eddyb123",
+          "allocation": 0
+        },
+        {
+          "userName": "Marirs",
+          "allocation": 0
+        },
+        {
+          "userName": "brirap",
+          "allocation": 0
+        },
+        {
+          "userName": "Gserdan",
+          "allocation": 0
+        },
+        {
+          "userName": "StefanULS",
+          "allocation": 0
+        },
+        {
+          "userName": "Nezatron",
+          "allocation": 0
+        },
+        {
+          "userName": "SharonConnolly",
+          "allocation": 0
+        },
+        {
+          "userName": "knw500",
+          "allocation": 0
+        },
+        {
+          "userName": "Rayeiris",
+          "allocation": 0
+        },
+        {
+          "userName": "gauravk_in",
+          "allocation": 0
+        },
+        {
+          "userName": "pino428",
+          "allocation": 0
+        },
+        {
+          "userName": "Jenelleb123",
+          "allocation": 0
+        },
+        {
+          "userName": "JvAnkershoffen",
+          "allocation": 0
+        },
+        {
+          "userName": "ca_sual",
+          "allocation": 0
+        },
+        {
+          "userName": "Compound72",
+          "allocation": 0
+        },
+        {
+          "userName": "ioatri",
+          "allocation": 0
+        },
+        {
+          "userName": "II-Disruptive",
+          "allocation": 0
+        },
+        {
+          "userName": "Onegirl",
+          "allocation": 0
+        },
+        {
+          "userName": "Cfranklin89",
+          "allocation": 0
+        },
+        {
+          "userName": "LoukasBW",
+          "allocation": 0
+        },
+        {
+          "userName": "Mexploder",
+          "allocation": 0
+        },
+        {
+          "userName": "rafaeldfl",
+          "allocation": 0
+        },
+        {
+          "userName": "Social-Investor",
+          "allocation": 0
+        },
+        {
+          "userName": "ReturnInvest",
+          "allocation": 0
+        },
+        {
+          "userName": "Alderique",
+          "allocation": 0
+        }
+      ],
+      "avgAllocation": 0,
+      "penetration": 39,
+      "momentum": {
+        "change_1d": 0,
+        "percent_1d": 0,
+        "change_3d": -1,
+        "percent_3d": -2.5,
+        "change_7d": 0,
+        "percent_7d": 0,
+        "change_30d": -2,
+        "percent_30d": -4.878048780487805,
+        "velocity": 0.5,
+        "signal": "🟡 WATCH",
+        "phase": "Momentum ↑↑"
+      }
+    },
+    {
+      "id": 1003,
+      "symbol": "META",
+      "name": "Meta Platforms Inc",
+      "count": 37,
+      "totalAllocation": 0,
+      "investors": [
+        {
+          "userName": "thomaspj",
+          "allocation": 0
+        },
+        {
+          "userName": "JeppeKirkBonde",
+          "allocation": 0
+        },
+        {
+          "userName": "CPHequities",
+          "allocation": 0
+        },
+        {
+          "userName": "rubymza",
+          "allocation": 0
+        },
+        {
+          "userName": "GreenbullInvest",
+          "allocation": 0
+        },
+        {
+          "userName": "robchamow",
+          "allocation": 0
+        },
+        {
+          "userName": "NabilSifo",
+          "allocation": 0
+        },
+        {
+          "userName": "KoraTrades",
+          "allocation": 0
+        },
+        {
+          "userName": "TheDividendFund",
+          "allocation": 0
+        },
+        {
+          "userName": "eddyb123",
+          "allocation": 0
+        },
+        {
+          "userName": "DevonToogood",
+          "allocation": 0
+        },
+        {
+          "userName": "brirap",
+          "allocation": 0
+        },
+        {
+          "userName": "Marco199610",
+          "allocation": 0
+        },
+        {
+          "userName": "Gserdan",
+          "allocation": 0
+        },
+        {
+          "userName": "StefanULS",
+          "allocation": 0
+        },
+        {
+          "userName": "Nezatron",
+          "allocation": 0
+        },
+        {
+          "userName": "SharonConnolly",
+          "allocation": 0
+        },
+        {
+          "userName": "knw500",
+          "allocation": 0
+        },
+        {
+          "userName": "DemonicoLag",
+          "allocation": 0
+        },
+        {
+          "userName": "Rayeiris",
+          "allocation": 0
+        },
+        {
+          "userName": "gauravk_in",
+          "allocation": 0
+        },
+        {
+          "userName": "Jenelleb123",
+          "allocation": 0
+        },
+        {
+          "userName": "Wise_woman",
+          "allocation": 0
+        },
+        {
+          "userName": "Le_kousou",
+          "allocation": 0
+        },
+        {
+          "userName": "MIURATRADER",
+          "allocation": 0
+        },
+        {
+          "userName": "II-Disruptive",
+          "allocation": 0
+        },
+        {
+          "userName": "Onegirl",
+          "allocation": 0
+        },
+        {
+          "userName": "hugo13250",
+          "allocation": 0
+        },
+        {
+          "userName": "plessas",
+          "allocation": 0
+        },
+        {
+          "userName": "LoukasBW",
+          "allocation": 0
+        },
+        {
+          "userName": "Mexploder",
+          "allocation": 0
+        },
+        {
+          "userName": "SparkLiang",
+          "allocation": 0
+        },
+        {
+          "userName": "Matteospaggiari",
+          "allocation": 0
+        },
+        {
+          "userName": "Social-Investor",
+          "allocation": 0
+        },
+        {
+          "userName": "ReturnInvest",
+          "allocation": 0
+        },
+        {
+          "userName": "ALTIA-Investment",
+          "allocation": 0
+        },
+        {
+          "userName": "Alderique",
+          "allocation": 0
+        }
+      ],
+      "avgAllocation": 0,
+      "penetration": 37,
+      "momentum": {
+        "change_1d": 0,
+        "percent_1d": 0,
+        "change_3d": -1,
+        "percent_3d": -2.631578947368421,
+        "change_7d": -1,
+        "percent_7d": -2.631578947368421,
+        "change_30d": -2,
+        "percent_30d": -5.128205128205128,
+        "velocity": 0.5,
+        "signal": "🟡 WATCH",
+        "phase": "Momentum ↑↑"
+      }
+    },
+    {
+      "id": 1004,
+      "symbol": "MSFT",
+      "name": "Microsoft",
+      "count": 35,
+      "totalAllocation": 0,
+      "investors": [
+        {
+          "userName": "thomaspj",
+          "allocation": 0
+        },
+        {
+          "userName": "JeppeKirkBonde",
+          "allocation": 0
+        },
+        {
+          "userName": "CPHequities",
+          "allocation": 0
+        },
+        {
+          "userName": "jaynemesis",
+          "allocation": 0
+        },
+        {
+          "userName": "defense_investor",
+          "allocation": 0
+        },
+        {
+          "userName": "rubymza",
+          "allocation": 0
+        },
+        {
+          "userName": "GreenbullInvest",
+          "allocation": 0
+        },
+        {
+          "userName": "IlMatematico",
+          "allocation": 0
+        },
+        {
+          "userName": "Richardstroud",
+          "allocation": 0
+        },
+        {
+          "userName": "MarianoPardo",
+          "allocation": 0
+        },
+        {
+          "userName": "robchamow",
+          "allocation": 0
+        },
+        {
+          "userName": "NabilSifo",
+          "allocation": 0
+        },
+        {
+          "userName": "KoraTrades",
+          "allocation": 0
+        },
+        {
+          "userName": "celesh",
+          "allocation": 0
+        },
+        {
+          "userName": "TheDividendFund",
+          "allocation": 0
+        },
+        {
+          "userName": "eddyb123",
+          "allocation": 0
+        },
+        {
+          "userName": "brirap",
+          "allocation": 0
+        },
+        {
+          "userName": "Gserdan",
+          "allocation": 0
+        },
+        {
+          "userName": "StefanULS",
+          "allocation": 0
+        },
+        {
+          "userName": "SharonConnolly",
+          "allocation": 0
+        },
+        {
+          "userName": "knw500",
+          "allocation": 0
+        },
+        {
+          "userName": "gauravk_in",
+          "allocation": 0
+        },
+        {
+          "userName": "pino428",
+          "allocation": 0
+        },
+        {
+          "userName": "Jenelleb123",
+          "allocation": 0
+        },
+        {
+          "userName": "onk342",
+          "allocation": 0
+        },
+        {
+          "userName": "Le_kousou",
+          "allocation": 0
+        },
+        {
+          "userName": "II-Disruptive",
+          "allocation": 0
+        },
+        {
+          "userName": "Onegirl",
+          "allocation": 0
+        },
+        {
+          "userName": "plessas",
+          "allocation": 0
+        },
+        {
+          "userName": "Social-Investor",
+          "allocation": 0
+        },
+        {
+          "userName": "ReturnInvest",
+          "allocation": 0
+        },
+        {
+          "userName": "Space-Investor",
+          "allocation": 0
+        },
+        {
+          "userName": "iliescu2605",
+          "allocation": 0
+        },
+        {
+          "userName": "ALTIA-Investment",
+          "allocation": 0
+        },
+        {
+          "userName": "Alderique",
+          "allocation": 0
+        }
+      ],
+      "avgAllocation": 0,
+      "penetration": 35,
+      "momentum": {
+        "change_1d": 0,
+        "percent_1d": 0,
+        "change_3d": -1,
+        "percent_3d": -2.7777777777777777,
+        "change_7d": -2,
+        "percent_7d": -5.405405405405405,
+        "change_30d": -2,
+        "percent_30d": -5.405405405405405,
+        "velocity": 0.5,
+        "signal": "🟡 WATCH",
+        "phase": "Momentum ↑↑"
+      }
+    },
+    {
+      "id": 1137,
+      "symbol": "NVDA",
+      "name": "NVIDIA Corporation",
+      "count": 34,
+      "totalAllocation": 0,
+      "investors": [
+        {
+          "userName": "thomaspj",
+          "allocation": 0
+        },
+        {
+          "userName": "JeppeKirkBonde",
+          "allocation": 0
+        },
+        {
+          "userName": "CPHequities",
+          "allocation": 0
+        },
+        {
+          "userName": "jaynemesis",
+          "allocation": 0
+        },
+        {
+          "userName": "defense_investor",
+          "allocation": 0
+        },
+        {
+          "userName": "rubymza",
+          "allocation": 0
+        },
+        {
+          "userName": "misterg23",
+          "allocation": 0
+        },
+        {
+          "userName": "IlMatematico",
+          "allocation": 0
+        },
+        {
+          "userName": "steveli1029",
+          "allocation": 0
+        },
+        {
+          "userName": "JORDENBOER",
+          "allocation": 0
+        },
+        {
+          "userName": "Kevin_Pando",
+          "allocation": 0
+        },
+        {
+          "userName": "robchamow",
+          "allocation": 0
+        },
+        {
+          "userName": "NabilSifo",
+          "allocation": 0
+        },
+        {
+          "userName": "KoraTrades",
+          "allocation": 0
+        },
+        {
+          "userName": "kasperpatrick1",
+          "allocation": 0
+        },
+        {
+          "userName": "celesh",
+          "allocation": 0
+        },
+        {
+          "userName": "TheDividendFund",
+          "allocation": 0
+        },
+        {
+          "userName": "eddyb123",
+          "allocation": 0
+        },
+        {
+          "userName": "brirap",
+          "allocation": 0
+        },
+        {
+          "userName": "Marco199610",
+          "allocation": 0
+        },
+        {
+          "userName": "Gserdan",
+          "allocation": 0
+        },
+        {
+          "userName": "StefanULS",
+          "allocation": 0
+        },
+        {
+          "userName": "SharonConnolly",
+          "allocation": 0
+        },
+        {
+          "userName": "knw500",
+          "allocation": 0
+        },
+        {
+          "userName": "gauravk_in",
+          "allocation": 0
+        },
+        {
+          "userName": "Linsanity1",
+          "allocation": 0
+        },
+        {
+          "userName": "Jenelleb123",
+          "allocation": 0
+        },
+        {
+          "userName": "Le_kousou",
+          "allocation": 0
+        },
+        {
+          "userName": "II-Disruptive",
+          "allocation": 0
+        },
+        {
+          "userName": "Onegirl",
+          "allocation": 0
+        },
+        {
+          "userName": "hugo13250",
+          "allocation": 0
+        },
+        {
+          "userName": "plessas",
+          "allocation": 0
+        },
+        {
+          "userName": "Matteospaggiari",
+          "allocation": 0
+        },
+        {
+          "userName": "ALTIA-Investment",
+          "allocation": 0
+        }
+      ],
+      "avgAllocation": 0,
+      "penetration": 34,
+      "momentum": {
+        "change_1d": 0,
+        "percent_1d": 0,
+        "change_3d": -1,
+        "percent_3d": -2.857142857142857,
+        "change_7d": -2,
+        "percent_7d": -5.555555555555555,
+        "change_30d": -1,
+        "percent_30d": -2.857142857142857,
+        "velocity": 0.5,
+        "signal": "🟡 WATCH",
+        "phase": "Momentum ↑↑"
+      }
+    },
+    {
+      "id": 1111,
+      "symbol": "TSLA",
+      "name": "Tesla Motors, Inc.",
+      "count": 27,
+      "totalAllocation": 0,
+      "investors": [
+        {
+          "userName": "jaynemesis",
+          "allocation": 0
+        },
+        {
+          "userName": "GreenbullInvest",
+          "allocation": 0
+        },
+        {
+          "userName": "misterg23",
+          "allocation": 0
+        },
+        {
+          "userName": "steveli1029",
+          "allocation": 0
+        },
+        {
+          "userName": "JORDENBOER",
+          "allocation": 0
+        },
+        {
+          "userName": "Kevin_Pando",
+          "allocation": 0
+        },
+        {
+          "userName": "robchamow",
+          "allocation": 0
+        },
+        {
+          "userName": "KoraTrades",
+          "allocation": 0
+        },
+        {
+          "userName": "kasperpatrick1",
+          "allocation": 0
+        },
+        {
+          "userName": "Marco199610",
+          "allocation": 0
+        },
+        {
+          "userName": "StefanULS",
+          "allocation": 0
+        },
+        {
+          "userName": "SharonConnolly",
+          "allocation": 0
+        },
+        {
+          "userName": "knw500",
+          "allocation": 0
+        },
+        {
+          "userName": "DemonicoLag",
+          "allocation": 0
+        },
+        {
+          "userName": "Linsanity1",
+          "allocation": 0
+        },
+        {
+          "userName": "JvAnkershoffen",
+          "allocation": 0
+        },
+        {
+          "userName": "PROJECT10X",
+          "allocation": 0
+        },
+        {
+          "userName": "alexvanl",
+          "allocation": 0
+        },
+        {
+          "userName": "MIURATRADER",
+          "allocation": 0
+        },
+        {
+          "userName": "Onegirl",
+          "allocation": 0
+        },
+        {
+          "userName": "hugo13250",
+          "allocation": 0
+        },
+        {
+          "userName": "plessas",
+          "allocation": 0
+        },
+        {
+          "userName": "MercedesSotelo",
+          "allocation": 0
+        },
+        {
+          "userName": "LoukasBW",
+          "allocation": 0
+        },
+        {
+          "userName": "SparkLiang",
+          "allocation": 0
+        },
+        {
+          "userName": "Matteospaggiari",
+          "allocation": 0
+        },
+        {
+          "userName": "iliescu2605",
+          "allocation": 0
+        }
+      ],
+      "avgAllocation": 0,
+      "penetration": 27,
+      "momentum": {
+        "change_1d": 0,
+        "percent_1d": 0,
+        "change_3d": 0,
+        "percent_3d": 0,
+        "change_7d": 0,
+        "percent_7d": 0,
+        "change_30d": 3,
+        "percent_30d": 12.5,
+        "velocity": 0,
+        "signal": "🟡 HOLD",
+        "phase": "Consolidation →"
+      }
+    },
+    {
+      "id": 1155,
+      "symbol": "BABA",
+      "name": "Alibaba-ADR",
+      "count": 25,
+      "totalAllocation": 0,
+      "investors": [
+        {
+          "userName": "JeppeKirkBonde",
+          "allocation": 0
+        },
+        {
+          "userName": "Smudliczek",
+          "allocation": 0
+        },
+        {
+          "userName": "steveli1029",
+          "allocation": 0
+        },
+        {
+          "userName": "MarianoPardo",
+          "allocation": 0
+        },
+        {
+          "userName": "Michalhla",
+          "allocation": 0
+        },
+        {
+          "userName": "Enslinjaco",
+          "allocation": 0
+        },
+        {
+          "userName": "NabilSifo",
+          "allocation": 0
+        },
+        {
+          "userName": "adams302",
+          "allocation": 0
+        },
+        {
+          "userName": "celesh",
+          "allocation": 0
+        },
+        {
+          "userName": "Chrochtik",
+          "allocation": 0
+        },
+        {
+          "userName": "knw500",
+          "allocation": 0
+        },
+        {
+          "userName": "DemonicoLag",
+          "allocation": 0
+        },
+        {
+          "userName": "Rayeiris",
+          "allocation": 0
+        },
+        {
+          "userName": "gauravk_in",
+          "allocation": 0
+        },
+        {
+          "userName": "Benaymo23",
+          "allocation": 0
+        },
+        {
+          "userName": "Wise_woman",
+          "allocation": 0
+        },
+        {
+          "userName": "Compound72",
+          "allocation": 0
+        },
+        {
+          "userName": "Le_kousou",
+          "allocation": 0
+        },
+        {
+          "userName": "KeshavLohiya",
+          "allocation": 0
+        },
+        {
+          "userName": "ANZOOOXX",
+          "allocation": 0
+        },
+        {
+          "userName": "Mexploder",
+          "allocation": 0
+        },
+        {
+          "userName": "SparkLiang",
+          "allocation": 0
+        },
+        {
+          "userName": "Social-Investor",
+          "allocation": 0
+        },
+        {
+          "userName": "iliescu2605",
+          "allocation": 0
+        },
+        {
+          "userName": "Alderique",
+          "allocation": 0
+        }
+      ],
+      "avgAllocation": 0,
+      "penetration": 25,
+      "momentum": {
+        "change_1d": 0,
+        "percent_1d": 0,
+        "change_3d": 0,
+        "percent_3d": 0,
+        "change_7d": 0,
+        "percent_7d": 0,
+        "change_30d": 0,
+        "percent_30d": 0,
+        "velocity": 0,
+        "signal": "🟡 HOLD",
+        "phase": "Consolidation →"
+      }
+    },
+    {
+      "id": 1001,
+      "symbol": "AAPL",
+      "name": "Apple",
+      "count": 25,
+      "totalAllocation": 0,
+      "investors": [
+        {
+          "userName": "JeppeKirkBonde",
+          "allocation": 0
+        },
+        {
+          "userName": "CPHequities",
+          "allocation": 0
+        },
+        {
+          "userName": "GreenbullInvest",
+          "allocation": 0
+        },
+        {
+          "userName": "Wesl3y",
+          "allocation": 0
+        },
+        {
+          "userName": "MarianoPardo",
+          "allocation": 0
+        },
+        {
+          "userName": "Kevin_Pando",
+          "allocation": 0
+        },
+        {
+          "userName": "robchamow",
+          "allocation": 0
+        },
+        {
+          "userName": "eddyb123",
+          "allocation": 0
+        },
+        {
+          "userName": "liborvasa",
+          "allocation": 0
+        },
+        {
+          "userName": "Gserdan",
+          "allocation": 0
+        },
+        {
+          "userName": "SharonConnolly",
+          "allocation": 0
+        },
+        {
+          "userName": "knw500",
+          "allocation": 0
+        },
+        {
+          "userName": "gauravk_in",
+          "allocation": 0
+        },
+        {
+          "userName": "onk342",
+          "allocation": 0
+        },
+        {
+          "userName": "alexvanl",
+          "allocation": 0
+        },
+        {
+          "userName": "II-Disruptive",
+          "allocation": 0
+        },
+        {
+          "userName": "Onegirl",
+          "allocation": 0
+        },
+        {
+          "userName": "ANZOOOXX",
+          "allocation": 0
+        },
+        {
+          "userName": "hugo13250",
+          "allocation": 0
+        },
+        {
+          "userName": "plessas",
+          "allocation": 0
+        },
+        {
+          "userName": "SparkLiang",
+          "allocation": 0
+        },
+        {
+          "userName": "Social-Investor",
+          "allocation": 0
+        },
+        {
+          "userName": "iliescu2605",
+          "allocation": 0
+        },
+        {
+          "userName": "ALTIA-Investment",
+          "allocation": 0
+        },
+        {
+          "userName": "Alderique",
+          "allocation": 0
+        }
+      ],
+      "avgAllocation": 0,
+      "penetration": 25,
+      "momentum": {
+        "change_1d": 0,
+        "percent_1d": 0,
+        "change_3d": 0,
+        "percent_3d": 0,
+        "change_7d": -2,
+        "percent_7d": -7.4074074074074066,
+        "change_30d": -3,
+        "percent_30d": -10.714285714285714,
+        "velocity": 0,
+        "signal": "🟡 WATCH",
+        "phase": "Consolidation →"
+      }
+    },
+    {
+      "id": 100001,
+      "symbol": "ETH",
+      "name": "Ethereum",
+      "count": 24,
+      "totalAllocation": 0,
+      "investors": [
+        {
+          "userName": "FundManagerZech",
+          "allocation": 0
+        },
+        {
+          "userName": "Napoleon-X",
+          "allocation": 0
+        },
+        {
+          "userName": "rubymza",
+          "allocation": 0
+        },
+        {
+          "userName": "GreenbullInvest",
+          "allocation": 0
+        },
+        {
+          "userName": "misterg23",
+          "allocation": 0
+        },
+        {
+          "userName": "IlMatematico",
+          "allocation": 0
+        },
+        {
+          "userName": "steveli1029",
+          "allocation": 0
+        },
+        {
+          "userName": "NabilSifo",
+          "allocation": 0
+        },
+        {
+          "userName": "KoraTrades",
+          "allocation": 0
+        },
+        {
+          "userName": "Flaten",
+          "allocation": 0
+        },
+        {
+          "userName": "eddyb123",
+          "allocation": 0
+        },
+        {
+          "userName": "Marirs",
+          "allocation": 0
+        },
+        {
+          "userName": "Marco199610",
+          "allocation": 0
+        },
+        {
+          "userName": "SharonConnolly",
+          "allocation": 0
+        },
+        {
+          "userName": "Chrochtik",
+          "allocation": 0
+        },
+        {
+          "userName": "pino428",
+          "allocation": 0
+        },
+        {
+          "userName": "JvAnkershoffen",
+          "allocation": 0
+        },
+        {
+          "userName": "Onegirl",
+          "allocation": 0
+        },
+        {
+          "userName": "hugo13250",
+          "allocation": 0
+        },
+        {
+          "userName": "plessas",
+          "allocation": 0
+        },
+        {
+          "userName": "MercedesSotelo",
+          "allocation": 0
+        },
+        {
+          "userName": "Mexploder",
+          "allocation": 0
+        },
+        {
+          "userName": "victorlee448",
+          "allocation": 0
+        },
+        {
+          "userName": "iliescu2605",
+          "allocation": 0
+        }
+      ],
+      "avgAllocation": 0,
+      "penetration": 24,
+      "momentum": {
+        "change_1d": 0,
+        "percent_1d": 0,
+        "change_3d": 0,
+        "percent_3d": 0,
+        "change_7d": 1,
+        "percent_7d": 4.3478260869565215,
+        "change_30d": -1,
+        "percent_30d": -4,
+        "velocity": 0,
+        "signal": "🟡 WATCH",
+        "phase": "Consolidation →"
+      }
+    },
+    {
+      "id": 12200,
+      "symbol": "ETOR",
+      "name": "eToro Group LTD",
+      "count": 22,
+      "totalAllocation": 0,
+      "investors": [
+        {
+          "userName": "JeppeKirkBonde",
+          "allocation": 0
+        },
+        {
+          "userName": "FundManagerZech",
+          "allocation": 0
+        },
+        {
+          "userName": "defense_investor",
+          "allocation": 0
+        },
+        {
+          "userName": "rubymza",
+          "allocation": 0
+        },
+        {
+          "userName": "Aukie2008",
+          "allocation": 0
+        },
+        {
+          "userName": "KoraTrades",
+          "allocation": 0
+        },
+        {
+          "userName": "celesh",
+          "allocation": 0
+        },
+        {
+          "userName": "TheDividendFund",
+          "allocation": 0
+        },
+        {
+          "userName": "eddyb123",
+          "allocation": 0
+        },
+        {
+          "userName": "Marco199610",
+          "allocation": 0
+        },
+        {
+          "userName": "Miyoshi",
+          "allocation": 0
+        },
+        {
+          "userName": "gauravk_in",
+          "allocation": 0
+        },
+        {
+          "userName": "PROJECT10X",
+          "allocation": 0
+        },
+        {
+          "userName": "VIXGold",
+          "allocation": 0
+        },
+        {
+          "userName": "Le_kousou",
+          "allocation": 0
+        },
+        {
+          "userName": "ioatri",
+          "allocation": 0
+        },
+        {
+          "userName": "MIURATRADER",
+          "allocation": 0
+        },
+        {
+          "userName": "plessas",
+          "allocation": 0
+        },
+        {
+          "userName": "Cfranklin89",
+          "allocation": 0
+        },
+        {
+          "userName": "MercedesSotelo",
+          "allocation": 0
+        },
+        {
+          "userName": "TiuBuletaire2",
+          "allocation": 0
+        },
+        {
+          "userName": "Retrosupply",
+          "allocation": 0
+        }
+      ],
+      "avgAllocation": 0,
+      "penetration": 22,
+      "momentum": {
+        "change_1d": 0,
+        "percent_1d": 0,
+        "change_3d": 1,
+        "percent_3d": 4.761904761904762,
+        "change_7d": 1,
+        "percent_7d": 4.761904761904762,
+        "change_30d": 3,
+        "percent_30d": 15.789473684210526,
+        "velocity": -0.5,
+        "signal": "🟡 WATCH",
+        "phase": "Consolidation →"
+      }
+    },
+    {
+      "id": 1127,
+      "symbol": "NFLX",
+      "name": "Netflix, Inc.",
+      "count": 20,
+      "totalAllocation": 0,
+      "investors": [
+        {
+          "userName": "thomaspj",
+          "allocation": 0
+        },
+        {
+          "userName": "defense_investor",
+          "allocation": 0
+        },
+        {
+          "userName": "steveli1029",
+          "allocation": 0
+        },
+        {
+          "userName": "NabilSifo",
+          "allocation": 0
+        },
+        {
+          "userName": "KoraTrades",
+          "allocation": 0
+        },
+        {
+          "userName": "TheDividendFund",
+          "allocation": 0
+        },
+        {
+          "userName": "eddyb123",
+          "allocation": 0
+        },
+        {
+          "userName": "liborvasa",
+          "allocation": 0
+        },
+        {
+          "userName": "Gserdan",
+          "allocation": 0
+        },
+        {
+          "userName": "StefanULS",
+          "allocation": 0
+        },
+        {
+          "userName": "SharonConnolly",
+          "allocation": 0
+        },
+        {
+          "userName": "gauravk_in",
+          "allocation": 0
+        },
+        {
+          "userName": "Jenelleb123",
+          "allocation": 0
+        },
+        {
+          "userName": "MIURATRADER",
+          "allocation": 0
+        },
+        {
+          "userName": "II-Disruptive",
+          "allocation": 0
+        },
+        {
+          "userName": "Onegirl",
+          "allocation": 0
+        },
+        {
+          "userName": "LoukasBW",
+          "allocation": 0
+        },
+        {
+          "userName": "SparkLiang",
+          "allocation": 0
+        },
+        {
+          "userName": "Social-Investor",
+          "allocation": 0
+        },
+        {
+          "userName": "ALTIA-Investment",
+          "allocation": 0
+        }
+      ],
+      "avgAllocation": 0,
+      "penetration": 20,
+      "momentum": {
+        "change_1d": 0,
+        "percent_1d": 0,
+        "change_3d": 0,
+        "percent_3d": 0,
+        "change_7d": -1,
+        "percent_7d": -4.761904761904762,
+        "change_30d": -4,
+        "percent_30d": -16.666666666666664,
+        "velocity": 0,
+        "signal": "🟡 WATCH",
+        "phase": "Consolidation →"
+      }
+    },
+    {
+      "id": 1832,
+      "symbol": "AMD",
+      "name": "Advanced Micro Devices Inc",
+      "count": 19,
+      "totalAllocation": 0,
+      "investors": [
+        {
+          "userName": "jaynemesis",
+          "allocation": 0
+        },
+        {
+          "userName": "Smudliczek",
+          "allocation": 0
+        },
+        {
+          "userName": "IlMatematico",
+          "allocation": 0
+        },
+        {
+          "userName": "MarianoPardo",
+          "allocation": 0
+        },
+        {
+          "userName": "Aukie2008",
+          "allocation": 0
+        },
+        {
+          "userName": "NabilSifo",
+          "allocation": 0
+        },
+        {
+          "userName": "KoraTrades",
+          "allocation": 0
+        },
+        {
+          "userName": "Flaten",
+          "allocation": 0
+        },
+        {
+          "userName": "celesh",
+          "allocation": 0
+        },
+        {
+          "userName": "eddyb123",
+          "allocation": 0
+        },
+        {
+          "userName": "liborvasa",
+          "allocation": 0
+        },
+        {
+          "userName": "SharonConnolly",
+          "allocation": 0
+        },
+        {
+          "userName": "knw500",
+          "allocation": 0
+        },
+        {
+          "userName": "gauravk_in",
+          "allocation": 0
+        },
+        {
+          "userName": "pino428",
+          "allocation": 0
+        },
+        {
+          "userName": "ca_sual",
+          "allocation": 0
+        },
+        {
+          "userName": "II-Disruptive",
+          "allocation": 0
+        },
+        {
+          "userName": "Onegirl",
+          "allocation": 0
+        },
+        {
+          "userName": "ReturnInvest",
+          "allocation": 0
+        }
+      ],
+      "avgAllocation": 0,
+      "penetration": 19,
+      "momentum": {
+        "change_1d": 0,
+        "percent_1d": 0,
+        "change_3d": -1,
+        "percent_3d": -5,
+        "change_7d": -2,
+        "percent_7d": -9.523809523809524,
+        "change_30d": -1,
+        "percent_30d": -5,
+        "velocity": 0.5,
+        "signal": "🟡 WATCH",
+        "phase": "Consolidation →"
+      }
+    },
+    {
+      "id": 4509,
+      "symbol": "ASML.NV",
+      "name": "ASML Holding NV",
+      "count": 16,
+      "totalAllocation": 0,
+      "investors": [
+        {
+          "userName": "JeppeKirkBonde",
+          "allocation": 0
+        },
+        {
+          "userName": "Smudliczek",
+          "allocation": 0
+        },
+        {
+          "userName": "MarianoPardo",
+          "allocation": 0
+        },
+        {
+          "userName": "Aukie2008",
+          "allocation": 0
+        },
+        {
+          "userName": "robchamow",
+          "allocation": 0
+        },
+        {
+          "userName": "NabilSifo",
+          "allocation": 0
+        },
+        {
+          "userName": "TheDividendFund",
+          "allocation": 0
+        },
+        {
+          "userName": "Marco199610",
+          "allocation": 0
+        },
+        {
+          "userName": "DemonicoLag",
+          "allocation": 0
+        },
+        {
+          "userName": "Compound72",
+          "allocation": 0
+        },
+        {
+          "userName": "onk342",
+          "allocation": 0
+        },
+        {
+          "userName": "II-Disruptive",
+          "allocation": 0
+        },
+        {
+          "userName": "plessas",
+          "allocation": 0
+        },
+        {
+          "userName": "Cfranklin89",
+          "allocation": 0
+        },
+        {
+          "userName": "iliescu2605",
+          "allocation": 0
+        },
+        {
+          "userName": "ALTIA-Investment",
+          "allocation": 0
+        }
+      ],
+      "avgAllocation": 0,
+      "penetration": 16,
+      "momentum": {
+        "change_1d": 0,
+        "percent_1d": 0,
+        "change_3d": 0,
+        "percent_3d": 0,
+        "change_7d": 0,
+        "percent_7d": 0,
+        "change_30d": 1,
+        "percent_30d": 6.666666666666667,
+        "velocity": 0,
+        "signal": "🟡 HOLD",
+        "phase": "Consolidation →"
+      }
+    },
+    {
+      "id": 1186,
+      "symbol": "UBER",
+      "name": "Uber Technologies Inc.",
+      "count": 16,
+      "totalAllocation": 0,
+      "investors": [
+        {
+          "userName": "robchamow",
+          "allocation": 0
+        },
+        {
+          "userName": "NabilSifo",
+          "allocation": 0
+        },
+        {
+          "userName": "eddyb123",
+          "allocation": 0
+        },
+        {
+          "userName": "brirap",
+          "allocation": 0
+        },
+        {
+          "userName": "knw500",
+          "allocation": 0
+        },
+        {
+          "userName": "Rayeiris",
+          "allocation": 0
+        },
+        {
+          "userName": "JvAnkershoffen",
+          "allocation": 0
+        },
+        {
+          "userName": "ca_sual",
+          "allocation": 0
+        },
+        {
+          "userName": "Compound72",
+          "allocation": 0
+        },
+        {
+          "userName": "onk342",
+          "allocation": 0
+        },
+        {
+          "userName": "Le_kousou",
+          "allocation": 0
+        },
+        {
+          "userName": "ioatri",
+          "allocation": 0
+        },
+        {
+          "userName": "II-Disruptive",
+          "allocation": 0
+        },
+        {
+          "userName": "hugo13250",
+          "allocation": 0
+        },
+        {
+          "userName": "Cfranklin89",
+          "allocation": 0
+        },
+        {
+          "userName": "ALTIA-Investment",
+          "allocation": 0
+        }
+      ],
+      "avgAllocation": 0,
+      "penetration": 16,
+      "momentum": {
+        "change_1d": 0,
+        "percent_1d": 0,
+        "change_3d": 0,
+        "percent_3d": 0,
+        "change_7d": 0,
+        "percent_7d": 0,
+        "change_30d": 1,
+        "percent_30d": 6.666666666666667,
+        "velocity": 0,
+        "signal": "🟡 HOLD",
+        "phase": "Consolidation →"
+      }
+    },
+    {
+      "id": 1253,
+      "symbol": "MC.PA",
+      "name": "LVMH Moet Hennessy Louis Vuitton SA",
+      "count": 15,
+      "totalAllocation": 0,
+      "investors": [
+        {
+          "userName": "JeppeKirkBonde",
+          "allocation": 0
+        },
+        {
+          "userName": "Smudliczek",
+          "allocation": 0
+        },
+        {
+          "userName": "IlMatematico",
+          "allocation": 0
+        },
+        {
+          "userName": "robchamow",
+          "allocation": 0
+        },
+        {
+          "userName": "CCalle",
+          "allocation": 0
+        },
+        {
+          "userName": "TheDividendFund",
+          "allocation": 0
+        },
+        {
+          "userName": "brirap",
+          "allocation": 0
+        },
+        {
+          "userName": "Gserdan",
+          "allocation": 0
+        },
+        {
+          "userName": "SharonConnolly",
+          "allocation": 0
+        },
+        {
+          "userName": "Rayeiris",
+          "allocation": 0
+        },
+        {
+          "userName": "pino428",
+          "allocation": 0
+        },
+        {
+          "userName": "edu-inversor",
+          "allocation": 0
+        },
+        {
+          "userName": "RobertMERC",
+          "allocation": 0
+        },
+        {
+          "userName": "MercedesSotelo",
+          "allocation": 0
+        },
+        {
+          "userName": "Alderique",
+          "allocation": 0
+        }
+      ],
+      "avgAllocation": 0,
+      "penetration": 15,
+      "momentum": {
+        "change_1d": 0,
+        "percent_1d": 0,
+        "change_3d": 0,
+        "percent_3d": 0,
+        "change_7d": 0,
+        "percent_7d": 0,
+        "change_30d": 0,
+        "percent_30d": 0,
+        "velocity": 0,
+        "signal": "🟡 HOLD",
+        "phase": "Consolidation →"
+      }
+    },
+    {
+      "id": 1484,
+      "symbol": "PYPL",
+      "name": "PayPal Holdings",
+      "count": 15,
+      "totalAllocation": 0,
+      "investors": [
+        {
+          "userName": "IlMatematico",
+          "allocation": 0
+        },
+        {
+          "userName": "ingruc",
+          "allocation": 0
+        },
+        {
+          "userName": "MarianoPardo",
+          "allocation": 0
+        },
+        {
+          "userName": "Aukie2008",
+          "allocation": 0
+        },
+        {
+          "userName": "robchamow",
+          "allocation": 0
+        },
+        {
+          "userName": "KoraTrades",
+          "allocation": 0
+        },
+        {
+          "userName": "celesh",
+          "allocation": 0
+        },
+        {
+          "userName": "liborvasa",
+          "allocation": 0
+        },
+        {
+          "userName": "gauravk_in",
+          "allocation": 0
+        },
+        {
+          "userName": "JvAnkershoffen",
+          "allocation": 0
+        },
+        {
+          "userName": "Benaymo23",
+          "allocation": 0
+        },
+        {
+          "userName": "Fostijn",
+          "allocation": 0
+        },
+        {
+          "userName": "SparkLiang",
+          "allocation": 0
+        },
+        {
+          "userName": "ReturnInvest",
+          "allocation": 0
+        },
+        {
+          "userName": "iliescu2605",
+          "allocation": 0
+        }
+      ],
+      "avgAllocation": 0,
+      "penetration": 15,
+      "momentum": {
+        "change_1d": 0,
+        "percent_1d": 0,
+        "change_3d": 0,
+        "percent_3d": 0,
+        "change_7d": 0,
+        "percent_7d": 0,
+        "change_30d": -1,
+        "percent_30d": -6.25,
+        "velocity": 0,
+        "signal": "🟡 HOLD",
+        "phase": "Consolidation →"
+      }
+    },
+    {
+      "id": 2260,
+      "symbol": "NOVO-B.CO",
+      "name": "Novo Nordisk B A/S",
+      "count": 14,
+      "totalAllocation": 0,
+      "investors": [
+        {
+          "userName": "JeppeKirkBonde",
+          "allocation": 0
+        },
+        {
+          "userName": "CPHequities",
+          "allocation": 0
+        },
+        {
+          "userName": "Smudliczek",
+          "allocation": 0
+        },
+        {
+          "userName": "IlMatematico",
+          "allocation": 0
+        },
+        {
+          "userName": "Aukie2008",
+          "allocation": 0
+        },
+        {
+          "userName": "Marco199610",
+          "allocation": 0
+        },
+        {
+          "userName": "Miyoshi",
+          "allocation": 0
+        },
+        {
+          "userName": "SharonConnolly",
+          "allocation": 0
+        },
+        {
+          "userName": "gauravk_in",
+          "allocation": 0
+        },
+        {
+          "userName": "Benaymo23",
+          "allocation": 0
+        },
+        {
+          "userName": "Compound72",
+          "allocation": 0
+        },
+        {
+          "userName": "onk342",
+          "allocation": 0
+        },
+        {
+          "userName": "ioatri",
+          "allocation": 0
+        },
+        {
+          "userName": "Mexploder",
+          "allocation": 0
+        }
+      ],
+      "avgAllocation": 0,
+      "penetration": 14,
+      "momentum": {
+        "change_1d": 0,
+        "percent_1d": 0,
+        "change_3d": -1,
+        "percent_3d": -6.666666666666667,
+        "change_7d": -1,
+        "percent_7d": -6.666666666666667,
+        "change_30d": -1,
+        "percent_30d": -6.666666666666667,
+        "velocity": 0.5,
+        "signal": "🟡 WATCH",
+        "phase": "Consolidation →"
+      }
+    },
+    {
+      "id": 4481,
+      "symbol": "TSM",
+      "name": "Taiwan Semiconductor Manufacturing Co Ltd - ADR",
+      "count": 14,
+      "totalAllocation": 0,
+      "investors": [
+        {
+          "userName": "JeppeKirkBonde",
+          "allocation": 0
+        },
+        {
+          "userName": "CPHequities",
+          "allocation": 0
+        },
+        {
+          "userName": "Michalhla",
+          "allocation": 0
+        },
+        {
+          "userName": "robchamow",
+          "allocation": 0
+        },
+        {
+          "userName": "kasperpatrick1",
+          "allocation": 0
+        },
+        {
+          "userName": "celesh",
+          "allocation": 0
+        },
+        {
+          "userName": "TheDividendFund",
+          "allocation": 0
+        },
+        {
+          "userName": "Gserdan",
+          "allocation": 0
+        },
+        {
+          "userName": "SharonConnolly",
+          "allocation": 0
+        },
+        {
+          "userName": "gauravk_in",
+          "allocation": 0
+        },
+        {
+          "userName": "onk342",
+          "allocation": 0
+        },
+        {
+          "userName": "ioatri",
+          "allocation": 0
+        },
+        {
+          "userName": "II-Disruptive",
+          "allocation": 0
+        },
+        {
+          "userName": "Mexploder",
+          "allocation": 0
+        }
+      ],
+      "avgAllocation": 0,
+      "penetration": 14,
+      "momentum": {
+        "change_1d": 0,
+        "percent_1d": 0,
+        "change_3d": -1,
+        "percent_3d": -6.666666666666667,
+        "change_7d": 0,
+        "percent_7d": 0,
+        "change_30d": -2,
+        "percent_30d": -12.5,
+        "velocity": 0.5,
+        "signal": "🟡 WATCH",
+        "phase": "Consolidation →"
+      }
+    },
+    {
+      "id": 1118,
+      "symbol": "BRK.B",
+      "name": "Berkshire Hathaway Inc",
+      "count": 13,
+      "totalAllocation": 0,
+      "investors": [
+        {
+          "userName": "CPHequities",
+          "allocation": 0
+        },
+        {
+          "userName": "Smudliczek",
+          "allocation": 0
+        },
+        {
+          "userName": "IlMatematico",
+          "allocation": 0
+        },
+        {
+          "userName": "Michalhla",
+          "allocation": 0
+        },
+        {
+          "userName": "knw500",
+          "allocation": 0
+        },
+        {
+          "userName": "gauravk_in",
+          "allocation": 0
+        },
+        {
+          "userName": "Compound72",
+          "allocation": 0
+        },
+        {
+          "userName": "Fostijn",
+          "allocation": 0
+        },
+        {
+          "userName": "edu-inversor",
+          "allocation": 0
+        },
+        {
+          "userName": "iliescu2605",
+          "allocation": 0
+        },
+        {
+          "userName": "Retrosupply",
+          "allocation": 0
+        },
+        {
+          "userName": "Alderique",
+          "allocation": 0
+        },
+        {
+          "userName": "ThomasRoddy",
+          "allocation": 0
+        }
+      ],
+      "avgAllocation": 0,
+      "penetration": 13,
+      "momentum": {
+        "change_1d": 0,
+        "percent_1d": 0,
+        "change_3d": 0,
+        "percent_3d": 0,
+        "change_7d": -1,
+        "percent_7d": -7.142857142857142,
+        "change_30d": 0,
+        "percent_30d": 0,
+        "velocity": 0,
+        "signal": "🟡 WATCH",
+        "phase": "Consolidation →"
+      }
+    },
+    {
+      "id": 1032,
+      "symbol": "UNH",
+      "name": "UnitedHealth",
+      "count": 13,
+      "totalAllocation": 0,
+      "investors": [
+        {
+          "userName": "IlMatematico",
+          "allocation": 0
+        },
+        {
+          "userName": "Wesl3y",
+          "allocation": 0
+        },
+        {
+          "userName": "Michalhla",
+          "allocation": 0
+        },
+        {
+          "userName": "NabilSifo",
+          "allocation": 0
+        },
+        {
+          "userName": "KoraTrades",
+          "allocation": 0
+        },
+        {
+          "userName": "celesh",
+          "allocation": 0
+        },
+        {
+          "userName": "Marirs",
+          "allocation": 0
+        },
+        {
+          "userName": "StefanULS",
+          "allocation": 0
+        },
+        {
+          "userName": "DemonicoLag",
+          "allocation": 0
+        },
+        {
+          "userName": "onk342",
+          "allocation": 0
+        },
+        {
+          "userName": "MercedesSotelo",
+          "allocation": 0
+        },
+        {
+          "userName": "Mexploder",
+          "allocation": 0
+        },
+        {
+          "userName": "iliescu2605",
+          "allocation": 0
+        }
+      ],
+      "avgAllocation": 0,
+      "penetration": 13,
+      "momentum": {
+        "change_1d": 0,
+        "percent_1d": 0,
+        "change_3d": -1,
+        "percent_3d": -7.142857142857142,
+        "change_7d": 0,
+        "percent_7d": 0,
+        "change_30d": -1,
+        "percent_30d": -7.142857142857142,
+        "velocity": 0.5,
+        "signal": "🟡 WATCH",
+        "phase": "Consolidation →"
+      }
+    },
+    {
+      "id": 2587,
+      "symbol": "RHM.DE",
+      "name": "Rheinmetall AG",
+      "count": 12,
+      "totalAllocation": 0,
+      "investors": [
+        {
+          "userName": "JeppeKirkBonde",
+          "allocation": 0
+        },
+        {
+          "userName": "CPHequities",
+          "allocation": 0
+        },
+        {
+          "userName": "defense_investor",
+          "allocation": 0
+        },
+        {
+          "userName": "rubymza",
+          "allocation": 0
+        },
+        {
+          "userName": "Smudliczek",
+          "allocation": 0
+        },
+        {
+          "userName": "Flaten",
+          "allocation": 0
+        },
+        {
+          "userName": "TheDividendFund",
+          "allocation": 0
+        },
+        {
+          "userName": "JvAnkershoffen",
+          "allocation": 0
+        },
+        {
+          "userName": "onk342",
+          "allocation": 0
+        },
+        {
+          "userName": "alexvanl",
+          "allocation": 0
+        },
+        {
+          "userName": "plessas",
+          "allocation": 0
+        },
+        {
+          "userName": "Mexploder",
+          "allocation": 0
+        }
+      ],
+      "avgAllocation": 0,
+      "penetration": 12,
+      "momentum": {
+        "change_1d": 0,
+        "percent_1d": 0,
+        "change_3d": 0,
+        "percent_3d": 0,
+        "change_7d": 1,
+        "percent_7d": 9.090909090909092,
+        "change_30d": 2,
+        "percent_30d": 20,
+        "velocity": 0,
+        "signal": "🟡 WATCH",
+        "phase": "Accumulation ↗"
+      }
+    },
+    {
+      "id": 1043,
+      "symbol": "PEP",
+      "name": "PepsiCo",
+      "count": 12,
+      "totalAllocation": 0,
+      "investors": [
+        {
+          "userName": "GreenbullInvest",
+          "allocation": 0
+        },
+        {
+          "userName": "Smudliczek",
+          "allocation": 0
+        },
+        {
+          "userName": "mick_repo",
+          "allocation": 0
+        },
+        {
+          "userName": "celesh",
+          "allocation": 0
+        },
+        {
+          "userName": "TheDividendFund",
+          "allocation": 0
+        },
+        {
+          "userName": "StefanULS",
+          "allocation": 0
+        },
+        {
+          "userName": "pino428",
+          "allocation": 0
+        },
+        {
+          "userName": "Fostijn",
+          "allocation": 0
+        },
+        {
+          "userName": "onk342",
+          "allocation": 0
+        },
+        {
+          "userName": "edu-inversor",
+          "allocation": 0
+        },
+        {
+          "userName": "iliescu2605",
+          "allocation": 0
+        },
+        {
+          "userName": "Alderique",
+          "allocation": 0
+        }
+      ],
+      "avgAllocation": 0,
+      "penetration": 12,
+      "momentum": {
+        "change_1d": 0,
+        "percent_1d": 0,
+        "change_3d": 0,
+        "percent_3d": 0,
+        "change_7d": 1,
+        "percent_7d": 9.090909090909092,
+        "change_30d": 1,
+        "percent_30d": 9.090909090909092,
+        "velocity": 0,
+        "signal": "🟡 WATCH",
+        "phase": "Accumulation ↗"
+      }
+    },
+    {
+      "id": 7991,
+      "symbol": "PLTR",
+      "name": "Palantir Technologies Inc.",
+      "count": 12,
+      "totalAllocation": 0,
+      "investors": [
+        {
+          "userName": "thomaspj",
+          "allocation": 0
+        },
+        {
+          "userName": "JeppeKirkBonde",
+          "allocation": 0
+        },
+        {
+          "userName": "rubymza",
+          "allocation": 0
+        },
+        {
+          "userName": "misterg23",
+          "allocation": 0
+        },
+        {
+          "userName": "Flaten",
+          "allocation": 0
+        },
+        {
+          "userName": "Marirs",
+          "allocation": 0
+        },
+        {
+          "userName": "Marco199610",
+          "allocation": 0
+        },
+        {
+          "userName": "StefanULS",
+          "allocation": 0
+        },
+        {
+          "userName": "DemonicoLag",
+          "allocation": 0
+        },
+        {
+          "userName": "LoukasBW",
+          "allocation": 0
+        },
+        {
+          "userName": "ReturnInvest",
+          "allocation": 0
+        },
+        {
+          "userName": "ALTIA-Investment",
+          "allocation": 0
+        }
+      ],
+      "avgAllocation": 0,
+      "penetration": 12,
+      "momentum": {
+        "change_1d": 0,
+        "percent_1d": 0,
+        "change_3d": 0,
+        "percent_3d": 0,
+        "change_7d": 0,
+        "percent_7d": 0,
+        "change_30d": 0,
+        "percent_30d": 0,
+        "velocity": 0,
+        "signal": "🟡 HOLD",
+        "phase": "Consolidation →"
+      }
+    },
+    {
+      "id": 100063,
+      "symbol": "SOL",
+      "name": "Solana",
+      "count": 12,
+      "totalAllocation": 0,
+      "investors": [
+        {
+          "userName": "Napoleon-X",
+          "allocation": 0
+        },
+        {
+          "userName": "rubymza",
+          "allocation": 0
+        },
+        {
+          "userName": "GreenbullInvest",
+          "allocation": 0
+        },
+        {
+          "userName": "misterg23",
+          "allocation": 0
+        },
+        {
+          "userName": "IlMatematico",
+          "allocation": 0
+        },
+        {
+          "userName": "NabilSifo",
+          "allocation": 0
+        },
+        {
+          "userName": "KoraTrades",
+          "allocation": 0
+        },
+        {
+          "userName": "Marco199610",
+          "allocation": 0
+        },
+        {
+          "userName": "knw500",
+          "allocation": 0
+        },
+        {
+          "userName": "pino428",
+          "allocation": 0
+        },
+        {
+          "userName": "LoukasBW",
+          "allocation": 0
+        },
+        {
+          "userName": "Mexploder",
+          "allocation": 0
+        }
+      ],
+      "avgAllocation": 0,
+      "penetration": 12,
+      "momentum": {
+        "change_1d": 0,
+        "percent_1d": 0,
+        "change_3d": -1,
+        "percent_3d": -7.6923076923076925,
+        "change_7d": 0,
+        "percent_7d": 0,
+        "change_30d": -2,
+        "percent_30d": -14.285714285714285,
+        "velocity": 0.5,
+        "signal": "🟡 WATCH",
+        "phase": "Consolidation →"
+      }
+    },
+    {
+      "id": 6844,
+      "symbol": "NVO",
+      "name": "Novo-Nordisk A/S SPONS ADR",
+      "count": 12,
+      "totalAllocation": 0,
+      "investors": [
+        {
+          "userName": "IlMatematico",
+          "allocation": 0
+        },
+        {
+          "userName": "MarianoPardo",
+          "allocation": 0
+        },
+        {
+          "userName": "Michalhla",
+          "allocation": 0
+        },
+        {
+          "userName": "Chrochtik",
+          "allocation": 0
+        },
+        {
+          "userName": "pino428",
+          "allocation": 0
+        },
+        {
+          "userName": "Jenelleb123",
+          "allocation": 0
+        },
+        {
+          "userName": "ca_sual",
+          "allocation": 0
+        },
+        {
+          "userName": "MIURATRADER",
+          "allocation": 0
+        },
+        {
+          "userName": "ANZOOOXX",
+          "allocation": 0
+        },
+        {
+          "userName": "MercedesSotelo",
+          "allocation": 0
+        },
+        {
+          "userName": "rafaeldfl",
+          "allocation": 0
+        },
+        {
+          "userName": "iliescu2605",
+          "allocation": 0
+        }
+      ],
+      "avgAllocation": 0,
+      "penetration": 12,
+      "momentum": {
+        "change_1d": 0,
+        "percent_1d": 0,
+        "change_3d": 0,
+        "percent_3d": 0,
+        "change_7d": 0,
+        "percent_7d": 0,
+        "change_30d": -1,
+        "percent_30d": -7.6923076923076925,
+        "velocity": 0,
+        "signal": "🟡 HOLD",
+        "phase": "Consolidation →"
+      }
+    },
+    {
+      "id": 1009,
+      "symbol": "AXP",
+      "name": "American Express CO",
+      "count": 11,
+      "totalAllocation": 0,
+      "investors": [
+        {
+          "userName": "thomaspj",
+          "allocation": 0
+        },
+        {
+          "userName": "defense_investor",
+          "allocation": 0
+        },
+        {
+          "userName": "MarianoPardo",
+          "allocation": 0
+        },
+        {
+          "userName": "Kevin_Pando",
+          "allocation": 0
+        },
+        {
+          "userName": "robchamow",
+          "allocation": 0
+        },
+        {
+          "userName": "Nezatron",
+          "allocation": 0
+        },
+        {
+          "userName": "SharonConnolly",
+          "allocation": 0
+        },
+        {
+          "userName": "knw500",
+          "allocation": 0
+        },
+        {
+          "userName": "Jenelleb123",
+          "allocation": 0
+        },
+        {
+          "userName": "edu-inversor",
+          "allocation": 0
+        },
+        {
+          "userName": "Cfranklin89",
+          "allocation": 0
+        }
+      ],
+      "avgAllocation": 0,
+      "penetration": 11,
+      "momentum": {
+        "change_1d": 0,
+        "percent_1d": 0,
+        "change_3d": 0,
+        "percent_3d": 0,
+        "change_7d": 0,
+        "percent_7d": 0,
+        "change_30d": 1,
+        "percent_30d": 10,
+        "velocity": 0,
+        "signal": "🟡 HOLD",
+        "phase": "Consolidation →"
+      }
+    },
+    {
+      "id": 4244,
+      "symbol": "ASML",
+      "name": "ASML Holding NV - ADR",
+      "count": 11,
+      "totalAllocation": 0,
+      "investors": [
+        {
+          "userName": "JeppeKirkBonde",
+          "allocation": 0
+        },
+        {
+          "userName": "Michalhla",
+          "allocation": 0
+        },
+        {
+          "userName": "celesh",
+          "allocation": 0
+        },
+        {
+          "userName": "brirap",
+          "allocation": 0
+        },
+        {
+          "userName": "Chrochtik",
+          "allocation": 0
+        },
+        {
+          "userName": "gauravk_in",
+          "allocation": 0
+        },
+        {
+          "userName": "pino428",
+          "allocation": 0
+        },
+        {
+          "userName": "ca_sual",
+          "allocation": 0
+        },
+        {
+          "userName": "ioatri",
+          "allocation": 0
+        },
+        {
+          "userName": "ANZOOOXX",
+          "allocation": 0
+        },
+        {
+          "userName": "Social-Investor",
+          "allocation": 0
+        }
+      ],
+      "avgAllocation": 0,
+      "penetration": 11,
+      "momentum": {
+        "change_1d": 0,
+        "percent_1d": 0,
+        "change_3d": 0,
+        "percent_3d": 0,
+        "change_7d": 0,
+        "percent_7d": 0,
+        "change_30d": 0,
+        "percent_30d": 0,
+        "velocity": 0,
+        "signal": "🟡 HOLD",
+        "phase": "Consolidation →"
+      }
+    },
+    {
+      "id": 2339,
+      "symbol": "0700.HK",
+      "name": "Tencent",
+      "count": 11,
+      "totalAllocation": 0,
+      "investors": [
+        {
+          "userName": "JeppeKirkBonde",
+          "allocation": 0
+        },
+        {
+          "userName": "Richardstroud",
+          "allocation": 0
+        },
+        {
+          "userName": "steveli1029",
+          "allocation": 0
+        },
+        {
+          "userName": "MarianoPardo",
+          "allocation": 0
+        },
+        {
+          "userName": "DevonToogood",
+          "allocation": 0
+        },
+        {
+          "userName": "Gserdan",
+          "allocation": 0
+        },
+        {
+          "userName": "Nezatron",
+          "allocation": 0
+        },
+        {
+          "userName": "ANZOOOXX",
+          "allocation": 0
+        },
+        {
+          "userName": "plessas",
+          "allocation": 0
+        },
+        {
+          "userName": "Mexploder",
+          "allocation": 0
+        },
+        {
+          "userName": "Alderique",
+          "allocation": 0
+        }
+      ],
+      "avgAllocation": 0,
+      "penetration": 11,
+      "momentum": {
+        "change_1d": 0,
+        "percent_1d": 0,
+        "change_3d": 0,
+        "percent_3d": 0,
+        "change_7d": 0,
+        "percent_7d": 0,
+        "change_30d": -1,
+        "percent_30d": -8.333333333333332,
+        "velocity": 0,
+        "signal": "🟡 HOLD",
+        "phase": "Consolidation →"
+      }
+    },
+    {
+      "id": 2402,
+      "symbol": "9988.HK",
+      "name": "Alibaba Group Holding Ltd (Hong Kong)",
+      "count": 11,
+      "totalAllocation": 0,
+      "investors": [
+        {
+          "userName": "FundManagerZech",
+          "allocation": 0
+        },
+        {
+          "userName": "IlMatematico",
+          "allocation": 0
+        },
+        {
+          "userName": "Wesl3y",
+          "allocation": 0
+        },
+        {
+          "userName": "CCalle",
+          "allocation": 0
+        },
+        {
+          "userName": "DevonToogood",
+          "allocation": 0
+        },
+        {
+          "userName": "Marco199610",
+          "allocation": 0
+        },
+        {
+          "userName": "Rayeiris",
+          "allocation": 0
+        },
+        {
+          "userName": "Fostijn",
+          "allocation": 0
+        },
+        {
+          "userName": "plessas",
+          "allocation": 0
+        },
+        {
+          "userName": "SparkLiang",
+          "allocation": 0
+        },
+        {
+          "userName": "Retrosupply",
+          "allocation": 0
+        }
+      ],
+      "avgAllocation": 0,
+      "penetration": 11,
+      "momentum": {
+        "change_1d": 0,
+        "percent_1d": 0,
+        "change_3d": 0,
+        "percent_3d": 0,
+        "change_7d": 0,
+        "percent_7d": 0,
+        "change_30d": -1,
+        "percent_30d": -8.333333333333332,
+        "velocity": 0,
+        "signal": "🟡 HOLD",
+        "phase": "Consolidation →"
+      }
+    },
+    {
+      "id": 6434,
+      "symbol": "GOOGL",
+      "name": "Alphabet Inc Class A",
+      "count": 10,
+      "totalAllocation": 0,
+      "investors": [
+        {
+          "userName": "JeppeKirkBonde",
+          "allocation": 0
+        },
+        {
+          "userName": "Smudliczek",
+          "allocation": 0
+        },
+        {
+          "userName": "Richardstroud",
+          "allocation": 0
+        },
+        {
+          "userName": "Flaten",
+          "allocation": 0
+        },
+        {
+          "userName": "Chrochtik",
+          "allocation": 0
+        },
+        {
+          "userName": "onk342",
+          "allocation": 0
+        },
+        {
+          "userName": "Le_kousou",
+          "allocation": 0
+        },
+        {
+          "userName": "plessas",
+          "allocation": 0
+        },
+        {
+          "userName": "Matteospaggiari",
+          "allocation": 0
+        },
+        {
+          "userName": "Space-Investor",
+          "allocation": 0
+        }
+      ],
+      "avgAllocation": 0,
+      "penetration": 10,
+      "momentum": {
+        "change_1d": 0,
+        "percent_1d": 0,
+        "change_3d": 0,
+        "percent_3d": 0,
+        "change_7d": 0,
+        "percent_7d": 0,
+        "change_30d": 0,
+        "percent_30d": 0,
+        "velocity": 0,
+        "signal": "🟡 HOLD",
+        "phase": "Consolidation →"
+      }
+    },
+    {
+      "id": 7999,
+      "symbol": "SNOW",
+      "name": "Snowflake Inc.",
+      "count": 9,
+      "totalAllocation": 0,
+      "investors": [
+        {
+          "userName": "thomaspj",
+          "allocation": 0
+        },
+        {
+          "userName": "rubymza",
+          "allocation": 0
+        },
+        {
+          "userName": "GreenbullInvest",
+          "allocation": 0
+        },
+        {
+          "userName": "eddyb123",
+          "allocation": 0
+        },
+        {
+          "userName": "gauravk_in",
+          "allocation": 0
+        },
+        {
+          "userName": "pino428",
+          "allocation": 0
+        },
+        {
+          "userName": "Jenelleb123",
+          "allocation": 0
+        },
+        {
+          "userName": "edu-inversor",
+          "allocation": 0
+        },
+        {
+          "userName": "II-Disruptive",
+          "allocation": 0
+        }
+      ],
+      "avgAllocation": 0,
+      "penetration": 9,
+      "momentum": {
+        "change_1d": 0,
+        "percent_1d": 0,
+        "change_3d": 0,
+        "percent_3d": 0,
+        "change_7d": 0,
+        "percent_7d": 0,
+        "change_30d": 1,
+        "percent_30d": 12.5,
+        "velocity": 0,
+        "signal": "🟡 HOLD",
+        "phase": "Consolidation →"
+      }
+    },
+    {
+      "id": 1141,
+      "symbol": "BIDU",
+      "name": "Baidu, Inc.-ADR",
+      "count": 8,
+      "totalAllocation": 0,
+      "investors": [
+        {
+          "userName": "Smudliczek",
+          "allocation": 0
+        },
+        {
+          "userName": "Richardstroud",
+          "allocation": 0
+        },
+        {
+          "userName": "davoyu",
+          "allocation": 0
+        },
+        {
+          "userName": "knw500",
+          "allocation": 0
+        },
+        {
+          "userName": "DemonicoLag",
+          "allocation": 0
+        },
+        {
+          "userName": "Fostijn",
+          "allocation": 0
+        },
+        {
+          "userName": "ANZOOOXX",
+          "allocation": 0
+        },
+        {
+          "userName": "Social-Investor",
+          "allocation": 0
+        }
+      ],
+      "avgAllocation": 0,
+      "penetration": 8,
+      "momentum": {
+        "change_1d": 0,
+        "percent_1d": 0,
+        "change_3d": 0,
+        "percent_3d": 0,
+        "change_7d": 0,
+        "percent_7d": 0,
+        "change_30d": -1,
+        "percent_30d": -11.11111111111111,
+        "velocity": 0,
+        "signal": "🟡 HOLD",
+        "phase": "Consolidation →"
+      }
+    },
+    {
+      "id": 1442,
+      "symbol": "IB01.L",
+      "name": "iShares $ Treasury Bond 0-1yr UCITS ETF",
+      "count": 8,
+      "totalAllocation": 0,
+      "investors": [
+        {
+          "userName": "Aukie2008",
+          "allocation": 0
+        },
+        {
+          "userName": "Michalhla",
+          "allocation": 0
+        },
+        {
+          "userName": "celesh",
+          "allocation": 0
+        },
+        {
+          "userName": "Miyoshi",
+          "allocation": 0
+        },
+        {
+          "userName": "PROJECT10X",
+          "allocation": 0
+        },
+        {
+          "userName": "VIXGold",
+          "allocation": 0
+        },
+        {
+          "userName": "onk342",
+          "allocation": 0
+        },
+        {
+          "userName": "edu-inversor",
+          "allocation": 0
+        }
+      ],
+      "avgAllocation": 0,
+      "penetration": 8,
+      "momentum": {
+        "change_1d": 0,
+        "percent_1d": 0,
+        "change_3d": 0,
+        "percent_3d": 0,
+        "change_7d": 0,
+        "percent_7d": 0,
+        "change_30d": 0,
+        "percent_30d": 0,
+        "velocity": 0,
+        "signal": "🟡 HOLD",
+        "phase": "Consolidation →"
+      }
+    },
+    {
+      "id": 1967,
+      "symbol": "XYZ",
+      "name": "Block Inc.",
+      "count": 8,
+      "totalAllocation": 0,
+      "investors": [
+        {
+          "userName": "GreenbullInvest",
+          "allocation": 0
+        },
+        {
+          "userName": "Wesl3y",
+          "allocation": 0
+        },
+        {
+          "userName": "ingruc",
+          "allocation": 0
+        },
+        {
+          "userName": "Marco199610",
+          "allocation": 0
+        },
+        {
+          "userName": "Gserdan",
+          "allocation": 0
+        },
+        {
+          "userName": "knw500",
+          "allocation": 0
+        },
+        {
+          "userName": "gauravk_in",
+          "allocation": 0
+        },
+        {
+          "userName": "Social-Investor",
+          "allocation": 0
+        }
+      ],
+      "avgAllocation": 0,
+      "penetration": 8,
+      "momentum": {
+        "change_1d": 0,
+        "percent_1d": 0,
+        "change_3d": 0,
+        "percent_3d": 0,
+        "change_7d": -1,
+        "percent_7d": -11.11111111111111,
+        "change_30d": -1,
+        "percent_30d": -11.11111111111111,
+        "velocity": 0,
+        "signal": "🟡 WATCH",
+        "phase": "Consolidation →"
+      }
+    },
+    {
+      "id": 6053,
+      "symbol": "CROX",
+      "name": "Crocs Inc",
+      "count": 8,
+      "totalAllocation": 0,
+      "investors": [
+        {
+          "userName": "AmitKup",
+          "allocation": 0
+        },
+        {
+          "userName": "IlMatematico",
+          "allocation": 0
+        },
+        {
+          "userName": "ingruc",
+          "allocation": 0
+        },
+        {
+          "userName": "CCalle",
+          "allocation": 0
+        },
+        {
+          "userName": "Rayeiris",
+          "allocation": 0
+        },
+        {
+          "userName": "onk342",
+          "allocation": 0
+        },
+        {
+          "userName": "Cfranklin89",
+          "allocation": 0
+        },
+        {
+          "userName": "Matteospaggiari",
+          "allocation": 0
+        }
+      ],
+      "avgAllocation": 0,
+      "penetration": 8,
+      "momentum": {
+        "change_1d": 0,
+        "percent_1d": 0,
+        "change_3d": 1,
+        "percent_3d": 14.285714285714285,
+        "change_7d": 1,
+        "percent_7d": 14.285714285714285,
+        "change_30d": 0,
+        "percent_30d": 0,
+        "velocity": -0.5,
+        "signal": "🟡 WATCH",
+        "phase": "Accumulation ↗"
+      }
+    },
+    {
+      "id": 1567,
+      "symbol": "LLY",
+      "name": "Eli Lilly & Co",
+      "count": 8,
+      "totalAllocation": 0,
+      "investors": [
+        {
+          "userName": "saifsyn",
+          "allocation": 0
+        },
+        {
+          "userName": "defense_investor",
+          "allocation": 0
+        },
+        {
+          "userName": "celesh",
+          "allocation": 0
+        },
+        {
+          "userName": "brirap",
+          "allocation": 0
+        },
+        {
+          "userName": "SharonConnolly",
+          "allocation": 0
+        },
+        {
+          "userName": "Jenelleb123",
+          "allocation": 0
+        },
+        {
+          "userName": "plessas",
+          "allocation": 0
+        },
+        {
+          "userName": "MercedesSotelo",
+          "allocation": 0
+        }
+      ],
+      "avgAllocation": 0,
+      "penetration": 8,
+      "momentum": {
+        "change_1d": 0,
+        "percent_1d": 0,
+        "change_3d": 0,
+        "percent_3d": 0,
+        "change_7d": 0,
+        "percent_7d": 0,
+        "change_30d": -1,
+        "percent_30d": -11.11111111111111,
+        "velocity": 0,
+        "signal": "🟡 HOLD",
+        "phase": "Consolidation →"
+      }
+    },
+    {
+      "id": 2072,
+      "symbol": "RR.L",
+      "name": "Rolls-Royce",
+      "count": 7,
+      "totalAllocation": 0,
+      "investors": [
+        {
+          "userName": "thomaspj",
+          "allocation": 0
+        },
+        {
+          "userName": "defense_investor",
+          "allocation": 0
+        },
+        {
+          "userName": "rubymza",
+          "allocation": 0
+        },
+        {
+          "userName": "misterg23",
+          "allocation": 0
+        },
+        {
+          "userName": "Smudliczek",
+          "allocation": 0
+        },
+        {
+          "userName": "Jenelleb123",
+          "allocation": 0
+        },
+        {
+          "userName": "Space-Investor",
+          "allocation": 0
+        }
+      ],
+      "avgAllocation": 0,
+      "penetration": 7,
+      "momentum": {
+        "change_1d": 0,
+        "percent_1d": 0,
+        "change_3d": 0,
+        "percent_3d": 0,
+        "change_7d": 1,
+        "percent_7d": 16.666666666666664,
+        "change_30d": 1,
+        "percent_30d": 16.666666666666664,
+        "velocity": 0,
+        "signal": "🟡 WATCH",
+        "phase": "Accumulation ↗"
+      }
+    },
+    {
+      "id": 1042,
+      "symbol": "NKE",
+      "name": "NIKE",
+      "count": 7,
+      "totalAllocation": 0,
+      "investors": [
+        {
+          "userName": "Richardstroud",
+          "allocation": 0
+        },
+        {
+          "userName": "Kevin_Pando",
+          "allocation": 0
+        },
+        {
+          "userName": "DemonicoLag",
+          "allocation": 0
+        },
+        {
+          "userName": "ANZOOOXX",
+          "allocation": 0
+        },
+        {
+          "userName": "MercedesSotelo",
+          "allocation": 0
+        },
+        {
+          "userName": "Social-Investor",
+          "allocation": 0
+        },
+        {
+          "userName": "Alderique",
+          "allocation": 0
+        }
+      ],
+      "avgAllocation": 0,
+      "penetration": 7,
+      "momentum": {
+        "change_1d": 0,
+        "percent_1d": 0,
+        "change_3d": 0,
+        "percent_3d": 0,
+        "change_7d": 0,
+        "percent_7d": 0,
+        "change_30d": -1,
+        "percent_30d": -12.5,
+        "velocity": 0,
+        "signal": "🟡 HOLD",
+        "phase": "Consolidation →"
+      }
+    },
+    {
+      "id": 1156,
+      "symbol": "SPOT",
+      "name": "Spotify Technologies SA",
+      "count": 7,
+      "totalAllocation": 0,
+      "investors": [
+        {
+          "userName": "jaynemesis",
+          "allocation": 0
+        },
+        {
+          "userName": "steveli1029",
+          "allocation": 0
+        },
+        {
+          "userName": "NabilSifo",
+          "allocation": 0
+        },
+        {
+          "userName": "eddyb123",
+          "allocation": 0
+        },
+        {
+          "userName": "SharonConnolly",
+          "allocation": 0
+        },
+        {
+          "userName": "II-Disruptive",
+          "allocation": 0
+        },
+        {
+          "userName": "LoukasBW",
+          "allocation": 0
+        }
+      ],
+      "avgAllocation": 0,
+      "penetration": 7,
+      "momentum": {
+        "change_1d": 0,
+        "percent_1d": 0,
+        "change_3d": 0,
+        "percent_3d": 0,
+        "change_7d": 0,
+        "percent_7d": 0,
+        "change_30d": 0,
+        "percent_30d": 0,
+        "velocity": 0,
+        "signal": "🟡 HOLD",
+        "phase": "Consolidation →"
+      }
+    },
+    {
+      "id": 1130,
+      "symbol": "MU",
+      "name": "Micron Technology, Inc.",
+      "count": 7,
+      "totalAllocation": 0,
+      "investors": [
+        {
+          "userName": "JeppeKirkBonde",
+          "allocation": 0
+        },
+        {
+          "userName": "CPHequities",
+          "allocation": 0
+        },
+        {
+          "userName": "MarianoPardo",
+          "allocation": 0
+        },
+        {
+          "userName": "Aukie2008",
+          "allocation": 0
+        },
+        {
+          "userName": "ioatri",
+          "allocation": 0
+        },
+        {
+          "userName": "plessas",
+          "allocation": 0
+        },
+        {
+          "userName": "Cfranklin89",
+          "allocation": 0
+        }
+      ],
+      "avgAllocation": 0,
+      "penetration": 7,
+      "momentum": {
+        "change_1d": 0,
+        "percent_1d": 0,
+        "change_3d": 0,
+        "percent_3d": 0,
+        "change_7d": -1,
+        "percent_7d": -12.5,
+        "change_30d": -1,
+        "percent_30d": -12.5,
+        "velocity": 0,
+        "signal": "🟡 WATCH",
+        "phase": "Consolidation →"
+      }
+    },
+    {
+      "id": 4429,
+      "symbol": "INDA",
+      "name": "iShares MSCI India ETF",
+      "count": 7,
+      "totalAllocation": 0,
+      "investors": [
+        {
+          "userName": "JeppeKirkBonde",
+          "allocation": 0
+        },
+        {
+          "userName": "CPHequities",
+          "allocation": 0
+        },
+        {
+          "userName": "eddyb123",
+          "allocation": 0
+        },
+        {
+          "userName": "Marco199610",
+          "allocation": 0
+        },
+        {
+          "userName": "gauravk_in",
+          "allocation": 0
+        },
+        {
+          "userName": "ca_sual",
+          "allocation": 0
+        },
+        {
+          "userName": "Cfranklin89",
+          "allocation": 0
+        }
+      ],
+      "avgAllocation": 0,
+      "penetration": 7,
+      "momentum": {
+        "change_1d": 0,
+        "percent_1d": 0,
+        "change_3d": 0,
+        "percent_3d": 0,
+        "change_7d": 0,
+        "percent_7d": 0,
+        "change_30d": 0,
+        "percent_30d": 0,
+        "velocity": 0,
+        "signal": "🟡 HOLD",
+        "phase": "Consolidation →"
+      }
+    },
+    {
+      "id": 2380,
+      "symbol": "01211.HK",
+      "name": "BYD Co Ltd",
+      "count": 6,
+      "totalAllocation": 0,
+      "investors": [
+        {
+          "userName": "jaynemesis",
+          "allocation": 0
+        },
+        {
+          "userName": "Smudliczek",
+          "allocation": 0
+        },
+        {
+          "userName": "gauravk_in",
+          "allocation": 0
+        },
+        {
+          "userName": "MIURATRADER",
+          "allocation": 0
+        },
+        {
+          "userName": "plessas",
+          "allocation": 0
+        },
+        {
+          "userName": "MercedesSotelo",
+          "allocation": 0
+        }
+      ],
+      "avgAllocation": 0,
+      "penetration": 6,
+      "momentum": {
+        "change_1d": 0,
+        "percent_1d": 0,
+        "change_3d": 0,
+        "percent_3d": 0,
+        "change_7d": 0,
+        "percent_7d": 0,
+        "change_30d": 1,
+        "percent_30d": 20,
+        "velocity": 0,
+        "signal": "🟡 HOLD",
+        "phase": "Consolidation →"
+      }
+    },
+    {
+      "id": 1023,
+      "symbol": "JPM",
+      "name": "JPMorgan Chase & Co",
+      "count": 6,
+      "totalAllocation": 0,
+      "investors": [
+        {
+          "userName": "thomaspj",
+          "allocation": 0
+        },
+        {
+          "userName": "JeppeKirkBonde",
+          "allocation": 0
+        },
+        {
+          "userName": "rubymza",
+          "allocation": 0
+        },
+        {
+          "userName": "MarianoPardo",
+          "allocation": 0
+        },
+        {
+          "userName": "TheDividendFund",
+          "allocation": 0
+        },
+        {
+          "userName": "Jenelleb123",
+          "allocation": 0
+        }
+      ],
+      "avgAllocation": 0,
+      "penetration": 6,
+      "momentum": {
+        "change_1d": 0,
+        "percent_1d": 0,
+        "change_3d": 0,
+        "percent_3d": 0,
+        "change_7d": 0,
+        "percent_7d": 0,
+        "change_30d": 0,
+        "percent_30d": 0,
+        "velocity": 0,
+        "signal": "🟡 HOLD",
+        "phase": "Consolidation →"
+      }
+    },
+    {
+      "id": 1467,
+      "symbol": "GS",
+      "name": "Goldman Sachs Group Inc",
+      "count": 6,
+      "totalAllocation": 0,
+      "investors": [
+        {
+          "userName": "thomaspj",
+          "allocation": 0
+        },
+        {
+          "userName": "JeppeKirkBonde",
+          "allocation": 0
+        },
+        {
+          "userName": "rubymza",
+          "allocation": 0
+        },
+        {
+          "userName": "Jenelleb123",
+          "allocation": 0
+        },
+        {
+          "userName": "Cfranklin89",
+          "allocation": 0
+        },
+        {
+          "userName": "ALTIA-Investment",
+          "allocation": 0
+        }
+      ],
+      "avgAllocation": 0,
+      "penetration": 6,
+      "momentum": {
+        "change_1d": 0,
+        "percent_1d": 0,
+        "change_3d": 0,
+        "percent_3d": 0,
+        "change_7d": 1,
+        "percent_7d": 20,
+        "change_30d": 1,
+        "percent_30d": 20,
+        "velocity": 0,
+        "signal": "🟡 WATCH",
+        "phase": "Accumulation ↗"
+      }
+    },
+    {
+      "id": 9518,
+      "symbol": "HIMS",
+      "name": "Hims & Hers Health Inc",
+      "count": 6,
+      "totalAllocation": 0,
+      "investors": [
+        {
+          "userName": "jaynemesis",
+          "allocation": 0
+        },
+        {
+          "userName": "NabilSifo",
+          "allocation": 0
+        },
+        {
+          "userName": "DemonicoLag",
+          "allocation": 0
+        },
+        {
+          "userName": "Linsanity1",
+          "allocation": 0
+        },
+        {
+          "userName": "Fostijn",
+          "allocation": 0
+        },
+        {
+          "userName": "LoukasBW",
+          "allocation": 0
+        }
+      ],
+      "avgAllocation": 0,
+      "penetration": 6,
+      "momentum": {
+        "change_1d": 0,
+        "percent_1d": 0,
+        "change_3d": 0,
+        "percent_3d": 0,
+        "change_7d": 0,
+        "percent_7d": 0,
+        "change_30d": -1,
+        "percent_30d": -14.285714285714285,
+        "velocity": 0,
+        "signal": "🟡 HOLD",
+        "phase": "Consolidation →"
+      }
+    },
+    {
+      "id": 8047,
+      "symbol": "ABNB",
+      "name": "Airbnb Inc",
+      "count": 6,
+      "totalAllocation": 0,
+      "investors": [
+        {
+          "userName": "knw500",
+          "allocation": 0
+        },
+        {
+          "userName": "gauravk_in",
+          "allocation": 0
+        },
+        {
+          "userName": "JvAnkershoffen",
+          "allocation": 0
+        },
+        {
+          "userName": "MIURATRADER",
+          "allocation": 0
+        },
+        {
+          "userName": "II-Disruptive",
+          "allocation": 0
+        },
+        {
+          "userName": "SparkLiang",
+          "allocation": 0
+        }
+      ],
+      "avgAllocation": 0,
+      "penetration": 6,
+      "momentum": {
+        "change_1d": 0,
+        "percent_1d": 0,
+        "change_3d": 0,
+        "percent_3d": 0,
+        "change_7d": -1,
+        "percent_7d": -14.285714285714285,
+        "change_30d": -1,
+        "percent_30d": -14.285714285714285,
+        "velocity": 0,
+        "signal": "🟡 WATCH",
+        "phase": "Consolidation →"
+      }
+    },
+    {
+      "id": 1117,
+      "symbol": "FSLR",
+      "name": "First Solar, Inc.",
+      "count": 6,
+      "totalAllocation": 0,
+      "investors": [
+        {
+          "userName": "JeppeKirkBonde",
+          "allocation": 0
+        },
+        {
+          "userName": "jaynemesis",
+          "allocation": 0
+        },
+        {
+          "userName": "JORDENBOER",
+          "allocation": 0
+        },
+        {
+          "userName": "eddyb123",
+          "allocation": 0
+        },
+        {
+          "userName": "knw500",
+          "allocation": 0
+        },
+        {
+          "userName": "Mexploder",
+          "allocation": 0
+        }
+      ],
+      "avgAllocation": 0,
+      "penetration": 6,
+      "momentum": {
+        "change_1d": 0,
+        "percent_1d": 0,
+        "change_3d": 0,
+        "percent_3d": 0,
+        "change_7d": 1,
+        "percent_7d": 20,
+        "change_30d": 1,
+        "percent_30d": 20,
+        "velocity": 0,
+        "signal": "🟡 WATCH",
+        "phase": "Accumulation ↗"
+      }
+    },
+    {
+      "id": 1330,
+      "symbol": "IBE.MC",
+      "name": "Iberdrola",
+      "count": 6,
+      "totalAllocation": 0,
+      "investors": [
+        {
+          "userName": "JeppeKirkBonde",
+          "allocation": 0
+        },
+        {
+          "userName": "jaynemesis",
+          "allocation": 0
+        },
+        {
+          "userName": "rubymza",
+          "allocation": 0
+        },
+        {
+          "userName": "Marirs",
+          "allocation": 0
+        },
+        {
+          "userName": "MIURATRADER",
+          "allocation": 0
+        },
+        {
+          "userName": "TiuBuletaire2",
+          "allocation": 0
+        }
+      ],
+      "avgAllocation": 0,
+      "penetration": 6,
+      "momentum": {
+        "change_1d": 0,
+        "percent_1d": 0,
+        "change_3d": 0,
+        "percent_3d": 0,
+        "change_7d": 0,
+        "percent_7d": 0,
+        "change_30d": 2,
+        "percent_30d": 50,
+        "velocity": 0,
+        "signal": "🟡 HOLD",
+        "phase": "Consolidation →"
+      }
+    },
+    {
+      "id": 9085,
+      "symbol": "RKLB",
+      "name": "Rocket Lab USA Inc.",
+      "count": 6,
+      "totalAllocation": 0,
+      "investors": [
+        {
+          "userName": "Michalhla",
+          "allocation": 0
+        },
+        {
+          "userName": "Flaten",
+          "allocation": 0
+        },
+        {
+          "userName": "Chrochtik",
+          "allocation": 0
+        },
+        {
+          "userName": "Linsanity1",
+          "allocation": 0
+        },
+        {
+          "userName": "onk342",
+          "allocation": 0
+        },
+        {
+          "userName": "Space-Investor",
+          "allocation": 0
+        }
+      ],
+      "avgAllocation": 0,
+      "penetration": 6,
+      "momentum": {
+        "change_1d": 0,
+        "percent_1d": 0,
+        "change_3d": 0,
+        "percent_3d": 0,
+        "change_7d": 0,
+        "percent_7d": 0,
+        "change_30d": 0,
+        "percent_30d": 0,
+        "velocity": 0,
+        "signal": "🟡 HOLD",
+        "phase": "Consolidation →"
+      }
+    }
+  ],
+  "trending": [],
+  "declining": [],
+  "newEntries": [
+    {
+      "id": 1002,
+      "symbol": "GOOG",
+      "name": "Alphabet",
+      "count": 39,
+      "totalAllocation": 0,
+      "investors": [
+        {
+          "userName": "thomaspj",
+          "allocation": 0
+        },
+        {
+          "userName": "CPHequities",
+          "allocation": 0
+        },
+        {
+          "userName": "jaynemesis",
+          "allocation": 0
+        },
+        {
+          "userName": "defense_investor",
+          "allocation": 0
+        },
+        {
+          "userName": "rubymza",
+          "allocation": 0
+        },
+        {
+          "userName": "misterg23",
+          "allocation": 0
+        },
+        {
+          "userName": "Wesl3y",
+          "allocation": 0
+        },
+        {
+          "userName": "MarianoPardo",
+          "allocation": 0
+        },
+        {
+          "userName": "robchamow",
+          "allocation": 0
+        },
+        {
+          "userName": "Enslinjaco",
+          "allocation": 0
+        },
+        {
+          "userName": "NabilSifo",
+          "allocation": 0
+        },
+        {
+          "userName": "KoraTrades",
+          "allocation": 0
+        },
+        {
+          "userName": "celesh",
+          "allocation": 0
+        },
+        {
+          "userName": "TheDividendFund",
+          "allocation": 0
+        },
+        {
+          "userName": "eddyb123",
+          "allocation": 0
+        },
+        {
+          "userName": "Marirs",
+          "allocation": 0
+        },
+        {
+          "userName": "brirap",
+          "allocation": 0
+        },
+        {
+          "userName": "Gserdan",
+          "allocation": 0
+        },
+        {
+          "userName": "StefanULS",
+          "allocation": 0
+        },
+        {
+          "userName": "Nezatron",
+          "allocation": 0
+        },
+        {
+          "userName": "SharonConnolly",
+          "allocation": 0
+        },
+        {
+          "userName": "knw500",
+          "allocation": 0
+        },
+        {
+          "userName": "Rayeiris",
+          "allocation": 0
+        },
+        {
+          "userName": "gauravk_in",
+          "allocation": 0
+        },
+        {
+          "userName": "pino428",
+          "allocation": 0
+        },
+        {
+          "userName": "Jenelleb123",
+          "allocation": 0
+        },
+        {
+          "userName": "JvAnkershoffen",
+          "allocation": 0
+        },
+        {
+          "userName": "ca_sual",
+          "allocation": 0
+        },
+        {
+          "userName": "Compound72",
+          "allocation": 0
+        },
+        {
+          "userName": "ioatri",
+          "allocation": 0
+        },
+        {
+          "userName": "II-Disruptive",
+          "allocation": 0
+        },
+        {
+          "userName": "Onegirl",
+          "allocation": 0
+        },
+        {
+          "userName": "Cfranklin89",
+          "allocation": 0
+        },
+        {
+          "userName": "LoukasBW",
+          "allocation": 0
+        },
+        {
+          "userName": "Mexploder",
+          "allocation": 0
+        },
+        {
+          "userName": "rafaeldfl",
+          "allocation": 0
+        },
+        {
+          "userName": "Social-Investor",
+          "allocation": 0
+        },
+        {
+          "userName": "ReturnInvest",
+          "allocation": 0
+        },
+        {
+          "userName": "Alderique",
+          "allocation": 0
+        }
+      ],
+      "avgAllocation": 0,
+      "penetration": 39,
+      "momentum": {
+        "change_1d": 0,
+        "percent_1d": 0,
+        "change_3d": -1,
+        "percent_3d": -2.5,
+        "change_7d": 0,
+        "percent_7d": 0,
+        "change_30d": -2,
+        "percent_30d": -4.878048780487805,
+        "velocity": 0.5,
+        "signal": "🟡 WATCH",
+        "phase": "Momentum ↑↑"
+      }
+    },
+    {
+      "id": 1111,
+      "symbol": "TSLA",
+      "name": "Tesla Motors, Inc.",
+      "count": 27,
+      "totalAllocation": 0,
+      "investors": [
+        {
+          "userName": "jaynemesis",
+          "allocation": 0
+        },
+        {
+          "userName": "GreenbullInvest",
+          "allocation": 0
+        },
+        {
+          "userName": "misterg23",
+          "allocation": 0
+        },
+        {
+          "userName": "steveli1029",
+          "allocation": 0
+        },
+        {
+          "userName": "JORDENBOER",
+          "allocation": 0
+        },
+        {
+          "userName": "Kevin_Pando",
+          "allocation": 0
+        },
+        {
+          "userName": "robchamow",
+          "allocation": 0
+        },
+        {
+          "userName": "KoraTrades",
+          "allocation": 0
+        },
+        {
+          "userName": "kasperpatrick1",
+          "allocation": 0
+        },
+        {
+          "userName": "Marco199610",
+          "allocation": 0
+        },
+        {
+          "userName": "StefanULS",
+          "allocation": 0
+        },
+        {
+          "userName": "SharonConnolly",
+          "allocation": 0
+        },
+        {
+          "userName": "knw500",
+          "allocation": 0
+        },
+        {
+          "userName": "DemonicoLag",
+          "allocation": 0
+        },
+        {
+          "userName": "Linsanity1",
+          "allocation": 0
+        },
+        {
+          "userName": "JvAnkershoffen",
+          "allocation": 0
+        },
+        {
+          "userName": "PROJECT10X",
+          "allocation": 0
+        },
+        {
+          "userName": "alexvanl",
+          "allocation": 0
+        },
+        {
+          "userName": "MIURATRADER",
+          "allocation": 0
+        },
+        {
+          "userName": "Onegirl",
+          "allocation": 0
+        },
+        {
+          "userName": "hugo13250",
+          "allocation": 0
+        },
+        {
+          "userName": "plessas",
+          "allocation": 0
+        },
+        {
+          "userName": "MercedesSotelo",
+          "allocation": 0
+        },
+        {
+          "userName": "LoukasBW",
+          "allocation": 0
+        },
+        {
+          "userName": "SparkLiang",
+          "allocation": 0
+        },
+        {
+          "userName": "Matteospaggiari",
+          "allocation": 0
+        },
+        {
+          "userName": "iliescu2605",
+          "allocation": 0
+        }
+      ],
+      "avgAllocation": 0,
+      "penetration": 27,
+      "momentum": {
+        "change_1d": 0,
+        "percent_1d": 0,
+        "change_3d": 0,
+        "percent_3d": 0,
+        "change_7d": 0,
+        "percent_7d": 0,
+        "change_30d": 3,
+        "percent_30d": 12.5,
+        "velocity": 0,
+        "signal": "🟡 HOLD",
+        "phase": "Consolidation →"
+      }
+    },
+    {
+      "id": 1155,
+      "symbol": "BABA",
+      "name": "Alibaba-ADR",
+      "count": 25,
+      "totalAllocation": 0,
+      "investors": [
+        {
+          "userName": "JeppeKirkBonde",
+          "allocation": 0
+        },
+        {
+          "userName": "Smudliczek",
+          "allocation": 0
+        },
+        {
+          "userName": "steveli1029",
+          "allocation": 0
+        },
+        {
+          "userName": "MarianoPardo",
+          "allocation": 0
+        },
+        {
+          "userName": "Michalhla",
+          "allocation": 0
+        },
+        {
+          "userName": "Enslinjaco",
+          "allocation": 0
+        },
+        {
+          "userName": "NabilSifo",
+          "allocation": 0
+        },
+        {
+          "userName": "adams302",
+          "allocation": 0
+        },
+        {
+          "userName": "celesh",
+          "allocation": 0
+        },
+        {
+          "userName": "Chrochtik",
+          "allocation": 0
+        },
+        {
+          "userName": "knw500",
+          "allocation": 0
+        },
+        {
+          "userName": "DemonicoLag",
+          "allocation": 0
+        },
+        {
+          "userName": "Rayeiris",
+          "allocation": 0
+        },
+        {
+          "userName": "gauravk_in",
+          "allocation": 0
+        },
+        {
+          "userName": "Benaymo23",
+          "allocation": 0
+        },
+        {
+          "userName": "Wise_woman",
+          "allocation": 0
+        },
+        {
+          "userName": "Compound72",
+          "allocation": 0
+        },
+        {
+          "userName": "Le_kousou",
+          "allocation": 0
+        },
+        {
+          "userName": "KeshavLohiya",
+          "allocation": 0
+        },
+        {
+          "userName": "ANZOOOXX",
+          "allocation": 0
+        },
+        {
+          "userName": "Mexploder",
+          "allocation": 0
+        },
+        {
+          "userName": "SparkLiang",
+          "allocation": 0
+        },
+        {
+          "userName": "Social-Investor",
+          "allocation": 0
+        },
+        {
+          "userName": "iliescu2605",
+          "allocation": 0
+        },
+        {
+          "userName": "Alderique",
+          "allocation": 0
+        }
+      ],
+      "avgAllocation": 0,
+      "penetration": 25,
+      "momentum": {
+        "change_1d": 0,
+        "percent_1d": 0,
+        "change_3d": 0,
+        "percent_3d": 0,
+        "change_7d": 0,
+        "percent_7d": 0,
+        "change_30d": 0,
+        "percent_30d": 0,
+        "velocity": 0,
+        "signal": "🟡 HOLD",
+        "phase": "Consolidation →"
+      }
+    },
+    {
+      "id": 4509,
+      "symbol": "ASML.NV",
+      "name": "ASML Holding NV",
+      "count": 16,
+      "totalAllocation": 0,
+      "investors": [
+        {
+          "userName": "JeppeKirkBonde",
+          "allocation": 0
+        },
+        {
+          "userName": "Smudliczek",
+          "allocation": 0
+        },
+        {
+          "userName": "MarianoPardo",
+          "allocation": 0
+        },
+        {
+          "userName": "Aukie2008",
+          "allocation": 0
+        },
+        {
+          "userName": "robchamow",
+          "allocation": 0
+        },
+        {
+          "userName": "NabilSifo",
+          "allocation": 0
+        },
+        {
+          "userName": "TheDividendFund",
+          "allocation": 0
+        },
+        {
+          "userName": "Marco199610",
+          "allocation": 0
+        },
+        {
+          "userName": "DemonicoLag",
+          "allocation": 0
+        },
+        {
+          "userName": "Compound72",
+          "allocation": 0
+        },
+        {
+          "userName": "onk342",
+          "allocation": 0
+        },
+        {
+          "userName": "II-Disruptive",
+          "allocation": 0
+        },
+        {
+          "userName": "plessas",
+          "allocation": 0
+        },
+        {
+          "userName": "Cfranklin89",
+          "allocation": 0
+        },
+        {
+          "userName": "iliescu2605",
+          "allocation": 0
+        },
+        {
+          "userName": "ALTIA-Investment",
+          "allocation": 0
+        }
+      ],
+      "avgAllocation": 0,
+      "penetration": 16,
+      "momentum": {
+        "change_1d": 0,
+        "percent_1d": 0,
+        "change_3d": 0,
+        "percent_3d": 0,
+        "change_7d": 0,
+        "percent_7d": 0,
+        "change_30d": 1,
+        "percent_30d": 6.666666666666667,
+        "velocity": 0,
+        "signal": "🟡 HOLD",
+        "phase": "Consolidation →"
+      }
+    },
+    {
+      "id": 1186,
+      "symbol": "UBER",
+      "name": "Uber Technologies Inc.",
+      "count": 16,
+      "totalAllocation": 0,
+      "investors": [
+        {
+          "userName": "robchamow",
+          "allocation": 0
+        },
+        {
+          "userName": "NabilSifo",
+          "allocation": 0
+        },
+        {
+          "userName": "eddyb123",
+          "allocation": 0
+        },
+        {
+          "userName": "brirap",
+          "allocation": 0
+        },
+        {
+          "userName": "knw500",
+          "allocation": 0
+        },
+        {
+          "userName": "Rayeiris",
+          "allocation": 0
+        },
+        {
+          "userName": "JvAnkershoffen",
+          "allocation": 0
+        },
+        {
+          "userName": "ca_sual",
+          "allocation": 0
+        },
+        {
+          "userName": "Compound72",
+          "allocation": 0
+        },
+        {
+          "userName": "onk342",
+          "allocation": 0
+        },
+        {
+          "userName": "Le_kousou",
+          "allocation": 0
+        },
+        {
+          "userName": "ioatri",
+          "allocation": 0
+        },
+        {
+          "userName": "II-Disruptive",
+          "allocation": 0
+        },
+        {
+          "userName": "hugo13250",
+          "allocation": 0
+        },
+        {
+          "userName": "Cfranklin89",
+          "allocation": 0
+        },
+        {
+          "userName": "ALTIA-Investment",
+          "allocation": 0
+        }
+      ],
+      "avgAllocation": 0,
+      "penetration": 16,
+      "momentum": {
+        "change_1d": 0,
+        "percent_1d": 0,
+        "change_3d": 0,
+        "percent_3d": 0,
+        "change_7d": 0,
+        "percent_7d": 0,
+        "change_30d": 1,
+        "percent_30d": 6.666666666666667,
+        "velocity": 0,
+        "signal": "🟡 HOLD",
+        "phase": "Consolidation →"
+      }
+    }
+  ],
+  "marketOverview": {
+    "overallMomentum": -0.05263157894736842,
+    "gainers": 6,
+    "losers": 18,
+    "buySignals": 0,
+    "sellSignals": 0
+  },
+  "metadata": {
+    "dataFiles": 6,
+    "analyzedAssets": 228,
+    "topInvestors": 15
+  }
+}

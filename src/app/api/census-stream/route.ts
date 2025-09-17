@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { PeriodType } from '@/lib/models/user';
 import { dataCollectionService } from '@/lib/services/data-collection-service';
 import { analysisService } from '@/lib/services/analysis-service';
+import { AnalysisServiceV2 } from '@/lib/services/analysis-service-v2';
 
 export async function POST(request: NextRequest) {
   const encoder = new TextEncoder();
@@ -19,20 +20,21 @@ export async function POST(request: NextRequest) {
         controller.enqueue(encoder.encode(`data: ${data}\n\n`));
       };
 
-      const sendComplete = (analysis: object, investorCount: number) => {
-        const data = JSON.stringify({ 
-          type: 'complete', 
-          analysis, 
-          investorCount 
+      const sendComplete = (analysis: object, investorCount: number, rawData?: object) => {
+        const data = JSON.stringify({
+          type: 'complete',
+          analysis,
+          investorCount,
+          rawData
         });
         controller.enqueue(encoder.encode(`data: ${data}\n\n`));
       };
 
       try {
-        const { limit = 100, period = 'CurrYear' } = await request.json();
-        
+        const { limit = 100, period = 'CurrYear', useV2 = false } = await request.json();
+
         sendProgress(0, `Starting census analysis for ${limit} investors...`);
-        
+
         // Phase 1: Comprehensive data collection (0-70%)
         sendProgress(5, 'Collecting data from eToro API...');
         const collectedData = await dataCollectionService.collectAllData(
@@ -46,17 +48,46 @@ export async function POST(request: NextRequest) {
 
         // Phase 2: Analysis (70-100%)
         sendProgress(70, 'Analyzing collected data...');
-        const analysis = await analysisService.analyzeInvestorSubset(
-          collectedData,
-          Math.min(limit, collectedData.investors.length),
-          (progress, message) => {
-            const scaledProgress = 70 + (progress * 30 / 100); // 70-100% range
-            sendProgress(Math.round(scaledProgress), message);
-          }
-        );
 
-        // Send the complete analysis
-        sendComplete(analysis, collectedData.investors.length);
+        // Use V2 analysis service if requested
+        const analysis = useV2
+          ? await new AnalysisServiceV2().analyzeInvestorSubset(
+              collectedData,
+              Math.min(limit, collectedData.investors.length),
+              (progress, message) => {
+                const scaledProgress = 70 + (progress * 30 / 100); // 70-100% range
+                sendProgress(Math.round(scaledProgress), message);
+              }
+            )
+          : await analysisService.analyzeInvestorSubset(
+              collectedData,
+              Math.min(limit, collectedData.investors.length),
+              (progress, message) => {
+                const scaledProgress = 70 + (progress * 30 / 100); // 70-100% range
+                sendProgress(Math.round(scaledProgress), message);
+              }
+            );
+
+        // Send the complete analysis with raw data for V2
+        // Convert Maps to objects for JSON serialization
+        let serializedData;
+        if (useV2 && collectedData) {
+          serializedData = {
+            ...collectedData,
+            instruments: {
+              details: collectedData.instruments.details instanceof Map
+                ? Object.fromEntries(collectedData.instruments.details)
+                : collectedData.instruments.details,
+              priceData: collectedData.instruments.priceData instanceof Map
+                ? Object.fromEntries(collectedData.instruments.priceData)
+                : collectedData.instruments.priceData
+            },
+            userDetails: collectedData.userDetails instanceof Map
+              ? Object.fromEntries(collectedData.userDetails)
+              : collectedData.userDetails
+          };
+        }
+        sendComplete(analysis, collectedData.investors.length, serializedData);
         
       } catch (error) {
         console.error('Census analysis error:', error);

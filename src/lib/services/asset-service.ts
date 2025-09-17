@@ -1,0 +1,189 @@
+import { InstrumentDisplayData, InstrumentPriceData } from './instrument-service';
+
+export interface AssetHolder {
+  username: string;
+  fullName: string;
+  avatarUrl?: string;
+  allocation: number; // Investment percentage
+  gain: number; // YTD gain
+  copiers: number;
+  riskScore: number;
+  position: {
+    openDate: string;
+    netProfit: number;
+    leverage: number;
+  };
+}
+
+export interface AssetDetails {
+  instrumentId: number;
+  displayName: string;
+  symbol: string;
+  imageUrl?: string;
+  exchangeId?: number;
+  priceSource?: string;
+  currentPrice: number;
+  returns: {
+    yesterday: number;
+    weekTD: number;
+    monthTD: number;
+  };
+  holders: AssetHolder[];
+  averageAllocation: number;
+  totalHolders: number;
+  allocationDistribution: { range: string; count: number }[];
+}
+
+export class AssetService {
+  /**
+   * Get detailed information about a specific asset
+   */
+  static getAssetDetails(
+    instrumentId: number,
+    rawData: any
+  ): AssetDetails | null {
+    if (!rawData || !rawData.instruments || !rawData.investors) {
+      return null;
+    }
+
+    // Get instrument details - handle both Map and object formats
+    // When stored in sessionStorage, Maps become objects with numeric string keys
+    let instrumentDetails: InstrumentDisplayData | undefined;
+    let instrumentPrice: InstrumentPriceData | undefined;
+
+    // Convert to Maps if they're serialized objects
+    const detailsMap = rawData.instruments?.details instanceof Map
+      ? rawData.instruments.details
+      : new Map(Object.entries(rawData.instruments?.details || {}).map(([k, v]) => [parseInt(k), v]));
+
+    const priceMap = rawData.instruments?.priceData instanceof Map
+      ? rawData.instruments.priceData
+      : new Map(Object.entries(rawData.instruments?.priceData || {}).map(([k, v]) => [parseInt(k), v]));
+
+    // Get instrument details using Map.get()
+    instrumentDetails = detailsMap.get(instrumentId);
+    instrumentPrice = priceMap.get(instrumentId);
+
+    if (!instrumentDetails || !instrumentPrice) {
+      console.warn(`Asset ${instrumentId} not found in data`);
+      return null;
+    }
+
+    // Find all holders of this asset
+    const holders: AssetHolder[] = [];
+    let totalAllocation = 0;
+
+    for (const investor of rawData.investors) {
+      if (!investor.portfolio?.positions) continue;
+
+      // Find positions for this instrument
+      const positions = investor.portfolio.positions.filter(
+        (p: any) => p.instrumentId === instrumentId
+      );
+
+      if (positions.length > 0) {
+        // Sum allocations if multiple positions
+        const totalInvestorAllocation = positions.reduce(
+          (sum: number, p: any) => sum + (p.investmentPct || 0),
+          0
+        );
+
+        holders.push({
+          username: investor.userName,
+          fullName: investor.fullName || investor.userName,
+          avatarUrl: investor.hasAvatar
+            ? `https://etoro-cdn.etorostatic.com/avatars/${investor.userName}/150x150.png`
+            : undefined,
+          allocation: totalInvestorAllocation,
+          gain: investor.gain || 0,
+          copiers: investor.copiers || 0,
+          riskScore: investor.riskScore || 0,
+          position: {
+            openDate: positions[0].openTimestamp,
+            netProfit: positions.reduce((sum: number, p: any) => sum + (p.netProfit || 0), 0),
+            leverage: positions[0].leverage || 1,
+          },
+        });
+
+        totalAllocation += totalInvestorAllocation;
+      }
+    }
+
+    // Sort holders by allocation
+    holders.sort((a, b) => b.allocation - a.allocation);
+
+    // Calculate allocation distribution
+    const allocationRanges = [
+      { range: '0-1%', min: 0, max: 1, count: 0 },
+      { range: '1-5%', min: 1, max: 5, count: 0 },
+      { range: '5-10%', min: 5, max: 10, count: 0 },
+      { range: '10-20%', min: 10, max: 20, count: 0 },
+      { range: '20%+', min: 20, max: 100, count: 0 },
+    ];
+
+    holders.forEach(holder => {
+      const range = allocationRanges.find(
+        r => holder.allocation > r.min && holder.allocation <= r.max
+      );
+      if (range) range.count++;
+    });
+
+    return {
+      instrumentId,
+      displayName: instrumentDetails.instrumentDisplayName || 'Unknown',
+      symbol: instrumentDetails.symbolFull || '',
+      imageUrl: instrumentDetails.images?.find(img => img.width === 150)?.uri ||
+                instrumentDetails.images?.[0]?.uri,
+      exchangeId: instrumentDetails.exchangeID,
+      priceSource: instrumentDetails.priceSource,
+      currentPrice: instrumentPrice.currentPrice || 0,
+      returns: instrumentPrice.returns || { yesterday: 0, weekTD: 0, monthTD: 0 },
+      holders,
+      averageAllocation: holders.length > 0 ? totalAllocation / holders.length : 0,
+      totalHolders: holders.length,
+      allocationDistribution: allocationRanges.map(r => ({
+        range: r.range,
+        count: r.count,
+      })),
+    };
+  }
+
+  /**
+   * Get top assets by number of holders
+   */
+  static getTopAssets(rawData: any, limit: number = 10): any[] {
+    if (!rawData || !rawData.instruments || !rawData.investors) {
+      return [];
+    }
+
+    const assetHolderCounts = new Map<number, number>();
+
+    // Count holders for each asset
+    for (const investor of rawData.investors) {
+      if (!investor.portfolio?.positions) continue;
+
+      const uniqueInstruments = new Set<number>();
+      investor.portfolio.positions.forEach((p: any) => {
+        uniqueInstruments.add(p.instrumentId);
+      });
+
+      uniqueInstruments.forEach(instrumentId => {
+        assetHolderCounts.set(
+          instrumentId,
+          (assetHolderCounts.get(instrumentId) || 0) + 1
+        );
+      });
+    }
+
+    // Sort by holder count and return top N
+    return Array.from(assetHolderCounts.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, limit)
+      .map(([instrumentId, holderCount]) => ({
+        instrumentId,
+        holderCount,
+        details: rawData.instruments.details[instrumentId],
+        priceData: rawData.instruments.priceData[instrumentId],
+      }));
+  }
+}

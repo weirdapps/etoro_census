@@ -90,16 +90,18 @@ export async function getInstrumentDetails(
   }
 }
 
-export function getInstrumentDisplayName(instrument: InstrumentDisplayData): string {
+export function getInstrumentDisplayName(instrument: InstrumentDisplayData | undefined): string {
+  if (!instrument) return 'Unknown';
   return instrument.instrumentDisplayName || instrument.symbolFull || `Instrument ${instrument.instrumentID}`;
 }
 
-export function getInstrumentSymbol(instrument: InstrumentDisplayData): string {
+export function getInstrumentSymbol(instrument: InstrumentDisplayData | undefined): string {
+  if (!instrument) return '';
   return instrument.symbolFull || instrument.instrumentDisplayName || `${instrument.instrumentID}`;
 }
 
-export function getInstrumentImageUrl(instrument: InstrumentDisplayData): string | undefined {
-  if (!instrument.images || instrument.images.length === 0) {
+export function getInstrumentImageUrl(instrument: InstrumentDisplayData | undefined): string | undefined {
+  if (!instrument || !instrument.images || instrument.images.length === 0) {
     return undefined;
   }
   

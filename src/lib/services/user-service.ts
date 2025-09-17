@@ -296,16 +296,32 @@ export async function getUserTradeInfo(username: string, period: PeriodType = 'C
   }
 }
 
-export function getUserAvatarUrl(user: UserDetail): string | undefined {
-  if (!user.avatars || user.avatars.length === 0) {
+export function getUserAvatarUrl(user: UserDetail | undefined, hasAvatar?: boolean, username?: string): string | undefined {
+  // If user is undefined but we know they have an avatar, return the default eToro avatar URL
+  if (!user && hasAvatar && username) {
+    return `https://etoro-cdn.etorostatic.com/avatars/${username}/150x150.png`;
+  }
+
+  // If no user data, return undefined
+  if (!user) {
     return undefined;
   }
-  
-  // Prefer 50x50 or 35x35 size for avatars (width is string according to API docs)
-  const preferredAvatar = user.avatars.find(avatar => avatar.width === "50") || 
-                         user.avatars.find(avatar => avatar.width === "35") ||
-                         user.avatars.find(avatar => avatar.width === "150") ||
-                         user.avatars[0];
-  
-  return preferredAvatar?.url;
+
+  // If user has avatars array, find the best one
+  if (user.avatars && user.avatars.length > 0) {
+    // Prefer 50x50 or 35x35 size for avatars (width is string according to API docs)
+    const preferredAvatar = user.avatars.find(avatar => avatar.width === "50") ||
+                           user.avatars.find(avatar => avatar.width === "35") ||
+                           user.avatars.find(avatar => avatar.width === "150") ||
+                           user.avatars[0];
+
+    return preferredAvatar?.url;
+  }
+
+  // Fallback to default URL if we know they have an avatar
+  if (hasAvatar && username) {
+    return `https://etoro-cdn.etorostatic.com/avatars/${username}/150x150.png`;
+  }
+
+  return undefined;
 }
