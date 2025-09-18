@@ -18,12 +18,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 // Export data for child pages to use
 export interface AppV2Context {
   analysisData: CensusAnalysis | null;
-  rawData: any | null;
+  rawData: unknown | null;
 }
 
 export default function HomeV2() {
   const [analysis, setAnalysis] = useState<CensusAnalysis | null>(null);
-  const [rawData, setRawData] = useState<any | null>(null);
+  const [rawData, setRawData] = useState<unknown | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [investorCount, setInvestorCount] = useState<number>(0);
@@ -130,7 +130,7 @@ export default function HomeV2() {
                     // Try to store the data, if it fails, store a smaller subset
                     try {
                       sessionStorage.setItem('censusRawData', JSON.stringify(essentialData));
-                    } catch (quotaError) {
+                    } catch {
                       console.warn('Storage quota exceeded, storing minimal data');
                       // Store only the most essential data for detail pages
                       const minimalData = {

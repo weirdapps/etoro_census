@@ -62,8 +62,7 @@ export class AnalysisServiceV2 {
     const topHoldings = this.calculateTopHoldings(
       instrumentData,
       instrumentDetailsMap,
-      priceDataMap,
-      investors.length
+      priceDataMap
     );
     updateProgress(80, `Generated ${topHoldings.length} top holdings`);
 
@@ -198,8 +197,7 @@ export class AnalysisServiceV2 {
   private calculateTopHoldings(
     instrumentData: { [instrumentId: number]: { totalAllocation: number; holders: number } },
     instrumentDetails: Map<number, InstrumentDisplayData>,
-    priceData: Map<number, InstrumentPriceData>,
-    totalInvestors: number
+    priceData: Map<number, InstrumentPriceData>
   ): InstrumentHolding[] {
     const holdings = Object.entries(instrumentData)
       .map(([instrumentId, data]) => {

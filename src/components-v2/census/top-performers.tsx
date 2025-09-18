@@ -8,16 +8,10 @@ import { ExternalLink, TrendingUp, TrendingDown } from 'lucide-react';
 
 interface TopPerformersProps {
   performers: PerformerStats[];
-  rawData?: any;
+  rawData?: unknown;
 }
 
 export default function TopPerformersV2({ performers, rawData }: TopPerformersProps) {
-  const getCashBadgeVariant = (cashPct: number): "default" | "secondary" | "destructive" | "outline" => {
-    if (cashPct > 25) return 'default'; // green
-    if (cashPct >= 5) return 'secondary'; // blue
-    return 'destructive'; // red
-  };
-
   const getCashBadgeColor = (cashPct: number): string => {
     if (cashPct > 25) return 'bg-green-100 text-green-800 border-green-300';
     if (cashPct >= 5) return 'bg-blue-100 text-blue-800 border-blue-300';

@@ -8,7 +8,7 @@ import { ExternalLink } from 'lucide-react';
 
 interface TopHoldingsProps {
   holdings: InstrumentHolding[];
-  rawData?: any;
+  rawData?: unknown;
 }
 
 export default function TopHoldingsV2({ holdings, rawData }: TopHoldingsProps) {

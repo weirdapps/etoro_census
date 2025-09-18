@@ -1,13 +1,25 @@
-export interface InvestorPosition {
+import { UserDetail, UserTradeInfo } from '../models/user';
+import { Position } from '../models/user-portfolio';
+import { getUserAvatarUrl } from './user-service';
+import { InstrumentDisplayData, InstrumentPriceData } from './instrument-service';
+
+export interface InvestorPortfolioPosition {
   instrumentId: number;
   instrumentName?: string;
   instrumentSymbol?: string;
   instrumentImage?: string;
   allocation: number;
   netProfit: number;
-  openDate: string;
   leverage: number;
   isBuy: boolean;
+  openDate: string;
+}
+
+export interface InvestorPortfolio {
+  positions: InvestorPortfolioPosition[];
+  positionsCount: number;
+  cashPercentage: number;
+  profitLossPercentage: number;
 }
 
 export interface InvestorProfile {
@@ -16,221 +28,267 @@ export interface InvestorProfile {
   avatarUrl?: string;
   country?: string;
   aboutMe?: string;
-  isVerified?: boolean;
-  isPi?: boolean; // Popular Investor
-
-  // Performance metrics
+  isVerified: boolean;
+  isPi: boolean;
   gain: number;
-  dailyGain: number;
-  riskScore: number;
-  trades: number;
-  winRatio: number;
   copiers: number;
+  riskScore: number;
+  winRatio: number;
+  trades: number;
+  portfolio: InvestorPortfolio;
+  tradeInfo?: UserTradeInfo;
+}
 
-  // Portfolio data
-  portfolio: {
-    totalValue: number;
-    positionsCount: number;
-    cashPercentage: number;
-    profitLoss: number;
-    profitLossPercentage: number;
-    positions: InvestorPosition[];
-  };
-
-  // Trading statistics from tradeInfo
-  tradeInfo?: {
-    activeWeeksPct: number;
-    avgPosSize: number;
-    firstActivity: string;
-    lastActivity: string;
-    highLeveragePct: number;
-    mediumLeveragePct: number;
-    lowLeveragePct: number;
-    maxDailyRiskScore: number;
-    maxMonthlyRiskScore: number;
-    peakToValley: number;
-    profitableMonthsPct: number;
-    profitableWeeksPct: number;
-    weeklyDd: number;
-    dailyDd: number;
-    topTradedInstrumentId?: number;
-    countryId?: number;
+interface RawDataStructure {
+  investors?: Array<{
+    userName: string;
+    fullName?: string;
+    hasAvatar?: boolean;
+    gain?: number;
+    copiers?: number;
+    riskScore?: number;
+    isVerified?: boolean;
+    isPi?: boolean;
+    trades?: number;
+    winRatio?: number;
+    tradeInfo?: UserTradeInfo;
+    portfolio?: {
+      positions?: Position[];
+    };
+  }>;
+  userDetails?: Map<string, UserDetail> | Record<string, UserDetail>;
+  instruments?: {
+    details?: Map<number, InstrumentDisplayData> | Record<string, InstrumentDisplayData>;
+    priceData?: Map<number, InstrumentPriceData> | Record<string, InstrumentPriceData>;
   };
 }
 
 export class InvestorService {
   /**
-   * Get detailed information about a specific investor
+   * Get detailed investor profile from raw data
    */
-  static getInvestorProfile(username: string, rawData: any): InvestorProfile | null {
-    if (!rawData || !rawData.investors) {
+  static getInvestorProfile(username: string, rawData: unknown): InvestorProfile | null {
+    const data = rawData as RawDataStructure;
+
+    if (!data || !data.investors) {
       return null;
     }
 
-    // Find the investor
-    const investor = rawData.investors.find((inv: any) => inv.userName === username);
+    // Find investor in data
+    const investor = data.investors.find(inv => inv.userName === username);
     if (!investor) {
       return null;
     }
 
-    // Convert to Maps if they're serialized objects
-    const userDetailsMap = rawData.userDetails instanceof Map
-      ? rawData.userDetails
-      : new Map(Object.entries(rawData.userDetails || {}));
+    // Get user details for additional info
+    const userDetailsMap = data.userDetails instanceof Map
+      ? data.userDetails
+      : new Map(Object.entries(data.userDetails || {}));
 
-    const instrumentDetailsMap = rawData.instruments?.details instanceof Map
-      ? rawData.instruments.details
-      : new Map(Object.entries(rawData.instruments?.details || {}).map(([k, v]) => [parseInt(k), v]));
+    const userDetail = userDetailsMap.get(username);
 
-    // Get user details using Map.get()
-    const userDetails = userDetailsMap.get(username);
+    // Calculate portfolio stats
+    const portfolio = this.calculatePortfolioStats(investor, data);
 
-    // Calculate cash percentage
-    let cashPercentage = 100;
-    if (investor.portfolio?.positions?.length > 0) {
-      const totalInvested = investor.portfolio.positions.reduce(
-        (sum: number, p: any) => sum + (p.investmentPct || 0),
-        0
-      );
-      cashPercentage = Math.max(0, 100 - totalInvested);
-    }
+    return {
+      username: investor.userName,
+      fullName: investor.fullName || investor.userName,
+      avatarUrl: getUserAvatarUrl(userDetail, investor.hasAvatar, username),
+      country: userDetail?.countryName,
+      aboutMe: userDetail?.aboutMe,
+      isVerified: investor.isVerified || false,
+      isPi: investor.isPi || false,
+      gain: investor.gain || 0,
+      copiers: investor.copiers || 0,
+      riskScore: investor.riskScore || 0,
+      winRatio: investor.winRatio || 0,
+      trades: investor.trades || 0,
+      portfolio,
+      tradeInfo: investor.tradeInfo
+    };
+  }
 
-    // Process positions
-    const positions: InvestorPosition[] = [];
+  private static calculatePortfolioStats(
+    investor: {
+      userName: string;
+      fullName?: string;
+      hasAvatar?: boolean;
+      gain?: number;
+      copiers?: number;
+      riskScore?: number;
+      isVerified?: boolean;
+      isPi?: boolean;
+      trades?: number;
+      winRatio?: number;
+      tradeInfo?: UserTradeInfo;
+      portfolio?: {
+        positions?: Position[];
+      };
+    },
+    rawData: RawDataStructure
+  ): InvestorPortfolio {
+    const positions: InvestorPortfolioPosition[] = [];
+    let totalInvested = 0;
+    let totalProfitLoss = 0;
+
     if (investor.portfolio?.positions) {
-      for (const position of investor.portfolio.positions) {
-        // Find the instrument details using Map.get()
+      // Get instrument details map
+      const instrumentDetailsMap = rawData.instruments?.details instanceof Map
+        ? rawData.instruments.details
+        : new Map(Object.entries(rawData.instruments?.details || {}).map(([k, v]) => [parseInt(k), v as InstrumentDisplayData]));
+
+      investor.portfolio.positions.forEach((position: Position) => {
         const instrumentDetails = instrumentDetailsMap.get(position.instrumentId);
+
+        totalInvested += position.investmentPct || 0;
+        totalProfitLoss += (position.netProfit || 0) * (position.investmentPct || 0) / 100;
 
         positions.push({
           instrumentId: position.instrumentId,
-          instrumentName: instrumentDetails?.instrumentDisplayName || position.instrumentName,
+          instrumentName: instrumentDetails?.instrumentDisplayName,
           instrumentSymbol: instrumentDetails?.symbolFull,
-          instrumentImage: instrumentDetails?.images?.find((img: any) => img.width === 50)?.uri,
+          instrumentImage: instrumentDetails?.images?.find(img => img.width === 50)?.uri ||
+                          instrumentDetails?.images?.[0]?.uri,
           allocation: position.investmentPct || 0,
           netProfit: position.netProfit || 0,
-          openDate: position.openTimestamp,
           leverage: position.leverage || 1,
           isBuy: position.isBuy !== false,
+          openDate: position.openTimestamp
         });
-      }
+      });
     }
 
     // Sort positions by allocation
     positions.sort((a, b) => b.allocation - a.allocation);
 
+    const cashPercentage = Math.max(0, 100 - totalInvested);
+    const profitLossPercentage = totalInvested > 0 ? totalProfitLoss : 0;
+
     return {
-      username: investor.userName,
-      fullName: investor.fullName || investor.userName,
-      avatarUrl: investor.hasAvatar
-        ? `https://etoro-cdn.etorostatic.com/avatars/${investor.userName}/150x150.png`
-        : undefined,
-      country: userDetails?.country,
-      aboutMe: userDetails?.aboutMe,
-      isVerified: userDetails?.isVerified,
-      isPi: userDetails?.isPi,
-
-      // Performance metrics
-      gain: investor.gain || 0,
-      dailyGain: investor.dailyGain || 0,
-      riskScore: investor.riskScore || 0,
-      trades: investor.trades || 0,
-      winRatio: investor.winRatio || 0,
-      copiers: investor.copiers || 0,
-
-      // Portfolio data
-      portfolio: {
-        totalValue: investor.portfolio?.totalValue || 0,
-        positionsCount: investor.portfolio?.positionsCount || 0,
-        cashPercentage,
-        profitLoss: investor.portfolio?.profitLoss || 0,
-        profitLossPercentage: investor.portfolio?.profitLossPercentage || 0,
-        positions,
-      },
-
-      // Trading statistics
-      tradeInfo: investor.tradeInfo ? {
-        activeWeeksPct: investor.tradeInfo.activeWeeksPct || 0,
-        avgPosSize: investor.tradeInfo.avgPosSize || 0,
-        firstActivity: investor.tradeInfo.firstActivity,
-        lastActivity: investor.tradeInfo.lastActivity,
-        highLeveragePct: investor.tradeInfo.highLeveragePct || 0,
-        mediumLeveragePct: investor.tradeInfo.mediumLeveragePct || 0,
-        lowLeveragePct: investor.tradeInfo.lowLeveragePct || 0,
-        maxDailyRiskScore: investor.tradeInfo.maxDailyRiskScore || 0,
-        maxMonthlyRiskScore: investor.tradeInfo.maxMonthlyRiskScore || 0,
-        peakToValley: investor.tradeInfo.peakToValley || 0,
-        profitableMonthsPct: investor.tradeInfo.profitableMonthsPct || 0,
-        profitableWeeksPct: investor.tradeInfo.profitableWeeksPct || 0,
-        weeklyDd: investor.tradeInfo.weeklyDd || 0,
-        dailyDd: investor.tradeInfo.dailyDd || 0,
-        topTradedInstrumentId: investor.tradeInfo.topTradedInstrumentId,
-        countryId: investor.tradeInfo.countryId,
-      } : undefined,
+      positions,
+      positionsCount: positions.length,
+      cashPercentage,
+      profitLossPercentage
     };
   }
 
   /**
-   * Get top investors by various metrics
+   * Get top investors by various criteria
    */
   static getTopInvestors(
-    rawData: any,
-    metric: 'copiers' | 'gain' | 'trades' | 'winRatio',
+    rawData: unknown,
+    sortBy: 'copiers' | 'gain' | 'riskScore' = 'copiers',
     limit: number = 10
-  ): any[] {
-    if (!rawData || !rawData.investors) {
+  ): InvestorProfile[] {
+    const data = rawData as RawDataStructure;
+
+    if (!data || !data.investors) {
       return [];
     }
 
-    return rawData.investors
-      .filter((inv: any) => inv[metric] !== undefined && inv[metric] !== null)
-      .sort((a: any, b: any) => b[metric] - a[metric])
-      .slice(0, limit)
-      .map((inv: any) => ({
-        username: inv.userName,
-        fullName: inv.fullName || inv.userName,
-        value: inv[metric],
-        gain: inv.gain,
-        copiers: inv.copiers,
-        riskScore: inv.riskScore,
-        trades: inv.trades,
-        winRatio: inv.winRatio,
-      }));
+    const profiles: InvestorProfile[] = [];
+
+    // Get user details map
+    const userDetailsMap = data.userDetails instanceof Map
+      ? data.userDetails
+      : new Map(Object.entries(data.userDetails || {}));
+
+    for (const investor of data.investors) {
+      const userDetail = userDetailsMap.get(investor.userName);
+      const portfolio = this.calculatePortfolioStats(investor, data);
+
+      profiles.push({
+        username: investor.userName,
+        fullName: investor.fullName || investor.userName,
+        avatarUrl: getUserAvatarUrl(userDetail, investor.hasAvatar, investor.userName),
+        country: userDetail?.countryName,
+        aboutMe: userDetail?.aboutMe,
+        isVerified: investor.isVerified || false,
+        isPi: investor.isPi || false,
+        gain: investor.gain || 0,
+        copiers: investor.copiers || 0,
+        riskScore: investor.riskScore || 0,
+        winRatio: investor.winRatio || 0,
+        trades: investor.trades || 0,
+        portfolio,
+        tradeInfo: investor.tradeInfo
+      });
+    }
+
+    // Sort based on criteria
+    profiles.sort((a, b) => {
+      switch (sortBy) {
+        case 'gain':
+          return b.gain - a.gain;
+        case 'riskScore':
+          return a.riskScore - b.riskScore; // Lower is better
+        case 'copiers':
+        default:
+          return b.copiers - a.copiers;
+      }
+    });
+
+    return profiles.slice(0, limit);
   }
 
   /**
-   * Calculate investor statistics
+   * Search investors by various criteria
    */
-  static getInvestorStats(rawData: any): any {
-    if (!rawData || !rawData.investors) {
-      return null;
+  static searchInvestors(
+    rawData: unknown,
+    criteria: {
+      minGain?: number;
+      maxRiskScore?: number;
+      minCopiers?: number;
+      hasPositionIn?: number; // instrumentId
+    }
+  ): InvestorProfile[] {
+    const data = rawData as RawDataStructure;
+
+    if (!data || !data.investors) {
+      return [];
     }
 
-    const investors = rawData.investors;
-    const totalInvestors = investors.length;
+    const profiles: InvestorProfile[] = [];
+    const userDetailsMap = data.userDetails instanceof Map
+      ? data.userDetails
+      : new Map(Object.entries(data.userDetails || {}));
 
-    // Calculate averages
-    const avgGain = investors.reduce((sum: number, inv: any) => sum + (inv.gain || 0), 0) / totalInvestors;
-    const avgRiskScore = investors.reduce((sum: number, inv: any) => sum + (inv.riskScore || 0), 0) / totalInvestors;
-    const avgTrades = investors.reduce((sum: number, inv: any) => sum + (inv.trades || 0), 0) / totalInvestors;
-    const avgWinRatio = investors.reduce((sum: number, inv: any) => sum + (inv.winRatio || 0), 0) / totalInvestors;
-    const avgCopiers = investors.reduce((sum: number, inv: any) => sum + (inv.copiers || 0), 0) / totalInvestors;
+    for (const investor of data.investors) {
+      // Apply filters
+      if (criteria.minGain !== undefined && (investor.gain || 0) < criteria.minGain) continue;
+      if (criteria.maxRiskScore !== undefined && (investor.riskScore || 0) > criteria.maxRiskScore) continue;
+      if (criteria.minCopiers !== undefined && (investor.copiers || 0) < criteria.minCopiers) continue;
 
-    return {
-      totalInvestors,
-      averages: {
-        gain: avgGain,
-        riskScore: avgRiskScore,
-        trades: avgTrades,
-        winRatio: avgWinRatio,
-        copiers: avgCopiers,
-      },
-      topPerformers: {
-        byGain: this.getTopInvestors(rawData, 'gain', 5),
-        byCopiers: this.getTopInvestors(rawData, 'copiers', 5),
-        byTrades: this.getTopInvestors(rawData, 'trades', 5),
-        byWinRatio: this.getTopInvestors(rawData, 'winRatio', 5),
-      },
-    };
+      // Check for specific position
+      if (criteria.hasPositionIn !== undefined) {
+        const hasPosition = investor.portfolio?.positions?.some(
+          p => p.instrumentId === criteria.hasPositionIn
+        );
+        if (!hasPosition) continue;
+      }
+
+      const userDetail = userDetailsMap.get(investor.userName);
+      const portfolio = this.calculatePortfolioStats(investor, data);
+
+      profiles.push({
+        username: investor.userName,
+        fullName: investor.fullName || investor.userName,
+        avatarUrl: getUserAvatarUrl(userDetail, investor.hasAvatar, investor.userName),
+        country: userDetail?.countryName,
+        aboutMe: userDetail?.aboutMe,
+        isVerified: investor.isVerified || false,
+        isPi: investor.isPi || false,
+        gain: investor.gain || 0,
+        copiers: investor.copiers || 0,
+        riskScore: investor.riskScore || 0,
+        winRatio: investor.winRatio || 0,
+        trades: investor.trades || 0,
+        portfolio,
+        tradeInfo: investor.tradeInfo
+      });
+    }
+
+    return profiles;
   }
 }

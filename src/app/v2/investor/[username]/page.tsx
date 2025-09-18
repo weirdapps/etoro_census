@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import {
   ArrowLeft, TrendingUp, TrendingDown, Users, Activity,
-  Calendar, Target, Award, AlertTriangle, DollarSign
+  Calendar, Target, Award, AlertTriangle
 } from 'lucide-react';
 
 export default function InvestorProfilePage() {

@@ -1,4 +1,5 @@
 import { InstrumentDisplayData, InstrumentPriceData } from './instrument-service';
+import { Position } from '../models/user-portfolio';
 
 export interface AssetHolder {
   username: string;
@@ -34,35 +35,53 @@ export interface AssetDetails {
   allocationDistribution: { range: string; count: number }[];
 }
 
+interface RawDataStructure {
+  instruments?: {
+    details?: Map<number, InstrumentDisplayData> | Record<string, InstrumentDisplayData>;
+    priceData?: Map<number, InstrumentPriceData> | Record<string, InstrumentPriceData>;
+  };
+  investors?: Array<{
+    userName: string;
+    fullName?: string;
+    hasAvatar?: boolean;
+    gain?: number;
+    copiers?: number;
+    riskScore?: number;
+    portfolio?: {
+      positions?: Position[];
+    };
+  }>;
+}
+
 export class AssetService {
   /**
    * Get detailed information about a specific asset
    */
   static getAssetDetails(
     instrumentId: number,
-    rawData: any
+    rawData: unknown
   ): AssetDetails | null {
-    if (!rawData || !rawData.instruments || !rawData.investors) {
+    const data = rawData as RawDataStructure;
+
+    if (!data || !data.instruments || !data.investors) {
       return null;
     }
 
     // Get instrument details - handle both Map and object formats
     // When stored in sessionStorage, Maps become objects with numeric string keys
-    let instrumentDetails: InstrumentDisplayData | undefined;
-    let instrumentPrice: InstrumentPriceData | undefined;
 
     // Convert to Maps if they're serialized objects
-    const detailsMap = rawData.instruments?.details instanceof Map
-      ? rawData.instruments.details
-      : new Map(Object.entries(rawData.instruments?.details || {}).map(([k, v]) => [parseInt(k), v]));
+    const detailsMap = data.instruments?.details instanceof Map
+      ? data.instruments.details
+      : new Map(Object.entries(data.instruments?.details || {}).map(([k, v]) => [parseInt(k), v]));
 
-    const priceMap = rawData.instruments?.priceData instanceof Map
-      ? rawData.instruments.priceData
-      : new Map(Object.entries(rawData.instruments?.priceData || {}).map(([k, v]) => [parseInt(k), v]));
+    const priceMap = data.instruments?.priceData instanceof Map
+      ? data.instruments.priceData
+      : new Map(Object.entries(data.instruments?.priceData || {}).map(([k, v]) => [parseInt(k), v]));
 
     // Get instrument details using Map.get()
-    instrumentDetails = detailsMap.get(instrumentId);
-    instrumentPrice = priceMap.get(instrumentId);
+    const instrumentDetails = detailsMap.get(instrumentId);
+    const instrumentPrice = priceMap.get(instrumentId);
 
     if (!instrumentDetails || !instrumentPrice) {
       console.warn(`Asset ${instrumentId} not found in data`);
@@ -73,18 +92,18 @@ export class AssetService {
     const holders: AssetHolder[] = [];
     let totalAllocation = 0;
 
-    for (const investor of rawData.investors) {
+    for (const investor of data.investors) {
       if (!investor.portfolio?.positions) continue;
 
       // Find positions for this instrument
       const positions = investor.portfolio.positions.filter(
-        (p: any) => p.instrumentId === instrumentId
+        (p: Position) => p.instrumentId === instrumentId
       );
 
       if (positions.length > 0) {
         // Sum allocations if multiple positions
         const totalInvestorAllocation = positions.reduce(
-          (sum: number, p: any) => sum + (p.investmentPct || 0),
+          (sum: number, p: Position) => sum + (p.investmentPct || 0),
           0
         );
 
@@ -100,7 +119,7 @@ export class AssetService {
           riskScore: investor.riskScore || 0,
           position: {
             openDate: positions[0].openTimestamp,
-            netProfit: positions.reduce((sum: number, p: any) => sum + (p.netProfit || 0), 0),
+            netProfit: positions.reduce((sum: number, p: Position) => sum + (p.netProfit || 0), 0),
             leverage: positions[0].leverage || 1,
           },
         });
@@ -151,19 +170,21 @@ export class AssetService {
   /**
    * Get top assets by number of holders
    */
-  static getTopAssets(rawData: any, limit: number = 10): any[] {
-    if (!rawData || !rawData.instruments || !rawData.investors) {
+  static getTopAssets(rawData: unknown, limit: number = 10): unknown[] {
+    const data = rawData as RawDataStructure;
+
+    if (!data || !data.instruments || !data.investors) {
       return [];
     }
 
     const assetHolderCounts = new Map<number, number>();
 
     // Count holders for each asset
-    for (const investor of rawData.investors) {
+    for (const investor of data.investors) {
       if (!investor.portfolio?.positions) continue;
 
       const uniqueInstruments = new Set<number>();
-      investor.portfolio.positions.forEach((p: any) => {
+      investor.portfolio.positions.forEach((p: Position) => {
         uniqueInstruments.add(p.instrumentId);
       });
 
@@ -182,8 +203,8 @@ export class AssetService {
       .map(([instrumentId, holderCount]) => ({
         instrumentId,
         holderCount,
-        details: rawData.instruments.details[instrumentId],
-        priceData: rawData.instruments.priceData[instrumentId],
+        details: (data.instruments?.details as Record<string, InstrumentDisplayData>)?.[instrumentId],
+        priceData: (data.instruments?.priceData as Record<string, InstrumentPriceData>)?.[instrumentId],
       }));
   }
 }

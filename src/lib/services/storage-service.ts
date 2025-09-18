@@ -35,7 +35,7 @@ class StorageService {
     });
   }
 
-  async setItem(key: string, value: any): Promise<void> {
+  async setItem(key: string, value: unknown): Promise<void> {
     // Try sessionStorage first (faster for small data)
     try {
       const stringValue = JSON.stringify(value);
@@ -43,7 +43,7 @@ class StorageService {
         sessionStorage.setItem(key, stringValue);
         return;
       }
-    } catch (e) {
+    } catch {
       console.log('SessionStorage failed, using IndexedDB');
     }
 
@@ -66,14 +66,14 @@ class StorageService {
     });
   }
 
-  async getItem(key: string): Promise<any> {
+  async getItem(key: string): Promise<unknown> {
     // Try sessionStorage first
     try {
       const value = sessionStorage.getItem(key);
       if (value) {
         return JSON.parse(value);
       }
-    } catch (e) {
+    } catch {
       console.log('SessionStorage read failed, trying IndexedDB');
     }
 
@@ -100,7 +100,7 @@ class StorageService {
     // Remove from both storages
     try {
       sessionStorage.removeItem(key);
-    } catch (e) {
+    } catch {
       // Ignore
     }
 
