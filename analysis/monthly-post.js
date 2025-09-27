@@ -32,6 +32,7 @@ function generateMonthlyPost() {
   const indexChange = fearGreed.value - monthAgoFearGreed.value;
   
   console.log('\n' + fearGreed.emoji + ' 𝗙𝗲𝗮𝗿 & 𝗚𝗿𝗲𝗲𝗱 𝗜𝗻𝗱𝗲𝘅: ' + fearGreed.value + '/100 (' + fearGreed.status + ')');
+  console.log('────────────────────');
   console.log('𝗠𝗼𝗻𝘁𝗵𝗹𝘆 𝗖𝗵𝗮𝗻𝗴𝗲: ' + (indexChange > 0 ? '+' : '') + indexChange + ' points');
   console.log('𝗠𝗼𝗻𝘁𝗵 𝗦𝘁𝗮𝗿𝘁: ' + monthAgoFearGreed.value + '/100 (' + monthAgoFearGreed.status + ')');
   
@@ -46,6 +47,7 @@ function generateMonthlyPost() {
   
   // 2. Performance Overview
   console.log('\n📊 𝗣𝗲𝗿𝗳𝗼𝗿𝗺𝗮𝗻𝗰𝗲 𝗖𝗼𝗺𝗽𝗮𝗿𝗶𝘀𝗼𝗻:');
+  console.log('────────────────────');
   const perfChange100 = current100.averages.gain - monthAgo100.averages.gain;
   const perfChange1500 = current1500.averages.gain - monthAgo1500.averages.gain;
   const top100Advantage = current100.averages.gain - current1500.averages.gain;
@@ -58,6 +60,7 @@ function generateMonthlyPost() {
   
   // 3. Cash Positioning & Risk Analysis
   console.log('\n💰 𝗖𝗮𝘀𝗵 𝗣𝗼𝘀𝗶𝘁𝗶𝗼𝗻𝗶𝗻𝗴 & 𝗥𝗶𝘀𝗸:');
+  console.log('────────────────────');
   const cashChange100 = current100.averages.cashPercentage - monthAgo100.averages.cashPercentage;
   const cashChange1500 = current1500.averages.cashPercentage - monthAgo1500.averages.cashPercentage;
   const riskChange100 = current100.averages.riskScore - monthAgo100.averages.riskScore;
@@ -80,6 +83,7 @@ function generateMonthlyPost() {
   
   // 4. Trading Activity Analysis
   console.log('\n📊 𝗧𝗿𝗮𝗱𝗶𝗻𝗴 𝗔𝗰𝘁𝗶𝘃𝗶𝘁𝘆:');
+  console.log('────────────────────');
   const tradesChange100 = current100.averages.trades - monthAgo100.averages.trades;
   const tradesChange1500 = current1500.averages.trades - monthAgo1500.averages.trades;
   const winRatioChange100 = current100.averages.winRatio - monthAgo100.averages.winRatio;
@@ -94,7 +98,8 @@ function generateMonthlyPost() {
   
   // 5. Top Portfolio Holdings Comparison
   console.log('\n💎 𝗧𝗼𝗽 𝟭𝟬 𝗣𝗼𝗿𝘁𝗳𝗼𝗹𝗶𝗼 𝗛𝗼𝗹𝗱𝗶𝗻𝗴𝘀:');
-  
+  console.log('────────────────────');
+
   // Create instrument map
   const instrumentMap = utils.createInstrumentMap(currentData);
   
@@ -130,7 +135,8 @@ function generateMonthlyPost() {
   
   // 6. Biggest Asset Moves (Monthly)
   console.log('\n🚀 𝗕𝗶𝗴𝗴𝗲𝘀𝘁 𝗔𝘀𝘀𝗲𝘁 𝗠𝗼𝘃𝗲𝘀:');
-  
+  console.log('────────────────────');
+
   // Find monthly movers with higher thresholds
   const monthlyMovers100 = utils.findDailyMovers(current100.topHoldings, monthAgo100.topHoldings, 3);
   const monthlyMovers1500 = utils.findDailyMovers(current1500.topHoldings, monthAgo1500.topHoldings, 10);
@@ -177,7 +183,8 @@ function generateMonthlyPost() {
   
   // 7. Copier Activity (Monthly Threshold)
   console.log('\n👥 𝗖𝗼𝗽𝗶𝗲𝗿 𝗔𝗰𝘁𝗶𝘃𝗶𝘁𝘆 (𝗠𝗼𝗻𝘁𝗵𝗹𝘆):');
-  
+  console.log('────────────────────');
+
   const copierChanges = utils.findTopCopierChanges(currentData.investors, monthAgoData.investors, 50);
   const gainers = copierChanges.filter(c => c.change > 0).sort((a, b) => b.change - a.change).slice(0, 5);
   const losers = copierChanges.filter(c => c.change < 0).sort((a, b) => a.change - b.change).slice(0, 5);
@@ -200,7 +207,8 @@ function generateMonthlyPost() {
   
   // 8. Investor Spotlight (Monthly Performance Leader)
   console.log('\n🌟 𝗜𝗻𝘃𝗲𝘀𝘁𝗼𝗿 𝗦𝗽𝗼𝘁𝗹𝗶𝗴𝗵𝘁:');
-  
+  console.log('────────────────────');
+
   // Find best performing investor for the month
   const topPerformers = currentData.investors
     .filter(inv => inv.gain !== null && inv.copiers >= 100)
@@ -229,7 +237,8 @@ function generateMonthlyPost() {
   
   // 9. Key Takeaways
   console.log('\n💡 𝗞𝗲𝘆 𝗧𝗮𝗸𝗲𝗮𝘄𝗮𝘆𝘀:');
-  
+  console.log('────────────────────');
+
   const takeaways = [];
   
   // Fear & Greed based takeaway
