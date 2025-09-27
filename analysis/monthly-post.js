@@ -25,6 +25,7 @@ function generateMonthlyPost() {
   
   // Header with date range
   console.log('📈 𝗲𝗧𝗼𝗿𝗼 𝗖𝗲𝗻𝘀𝘂𝘀 𝗠𝗼𝗻𝘁𝗵𝗹𝘆 𝗥𝗲𝗽𝗼𝗿𝘁 (' + monthAgoDate + ' → ' + currentDate + ') 📈');
+  console.log('');
   
   // 1. Fear & Greed Index (Monthly Trend)
   const fearGreed = utils.calculateFearGreedIndex(current1500.averages.cashPercentage);
@@ -32,10 +33,10 @@ function generateMonthlyPost() {
   const indexChange = fearGreed.value - monthAgoFearGreed.value;
   
   console.log('\n' + fearGreed.emoji + ' 𝗙𝗲𝗮𝗿 & 𝗚𝗿𝗲𝗲𝗱 𝗜𝗻𝗱𝗲𝘅: ' + fearGreed.value + '/100 (' + fearGreed.status + ')');
-  console.log('────────────────────');
-  console.log('𝗠𝗼𝗻𝘁𝗵𝗹𝘆 𝗖𝗵𝗮𝗻𝗴𝗲: ' + (indexChange > 0 ? '+' : '') + indexChange + ' points');
-  console.log('𝗠𝗼𝗻𝘁𝗵 𝗦𝘁𝗮𝗿𝘁: ' + monthAgoFearGreed.value + '/100 (' + monthAgoFearGreed.status + ')');
-  
+  console.log('');
+  console.log('  𝗠𝗼𝗻𝘁𝗵𝗹𝘆 𝗖𝗵𝗮𝗻𝗴𝗲: ' + (indexChange > 0 ? '+' : '') + indexChange + ' points');
+  console.log('  𝗠𝗼𝗻𝘁𝗵 𝗦𝘁𝗮𝗿𝘁: ' + monthAgoFearGreed.value + '/100 (' + monthAgoFearGreed.status + ')');
+
   // Monthly market mood with better emojis
   let monthlyMood = '';
   if (indexChange > 15) monthlyMood = '🚀 Greed surge this month';
@@ -43,34 +44,34 @@ function generateMonthlyPost() {
   else if (indexChange < -15) monthlyMood = '🛡️ Fear building rapidly';
   else if (indexChange < -5) monthlyMood = '⚠️ Caution creeping in';
   else monthlyMood = '⚖️ Steady sentiment throughout';
-  console.log('𝗠𝗼𝗻𝘁𝗵𝗹𝘆 𝗠𝗼𝗼𝗱: ' + monthlyMood);
+  console.log('  𝗠𝗼𝗻𝘁𝗵𝗹𝘆 𝗠𝗼𝗼𝗱: ' + monthlyMood);
   
   // 2. Performance Overview
   console.log('\n📊 𝗣𝗲𝗿𝗳𝗼𝗿𝗺𝗮𝗻𝗰𝗲 𝗖𝗼𝗺𝗽𝗮𝗿𝗶𝘀𝗼𝗻:');
-  console.log('────────────────────');
+  console.log('');
   const perfChange100 = current100.averages.gain - monthAgo100.averages.gain;
   const perfChange1500 = current1500.averages.gain - monthAgo1500.averages.gain;
   const top100Advantage = current100.averages.gain - current1500.averages.gain;
   
-  console.log('𝗧𝗼𝗽 𝟭𝟬𝟬: ' + current100.averages.gain.toFixed(1) + '% YTD (' + 
+  console.log('  𝗧𝗼𝗽 𝟭𝟬𝟬: ' + current100.averages.gain.toFixed(1) + '% YTD (' +
     utils.formatPercentage(perfChange100) + ' monthly)');
-  console.log('𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽: ' + current1500.averages.gain.toFixed(1) + '% YTD (' + 
+  console.log('  𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽: ' + current1500.averages.gain.toFixed(1) + '% YTD (' +
     utils.formatPercentage(perfChange1500) + ' monthly)');
-  console.log('𝗧𝗼𝗽 𝟭𝟬𝟬 𝗮𝗱𝘃𝗮𝗻𝘁𝗮𝗴𝗲: ' + utils.formatPercentage(top100Advantage, 1) + 'pp');
+  console.log('  𝗧𝗼𝗽 𝟭𝟬𝟬 𝗮𝗱𝘃𝗮𝗻𝘁𝗮𝗴𝗲: ' + utils.formatPercentage(top100Advantage, 1) + 'pp');
   
   // 3. Cash Positioning & Risk Analysis
   console.log('\n💰 𝗖𝗮𝘀𝗵 𝗣𝗼𝘀𝗶𝘁𝗶𝗼𝗻𝗶𝗻𝗴 & 𝗥𝗶𝘀𝗸:');
-  console.log('────────────────────');
+  console.log('');
   const cashChange100 = current100.averages.cashPercentage - monthAgo100.averages.cashPercentage;
   const cashChange1500 = current1500.averages.cashPercentage - monthAgo1500.averages.cashPercentage;
   const riskChange100 = current100.averages.riskScore - monthAgo100.averages.riskScore;
   const riskChange1500 = current1500.averages.riskScore - monthAgo1500.averages.riskScore;
   
-  console.log('𝗧𝗼𝗽 𝟭𝟬𝟬: Cash ' + current100.averages.cashPercentage.toFixed(1) + '% (' + 
-    utils.formatPercentage(cashChange100) + ' monthly) | Risk ' + current100.averages.riskScore.toFixed(1) + 
+  console.log('  𝗧𝗼𝗽 𝟭𝟬𝟬: Cash ' + current100.averages.cashPercentage.toFixed(1) + '% (' +
+    utils.formatPercentage(cashChange100) + ' monthly) | Risk ' + current100.averages.riskScore.toFixed(1) +
     ' (' + utils.formatPercentage(riskChange100) + ')');
-  console.log('𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽: Cash ' + current1500.averages.cashPercentage.toFixed(1) + '% (' + 
-    utils.formatPercentage(cashChange1500) + ' monthly) | Risk ' + current1500.averages.riskScore.toFixed(1) + 
+  console.log('  𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽: Cash ' + current1500.averages.cashPercentage.toFixed(1) + '% (' +
+    utils.formatPercentage(cashChange1500) + ' monthly) | Risk ' + current1500.averages.riskScore.toFixed(1) +
     ' (' + utils.formatPercentage(riskChange1500) + ')');
   
   // Risk sentiment interpretation
@@ -79,26 +80,26 @@ function generateMonthlyPost() {
   if (avgCashChange > 2) riskSentiment = '🛡️ Risk-off month';
   else if (avgCashChange < -2) riskSentiment = '🚀 Risk-on month';
   else riskSentiment = '⚖️ Balanced sentiment';
-  console.log('𝗦𝗲𝗻𝘁𝗶𝗺𝗲𝗻𝘁: ' + riskSentiment);
+  console.log('  𝗦𝗲𝗻𝘁𝗶𝗺𝗲𝗻𝘁: ' + riskSentiment);
   
   // 4. Trading Activity Analysis
   console.log('\n📊 𝗧𝗿𝗮𝗱𝗶𝗻𝗴 𝗔𝗰𝘁𝗶𝘃𝗶𝘁𝘆:');
-  console.log('────────────────────');
+  console.log('');
   const tradesChange100 = current100.averages.trades - monthAgo100.averages.trades;
   const tradesChange1500 = current1500.averages.trades - monthAgo1500.averages.trades;
   const winRatioChange100 = current100.averages.winRatio - monthAgo100.averages.winRatio;
   const winRatioChange1500 = current1500.averages.winRatio - monthAgo1500.averages.winRatio;
   
-  console.log('𝗧𝗼𝗽 𝟭𝟬𝟬: ' + current100.averages.trades.toFixed(0) + ' trades (' + 
-    (tradesChange100 > 0 ? '+' : '') + tradesChange100.toFixed(0) + ' monthly) | Win ' + 
+  console.log('  𝗧𝗼𝗽 𝟭𝟬𝟬: ' + current100.averages.trades.toFixed(0) + ' trades (' +
+    (tradesChange100 > 0 ? '+' : '') + tradesChange100.toFixed(0) + ' monthly) | Win ' +
     current100.averages.winRatio.toFixed(1) + '% (' + utils.formatPercentage(winRatioChange100) + ')');
-  console.log('𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽: ' + current1500.averages.trades.toFixed(0) + ' trades (' + 
-    (tradesChange1500 > 0 ? '+' : '') + tradesChange1500.toFixed(0) + ' monthly) | Win ' + 
+  console.log('  𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽: ' + current1500.averages.trades.toFixed(0) + ' trades (' +
+    (tradesChange1500 > 0 ? '+' : '') + tradesChange1500.toFixed(0) + ' monthly) | Win ' +
     current1500.averages.winRatio.toFixed(1) + '% (' + utils.formatPercentage(winRatioChange1500) + ')');
   
   // 5. Top Portfolio Holdings Comparison
   console.log('\n💎 𝗧𝗼𝗽 𝟭𝟬 𝗣𝗼𝗿𝘁𝗳𝗼𝗹𝗶𝗼 𝗛𝗼𝗹𝗱𝗶𝗻𝗴𝘀:');
-  console.log('────────────────────');
+  console.log('');
 
   // Create instrument map
   const instrumentMap = utils.createInstrumentMap(currentData);
@@ -107,21 +108,21 @@ function generateMonthlyPost() {
   const holdings100 = current100.topHoldings.slice(0, 10);
   const monthAgoHoldings100 = monthAgo100.topHoldings.slice(0, 10);
   
-  console.log('𝗧𝗼𝗽 𝟭𝟬𝟬:');
+  console.log('  𝗧𝗼𝗽 𝟭𝟬𝟬:');
   holdings100.forEach((holding, i) => {
     const asset = utils.getAssetInfo(holding.instrumentId, instrumentMap);
     const monthAgoHolding = monthAgoHoldings100.find(h => h.instrumentId === holding.instrumentId);
     const holderChange = monthAgoHolding ? holding.holdersCount - monthAgoHolding.holdersCount : 0;
     const changeIcon = holderChange > 0 ? '↑' : holderChange < 0 ? '↓' : '→';
     
-    console.log(`${i+1}. $${asset.symbol} (${holding.holdersCount}% ${changeIcon}${Math.abs(holderChange)})`);
+    console.log(`  ${i+1}. $${asset.symbol} (${holding.holdersCount}% ${changeIcon}${Math.abs(holderChange)})`);
   });
   
   // Broad Group holdings
   const holdings1500 = current1500.topHoldings.slice(0, 10);
   const monthAgoHoldings1500 = monthAgo1500.topHoldings.slice(0, 10);
   
-  console.log('\n𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽:');
+  console.log('\n  𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽:');
   holdings1500.forEach((holding, i) => {
     const asset = utils.getAssetInfo(holding.instrumentId, instrumentMap);
     const monthAgoHolding = monthAgoHoldings1500.find(h => h.instrumentId === holding.instrumentId);
@@ -130,12 +131,12 @@ function generateMonthlyPost() {
     // Use holdersPercentage for broad group instead of holdersCount
     const percentage = holding.holdersPercentage || (holding.holdersCount / 15 || 0);
     
-    console.log(`${i+1}. $${asset.symbol} (${percentage.toFixed(0)}% ${changeIcon}${Math.abs(holderChange)})`);
+    console.log(`  ${i+1}. $${asset.symbol} (${percentage.toFixed(0)}% ${changeIcon}${Math.abs(holderChange)})`);
   });
   
   // 6. Biggest Asset Moves (Monthly)
   console.log('\n🚀 𝗕𝗶𝗴𝗴𝗲𝘀𝘁 𝗔𝘀𝘀𝗲𝘁 𝗠𝗼𝘃𝗲𝘀:');
-  console.log('────────────────────');
+  console.log('');
 
   // Find monthly movers with higher thresholds
   const monthlyMovers100 = utils.findDailyMovers(current100.topHoldings, monthAgo100.topHoldings, 3);
@@ -183,7 +184,7 @@ function generateMonthlyPost() {
   
   // 7. Copier Activity (Monthly Threshold)
   console.log('\n👥 𝗖𝗼𝗽𝗶𝗲𝗿 𝗔𝗰𝘁𝗶𝘃𝗶𝘁𝘆 (𝗠𝗼𝗻𝘁𝗵𝗹𝘆):');
-  console.log('────────────────────');
+  console.log('');
 
   const copierChanges = utils.findTopCopierChanges(currentData.investors, monthAgoData.investors, 50);
   const gainers = copierChanges.filter(c => c.change > 0).sort((a, b) => b.change - a.change).slice(0, 5);
@@ -207,7 +208,7 @@ function generateMonthlyPost() {
   
   // 8. Investor Spotlight (Monthly Performance Leader)
   console.log('\n🌟 𝗜𝗻𝘃𝗲𝘀𝘁𝗼𝗿 𝗦𝗽𝗼𝘁𝗹𝗶𝗴𝗵𝘁:');
-  console.log('────────────────────');
+  console.log('');
 
   // Find best performing investor for the month
   const topPerformers = currentData.investors
@@ -237,7 +238,7 @@ function generateMonthlyPost() {
   
   // 9. Key Takeaways
   console.log('\n💡 𝗞𝗲𝘆 𝗧𝗮𝗸𝗲𝗮𝘄𝗮𝘆𝘀:');
-  console.log('────────────────────');
+  console.log('');
 
   const takeaways = [];
   
