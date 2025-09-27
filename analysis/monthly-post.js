@@ -24,7 +24,7 @@ function generateMonthlyPost() {
   const monthAgoDate = files.monthAgo.match(/(\d{4}-\d{2}-\d{2})/)[1];
   
   // Header with date range
-  console.log('📈 𝗲𝗧𝗼𝗿𝗼 𝗖𝗲𝗻𝘀𝘂𝘀 𝗠𝗼𝗻𝘁𝗵𝗹𝘆 𝗥𝗲𝗽𝗼𝗿𝘁 (' + monthAgoDate + ' → ' + currentDate + ') 📈');
+  console.log('🎩 𝗲𝗧𝗼𝗿𝗼 𝗖𝗲𝗻𝘀𝘂𝘀 𝗠𝗼𝗻𝘁𝗵𝗹𝘆 𝗥𝗲𝗽𝗼𝗿𝘁 (' + monthAgoDate + ' → ' + currentDate + ') 🎩');
   console.log('');
 
   // 1. Performance Overview

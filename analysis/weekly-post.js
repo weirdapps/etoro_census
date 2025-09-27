@@ -24,7 +24,7 @@ function generateWeeklyPost() {
   const weekAgoDate = files.weekAgo.match(/(\d{4}-\d{2}-\d{2})/)[1];
 
   // Header with date range
-  console.log('📊 𝗲𝗧𝗼𝗿𝗼 𝗖𝗲𝗻𝘀𝘂𝘀 𝗪𝗲𝗲𝗸𝗹𝘆 𝗨𝗽𝗱𝗮𝘁𝗲 (' + weekAgoDate + ' → ' + currentDate + ') 📊');
+  console.log('🎩 𝗲𝗧𝗼𝗿𝗼 𝗖𝗲𝗻𝘀𝘂𝘀 𝗪𝗲𝗲𝗸𝗹𝘆 𝗨𝗽𝗱𝗮𝘁𝗲 (' + weekAgoDate + ' → ' + currentDate + ') 🎩');
   console.log('');
 
   // 1. Performance Comparison

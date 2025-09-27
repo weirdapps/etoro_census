@@ -32,7 +32,7 @@ function generateDailyPost() {
   const perfChange1500 = current1500.averages.gain - prev1500.averages.gain;
 
   // Header - aligned with weekly/monthly format
-  console.log('📊 𝗲𝗧𝗼𝗿𝗼 𝗖𝗲𝗻𝘀𝘂𝘀 𝗗𝗮𝗶𝗹𝘆 𝗨𝗽𝗱𝗮𝘁𝗲 (' + displayDate + ') 📊');
+  console.log('🎩 𝗲𝗧𝗼𝗿𝗼 𝗖𝗲𝗻𝘀𝘂𝘀 𝗗𝗮𝗶𝗹𝘆 𝗨𝗽𝗱𝗮𝘁𝗲 (' + displayDate + ') 🎩');
   console.log('');
 
   // 1. Performance Comparison
