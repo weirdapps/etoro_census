@@ -31,46 +31,30 @@ function generateDailyPost() {
   const perfChange100 = current100.averages.gain - prev100.averages.gain;
   const perfChange1500 = current1500.averages.gain - prev1500.averages.gain;
 
-  // Calculate Fear & Greed Index
-  const fearGreed = utils.calculateFearGreedIndex(current1500.averages.cashPercentage);
-
   // Header - aligned with weekly/monthly format
   console.log('📊 𝗲𝗧𝗼𝗿𝗼 𝗖𝗲𝗻𝘀𝘂𝘀 𝗗𝗮𝗶𝗹𝘆 𝗨𝗽𝗱𝗮𝘁𝗲 (' + displayDate + ') 📊');
   console.log('');
 
-  // 1. Fear & Greed Index
-  console.log('\n' + fearGreed.emoji + ' 𝗙𝗲𝗮𝗿 & 𝗚𝗿𝗲𝗲𝗱 𝗜𝗻𝗱𝗲𝘅: ' + fearGreed.value + '/100 (' + fearGreed.status + ')');
-  console.log('');
-
-  // Market mood with better emojis
-  let marketMood = '';
-  if (fearGreed.status === 'Extreme Fear') marketMood = '🛡️ Market in defensive mode';
-  else if (fearGreed.status === 'Fear') marketMood = '⚠️ Caution prevails';
-  else if (fearGreed.status === 'Neutral') marketMood = '⚖️ Balanced sentiment';
-  else if (fearGreed.status === 'Greed') marketMood = '📈 Risk appetite building';
-  else marketMood = '🚀 Euphoria taking hold';
-  console.log('  𝗠𝗮𝗿𝗸𝗲𝘁 𝗠𝗼𝗼𝗱: ' + marketMood);
-
-  // 2. Performance Comparison
+  // 1. Performance Comparison
   console.log('\n📈 𝗣𝗲𝗿𝗳𝗼𝗿𝗺𝗮𝗻𝗰𝗲 𝗖𝗼𝗺𝗽𝗮𝗿𝗶𝘀𝗼𝗻:');
   console.log('');
 
   console.log('  𝗧𝗼𝗽 𝟭𝟬𝟬: ' + current100.averages.gain.toFixed(1) + '% YTD (' +
     utils.formatPercentage(perfChange100) + ' daily)');
-  console.log('  𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽: ' + current1500.averages.gain.toFixed(1) + '% YTD (' +
+  console.log('\n  𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽: ' + current1500.averages.gain.toFixed(1) + '% YTD (' +
     utils.formatPercentage(perfChange1500) + ' daily)');
-  console.log('  𝗧𝗼𝗽 𝟭𝟬𝟬 𝗮𝗱𝘃𝗮𝗻𝘁𝗮𝗴𝗲: ' + utils.formatPercentage(current100.averages.gain - current1500.averages.gain, 1) + 'pp');
+  console.log('\n  𝗧𝗼𝗽 𝟭𝟬𝟬 𝗮𝗱𝘃𝗮𝗻𝘁𝗮𝗴𝗲: ' + utils.formatPercentage(current100.averages.gain - current1500.averages.gain, 1) + 'pp');
 
-  // 3. Cash Positioning
+  // 2. Cash Positioning
   console.log('\n💰 𝗖𝗮𝘀𝗵 𝗣𝗼𝘀𝗶𝘁𝗶𝗼𝗻𝗶𝗻𝗴:');
   console.log('');
 
   console.log('  𝗧𝗼𝗽 𝟭𝟬𝟬: ' + current100.averages.cashPercentage.toFixed(1) + '% (' +
     utils.formatPercentage(cashChange100) + ' daily)');
-  console.log('  𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽: ' + current1500.averages.cashPercentage.toFixed(1) + '% (' +
+  console.log('\n  𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽: ' + current1500.averages.cashPercentage.toFixed(1) + '% (' +
     utils.formatPercentage(cashChange1500) + ' daily)');
 
-  // 4. Top Portfolio Holdings
+  // 3. Top Portfolio Holdings
   console.log('\n💎 𝗧𝗼𝗽 𝗣𝗼𝗿𝘁𝗳𝗼𝗹𝗶𝗼 𝗛𝗼𝗹𝗱𝗶𝗻𝗴𝘀:');
   console.log('');
 
@@ -93,7 +77,7 @@ function generateDailyPost() {
     console.log('  ' + (i+1) + '. $' + h.symbol + ' (' + percentage.toFixed(0) + '% ' + changeIcon + Math.abs(holderChange) + ')');
   });
 
-  // 5. Biggest Daily Asset Moves
+  // 4. Biggest Daily Asset Moves
   console.log('\n🚀 𝗕𝗶𝗴𝗴𝗲𝘀𝘁 𝗔𝘀𝘀𝗲𝘁 𝗠𝗼𝘃𝗲𝘀:');
   console.log('');
 
@@ -106,14 +90,14 @@ function generateDailyPost() {
     const reductions100 = dailyMovers100.filter(m => m.change < 0).slice(0, 3);
 
     if (additions100.length > 0) {
-      console.log('  𝗧𝗼𝗽 𝟭𝟬𝟬 - 𝗠𝗼𝘀𝘁 𝗔𝗱𝗱𝗲𝗱:');
+      console.log('\n  𝗧𝗼𝗽 𝟭𝟬𝟬 - 𝗠𝗼𝘀𝘁 𝗔𝗱𝗱𝗲𝗱:');
       additions100.forEach(m => {
         console.log('  • $' + m.symbol + ': +' + m.change + ' investors (' + utils.formatPercentage(m.percentChange) + ')');
       });
     }
 
     if (reductions100.length > 0) {
-      console.log('  𝗧𝗼𝗽 𝟭𝟬𝟬 - 𝗠𝗼𝘀𝘁 𝗥𝗲𝗱𝘂𝗰𝗲𝗱:');
+      console.log('\n  𝗧𝗼𝗽 𝟭𝟬𝟬 - 𝗠𝗼𝘀𝘁 𝗥𝗲𝗱𝘂𝗰𝗲𝗱:');
       reductions100.forEach(m => {
         console.log('  • $' + m.symbol + ': ' + m.change + ' investors (' + m.percentChange.toFixed(1) + '%)');
       });
@@ -133,7 +117,7 @@ function generateDailyPost() {
     }
 
     if (reductions1500.length > 0) {
-      console.log('  𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽 - 𝗠𝗼𝘀𝘁 𝗥𝗲𝗱𝘂𝗰𝗲𝗱:');
+      console.log('\n  𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽 - 𝗠𝗼𝘀𝘁 𝗥𝗲𝗱𝘂𝗰𝗲𝗱:');
       reductions1500.forEach(m => {
         console.log('  • $' + m.symbol + ': ' + m.change + ' investors (' + m.percentChange.toFixed(1) + '%)');
       });
@@ -144,7 +128,7 @@ function generateDailyPost() {
     console.log('Minimal portfolio changes today - investors holding steady positions');
   }
 
-  // 6. Daily Copier Changes
+  // 5. Daily Copier Changes
   console.log('\n📈 𝗗𝗮𝗶𝗹𝘆 𝗖𝗼𝗽𝗶𝗲𝗿 𝗖𝗵𝗮𝗻𝗴𝗲𝘀:');
   console.log('');
 
@@ -153,7 +137,7 @@ function generateDailyPost() {
   const losers = copierChanges.filter(c => c.change < 0).sort((a, b) => a.change - b.change).slice(0, 5);
 
   if (gainers.length > 0) {
-    console.log('  🚀 𝗧𝗼𝗽 𝟱 𝗚𝗮𝗶𝗻𝗲𝗿𝘀:');
+    console.log('\n  🚀 𝗧𝗼𝗽 𝟱 𝗚𝗮𝗶𝗻𝗲𝗿𝘀:');
     gainers.forEach((change, i) => {
       const name = change.investor.fullName || change.investor.userName;
       console.log('  ' + (i+1) + '. ' + name + ' (@' + change.investor.userName + '): (' + utils.formatNumber(change.investor.copiers) + ' ↑' + change.change + ')');
@@ -168,7 +152,7 @@ function generateDailyPost() {
     });
   }
 
-  // 7. Key Insight
+  // 6. Key Insight
   console.log('\n💡 𝗞𝗲𝘆 𝗜𝗻𝘀𝗶𝗴𝗵𝘁:');
   console.log('');
 
