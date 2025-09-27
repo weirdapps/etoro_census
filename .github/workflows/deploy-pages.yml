@@ -51,22 +51,45 @@ jobs:
         run: |
           # Create deployment directory with only necessary files
           mkdir -p deploy-temp
-          
+
           # Copy essential files for website
           cp index.html deploy-temp/
-          cp -r public/reports deploy-temp/reports
-          
-          # Copy latest data file only (not entire data directory)
+
+          # Copy only recent reports (last 30 days) to avoid disk space issues
+          mkdir -p deploy-temp/reports
+          echo "Copying reports from last 30 days only..."
+
+          # Calculate cutoff date (30 days ago)
+          CUTOFF_DATE=$(date -d "30 days ago" +%Y-%m-%d 2>/dev/null || date -v-30d +%Y-%m-%d)
+          echo "Cutoff date: $CUTOFF_DATE"
+
+          cd public/reports
+          COPIED_COUNT=0
+          for report in etoro-census-*.html; do
+            if [ -f "$report" ]; then
+              # Extract date from filename (format: etoro-census-2025-09-15-02-03.html)
+              FILE_DATE=$(echo "$report" | grep -oE '[0-9]{4}-[0-9]{2}-[0-9]{2}')
+              if [ -n "$FILE_DATE" ] && [ "$FILE_DATE" \> "$CUTOFF_DATE" ] || [ "$FILE_DATE" = "$CUTOFF_DATE" ]; then
+                cp "$report" ../../deploy-temp/reports/
+                COPIED_COUNT=$((COPIED_COUNT + 1))
+              fi
+            fi
+          done
+          cd ../..
+          echo "Copied $COPIED_COUNT recent reports to deployment"
+
+          # Copy only the latest 7 data files for the dashboard
           mkdir -p deploy-temp/data
           cd public/data
-          LATEST_DATA=$(ls etoro-data-*.json 2>/dev/null | sort -r | head -n 1)
-          if [ -n "$LATEST_DATA" ]; then
-            echo "Including latest data file: $LATEST_DATA"
-            cp "$LATEST_DATA" ../../deploy-temp/data/
-          fi
+          ls etoro-data-*.json 2>/dev/null | sort -r | head -n 7 | while read datafile; do
+            if [ -n "$datafile" ]; then
+              echo "Including data file: $datafile"
+              cp "$datafile" ../../deploy-temp/data/
+            fi
+          done
           cd ../..
-          
-          echo "✅ Deployment files prepared, excluding large historical data"
+
+          echo "✅ Deployment files prepared with recent data only (keeping all local files intact)"
       
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

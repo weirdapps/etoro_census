@@ -120,13 +120,13 @@ jobs:
       
       - name: Commit and push reports with deployment trigger
         run: |
-          # Add reports and JSON files
+          # Add ALL reports and JSON files for local history
           git add public/reports/*.html public/data/*.json
-          
+
           # Add deployment trigger file
           echo "$(date -u +'%Y-%m-%d %H:%M:%S UTC')" > .github/last-deployment-trigger
           git add .github/last-deployment-trigger
-          
+
           # Commit everything together if there are changes
           git diff --staged --quiet || {
             COMMIT_MSG="Daily census report - $(date -u +'%Y-%m-%d %H:%M UTC')"
