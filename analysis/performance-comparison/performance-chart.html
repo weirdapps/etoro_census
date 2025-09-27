@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eToro Top 100 vs All Investors Performance Comparison</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/date-fns@2.29.3/index.min.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        .chart-container {
+            position: relative;
+            height: 500px;
+            margin-bottom: 40px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .stat-change {
+            font-size: 14px;
+            margin-top: 5px;
+            opacity: 0.9;
+        }
+        .metrics-toggle {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .metric-btn {
+            padding: 8px 16px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        .metric-btn.active {
+            background: #667eea;
+            color: white;
+        }
+        .metric-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+        }
+        .legend-custom {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .legend-color {
+            width: 30px;
+            height: 3px;
+            border-radius: 2px;
+        }
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+        }
+        .error {
+            text-align: center;
+            padding: 50px;
+            color: #e74c3c;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>eToro Performance Comparison</h1>
+        <div class="subtitle">Top 100 Popular Investors vs All 1500 Popular Investors</div>
+
+        <div class="metrics-toggle">
+            <button class="metric-btn active" data-metric="gain">YTD Gain %</button>
+            <button class="metric-btn" data-metric="cash">Cash Position %</button>
+            <button class="metric-btn" data-metric="risk">Risk Score</button>
+            <button class="metric-btn" data-metric="trades">Avg Trades</button>
+            <button class="metric-btn" data-metric="winRatio">Win Ratio %</button>
+            <button class="metric-btn" data-metric="outperformance">Outperformance %</button>
+        </div>
+
+        <div class="chart-container">
+            <canvas id="performanceChart"></canvas>
+        </div>
+
+        <div class="legend-custom">
+            <div class="legend-item">
+                <div class="legend-color" style="background: #667eea;"></div>
+                <span>Top 100 Investors</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #00C896;"></div>
+                <span>All 1500 Investors</span>
+            </div>
+        </div>
+
+        <div class="stats-grid" id="statsGrid">
+            <div class="loading">Loading performance data...</div>
+        </div>
+    </div>
+
+    <script>
+        let chart = null;
+        let timeSeriesData = [];
+        let currentMetric = 'gain';
+
+        async function loadData() {
+            try {
+                const response = await fetch('file:///Users/plessas/SourceCode/etoro_census/analysis/performance-comparison/performance-timeseries.json');
+                timeSeriesData = await response.json();
+
+                if (timeSeriesData.length === 0) {
+                    document.getElementById('statsGrid').innerHTML =
+                        '<div class="error">No data available. Please run the extraction script first.</div>';
+                    return;
+                }
+
+                createChart();
+                updateStats();
+                setupEventListeners();
+            } catch (error) {
+                console.error('Error loading data:', error);
+                document.getElementById('statsGrid').innerHTML =
+                    '<div class="error">Error loading data. Please ensure performance-timeseries.json exists.</div>';
+            }
+        }
+
+        function createChart() {
+            const ctx = document.getElementById('performanceChart').getContext('2d');
+
+            const labels = timeSeriesData.map(d => d.date);
+            const top100Data = getMetricData('top100', currentMetric);
+            const all1500Data = getMetricData('all1500', currentMetric);
+
+            const datasets = currentMetric === 'outperformance' ?
+                [{
+                    label: 'Top 100 Outperformance',
+                    data: timeSeriesData.map(d => d.top100.avgGain - d.all1500.avgGain),
+                    borderColor: '#667eea',
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    borderWidth: 2,
+                    tension: 0.2,
+                    pointRadius: 0,
+                    pointHoverRadius: 5,
+                    fill: true
+                }] :
+                [{
+                    label: 'Top 100 Investors',
+                    data: top100Data,
+                    borderColor: '#667eea',
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    borderWidth: 2,
+                    tension: 0.2,
+                    pointRadius: 0,
+                    pointHoverRadius: 5
+                }, {
+                    label: 'All 1500 Investors',
+                    data: all1500Data,
+                    borderColor: '#00C896',
+                    backgroundColor: 'rgba(0, 200, 150, 0.1)',
+                    borderWidth: 2,
+                    tension: 0.2,
+                    pointRadius: 0,
+                    pointHoverRadius: 5
+                }];
+
+            if (chart) {
+                chart.destroy();
+            }
+
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            padding: 12,
+                            titleFont: {
+                                size: 14
+                            },
+                            bodyFont: {
+                                size: 13
+                            },
+                            callbacks: {
+                                title: function(tooltipItems) {
+                                    const date = tooltipItems[0].label;
+                                    return new Date(date).toLocaleDateString('en-US', {
+                                        month: 'short',
+                                        day: 'numeric',
+                                        year: 'numeric'
+                                    });
+                                },
+                                label: function(context) {
+                                    const label = context.dataset.label || '';
+                                    const value = context.parsed.y.toFixed(2);
+                                    const suffix = getMetricSuffix(currentMetric);
+                                    return `${label}: ${value}${suffix}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            display: true,
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                maxTicksLimit: 10,
+                                callback: function(value, index) {
+                                    const date = this.getLabelForValue(value);
+                                    return new Date(date).toLocaleDateString('en-US', {
+                                        month: 'short',
+                                        day: 'numeric'
+                                    });
+                                }
+                            }
+                        },
+                        y: {
+                            display: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toFixed(1) + getMetricSuffix(currentMetric);
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: getMetricLabel(currentMetric)
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function getMetricData(group, metric) {
+            switch(metric) {
+                case 'gain': return timeSeriesData.map(d => d[group].avgGain);
+                case 'cash': return timeSeriesData.map(d => d[group].avgCash);
+                case 'risk': return timeSeriesData.map(d => d[group].avgRisk);
+                case 'trades': return timeSeriesData.map(d => d[group].avgTrades);
+                case 'winRatio': return timeSeriesData.map(d => d[group].avgWinRatio);
+                default: return timeSeriesData.map(d => d[group].avgGain);
+            }
+        }
+
+        function getMetricLabel(metric) {
+            switch(metric) {
+                case 'gain': return 'Year-to-Date Gain (%)';
+                case 'cash': return 'Cash Position (%)';
+                case 'risk': return 'Risk Score (1-7)';
+                case 'trades': return 'Average Number of Trades';
+                case 'winRatio': return 'Win Ratio (%)';
+                case 'outperformance': return 'Top 100 Outperformance (%)';
+                default: return '';
+            }
+        }
+
+        function getMetricSuffix(metric) {
+            switch(metric) {
+                case 'gain':
+                case 'cash':
+                case 'winRatio':
+                case 'outperformance':
+                    return '%';
+                case 'risk':
+                case 'trades':
+                    return '';
+                default: return '';
+            }
+        }
+
+        function updateStats() {
+            const latest = timeSeriesData[timeSeriesData.length - 1];
+            const first = timeSeriesData[0];
+
+            // Calculate changes
+            const top100Change = latest.top100.avgGain - first.top100.avgGain;
+            const all1500Change = latest.all1500.avgGain - first.all1500.avgGain;
+            const outperformance = latest.top100.avgGain - latest.all1500.avgGain;
+
+            // Calculate average outperformance
+            const avgOutperformance = timeSeriesData.reduce((sum, d) =>
+                sum + (d.top100.avgGain - d.all1500.avgGain), 0) / timeSeriesData.length;
+
+            const statsHTML = `
+                <div class="stat-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <div class="stat-label">Top 100 Current Gain</div>
+                    <div class="stat-value">${latest.top100.avgGain.toFixed(2)}%</div>
+                    <div class="stat-change">${top100Change >= 0 ? '↑' : '↓'} ${Math.abs(top100Change).toFixed(2)}% from start</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #00C896 0%, #00B085 100%);">
+                    <div class="stat-label">All 1500 Current Gain</div>
+                    <div class="stat-value">${latest.all1500.avgGain.toFixed(2)}%</div>
+                    <div class="stat-change">${all1500Change >= 0 ? '↑' : '↓'} ${Math.abs(all1500Change).toFixed(2)}% from start</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <div class="stat-label">Current Outperformance</div>
+                    <div class="stat-value">${outperformance.toFixed(2)}%</div>
+                    <div class="stat-change">Top 100 beating All by this margin</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <div class="stat-label">Average Outperformance</div>
+                    <div class="stat-value">${avgOutperformance.toFixed(2)}%</div>
+                    <div class="stat-change">Over ${timeSeriesData.length} days</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                    <div class="stat-label">Top 100 Win Ratio</div>
+                    <div class="stat-value">${latest.top100.avgWinRatio.toFixed(1)}%</div>
+                    <div class="stat-change">${latest.top100.avgTrades.toFixed(0)} avg trades</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                    <div class="stat-label">Top 100 Cash Position</div>
+                    <div class="stat-value">${latest.top100.avgCash.toFixed(1)}%</div>
+                    <div class="stat-change">Risk Score: ${latest.top100.avgRisk.toFixed(1)}</div>
+                </div>
+            `;
+
+            document.getElementById('statsGrid').innerHTML = statsHTML;
+        }
+
+        function setupEventListeners() {
+            document.querySelectorAll('.metric-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.metric-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentMetric = this.dataset.metric;
+                    createChart();
+                });
+            });
+        }
+
+        // Load data when page loads
+        loadData();
+    </script>
+</body>
+</html>
