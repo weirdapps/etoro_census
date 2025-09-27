@@ -105,3 +105,8 @@ CLAUDE.md
 # Old/temporary analysis files
 analyze.js
 generate-daily-post-auto.js
+
+# CRITICAL: NEVER IGNORE REPORTS AND DATA - WE KEEP ALL HISTORY
+# public/reports/*.html - TRACKED IN GIT, NEVER IGNORE
+# public/data/*.json - TRACKED IN GIT, NEVER IGNORE
+# ALL LOCAL HISTORY MUST BE PRESERVED
