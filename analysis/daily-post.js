@@ -28,6 +28,8 @@ function generateDailyPost() {
   // Calculate daily changes
   const cashChange100 = current100.averages.cashPercentage - prev100.averages.cashPercentage;
   const cashChange1500 = current1500.averages.cashPercentage - prev1500.averages.cashPercentage;
+  const riskChange100 = current100.averages.riskScore - prev100.averages.riskScore;
+  const riskChange1500 = current1500.averages.riskScore - prev1500.averages.riskScore;
   const perfChange100 = current100.averages.gain - prev100.averages.gain;
   const perfChange1500 = current1500.averages.gain - prev1500.averages.gain;
 
@@ -38,26 +40,25 @@ function generateDailyPost() {
   // 1. Performance Comparison
   console.log('\n📈 𝗣𝗲𝗿𝗳𝗼𝗿𝗺𝗮𝗻𝗰𝗲 𝗖𝗼𝗺𝗽𝗮𝗿𝗶𝘀𝗼𝗻:');
   console.log('');
-
   console.log('  𝗧𝗼𝗽 𝟭𝟬𝟬: ' + current100.averages.gain.toFixed(1) + '% YTD (' +
     utils.formatPercentage(perfChange100) + ' daily)');
-  console.log('\n  𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽: ' + current1500.averages.gain.toFixed(1) + '% YTD (' +
+  console.log('  𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽: ' + current1500.averages.gain.toFixed(1) + '% YTD (' +
     utils.formatPercentage(perfChange1500) + ' daily)');
-  console.log('\n  𝗧𝗼𝗽 𝟭𝟬𝟬 𝗮𝗱𝘃𝗮𝗻𝘁𝗮𝗴𝗲: ' + utils.formatPercentage(current100.averages.gain - current1500.averages.gain, 1) + 'pp');
+  console.log('  𝗧𝗼𝗽 𝟭𝟬𝟬 𝗮𝗱𝘃𝗮𝗻𝘁𝗮𝗴𝗲: ' + utils.formatPercentage(current100.averages.gain - current1500.averages.gain, 1) + 'pp');
 
-  // 2. Cash Positioning
-  console.log('\n💰 𝗖𝗮𝘀𝗵 𝗣𝗼𝘀𝗶𝘁𝗶𝗼𝗻𝗶𝗻𝗴:');
+  // 2. Cash Positioning & Risk
+  console.log('\n💰 𝗖𝗮𝘀𝗵 𝗣𝗼𝘀𝗶𝘁𝗶𝗼𝗻𝗶𝗻𝗴 & 𝗥𝗶𝘀𝗸:');
   console.log('');
-
-  console.log('  𝗧𝗼𝗽 𝟭𝟬𝟬: ' + current100.averages.cashPercentage.toFixed(1) + '% (' +
-    utils.formatPercentage(cashChange100) + ' daily)');
-  console.log('\n  𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽: ' + current1500.averages.cashPercentage.toFixed(1) + '% (' +
-    utils.formatPercentage(cashChange1500) + ' daily)');
+  console.log('  𝗧𝗼𝗽 𝟭𝟬𝟬: Cash ' + current100.averages.cashPercentage.toFixed(1) + '% (' +
+    utils.formatPercentage(cashChange100) + ') | Risk ' + current100.averages.riskScore.toFixed(1) +
+    ' (' + utils.formatPercentage(riskChange100) + ')');
+  console.log('  𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽: Cash ' + current1500.averages.cashPercentage.toFixed(1) + '% (' +
+    utils.formatPercentage(cashChange1500) + ') | Risk ' + current1500.averages.riskScore.toFixed(1) +
+    ' (' + utils.formatPercentage(riskChange1500) + ')');
 
   // 3. Top Portfolio Holdings
   console.log('\n💎 𝗧𝗼𝗽 𝗣𝗼𝗿𝘁𝗳𝗼𝗹𝗶𝗼 𝗛𝗼𝗹𝗱𝗶𝗻𝗴𝘀:');
   console.log('');
-
   console.log('  𝗧𝗼𝗽 𝟭𝟬𝟬 (Top 5):');
   const top5Holdings100 = current100.topHoldings.slice(0, 5);
   top5Holdings100.forEach((h, i) => {
@@ -67,7 +68,7 @@ function generateDailyPost() {
     console.log('  ' + (i+1) + '. $' + h.symbol + ' (' + h.holdersCount + '% ' + changeIcon + Math.abs(holderChange) + ')');
   });
 
-  console.log('\n  𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽 (Top 5):');
+  console.log('  𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽 (Top 5):');
   const top5Holdings1500 = current1500.topHoldings.slice(0, 5);
   top5Holdings1500.forEach((h, i) => {
     const prevHolding = prev1500.topHoldings.find(ph => ph.instrumentId === h.instrumentId);
@@ -90,14 +91,14 @@ function generateDailyPost() {
     const reductions100 = dailyMovers100.filter(m => m.change < 0).slice(0, 3);
 
     if (additions100.length > 0) {
-      console.log('\n  𝗧𝗼𝗽 𝟭𝟬𝟬 - 𝗠𝗼𝘀𝘁 𝗔𝗱𝗱𝗲𝗱:');
+      console.log('  𝗧𝗼𝗽 𝟭𝟬𝟬 - 𝗠𝗼𝘀𝘁 𝗔𝗱𝗱𝗲𝗱:');
       additions100.forEach(m => {
         console.log('  • $' + m.symbol + ': +' + m.change + ' investors (' + utils.formatPercentage(m.percentChange) + ')');
       });
     }
 
     if (reductions100.length > 0) {
-      console.log('\n  𝗧𝗼𝗽 𝟭𝟬𝟬 - 𝗠𝗼𝘀𝘁 𝗥𝗲𝗱𝘂𝗰𝗲𝗱:');
+      console.log('  𝗧𝗼𝗽 𝟭𝟬𝟬 - 𝗠𝗼𝘀𝘁 𝗥𝗲𝗱𝘂𝗰𝗲𝗱:');
       reductions100.forEach(m => {
         console.log('  • $' + m.symbol + ': ' + m.change + ' investors (' + m.percentChange.toFixed(1) + '%)');
       });
@@ -110,14 +111,14 @@ function generateDailyPost() {
     const reductions1500 = dailyMovers1500.filter(m => m.change < 0).slice(0, 3);
 
     if (additions1500.length > 0) {
-      console.log('\n  𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽 - 𝗠𝗼𝘀𝘁 𝗔𝗱𝗱𝗲𝗱:');
+      console.log('  𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽 - 𝗠𝗼𝘀𝘁 𝗔𝗱𝗱𝗲𝗱:');
       additions1500.forEach(m => {
         console.log('  • $' + m.symbol + ': +' + m.change + ' investors (' + utils.formatPercentage(m.percentChange) + ')');
       });
     }
 
     if (reductions1500.length > 0) {
-      console.log('\n  𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽 - 𝗠𝗼𝘀𝘁 𝗥𝗲𝗱𝘂𝗰𝗲𝗱:');
+      console.log('  𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽 - 𝗠𝗼𝘀𝘁 𝗥𝗲𝗱𝘂𝗰𝗲𝗱:');
       reductions1500.forEach(m => {
         console.log('  • $' + m.symbol + ': ' + m.change + ' investors (' + m.percentChange.toFixed(1) + '%)');
       });
@@ -137,7 +138,7 @@ function generateDailyPost() {
   const losers = copierChanges.filter(c => c.change < 0).sort((a, b) => a.change - b.change).slice(0, 5);
 
   if (gainers.length > 0) {
-    console.log('\n  🚀 𝗧𝗼𝗽 𝟱 𝗚𝗮𝗶𝗻𝗲𝗿𝘀:');
+    console.log('  🚀 𝗧𝗼𝗽 𝟱 𝗚𝗮𝗶𝗻𝗲𝗿𝘀:');
     gainers.forEach((change, i) => {
       const name = change.investor.fullName || change.investor.userName;
       console.log('  ' + (i+1) + '. ' + name + ' (@' + change.investor.userName + '): (' + utils.formatNumber(change.investor.copiers) + ' ↑' + change.change + ')');
@@ -145,7 +146,7 @@ function generateDailyPost() {
   }
 
   if (losers.length > 0) {
-    console.log('\n  📉 𝗧𝗼𝗽 𝟱 𝗟𝗼𝘀𝗲𝗿𝘀:');
+    console.log('  📉 𝗧𝗼𝗽 𝟱 𝗟𝗼𝘀𝗲𝗿𝘀:');
     losers.forEach((change, i) => {
       const name = change.investor.fullName || change.investor.userName;
       console.log('  ' + (i+1) + '. ' + name + ' (@' + change.investor.userName + '): (' + utils.formatNumber(change.investor.copiers) + ' ↓' + Math.abs(change.change) + ')');

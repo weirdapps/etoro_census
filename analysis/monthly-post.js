@@ -33,44 +33,44 @@ function generateMonthlyPost() {
   const perfChange100 = current100.averages.gain - monthAgo100.averages.gain;
   const perfChange1500 = current1500.averages.gain - monthAgo1500.averages.gain;
   const top100Advantage = current100.averages.gain - current1500.averages.gain;
-  
+
   console.log('  𝗧𝗼𝗽 𝟭𝟬𝟬: ' + current100.averages.gain.toFixed(1) + '% YTD (' +
     utils.formatPercentage(perfChange100) + ' monthly)');
-  console.log('\n  𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽: ' + current1500.averages.gain.toFixed(1) + '% YTD (' +
+  console.log('  𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽: ' + current1500.averages.gain.toFixed(1) + '% YTD (' +
     utils.formatPercentage(perfChange1500) + ' monthly)');
-  console.log('\n  𝗧𝗼𝗽 𝟭𝟬𝟬 𝗮𝗱𝘃𝗮𝗻𝘁𝗮𝗴𝗲: ' + utils.formatPercentage(top100Advantage, 1) + 'pp');
+  console.log('  𝗧𝗼𝗽 𝟭𝟬𝟬 𝗮𝗱𝘃𝗮𝗻𝘁𝗮𝗴𝗲: ' + utils.formatPercentage(top100Advantage, 1) + 'pp');
   
-  // 3. Cash Positioning & Risk Analysis
+  // 2. Cash Positioning & Risk Analysis
   console.log('\n💰 𝗖𝗮𝘀𝗵 𝗣𝗼𝘀𝗶𝘁𝗶𝗼𝗻𝗶𝗻𝗴 & 𝗥𝗶𝘀𝗸:');
   console.log('');
   const cashChange100 = current100.averages.cashPercentage - monthAgo100.averages.cashPercentage;
   const cashChange1500 = current1500.averages.cashPercentage - monthAgo1500.averages.cashPercentage;
   const riskChange100 = current100.averages.riskScore - monthAgo100.averages.riskScore;
   const riskChange1500 = current1500.averages.riskScore - monthAgo1500.averages.riskScore;
-  
+
   console.log('  𝗧𝗼𝗽 𝟭𝟬𝟬: Cash ' + current100.averages.cashPercentage.toFixed(1) + '% (' +
-    utils.formatPercentage(cashChange100) + ' monthly) | Risk ' + current100.averages.riskScore.toFixed(1) +
+    utils.formatPercentage(cashChange100) + ') | Risk ' + current100.averages.riskScore.toFixed(1) +
     ' (' + utils.formatPercentage(riskChange100) + ')');
-  console.log('\n  𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽: Cash ' + current1500.averages.cashPercentage.toFixed(1) + '% (' +
-    utils.formatPercentage(cashChange1500) + ' monthly) | Risk ' + current1500.averages.riskScore.toFixed(1) +
+  console.log('  𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽: Cash ' + current1500.averages.cashPercentage.toFixed(1) + '% (' +
+    utils.formatPercentage(cashChange1500) + ') | Risk ' + current1500.averages.riskScore.toFixed(1) +
     ' (' + utils.formatPercentage(riskChange1500) + ')');
-  
+
   // Risk sentiment interpretation
   const avgCashChange = (cashChange100 + cashChange1500) / 2;
   let riskSentiment = '';
   if (avgCashChange > 2) riskSentiment = '🛡️ Risk-off month';
   else if (avgCashChange < -2) riskSentiment = '🚀 Risk-on month';
   else riskSentiment = '⚖️ Balanced sentiment';
-  console.log('\n  𝗦𝗲𝗻𝘁𝗶𝗺𝗲𝗻𝘁: ' + riskSentiment);
+  console.log('  𝗦𝗲𝗻𝘁𝗶𝗺𝗲𝗻𝘁: ' + riskSentiment);
   
-  // 4. Trading Activity Analysis
+  // 3. Trading Activity Analysis
   console.log('\n📊 𝗧𝗿𝗮𝗱𝗶𝗻𝗴 𝗔𝗰𝘁𝗶𝘃𝗶𝘁𝘆:');
   console.log('');
   const tradesChange100 = current100.averages.trades - monthAgo100.averages.trades;
   const tradesChange1500 = current1500.averages.trades - monthAgo1500.averages.trades;
   const winRatioChange100 = current100.averages.winRatio - monthAgo100.averages.winRatio;
   const winRatioChange1500 = current1500.averages.winRatio - monthAgo1500.averages.winRatio;
-  
+
   console.log('  𝗧𝗼𝗽 𝟭𝟬𝟬: ' + current100.averages.trades.toFixed(0) + ' trades (' +
     (tradesChange100 > 0 ? '+' : '') + tradesChange100.toFixed(0) + ' monthly) | Win ' +
     current100.averages.winRatio.toFixed(1) + '% (' + utils.formatPercentage(winRatioChange100) + ')');
@@ -78,7 +78,7 @@ function generateMonthlyPost() {
     (tradesChange1500 > 0 ? '+' : '') + tradesChange1500.toFixed(0) + ' monthly) | Win ' +
     current1500.averages.winRatio.toFixed(1) + '% (' + utils.formatPercentage(winRatioChange1500) + ')');
   
-  // 5. Top Portfolio Holdings Comparison
+  // 4. Top Portfolio Holdings Comparison
   console.log('\n💎 𝗧𝗼𝗽 𝟭𝟬 𝗣𝗼𝗿𝘁𝗳𝗼𝗹𝗶𝗼 𝗛𝗼𝗹𝗱𝗶𝗻𝗴𝘀:');
   console.log('');
 
@@ -103,7 +103,7 @@ function generateMonthlyPost() {
   const holdings1500 = current1500.topHoldings.slice(0, 10);
   const monthAgoHoldings1500 = monthAgo1500.topHoldings.slice(0, 10);
   
-  console.log('\n  𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽:');
+  console.log('  𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽:');
   holdings1500.forEach((holding, i) => {
     const asset = utils.getAssetInfo(holding.instrumentId, instrumentMap);
     const monthAgoHolding = monthAgoHoldings1500.find(h => h.instrumentId === holding.instrumentId);
@@ -115,7 +115,7 @@ function generateMonthlyPost() {
     console.log(`  ${i+1}. $${asset.symbol} (${percentage.toFixed(0)}% ${changeIcon}${Math.abs(holderChange)})`);
   });
   
-  // 6. Biggest Asset Moves (Monthly)
+  // 5. Biggest Asset Moves (Monthly)
   console.log('\n🚀 𝗕𝗶𝗴𝗴𝗲𝘀𝘁 𝗔𝘀𝘀𝗲𝘁 𝗠𝗼𝘃𝗲𝘀:');
   console.log('');
 
@@ -149,7 +149,7 @@ function generateMonthlyPost() {
     const drops1500 = monthlyMovers1500.filter(m => m.change < 0).slice(0, 5);
     
     if (additions1500.length > 0) {
-      console.log('\n𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽 - 𝗠𝗼𝘀𝘁 𝗔𝗱𝗱𝗲𝗱:');
+      console.log('𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽 - 𝗠𝗼𝘀𝘁 𝗔𝗱𝗱𝗲𝗱:');
       additions1500.forEach(m => {
         console.log(`• $${m.symbol}: +${m.change} investors (${utils.formatPercentage(m.percentChange)})`);
       });
@@ -163,7 +163,7 @@ function generateMonthlyPost() {
     }
   }
   
-  // 7. Copier Activity (Monthly Threshold)
+  // 6. Copier Activity (Monthly Threshold)
   console.log('\n👥 𝗖𝗼𝗽𝗶𝗲𝗿 𝗔𝗰𝘁𝗶𝘃𝗶𝘁𝘆 (𝗠𝗼𝗻𝘁𝗵𝗹𝘆):');
   console.log('');
 
@@ -187,7 +187,7 @@ function generateMonthlyPost() {
     });
   }
   
-  // 8. Investor Spotlight (Monthly Performance Leader)
+  // 7. Investor Spotlight (Monthly Performance Leader)
   console.log('\n🌟 𝗜𝗻𝘃𝗲𝘀𝘁𝗼𝗿 𝗦𝗽𝗼𝘁𝗹𝗶𝗴𝗵𝘁:');
   console.log('');
 
@@ -217,17 +217,17 @@ function generateMonthlyPost() {
     console.log(`• Win Ratio: ${investor.winRatio ? investor.winRatio.toFixed(1) + '%' : 'N/A'}`);
   }
   
-  // 9. Key Takeaways
+  // 8. Key Takeaways
   console.log('\n💡 𝗞𝗲𝘆 𝗧𝗮𝗸𝗲𝗮𝘄𝗮𝘆𝘀:');
   console.log('');
 
   const takeaways = [];
   
-  // Fear & Greed based takeaway
-  if (fearGreed.status === 'Extreme Fear' && avgCashChange > 2) {
-    takeaways.push('• Market in extreme defensive mode - highest cash levels in months');
-  } else if (fearGreed.status === 'Extreme Greed' && avgCashChange < -2) {
-    takeaways.push('• Risk-on euphoria driving aggressive capital deployment');
+  // Risk sentiment based takeaway
+  if (avgCashChange > 3) {
+    takeaways.push('• Market in defensive mode - cash levels rising significantly');
+  } else if (avgCashChange < -3) {
+    takeaways.push('• Risk-on sentiment driving aggressive capital deployment');
   }
   
   // Performance divergence

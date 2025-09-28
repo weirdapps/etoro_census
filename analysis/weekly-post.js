@@ -36,20 +36,24 @@ function generateWeeklyPost() {
 
   console.log('  𝗧𝗼𝗽 𝟭𝟬𝟬: ' + current100.averages.gain.toFixed(1) + '% YTD (' +
     utils.formatPercentage(perfChange100) + ' weekly)');
-  console.log('\n  𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽: ' + current1500.averages.gain.toFixed(1) + '% YTD (' +
+  console.log('  𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽: ' + current1500.averages.gain.toFixed(1) + '% YTD (' +
     utils.formatPercentage(perfChange1500) + ' weekly)');
-  console.log('\n  𝗧𝗼𝗽 𝟭𝟬𝟬 𝗮𝗱𝘃𝗮𝗻𝘚𝗮𝗴𝗲: ' + utils.formatPercentage(top100Advantage, 1) + 'pp');
+  console.log('  𝗧𝗼𝗽 𝟭𝟬𝟬 𝗮𝗱𝘃𝗮𝗻𝘵𝗮𝗴𝗲: ' + utils.formatPercentage(top100Advantage, 1) + 'pp');
 
   // 2. Cash Positioning & Risk Sentiment
   console.log('\n💰 𝗖𝗮𝘀𝗵 𝗣𝗼𝘀𝗶𝘁𝗶𝗼𝗻𝗶𝗻𝗴 & 𝐑𝐢𝐬𝐤:');
   console.log('');
   const cashChange100 = current100.averages.cashPercentage - weekAgo100.averages.cashPercentage;
   const cashChange1500 = current1500.averages.cashPercentage - weekAgo1500.averages.cashPercentage;
+  const riskChange100 = current100.averages.riskScore - weekAgo100.averages.riskScore;
+  const riskChange1500 = current1500.averages.riskScore - weekAgo1500.averages.riskScore;
 
-  console.log('  𝗧𝗼𝗽 𝟭𝟬𝟬: ' + current100.averages.cashPercentage.toFixed(1) + '% (' +
-    utils.formatPercentage(cashChange100) + ' weekly)');
-  console.log('\n  𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽: ' + current1500.averages.cashPercentage.toFixed(1) + '% (' +
-    utils.formatPercentage(cashChange1500) + ' weekly)');
+  console.log('  𝗧𝗼𝗽 𝟭𝟬𝟬: Cash ' + current100.averages.cashPercentage.toFixed(1) + '% (' +
+    utils.formatPercentage(cashChange100) + ') | Risk ' + current100.averages.riskScore.toFixed(1) +
+    ' (' + utils.formatPercentage(riskChange100) + ')');
+  console.log('  𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽: Cash ' + current1500.averages.cashPercentage.toFixed(1) + '% (' +
+    utils.formatPercentage(cashChange1500) + ') | Risk ' + current1500.averages.riskScore.toFixed(1) +
+    ' (' + utils.formatPercentage(riskChange1500) + ')');
 
   // Risk sentiment interpretation
   const avgCashChange = (cashChange100 + cashChange1500) / 2;
@@ -57,7 +61,7 @@ function generateWeeklyPost() {
   if (avgCashChange > 1) riskSentiment = '⚠️ Risk-off mode';
   else if (avgCashChange < -1) riskSentiment = '🚀 Risk-on mode';
   else riskSentiment = '⚖️ Balanced sentiment';
-  console.log('\n  𝗦𝗲𝗻𝘁𝗶𝗺𝗲𝗻𝘁: ' + riskSentiment);
+  console.log('  𝗦𝗲𝗻𝘁𝗶𝗺𝗲𝗻𝘁: ' + riskSentiment);
 
   // 3. Trading Activity Analysis
   console.log('\n📊 𝗧𝗿𝗮𝗱𝗶𝗻𝗴 𝗔𝗰𝘁𝗶𝘃𝗶𝘁𝘆:');
@@ -67,7 +71,7 @@ function generateWeeklyPost() {
 
   console.log('  𝗧𝗼𝗽 𝟭𝟬𝟬: ' + current100.averages.trades.toFixed(0) + ' trades (' +
     (tradesChange100 > 0 ? '+' : '') + tradesChange100.toFixed(0) + ' weekly)');
-  console.log('\n  𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽: ' + current1500.averages.trades.toFixed(0) + ' trades (' +
+  console.log('  𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽: ' + current1500.averages.trades.toFixed(0) + ' trades (' +
     (tradesChange1500 > 0 ? '+' : '') + tradesChange1500.toFixed(0) + ' weekly)');
 
   // 4. Top 10 Portfolio Holdings Comparison
@@ -95,7 +99,7 @@ function generateWeeklyPost() {
   const holdings1500 = current1500.topHoldings.slice(0, 10);
   const weekAgoHoldings1500 = weekAgo1500.topHoldings.slice(0, 10);
 
-  console.log('\n  𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽:');
+  console.log('  𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽:');
   holdings1500.forEach((holding, i) => {
     const asset = utils.getAssetInfo(holding.instrumentId, instrumentMap);
     const weekAgoHolding = weekAgoHoldings1500.find(h => h.instrumentId === holding.instrumentId);
@@ -121,14 +125,14 @@ function generateWeeklyPost() {
     const drops100 = weeklyMovers100.filter(m => m.change < 0).slice(0, 3);
 
     if (adds100.length > 0) {
-      console.log('\n  𝗧𝗼𝗽 𝟭𝟬𝟬 - 𝗠𝗼𝘀𝘁 𝗔𝗱𝗱𝗲𝗱:');
+      console.log('  𝗧𝗼𝗽 𝟭𝟬𝟬 - 𝗠𝗼𝘀𝘁 𝗔𝗱𝗱𝗲𝗱:');
       adds100.forEach(m => {
         console.log(`  • $${m.symbol}: +${m.change} investors (${utils.formatPercentage(m.percentChange)})`);
       });
     }
 
     if (drops100.length > 0) {
-      console.log('\n  𝗧𝗼𝗽 𝟭𝟬𝟬 - 𝗠𝗼𝘀𝘁 𝗥𝗲𝗱𝘂𝗰𝗲𝗱:');
+      console.log('  𝗧𝗼𝗽 𝟭𝟬𝟬 - 𝗠𝗼𝘀𝘁 𝗥𝗲𝗱𝘂𝗰𝗲𝗱:');
       drops100.forEach(m => {
         console.log(`  • $${m.symbol}: ${m.change} investors (${m.percentChange.toFixed(1)}%)`);
       });
@@ -143,14 +147,14 @@ function generateWeeklyPost() {
     const drops1500 = weeklyMovers1500.filter(m => m.change < 0).slice(0, 3);
 
     if (adds1500.length > 0) {
-      console.log('\n  𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽 - 𝗠𝗼𝘀𝘁 𝗔𝗱𝗱𝗲𝗱:');
+      console.log('  𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽 - 𝗠𝗼𝘀𝘁 𝗔𝗱𝗱𝗲𝗱:');
       adds1500.forEach(m => {
         console.log(`  • $${m.symbol}: +${m.change} investors (${utils.formatPercentage(m.percentChange)})`);
       });
     }
 
     if (drops1500.length > 0) {
-      console.log('\n  𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽 - 𝗠𝗼𝘀𝘁 𝗥𝗲𝗱𝘂𝗰𝗲𝗱:');
+      console.log('  𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽 - 𝗠𝗼𝘀𝘁 𝗥𝗲𝗱𝘂𝗰𝗲𝗱:');
       drops1500.forEach(m => {
         console.log(`  • $${m.symbol}: ${m.change} investors (${m.percentChange.toFixed(1)}%)`);
       });
@@ -168,7 +172,7 @@ function generateWeeklyPost() {
   const losers = copierChanges.filter(c => c.change < 0).sort((a, b) => a.change - b.change).slice(0, 5);
 
   if (gainers.length > 0) {
-    console.log('\n  🚀 𝗧𝗼𝗽 𝟱 𝗚𝗮𝗶𝗻𝗲𝗿𝘀:');
+    console.log('  🚀 𝗧𝗼𝗽 𝟱 𝗚𝗮𝗶𝗻𝗲𝗿𝘀:');
     gainers.forEach((change, i) => {
       const name = change.investor.fullName || change.investor.userName;
       console.log(`  ${i+1}. ${name} (@${change.investor.userName}): (${utils.formatNumber(change.investor.copiers)} ↑${change.change})`);
@@ -176,7 +180,7 @@ function generateWeeklyPost() {
   }
 
   if (losers.length > 0) {
-    console.log('\n  📉 𝗧𝗼𝗽 𝟱 𝗟𝗼𝘀𝗲𝗿𝘀:');
+    console.log('  📉 𝗧𝗼𝗽 𝟱 𝗟𝗼𝘀𝗲𝗿𝘀:');
     losers.forEach((change, i) => {
       const name = change.investor.fullName || change.investor.userName;
       console.log(`  ${i+1}. ${name} (@${change.investor.userName}): (${utils.formatNumber(change.investor.copiers)} ↓${Math.abs(change.change)})`);
