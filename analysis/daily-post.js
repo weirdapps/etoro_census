@@ -57,20 +57,20 @@ function generateDailyPost() {
     ' (' + utils.formatPercentage(riskChange1500) + ')');
 
   // 3. Top Portfolio Holdings
-  console.log('\n💎 𝗧𝗼𝗽 𝗣𝗼𝗿𝘁𝗳𝗼𝗹𝗶𝗼 𝗛𝗼𝗹𝗱𝗶𝗻𝗴𝘀:');
+  console.log('\n💎 𝗧𝗼𝗽 𝟭𝟬 𝗣𝗼𝗿𝘁𝗳𝗼𝗹𝗶𝗼 𝗛𝗼𝗹𝗱𝗶𝗻𝗴𝘀:');
   console.log('');
-  console.log('  𝗧𝗼𝗽 𝟭𝟬𝟬 (Top 5):');
-  const top5Holdings100 = current100.topHoldings.slice(0, 5);
-  top5Holdings100.forEach((h, i) => {
+  console.log('  𝗧𝗼𝗽 𝟭𝟬𝟬:');
+  const top10Holdings100 = current100.topHoldings.slice(0, 10);
+  top10Holdings100.forEach((h, i) => {
     const prevHolding = prev100.topHoldings.find(ph => ph.instrumentId === h.instrumentId);
     const holderChange = prevHolding ? h.holdersCount - prevHolding.holdersCount : 0;
     const changeIcon = holderChange > 0 ? '↑' : holderChange < 0 ? '↓' : '→';
     console.log('  ' + (i+1) + '. $' + h.symbol + ' (' + h.holdersCount + '% ' + changeIcon + Math.abs(holderChange) + ')');
   });
 
-  console.log('  𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽 (Top 5):');
-  const top5Holdings1500 = current1500.topHoldings.slice(0, 5);
-  top5Holdings1500.forEach((h, i) => {
+  console.log('  𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽:');
+  const top10Holdings1500 = current1500.topHoldings.slice(0, 10);
+  top10Holdings1500.forEach((h, i) => {
     const prevHolding = prev1500.topHoldings.find(ph => ph.instrumentId === h.instrumentId);
     const holderChange = prevHolding ? h.holdersCount - prevHolding.holdersCount : 0;
     const changeIcon = holderChange > 0 ? '↑' : holderChange < 0 ? '↓' : '→';
