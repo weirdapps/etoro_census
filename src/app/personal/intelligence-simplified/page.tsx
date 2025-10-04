@@ -2,14 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import {
-  TrendingUp, BarChart3, Shield, Target, Trophy,
+  TrendingUp, BarChart3, Shield, Target,
   AlertCircle, CheckCircle, Info, ArrowUpRight, ArrowDownRight
 } from 'lucide-react';
 import EliteGroupComparison from '@/components/intelligence/EliteGroupComparison';
 
 export default function SimplifiedIntelligencePage() {
   const [activeTab, setActiveTab] = useState('performance');
-  const [data, setData] = useState<any>(null);
+  const [data, setData] = useState<Record<string, unknown>>(null);
   const [loading, setLoading] = useState(true);
   const [loadingMessage, setLoadingMessage] = useState('Initializing intelligence analysis...');
 
@@ -147,71 +147,7 @@ export default function SimplifiedIntelligencePage() {
   );
 }
 
-function SmartMoneyTab({ data }: { data: any }) {
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-bold">Smart Money Analysis</h2>
-        <div className="text-sm text-gray-600">
-          Alignment Score: <span className="font-bold text-green-600">{data.summary?.alignmentScore?.toFixed(0)}%</span>
-        </div>
-      </div>
-
-      {/* Opportunities */}
-      <div>
-        <h3 className="text-lg font-semibold mb-3 flex items-center">
-          <AlertCircle className="w-5 h-5 mr-2 text-yellow-500" />
-          Missing Opportunities
-        </h3>
-        {data.opportunities?.length > 0 ? (
-          <div className="space-y-2">
-            {data.opportunities.slice(0, 5).map((opp: any, i: number) => (
-              <div key={i} className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
-                <div>
-                  <span className="font-semibold">{opp.symbol}</span>
-                  <span className="ml-2 text-sm text-gray-600">
-                    Held by {opp.heldByTopInvestors} of top investors
-                  </span>
-                </div>
-                <span className="text-sm text-yellow-700">
-                  Avg allocation: {opp.averageAllocation}
-                </span>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="text-gray-500">No major opportunities identified</p>
-        )}
-      </div>
-
-      {/* Aligned Positions */}
-      <div>
-        <h3 className="text-lg font-semibold mb-3 flex items-center">
-          <CheckCircle className="w-5 h-5 mr-2 text-green-500" />
-          Aligned with Smart Money
-        </h3>
-        {data.alignedPositions?.length > 0 ? (
-          <div className="space-y-2">
-            {data.alignedPositions.slice(0, 5).map((pos: any, i: number) => (
-              <div key={i} className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
-                <span className="font-semibold">{pos.symbol}</span>
-                <div className="text-sm">
-                  <span className="text-gray-600">Your: {pos.yourAllocation}</span>
-                  <span className="mx-2">|</span>
-                  <span className="text-gray-600">Smart: {pos.smartMoneyAllocation}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="text-gray-500">No aligned positions found</p>
-        )}
-      </div>
-    </div>
-  );
-}
-
-function PerformanceTab({ data }: { data: any }) {
+function PerformanceTab({ data }: { data: Record<string, unknown> }) {
   const isOutperforming = data.comparison?.status === 'OUTPERFORMING';
 
   return (
@@ -287,7 +223,7 @@ function PerformanceTab({ data }: { data: any }) {
   );
 }
 
-function HoldingsTab({ data }: { data: any }) {
+function HoldingsTab({ data }: { data: Record<string, unknown> }) {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between mb-4">
@@ -311,7 +247,7 @@ function HoldingsTab({ data }: { data: any }) {
             </tr>
           </thead>
           <tbody>
-            {data.topHoldings?.slice(0, 10).map((holding: any) => (
+            {data.topHoldings?.slice(0, 10).map((holding: Record<string, unknown>) => (
               <tr key={holding.rank} className="border-b">
                 <td className="py-2">{holding.rank}</td>
                 <td className="py-2 font-semibold">{holding.symbol}</td>
@@ -343,7 +279,7 @@ function HoldingsTab({ data }: { data: any }) {
             Consider Adding
           </h3>
           <div className="space-y-2">
-            {data.recommendations.slice(0, 3).map((rec: any, i: number) => (
+            {data.recommendations.slice(0, 3).map((rec: Record<string, unknown>, i: number) => (
               <div key={i} className="p-3 bg-blue-50 rounded-lg">
                 <span className="font-semibold">{rec.symbol}</span>
                 <span className="ml-2 text-sm text-gray-600">{rec.reason}</span>
@@ -356,7 +292,7 @@ function HoldingsTab({ data }: { data: any }) {
   );
 }
 
-function RiskTab({ data }: { data: any }) {
+function RiskTab({ data }: { data: Record<string, unknown> }) {
   const riskLevel = data.riskMetrics?.riskLevel;
   const riskColor = riskLevel === 'LOW' ? 'green' : riskLevel === 'MEDIUM' ? 'yellow' : 'red';
 
@@ -447,7 +383,7 @@ function RiskTab({ data }: { data: any }) {
   );
 }
 
-function OpportunitiesTab({ eliteGroups, smartMoney }: { eliteGroups: any; smartMoney: any }) {
+function OpportunitiesTab({ eliteGroups, smartMoney }: { eliteGroups: Record<string, unknown>; smartMoney: Record<string, unknown> }) {
   return (
     <div className="space-y-8">
       {/* Smart Money Section */}
@@ -468,7 +404,7 @@ function OpportunitiesTab({ eliteGroups, smartMoney }: { eliteGroups: any; smart
             </h3>
             {smartMoney.opportunities?.length > 0 ? (
               <div className="space-y-2">
-                {smartMoney.opportunities.slice(0, 5).map((opp: any, i: number) => (
+                {smartMoney.opportunities.slice(0, 5).map((opp: Record<string, unknown>, i: number) => (
                   <div key={i} className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
                     <div>
                       <span className="font-semibold">{opp.symbol}</span>
@@ -495,7 +431,7 @@ function OpportunitiesTab({ eliteGroups, smartMoney }: { eliteGroups: any; smart
             </h3>
             {smartMoney.alignedPositions?.length > 0 ? (
               <div className="space-y-2">
-                {smartMoney.alignedPositions.slice(0, 5).map((pos: any, i: number) => (
+                {smartMoney.alignedPositions.slice(0, 5).map((pos: Record<string, unknown>, i: number) => (
                   <div key={i} className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
                     <span className="font-semibold">{pos.symbol}</span>
                     <div className="text-sm">

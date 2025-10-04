@@ -87,7 +87,7 @@ export default function EliteGroupComparison({ data }: { data: EliteGroupCompari
         {groups.map((group) => (
           <button
             key={group.id}
-            onClick={() => setSelectedGroup(group.id as any)}
+            onClick={() => setSelectedGroup(group.id as 'top100' | 'top500' | 'conservative' | 'performers')}
             className={`p-4 rounded-lg border-2 transition-all ${
               selectedGroup === group.id
                 ? `border-${group.color}-500 bg-${group.color}-50`
@@ -194,7 +194,7 @@ export default function EliteGroupComparison({ data }: { data: EliteGroupCompari
             {selectedGroupData.data.topMissing && selectedGroupData.data.topMissing.length > 0 && (
               <div className="mb-6">
                 <h4 className="text-sm font-semibold text-gray-700 mb-3">
-                  Top Opportunities You're Missing
+                  Top Opportunities You&apos;re Missing
                 </h4>
                 <div className="overflow-x-auto">
                   <table className="min-w-full divide-y divide-gray-200">
