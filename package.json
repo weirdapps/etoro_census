@@ -14,8 +14,7 @@
     "lint": "next lint",
     "export": "next build && next export",
     "azure-build": "next build",
-    "create-zip": "cd build && zip -r ../build.zip .",
-    "test:v2": "node scripts/test-v2-features.js"
+    "create-zip": "cd build && zip -r ../build.zip ."
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.3",

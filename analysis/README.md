@@ -51,25 +51,64 @@ Identifies investors with winning streaks:
 - Active trading patterns
 - Risk-adjusted returns
 
-## 📊 Risk-Return Analysis
-
-Interactive chart viewer for risk-return analysis:
+### Momentum-Based Hot Hands
 ```bash
-open analysis/risk-return/updated-chart-viewer.html
+node hot-hands-momentum.js
 ```
+Advanced momentum-based analysis for identifying trending investors.
+
+### Generate All Posts
+```bash
+node generate-all-posts.js
+```
+Batch generate all social media posts (daily, weekly, monthly) at once.
+
+## 📊 Additional Analysis Tools
+
+### Risk-Return Analysis
+Interactive chart viewer for risk vs return visualization:
+```bash
+cd risk-return/
+node calculate-proper-metrics.js
+# Then open simple-working-chart.html in browser
+```
+See `risk-return/README.md` for detailed documentation.
+
+### Follower Distribution Analysis
+```bash
+cd follower-distribution/
+node generate-follower-chart.js
+```
+Analyzes follower distribution across all 1,500 Popular Investors with interactive charts.
+
+### Performance Comparison
+Tools in `performance-comparison/` for detailed outperformance analysis and standalone charts.
 
 ## 📁 Project Structure
 
 ```
 analysis/
-├── daily-post.js          # Daily census update
-├── weekly-post.js         # Weekly summary
-├── monthly-post.js        # Monthly report
-├── hot-hands.js           # Hot hands analysis
-├── risk-return/           # Risk-return chart viewer
-├── lib/                   # Shared utilities
-│   └── utils.js          # Common functions
-└── output/               # Analysis results directory
+├── daily-post.js                # Daily census update
+├── weekly-post.js               # Weekly summary
+├── monthly-post.js              # Monthly report
+├── generate-all-posts.js        # Batch generate all posts
+├── hot-hands.js                 # Hot hands analysis
+├── hot-hands-momentum.js        # Momentum-based analysis
+├── follower-distribution/       # Follower distribution analysis
+│   ├── generate-follower-chart.js
+│   └── extract-top-investors.js
+├── performance-comparison/      # Performance comparison tools
+│   ├── extract-performance-timeseries.js
+│   ├── analyze-outperformance-factors.js
+│   ├── analyze-outperformance-detailed.js
+│   └── create-standalone-chart.js
+├── risk-return/                # Risk-return chart viewer
+│   ├── calculate-proper-metrics.js
+│   ├── simple-working-chart.html
+│   └── README.md
+├── lib/                        # Shared utilities
+│   └── utils.js               # Common functions
+└── output/                    # Analysis results directory
 ```
 
 ## 🔧 Shared Utilities
@@ -104,10 +143,19 @@ All social media posts feature:
 
 From project root:
 ```bash
+# Social media posts
 node analysis/daily-post.js
 node analysis/weekly-post.js
 node analysis/monthly-post.js
+node analysis/generate-all-posts.js
+
+# Performance analysis
 node analysis/hot-hands.js
+node analysis/hot-hands-momentum.js
+
+# Advanced analysis
+cd analysis/follower-distribution && node generate-follower-chart.js
+cd analysis/risk-return && node calculate-proper-metrics.js
 ```
 
 Scripts work from any directory thanks to intelligent path resolution.

@@ -148,45 +148,65 @@ src/
 └── middleware.ts              # Next.js middleware
 
 analysis/
-├── daily-post.js              # Daily census update generator
-├── weekly-post.js             # Weekly summary generator  
-├── monthly-post.js            # Monthly report generator
-├── hot-hands.js               # Hot hands analysis
-├── risk-return/               # Risk-return chart viewer
-├── lib/                       # Shared utilities
-│   └── utils.js              # Common functions
-└── output/                    # Analysis results
+├── daily-post.js                      # Daily census update generator
+├── weekly-post.js                     # Weekly summary generator
+├── monthly-post.js                    # Monthly report generator
+├── generate-all-posts.js              # Batch generate all social posts
+├── hot-hands.js                       # Hot hands analysis
+├── hot-hands-momentum.js              # Momentum-based hot hands analysis
+├── follower-distribution/             # Follower distribution analysis
+│   ├── generate-follower-chart.js    # Interactive follower charts
+│   └── extract-top-investors.js      # Extract top investor data
+├── performance-comparison/            # Performance comparison tools
+│   ├── extract-performance-timeseries.js
+│   ├── analyze-outperformance-factors.js
+│   ├── analyze-outperformance-detailed.js
+│   └── create-standalone-chart.js
+├── risk-return/                       # Risk vs return analysis
+│   ├── calculate-proper-metrics.js   # Calculate risk/return metrics
+│   ├── simple-working-chart.html     # Interactive risk/return chart
+│   └── README.md                     # Detailed documentation
+├── lib/                              # Shared utilities
+│   └── utils.js                      # Common functions
+└── output/                           # Analysis output files
 ```
 
 ## 🔍 Analysis Tools
 
-The project includes comprehensive analysis tools for deep data insights:
+The project includes powerful analysis tools for deep insights into investor behavior and performance:
 
-### Quick Start
+### Social Media Post Generators
 ```bash
-# Key market insights (start here)
-node analyze.js deltas
+# Generate daily market update
+node analysis/daily-post.js
 
-# Bitcoin analysis
-node analyze.js btc
+# Generate weekly summary
+node analysis/weekly-post.js
 
-# Any instrument trends
-node analyze.js instrument nvidia
+# Generate monthly report
+node analysis/monthly-post.js
 
-# Elite investor behavior
-node analyze.js top100
-
-# Help and all commands
-node analyze.js help
+# Generate all posts at once
+node analysis/generate-all-posts.js
 ```
 
-### Tool Categories
-- **📊 Market Behavior**: Investor vs position dynamics, trends, accumulation patterns
-- **📈 Instruments**: Individual asset analysis, top holders, trends over time  
-- **👑 Elite Insights**: Top 100 investor behavior vs general population
-- **📝 Examples**: Common queries and data exploration
+### Performance Analysis
+```bash
+# Hot hands analysis - investors on winning streaks
+node analysis/hot-hands.js
 
-See [`analysis-tools/README.md`](analysis-tools/README.md) for detailed documentation.
+# Momentum-based analysis
+node analysis/hot-hands-momentum.js
+
+# Follower distribution analysis
+cd analysis/follower-distribution
+node generate-follower-chart.js
+```
+
+### Advanced Tools
+- **Risk vs Return**: See `analysis/risk-return/README.md` for interactive risk/return charts
+- **Performance Comparison**: Tools in `analysis/performance-comparison/` for detailed outperformance analysis
+- **Follower Distribution**: Power law analysis of follower counts across all 1,500 investors
 
 ## Getting Started
 
