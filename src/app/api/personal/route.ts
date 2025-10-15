@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server';
 import { simplifiedIntelligence } from '@/lib/services/simplified-intelligence-service';
 
+// Disable all caching for this endpoint
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function GET() {
   try {
     // Fetch all simplified intelligence modules in parallel
@@ -20,7 +24,7 @@ export async function GET() {
       simplifiedIntelligence.getEliteGroupComparison()
     ]);
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       data: {
         portfolio,
@@ -32,6 +36,13 @@ export async function GET() {
       },
       timestamp: new Date().toISOString()
     });
+
+    // Add cache control headers to prevent any caching
+    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+    response.headers.set('Pragma', 'no-cache');
+    response.headers.set('Expires', '0');
+
+    return response;
   } catch (error) {
     console.error('Failed to get simplified intelligence:', error);
     return NextResponse.json(

@@ -21,7 +21,7 @@ class RealPortfolioService {
   private readonly baseUrl = 'https://www.etoro.com/api/public/v1';
   private cachedPortfolio: any = null;
   private cacheTimestamp: number = 0;
-  private readonly CACHE_DURATION = 60000; // 1 minute cache
+  private readonly CACHE_DURATION = 0; // Caching disabled - always fetch fresh data
   private instrumentCache: Map<number, any> = new Map();
   private instrumentCacheTimestamp: number = 0;
   private readonly INSTRUMENT_CACHE_DURATION = 300000; // 5 minute cache for instruments
@@ -105,6 +105,15 @@ class RealPortfolioService {
       }
 
       const portfolioData = await portfolioResponse.json();
+
+      // Log root-level keys to understand structure
+      console.log('=== ROOT LEVEL KEYS ===', Object.keys(portfolioData));
+
+      //Log first 3000 chars of full response to see all fields
+      const fullResponse = JSON.stringify(portfolioData);
+      console.log('=== FULL API RESPONSE (first 3000 chars) ===');
+      console.log(fullResponse.substring(0, 3000));
+
       console.log('Portfolio Data received:', {
         hasClientPortfolio: !!portfolioData.clientPortfolio,
         positionsCount: portfolioData.clientPortfolio?.positions?.length || 0,
@@ -199,21 +208,16 @@ class RealPortfolioService {
         }
 
         for (const item of rawPositions) {
-          // CRITICAL FIX: P&L endpoint structure is different
-          // Each position has an unrealizedPnL object with the current values
+          // CRITICAL FIX: Use initialAmountInDollars + unrealizedPnL.pnL for accurate values
+          // The 'amount' field includes margin/collateral, NOT current market value
+          // The 'exposureInAccountCurrency' includes leverage, NOT actual position value
           const unrealizedPnL = item.unrealizedPnL || {};
-          const investedAmount = Math.abs(item.initialAmountInDollars || item.amount || 0);
+          const investedAmount = Math.abs(item.initialAmountInDollars || 0);
           const units = Math.abs(item.units || 0);
 
-          // Get current market value from unrealizedPnL or calculate it
-          let marketValue = Math.abs(unrealizedPnL.exposureInAccountCurrency || unrealizedPnL.exposureInAssetCurrency || 0);
-          if (!marketValue && item.amount) {
-            // If no unrealizedPnL, amount field is the invested amount
-            marketValue = Math.abs(item.amount || 0);
-          }
-
-          // Calculate profit using unrealizedPnL or from values
-          let profit = unrealizedPnL.pnL || unrealizedPnL.pnlAssetCurrency || (marketValue - investedAmount);
+          // CORRECT CALCULATION: Current value = invested amount + profit/loss
+          const profit = unrealizedPnL.pnL || 0;
+          let marketValue = investedAmount + profit;
           let profitPercent = investedAmount > 0 ? (profit / investedAmount) * 100 : 0;
 
           // Only fall back to calculation if we don't have the amount field
@@ -545,11 +549,14 @@ class RealPortfolioService {
       const apiDiscrepancyNote = totalValue < 520000 ?
         'Note: Portfolio value may be incomplete due to API limitations' : '';
 
+      const calculatedReturn = totalInvested > 0 ? (totalProfit / totalInvested) * 100 : 0;
+
       this.cachedPortfolio = {
         totalValue,
         totalInvested,
         totalProfit,
-        totalProfitPercent: totalInvested > 0 ? (totalProfit / totalInvested) * 100 : 0,
+        totalReturn: calculatedReturn, // Add calculated return for simplified intelligence service
+        totalProfitPercent: calculatedReturn, // Keep for backwards compatibility
         cashBalance: availableCash,
         cashPercent,
         positions: aggregatedPositions, // Use aggregated positions

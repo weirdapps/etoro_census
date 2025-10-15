@@ -26,7 +26,7 @@ export default function SimplifiedIntelligencePage() {
       setTimeout(() => setLoadingMessage('Analyzing market trends...'), 1000);
       setTimeout(() => setLoadingMessage('Comparing with top investors...'), 2000);
 
-      const response = await fetch('/api/personal/intelligence/simplified');
+      const response = await fetch('/api/personal');
       const result = await response.json();
 
       // Update loading message with actual portfolio count
@@ -66,32 +66,34 @@ export default function SimplifiedIntelligencePage() {
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Portfolio Intelligence</h1>
-          <p className="text-gray-600 mt-2">Real market insights based on 1,500+ top investors</p>
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-gray-900">Portfolio Intelligence</h1>
+          <p className="text-sm text-gray-600 mt-1">Real market insights based on 1,500+ top investors</p>
         </div>
 
         {/* Portfolio Summary Cards */}
         {data?.portfolio ? (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <div className="bg-white rounded-lg shadow p-4">
-              <div className="text-sm text-gray-600">Total Value</div>
-              <div className="text-2xl font-bold">${(data.portfolio.totalValue || 0).toLocaleString()}</div>
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
+            <div className="bg-white rounded-lg shadow p-3">
+              <div className="text-xs text-gray-600">Portfolio Value</div>
+              <div className="text-xl font-bold mt-1">${(data.portfolio.totalValue || 0).toLocaleString()}</div>
             </div>
-            <div className="bg-white rounded-lg shadow p-4">
-              <div className="text-sm text-gray-600">YTD Return</div>
-              <div className={`text-2xl font-bold ${data.portfolio.ytdProfitPercent >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+            <div className="bg-white rounded-lg shadow p-3">
+              <div className="text-xs text-gray-600">Assets</div>
+              <div className="text-xl font-bold mt-1">{data.portfolio.positionCount || 0}</div>
+            </div>
+            <div className="bg-white rounded-lg shadow p-3">
+              <div className="text-xs text-gray-600">Cash</div>
+              <div className="text-xl font-bold mt-1">${(data.portfolio.cashBalance || 0).toLocaleString()}</div>
+            </div>
+            <div className="bg-white rounded-lg shadow p-3">
+              <div className="text-xs text-gray-600">Risk</div>
+              <div className="text-xl font-bold mt-1">{data.risk?.riskMetrics?.overallRiskScore || 'N/A'}/10</div>
+            </div>
+            <div className="bg-white rounded-lg shadow p-3">
+              <div className="text-xs text-gray-600">Return</div>
+              <div className={`text-xl font-bold mt-1 ${data.portfolio.ytdProfitPercent >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                 {data.portfolio.ytdProfitPercent >= 0 ? '+' : ''}{(data.portfolio.ytdProfitPercent || 0).toFixed(2)}%
-              </div>
-            </div>
-            <div className="bg-white rounded-lg shadow p-4">
-              <div className="text-sm text-gray-600">Positions</div>
-              <div className="text-2xl font-bold">{data.portfolio.positionCount || 0}</div>
-            </div>
-            <div className="bg-white rounded-lg shadow p-4">
-              <div className="text-sm text-gray-600">YTD Profit</div>
-              <div className={`text-2xl font-bold ${data.portfolio.ytdProfit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                ${Math.abs(data.portfolio.ytdProfit || 0).toLocaleString()}
               </div>
             </div>
           </div>
@@ -125,7 +127,7 @@ export default function SimplifiedIntelligencePage() {
         </div>
 
         {/* Content */}
-        <div className="bg-white rounded-lg shadow p-6">
+        <div className="bg-white rounded-lg shadow p-4">
           {activeTab === 'performance' && data?.performance && (
             <PerformanceTab data={data.performance} />
           )}
@@ -151,8 +153,8 @@ function PerformanceTab({ data }: { data: Record<string, unknown> }) {
   const isOutperforming = data.comparison?.status === 'OUTPERFORMING';
 
   return (
-    <div className="space-y-6">
-      <h2 className="text-xl font-bold mb-4">Performance Comparison</h2>
+    <div className="space-y-4">
+      <h2 className="text-lg font-bold">Performance Comparison</h2>
 
       {/* Main Comparison */}
       <div className="grid md:grid-cols-2 gap-6">
@@ -225,9 +227,9 @@ function PerformanceTab({ data }: { data: Record<string, unknown> }) {
 
 function HoldingsTab({ data }: { data: Record<string, unknown> }) {
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-bold">Top Holdings Analysis</h2>
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-bold">Top Holdings Analysis</h2>
         <div className="text-sm text-gray-600">
           Coverage: <span className="font-bold">{data.yourStats?.coverageOfTop20}</span>
         </div>
@@ -297,8 +299,8 @@ function RiskTab({ data }: { data: Record<string, unknown> }) {
   const riskColor = riskLevel === 'LOW' ? 'green' : riskLevel === 'MEDIUM' ? 'yellow' : 'red';
 
   return (
-    <div className="space-y-6">
-      <h2 className="text-xl font-bold mb-4">Risk Assessment</h2>
+    <div className="space-y-4">
+      <h2 className="text-lg font-bold">Risk Assessment</h2>
 
       {/* Risk Score */}
       <div className={`p-6 rounded-lg bg-${riskColor}-50 border-2 border-${riskColor}-200`}>
@@ -385,7 +387,7 @@ function RiskTab({ data }: { data: Record<string, unknown> }) {
 
 function OpportunitiesTab({ eliteGroups, smartMoney }: { eliteGroups: Record<string, unknown>; smartMoney: Record<string, unknown> }) {
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {/* Smart Money Section */}
       {smartMoney && (
         <div className="space-y-6">

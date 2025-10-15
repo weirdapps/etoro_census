@@ -5,6 +5,7 @@
 
 import { realPortfolioService } from './real-portfolio-service';
 import { censusDataService } from './census-data-service';
+import { portfolioComparison } from './portfolio-comparison';
 
 class SimplifiedIntelligenceService {
   private static instance: SimplifiedIntelligenceService;
@@ -33,11 +34,9 @@ class SimplifiedIntelligenceService {
     const cashBalance = portfolio.cashBalance || 0;
     const totalAccountValue = portfolioValue + cashBalance;
 
-    // Use actual YTD gain from tradeinfo endpoint (this is the authoritative source)
+    // Use YTD gain from TradeInfo API (correct YTD return)
     const actualYTDProfitPercent = tradeInfo?.gain || 0;
-    // Calculate profit amount from percentage and initial value
-    const initialValue = totalAccountValue / (1 + actualYTDProfitPercent / 100);
-    const actualYTDProfit = totalAccountValue - initialValue;
+    const actualYTDProfit = portfolio.totalProfit || 0;
 
     // Log for debugging
     console.log('P&L Data:', {
@@ -86,69 +85,15 @@ class SimplifiedIntelligenceService {
       censusDataService.getTopHoldings(20)
     ]);
 
-    // Get your positions as Sets for quick lookup (both instrument IDs and symbols)
-    // Note: positions are already aggregated by instrument in the portfolio service
-    const yourInstrumentIds = new Set(portfolio.positions?.map((p: any) => p.instrumentId) || []);
-    const yourSymbols = new Set(portfolio.positions?.map((p: any) => p.symbol?.toUpperCase()) || []);
-
-    // Identify opportunities - stocks held by many top investors that you DON'T have
-    const opportunities = smartMoney.topHoldings
-      ?.filter((holding: any) => {
-        // Check if you DON'T have this holding
-        const notOwned = !yourInstrumentIds.has(holding.instrumentId) &&
-                         !yourSymbols.has(holding.symbol?.toUpperCase());
-        // Only consider significant holdings (>20% of smart money holds it)
-        return notOwned && holding.penetration > 20;
-      })
-      .slice(0, 10)
-      .map((holding: any) => ({
-        symbol: holding.symbol,
-        heldByTopInvestors: `${holding.penetration.toFixed(0)}%`,
-        averageAllocation: `${holding.averageAllocation.toFixed(1)}%`,
-        recommendation: 'Consider adding to portfolio'
-      })) || [];
-
-    // Identify your aligned positions
     const totalAccountValue = (portfolio.totalValue || 0) + (portfolio.cashBalance || 0);
-    const alignedPositions = portfolio.positions
-      ?.filter((p: any) => {
-        const smartHolding = smartMoney.topHoldings?.find((h: any) =>
-          h.instrumentId === p.instrumentId ||
-          h.symbol?.toUpperCase() === p.symbol?.toUpperCase()
-        );
-        // Include any position that smart money also holds (any penetration > 0)
-        return smartHolding && smartHolding.penetration > 0;
-      })
-      .map((p: any) => {
-        const smartHolding = smartMoney.topHoldings.find((h: any) =>
-          h.instrumentId === p.instrumentId ||
-          h.symbol?.toUpperCase() === p.symbol?.toUpperCase()
-        );
-        const yourAllocation = (p.marketValue / totalAccountValue) * 100;
-        const smartAllocation = smartHolding?.averageAllocation || 3; // Default 3% if not available
-        const penetration = smartHolding?.penetration || 0;
-        return {
-          symbol: p.symbol,
-          yourAllocation: isNaN(yourAllocation) ? 'N/A' : yourAllocation.toFixed(1) + '%',
-          smartMoneyAllocation: smartAllocation > 0 ? smartAllocation.toFixed(1) + '%' : '2-5%',
-          heldBy: `${penetration.toFixed(0)}% of top investors`,
-          alignment: penetration > 30 ? 'STRONGLY ALIGNED' : 'ALIGNED'
-        };
-      }) || [];
 
-    return {
-      groupAnalyzed: smartMoney.groupDescription,
-      investorCount: smartMoney.investorCount,
-      opportunities,
-      alignedPositions,
-      summary: {
-        topMissedOpportunity: opportunities[0]?.symbol || 'None',
-        alignmentScore: Math.min(100, (alignedPositions.length / Math.max(1, portfolio.positions?.length || 1)) * 100),
-        recommendation: opportunities.length > 5
-          ? `Review top holdings you're missing from ${smartMoney.groupDescription}`
-          : `Portfolio well-aligned with ${smartMoney.groupDescription}`
-      }
-    };
+    // Use shared comparison service
+    return portfolioComparison.compareToEliteGroup(
+      portfolio.positions || [],
+      totalAccountValue,
+      smartMoney,
+      20 // minPenetration threshold
+    );
   }
 
   /**
@@ -171,7 +116,7 @@ class SimplifiedIntelligenceService {
       cashBalance = portfolio.cashBalance || 0;
       totalAccountValue = portfolioValue + cashBalance;
 
-      // Use actual YTD gain from tradeinfo endpoint (authoritative source)
+      // Use YTD gain from TradeInfo API (correct YTD return)
       yourYTDReturn = tradeInfo?.gain || 0;
     }
 
@@ -306,61 +251,16 @@ class SimplifiedIntelligenceService {
       }
     });
 
-    // Get your positions for comparison
-    const yourInstrumentIds = new Set(portfolio.positions?.map((p: any) => p.instrumentId) || []);
-
-    // Helper function to find opportunities
-    const findOpportunities = (smartMoney: any, minPenetration: number = 10) => {
-      return smartMoney.topHoldings
-        ?.filter((holding: any) =>
-          !yourInstrumentIds.has(holding.instrumentId) &&
-          holding.penetration >= minPenetration  // Changed to >= for inclusive threshold
-        )
-        .slice(0, 5)
-        .map((h: any) => ({
-          symbol: h.symbol,
-          penetration: h.penetration.toFixed(0) + '%',
-          avgAllocation: h.averageAllocation.toFixed(1) + '%'
-        })) || [];
-    };
-
-    const result = {
-      yourPortfolio: {
-        positionCount: portfolio.positions?.length || 0,
-        totalValue: ((portfolio.totalValue || 0) + (portfolio.cashBalance || 0)).toLocaleString()
-      },
-      comparisons: {
-        // Broad market consensus (all 1500+ investors)
-        broadMarket: {
-          group: broadMarket.groupDescription,
-          investorCount: broadMarket.investorCount,
-          topMissing: findOpportunities(broadMarket, 10), // Lower threshold for broad market (10% = 150+ investors)
-          consensusPicks: broadMarket.consensus?.slice(0, 3).map((h: any) => h.symbol) || []
-        },
-        // Top 100 most copied (highest social proof)
-        topCopiers: {
-          group: topCopiers.groupDescription,
-          investorCount: topCopiers.investorCount,
-          topMissing: findOpportunities(topCopiers, 15), // 15% = 15+ investors in this elite group
-          consensusPicks: topCopiers.consensus?.slice(0, 3).map((h: any) => h.symbol) || []
-        },
-        // Top 100 YTD performers (best current strategies)
-        topPerformers: {
-          group: topPerformers.groupDescription,
-          investorCount: topPerformers.investorCount,
-          topMissing: findOpportunities(topPerformers, 15), // 15% = 15+ investors in this elite group
-          consensusPicks: topPerformers.consensus?.slice(0, 3).map((h: any) => h.symbol) || []
-        },
-        // Top 100 conservative (lowest risk scores)
-        lowRisk: {
-          group: lowRisk.groupDescription,
-          investorCount: lowRisk.investorCount,
-          topMissing: findOpportunities(lowRisk, 15), // 15% = 15+ investors in this elite group
-          consensusPicks: lowRisk.consensus?.slice(0, 3).map((h: any) => h.symbol) || []
-        }
-      },
-      insights: this.generateEliteInsights(broadMarket, topCopiers, topPerformers, lowRisk, yourInstrumentIds)
-    };
+    // Use shared comparison service
+    const result = portfolioComparison.buildEliteComparison(
+      portfolio.positions || [],
+      portfolio.totalValue || 0,
+      portfolio.cashBalance || 0,
+      broadMarket,
+      topCopiers,
+      topPerformers,
+      lowRisk
+    );
 
     console.log('Elite Group Comparison Result:', {
       hasData: true,
@@ -378,66 +278,13 @@ class SimplifiedIntelligenceService {
   }
 
   /**
-   * Generate insights from elite group comparison
-   */
-  private generateEliteInsights(broadMarket: any, topCopiers: any, topPerformers: any, lowRisk: any, yourHoldings: Set<number>): any {
-    // Find stocks that appear in multiple elite groups but you don't have
-    const allMissing = new Map<string, number>();
-
-    // Count appearances across elite groups (not broad market)
-    [...topCopiers.topHoldings, ...topPerformers.topHoldings, ...lowRisk.topHoldings]
-      .filter((h: any) => !yourHoldings.has(h.instrumentId))
-      .forEach((h: any) => {
-        const count = allMissing.get(h.symbol) || 0;
-        allMissing.set(h.symbol, count + 1);
-      });
-
-    // Find stocks that appear in all 3 elite groups
-    const mustHave = Array.from(allMissing.entries())
-      .filter(([_, count]) => count >= 3)
-      .map(([symbol, _]) => symbol)
-      .slice(0, 3);
-
-    // Find unique picks by top performers not in conservative portfolio
-    const performerUnique = topPerformers.topHoldings
-      ?.filter((h: any) =>
-        !yourHoldings.has(h.instrumentId) &&
-        !lowRisk.topHoldings?.some((c: any) => c.instrumentId === h.instrumentId)
-      )
-      .slice(0, 2)
-      .map((h: any) => h.symbol) || [];
-
-    // Find conservative consensus (in both copiers and low risk but not performers)
-    const conservativeConsensus = topCopiers.topHoldings
-      ?.filter((h: any) =>
-        !yourHoldings.has(h.instrumentId) &&
-        lowRisk.topHoldings?.some((l: any) => l.instrumentId === h.instrumentId) &&
-        !topPerformers.topHoldings?.some((p: any) => p.instrumentId === h.instrumentId)
-      )
-      .slice(0, 2)
-      .map((h: any) => h.symbol) || [];
-
-    return {
-      mustHaveStocks: mustHave,
-      performerEdgePicks: performerUnique,
-      conservativePicks: conservativeConsensus,
-      recommendation: mustHave.length > 0
-        ? `Consider adding ${mustHave.join(', ')} - held by all elite groups`
-        : performerUnique.length > 0
-        ? `Top performers are uniquely holding ${performerUnique.join(', ')}`
-        : conservativeConsensus.length > 0
-        ? `Conservative investors favor ${conservativeConsensus.join(', ')}`
-        : 'Your portfolio aligns well with elite investors'
-    };
-  }
-
-  /**
-   * 4. RISK ASSESSMENT - Comprehensive risk metrics calculation
+   * 4. RISK ASSESSMENT - Use eToro's actual risk score
    */
   async getRiskAssessment(): Promise<any> {
-    const [portfolio, marketStats] = await Promise.all([
+    const [portfolio, marketStats, tradeInfo] = await Promise.all([
       realPortfolioService.getPortfolio(),
-      censusDataService.getMarketStats()
+      censusDataService.getMarketStats(),
+      realPortfolioService.getTradeInfo()
     ]);
 
     // Calculate concentration risk
@@ -452,33 +299,13 @@ class SimplifiedIntelligenceService {
     const top5Concentration = topPositions.reduce((sum: number, p: any) =>
       sum + (p.marketValue / totalValue) * 100, 0);
 
-    // Enhanced risk score calculation
-    let riskScore = 5; // Start at medium risk
+    // Use eToro's actual risk score from TradeInfo API
+    const riskScore = tradeInfo?.riskScore || 5; // Fallback to 5 if not available
 
-    // 1. Concentration risk (0-3 points)
-    if (top5Concentration > 70) riskScore += 3;
-    else if (top5Concentration > 60) riskScore += 2;
-    else if (top5Concentration > 50) riskScore += 1;
-    else if (top5Concentration < 30) riskScore -= 1;
-
-    // 2. Diversification risk (0-2 points)
-    if (positions.length < 5) riskScore += 2;
-    else if (positions.length < 10) riskScore += 1;
-    else if (positions.length > 30) riskScore -= 1;
-
-    // 3. Cash buffer risk (0-2 points)
-    if (cashPercent < 5) riskScore += 2;  // Very low cash = high risk
-    else if (cashPercent < 10) riskScore += 1;
-    else if (cashPercent > 30) riskScore -= 2; // High cash = defensive
-    else if (cashPercent > 20) riskScore -= 1;
-
-    // 4. Leverage risk (0-2 points)
+    // Calculate additional risk factors for context
     const leveragedPositions = positions.filter((p: any) => p.leverage && p.leverage > 1);
     const leveragedPercent = (leveragedPositions.length / Math.max(1, positions.length)) * 100;
-    if (leveragedPercent > 30) riskScore += 2;
-    else if (leveragedPercent > 10) riskScore += 1;
 
-    // 5. Asset type risk (0-2 points) - check for crypto/volatile assets
     const cryptoPositions = positions.filter((p: any) =>
       p.symbol?.includes('CRYPTO') ||
       p.type?.toLowerCase().includes('crypto') ||
@@ -486,11 +313,6 @@ class SimplifiedIntelligenceService {
     );
     const cryptoPercent = cryptoPositions.reduce((sum: number, p: any) =>
       sum + (p.marketValue / totalValue) * 100, 0);
-    if (cryptoPercent > 20) riskScore += 2;
-    else if (cryptoPercent > 10) riskScore += 1;
-
-    // Bound between 1-10
-    riskScore = Math.max(1, Math.min(10, riskScore));
 
     return {
       riskMetrics: {

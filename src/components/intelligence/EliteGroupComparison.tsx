@@ -31,6 +31,17 @@ interface EliteGroupComparisonData {
   };
 }
 
+// Helper function to map color names to hex values
+const getColorHex = (color: string): string => {
+  const colorMap: Record<string, string> = {
+    blue: '#3B82F6',
+    purple: '#A855F7',
+    green: '#10B981',
+    indigo: '#6366F1'
+  };
+  return colorMap[color] || '#3B82F6';
+};
+
 export default function EliteGroupComparison({ data }: { data: EliteGroupComparisonData | null }) {
   const [selectedGroup, setSelectedGroup] = useState<'all' | 'topCopiers' | 'topPerformers' | 'lowRisk'>('lowRisk');
 
@@ -225,8 +236,11 @@ export default function EliteGroupComparison({ data }: { data: EliteGroupCompari
                               <div className="text-sm text-gray-900">{stock.penetration}</div>
                               <div className="ml-2 w-16 bg-gray-200 rounded-full h-2">
                                 <div
-                                  className={`bg-${selectedGroupData.color}-500 h-2 rounded-full`}
-                                  style={{ width: stock.penetration }}
+                                  className="h-2 rounded-full"
+                                  style={{
+                                    width: stock.penetration,
+                                    backgroundColor: getColorHex(selectedGroupData.color)
+                                  }}
                                 ></div>
                               </div>
                             </div>
@@ -235,7 +249,10 @@ export default function EliteGroupComparison({ data }: { data: EliteGroupCompari
                             <span className="text-sm text-gray-900">{stock.avgAllocation}</span>
                           </td>
                           <td className="px-4 py-3 whitespace-nowrap">
-                            <button className={`text-xs font-medium text-${selectedGroupData.color}-600 hover:text-${selectedGroupData.color}-500`}>
+                            <button
+                              className="text-xs font-medium hover:opacity-80"
+                              style={{ color: getColorHex(selectedGroupData.color) }}
+                            >
                               Consider Adding
                             </button>
                           </td>
@@ -257,7 +274,11 @@ export default function EliteGroupComparison({ data }: { data: EliteGroupCompari
                   {selectedGroupData.data.consensusPicks.map(stock => (
                     <span
                       key={stock}
-                      className={`px-3 py-1 bg-${selectedGroupData.color}-100 text-${selectedGroupData.color}-700 text-sm font-semibold rounded-full`}
+                      className="px-3 py-1 text-sm font-semibold rounded-full"
+                      style={{
+                        backgroundColor: getColorHex(selectedGroupData.color) + '20',
+                        color: getColorHex(selectedGroupData.color)
+                      }}
                     >
                       {stock}
                     </span>
