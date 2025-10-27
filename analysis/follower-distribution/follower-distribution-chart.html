@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eToro Popular Investors - Follower Distribution</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div style="width: 1600px; height: 700px; margin: 0 auto; padding: 20px;">
+        <canvas id="followerChart"></canvas>
+    </div>
+
+    <script>
+        const ctx = document.getElementById('followerChart').getContext('2d');
+        
+        const chartData = [{"x":1,"y":9,"username":"cvorka01","position":1},{"x":11,"y":9,"username":"Maximefsr7l2","position":11},{"x":21,"y":9,"username":"JorgeHernandez25","position":21},{"x":31,"y":9,"username":"TradeJacks","position":31},{"x":41,"y":9,"username":"Eudividend","position":41},{"x":51,"y":9,"username":"TuuriInvesting","position":51},{"x":61,"y":10,"username":"00hobbes00","position":61},{"x":71,"y":10,"username":"Kastro67","position":71},{"x":81,"y":10,"username":"alexdec","position":81},{"x":91,"y":10,"username":"TheMagicians","position":91},{"x":101,"y":10,"username":"EzyAustralia","position":101},{"x":111,"y":10,"username":"LucaBelgero","position":111},{"x":121,"y":10,"username":"MoricPortfolio","position":121},{"x":131,"y":11,"username":"Petz415","position":131},{"x":141,"y":11,"username":"ricardolw","position":141},{"x":151,"y":11,"username":"AthenaXV","position":151},{"x":161,"y":11,"username":"dubsky","position":161},{"x":171,"y":11,"username":"RT-Investing","position":171},{"x":181,"y":11,"username":"1579kong","position":181},{"x":191,"y":12,"username":"mobinetw","position":191},{"x":201,"y":12,"username":"MalashD","position":201},{"x":211,"y":12,"username":"Cris90","position":211},{"x":221,"y":12,"username":"OneChartist","position":221},{"x":231,"y":12,"username":"VeronikaKlauzova","position":231},{"x":241,"y":12,"username":"zizujr","position":241},{"x":251,"y":13,"username":"pyruss","position":251},{"x":261,"y":13,"username":"benjamindemase","position":261},{"x":271,"y":13,"username":"JaroslavSpacil","position":271},{"x":281,"y":13,"username":"DevaTank","position":281},{"x":291,"y":14,"username":"LucaFallico","position":291},{"x":301,"y":14,"username":"paslor","position":301},{"x":311,"y":14,"username":"GioeleBovolenta","position":311},{"x":321,"y":14,"username":"MikitaS","position":321},{"x":331,"y":15,"username":"BenjAshley","position":331},{"x":341,"y":15,"username":"GaetanDresse","position":341},{"x":351,"y":15,"username":"JoseLopess","position":351},{"x":361,"y":15,"username":"HardcoreGR","position":361},{"x":371,"y":15,"username":"D-Investering","position":371},{"x":381,"y":16,"username":"Domics","position":381},{"x":391,"y":16,"username":"Andrew-BT","position":391},{"x":401,"y":16,"username":"DividendKings","position":401},{"x":411,"y":17,"username":"StockMentoruk","position":411},{"x":421,"y":17,"username":"Tone66","position":421},{"x":431,"y":18,"username":"MarioPaladini","position":431},{"x":441,"y":18,"username":"tjyeo93","position":441},{"x":451,"y":18,"username":"Nesmot2021","position":451},{"x":461,"y":19,"username":"AndrewHow","position":461},{"x":471,"y":19,"username":"BenjaminPajk","position":471},{"x":481,"y":19,"username":"Qualityland","position":481},{"x":491,"y":20,"username":"SzuhsienLi","position":491},{"x":501,"y":20,"username":"Invest2save","position":501},{"x":511,"y":20,"username":"aharirchian","position":511},{"x":521,"y":21,"username":"Tibi05","position":521},{"x":531,"y":21,"username":"AndiLeh98","position":531},{"x":541,"y":21,"username":"Josh81","position":541},{"x":551,"y":22,"username":"googolplexor","position":551},{"x":561,"y":23,"username":"Willscuba","position":561},{"x":571,"y":23,"username":"PraguermFx","position":571},{"x":581,"y":23,"username":"NicoScarabello","position":581},{"x":591,"y":24,"username":"jerry902226","position":591},{"x":601,"y":25,"username":"CesareQuerci","position":601},{"x":611,"y":26,"username":"jmartinm015","position":611},{"x":621,"y":26,"username":"mihen1","position":621},{"x":631,"y":27,"username":"Jonflower","position":631},{"x":641,"y":27,"username":"DalvinTeng","position":641},{"x":651,"y":27,"username":"eric1314","position":651},{"x":661,"y":28,"username":"xinlinlin","position":661},{"x":671,"y":28,"username":"FinancialFemme","position":671},{"x":681,"y":29,"username":"MaGicDust777","position":681},{"x":691,"y":30,"username":"Liziapukaja","position":691},{"x":701,"y":31,"username":"masondo","position":701},{"x":711,"y":31,"username":"Simoncc80","position":711},{"x":721,"y":32,"username":"RuberEvolutio96","position":721},{"x":731,"y":33,"username":"TS-strategie","position":731},{"x":741,"y":34,"username":"Banjoido","position":741},{"x":751,"y":36,"username":"ThinhLeDuc","position":751},{"x":761,"y":37,"username":"Artenie","position":761},{"x":771,"y":38,"username":"tintinmelo75","position":771},{"x":781,"y":40,"username":"NicoRomix","position":781},{"x":791,"y":41,"username":"TrendingStocks","position":791},{"x":801,"y":43,"username":"ChrisMB","position":801},{"x":811,"y":44,"username":"kingbravo10","position":811},{"x":821,"y":46,"username":"bonacasino","position":821},{"x":831,"y":48,"username":"Pascal29","position":831},{"x":841,"y":49,"username":"Valuecorp","position":841},{"x":845,"y":50},{"x":851,"y":50,"username":"andresguerra2","position":851},{"x":861,"y":52,"username":"Felix_Sanz","position":861},{"x":871,"y":54,"username":"mrstocky","position":871},{"x":881,"y":56,"username":"Maxymchyn","position":881},{"x":891,"y":57,"username":"10sigma","position":891},{"x":901,"y":58,"username":"CatoneEugenio","position":901},{"x":911,"y":61,"username":"Lbassit","position":911},{"x":921,"y":63,"username":"ErikOmarMedina","position":921},{"x":931,"y":66,"username":"Melichar","position":931},{"x":941,"y":68,"username":"Witkacy101","position":941},{"x":951,"y":71,"username":"TurtleCapital","position":951},{"x":961,"y":74,"username":"FabiGoesForGold","position":961},{"x":971,"y":77,"username":"olddriller","position":971},{"x":981,"y":81,"username":"Chongloo","position":981},{"x":991,"y":85,"username":"DeanoMeffert","position":991},{"x":1001,"y":89,"username":"rcrdortiz","position":1001},{"x":1011,"y":91,"username":"Fabrizio_Poli","position":1011},{"x":1021,"y":93,"username":"PaoloCiotti","position":1021},{"x":1031,"y":96,"username":"Twistery","position":1031},{"x":1041,"y":100,"username":"cllobera","position":1041},{"x":1051,"y":103,"username":"AndresChocron","position":1051},{"x":1061,"y":110,"username":"RokHerman","position":1061},{"x":1071,"y":114,"username":"taherkamari","position":1071},{"x":1081,"y":116,"username":"stelianx","position":1081},{"x":1091,"y":123,"username":"Jancarradek","position":1091},{"x":1101,"y":129,"username":"federicosalvioli","position":1101},{"x":1111,"y":134,"username":"Aguero1010","position":1111},{"x":1121,"y":138,"username":"SmurfTrading","position":1121},{"x":1131,"y":142,"username":"BrunoBGomes","position":1131},{"x":1141,"y":149,"username":"Dollarydoos","position":1141},{"x":1151,"y":154,"username":"Carlos_delaRosa","position":1151},{"x":1161,"y":164,"username":"FiloSiro","position":1161},{"x":1171,"y":175,"username":"nathandmitri","position":1171},{"x":1181,"y":184,"username":"GEMOLFund","position":1181},{"x":1191,"y":194,"username":"AntonioNobileC","position":1191},{"x":1201,"y":206,"username":"orbitalnewt","position":1201},{"x":1211,"y":214,"username":"LuxFutureInvest","position":1211},{"x":1221,"y":227,"username":"GaCarMa","position":1221},{"x":1231,"y":239,"username":"fifty-five","position":1231},{"x":1241,"y":248,"username":"Rafnus","position":1241},{"x":1251,"y":260,"username":"jorbar6","position":1251},{"x":1261,"y":273,"username":"freehaha988","position":1261},{"x":1271,"y":284,"username":"ArokCrypto","position":1271},{"x":1281,"y":304,"username":"pmalagon","position":1281},{"x":1291,"y":320,"username":"pooria1","position":1291},{"x":1301,"y":349,"username":"JonathanThe","position":1301},{"x":1311,"y":370,"username":"janwarming","position":1311},{"x":1321,"y":389,"username":"DeimosCZE","position":1321},{"x":1331,"y":417,"username":"Couguar","position":1331},{"x":1341,"y":450,"username":"jrotllant","position":1341},{"x":1351,"y":480,"username":"Sergius95","position":1351},{"x":1354,"y":496},{"x":1361,"y":519,"username":"NikosKatsikanis","position":1361},{"x":1371,"y":550,"username":"sojackal","position":1371},{"x":1381,"y":638,"username":"FranciscoOrtiz13","position":1381},{"x":1391,"y":697,"username":"tholland3510","position":1391},{"x":1401,"y":784,"username":"ALTIA-Investment","position":1401},{"x":1411,"y":864,"username":"hugo13250","position":1411},{"x":1421,"y":978,"username":"Ivanectus","position":1421},{"x":1422,"y":1001},{"x":1431,"y":1008,"username":"KenanAbel","position":1431},{"x":1441,"y":1149,"username":"gauravk_in","position":1441},{"x":1451,"y":1367,"username":"Miyoshi","position":1451},{"x":1461,"y":1525,"username":"hugomanenti95","position":1461},{"x":1471,"y":2355,"username":"CCalle","position":1471},{"x":1481,"y":3331,"username":"MarianoPardo","position":1481},{"x":1491,"y":6821,"username":"rubymza","position":1491},{"x":1492,"y":9521},{"x":1493,"y":9982},{"x":1494,"y":11038},{"x":1495,"y":11695},{"x":1496,"y":12279},{"x":1497,"y":14331},{"x":1498,"y":18675},{"x":1499,"y":27437},{"x":1500,"y":37410}];
+        const labels = [{"x":845,"y":50,"label":"50 copiers","color":"#FF6384","offsetX":8,"offsetY":-8},{"x":1041,"y":100,"label":"100 copiers","color":"#FF6384","offsetX":8,"offsetY":-8},{"x":1354,"y":496,"label":"500 copiers","color":"#FF6384","offsetX":-60,"offsetY":-8},{"x":1422,"y":1001,"label":"1000 copiers","color":"#FF6384","offsetX":8,"offsetY":5},{"x":1500,"y":37410,"label":"@thomaspj","color":"#FFCE56","offsetX":8,"offsetY":-20},{"x":1499,"y":27437,"label":"@JeppeKirkBonde","color":"#FFCE56","offsetX":-140,"offsetY":-8},{"x":1498,"y":18675,"label":"@triangulacapital","color":"#FFCE56","offsetX":8,"offsetY":-8},{"x":1497,"y":14331,"label":"@CPHequities","color":"#FFCE56","offsetX":-80,"offsetY":-8},{"x":1496,"y":12279,"label":"@FundManagerZech","color":"#FFCE56","offsetX":8,"offsetY":-8},{"x":1495,"y":11695,"label":"@Napoleon-X","color":"#FFCE56","offsetX":-80,"offsetY":-8},{"x":1494,"y":11038,"label":"@saifsyn","color":"#FFCE56","offsetX":8,"offsetY":-8},{"x":1493,"y":9982,"label":"@jaynemesis","color":"#FFCE56","offsetX":-80,"offsetY":-8},{"x":1492,"y":9521,"label":"@defense_investor","color":"#FFCE56","offsetX":8,"offsetY":-8},{"x":1491,"y":6821,"label":"@rubymza","color":"#FFCE56","offsetX":-80,"offsetY":-8}];
+
+        const chart = new Chart(ctx, {
+            type: 'scatter',
+            data: {
+                datasets: [{
+                    label: 'Followers',
+                    data: chartData,
+                    backgroundColor: function(context) {
+                        const x = context.parsed.x;
+                        const milestones = [845,1041,1354,1422];
+                        // Color milestone points red
+                        if (milestones.includes(x)) {
+                            return '#FF6384';
+                        }
+                        return '#00C896';
+                    },
+                    borderColor: function(context) {
+                        const x = context.parsed.x;
+                        const milestones = [845,1041,1354,1422];
+                        // Color milestone points red
+                        if (milestones.includes(x)) {
+                            return '#FF6384';
+                        }
+                        return '#00C896';
+                    },
+                    pointRadius: function(context) {
+                        const x = context.parsed.x;
+                        const milestones = [845,1041,1354,1422];
+                        // Make milestone points slightly larger
+                        if (milestones.includes(x)) {
+                            return 3;
+                        }
+                        return 2;
+                    },
+                    pointHoverRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                layout: {
+                    padding: {
+                        right: 150
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'eToro Popular Investors - Copier Distribution',
+                        font: { size: 18, weight: 'bold' }
+                    },
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            title: function(context) {
+                                return `Position: ${context[0].parsed.x}`;
+                            },
+                            label: function(context) {
+                                return `Copiers: ${context.parsed.y.toLocaleString()}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        type: 'linear',
+                        position: 'bottom',
+                        title: { display: false },
+                        ticks: { display: false },
+                        grid: { display: false }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Copiers',
+                            font: { size: 14, weight: 'bold' }
+                        },
+                        grid: { color: '#E0E0E0' }
+                    }
+                },
+                interaction: { intersect: false, mode: 'point' }
+            },
+            plugins: [{
+                afterDraw: function(chart) {
+                    const ctx = chart.ctx;
+                    const chartArea = chart.chartArea;
+                    
+                    // Draw labels for key points
+                    labels.forEach(labelData => {
+                        const xPos = chart.scales.x.getPixelForValue(labelData.x);
+                        const yPos = chart.scales.y.getPixelForValue(labelData.y);
+                        
+                        if (xPos >= chartArea.left && xPos <= chartArea.right && 
+                            yPos >= chartArea.top && yPos <= chartArea.bottom) {
+                            
+                            const offsetX = labelData.offsetX || 8;
+                            const offsetY = labelData.offsetY || -8;
+                            const labelX = xPos + offsetX;
+                            const labelY = yPos + offsetY;
+
+                            // Draw label text only - no background, no lines
+                            ctx.fillStyle = '#666';
+                            ctx.font = 'bold 11px Arial';
+                            ctx.textAlign = 'left';
+                            ctx.fillText(labelData.label, labelX, labelY);
+                        }
+                    });
+                }
+            }]
+        });
+    </script>
+</body>
+</html>

@@ -151,7 +151,7 @@ function generateChartHTML(chartData, investors, top10) {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <div style="width: 1200px; height: 700px; margin: 0 auto; padding: 20px;">
+    <div style="width: 1600px; height: 700px; margin: 0 auto; padding: 20px;">
         <canvas id="followerChart"></canvas>
     </div>
 
@@ -169,24 +169,27 @@ function generateChartHTML(chartData, investors, top10) {
                     data: chartData,
                     backgroundColor: function(context) {
                         const x = context.parsed.x;
+                        const milestones = ${JSON.stringify(milestoneLabels.map(m => m.x))};
                         // Color milestone points red
-                        if (${milestoneLabels.map(m => m.x).join(' || x === ')}) {
+                        if (milestones.includes(x)) {
                             return '#FF6384';
                         }
-                        return '#4BC0C0';
+                        return '#00C896';
                     },
                     borderColor: function(context) {
                         const x = context.parsed.x;
+                        const milestones = ${JSON.stringify(milestoneLabels.map(m => m.x))};
                         // Color milestone points red
-                        if (${milestoneLabels.map(m => m.x).join(' || x === ')}) {
+                        if (milestones.includes(x)) {
                             return '#FF6384';
                         }
-                        return '#4BC0C0';
+                        return '#00C896';
                     },
                     pointRadius: function(context) {
                         const x = context.parsed.x;
+                        const milestones = ${JSON.stringify(milestoneLabels.map(m => m.x))};
                         // Make milestone points slightly larger
-                        if (${milestoneLabels.map(m => m.x).join(' || x === ')}) {
+                        if (milestones.includes(x)) {
                             return 3;
                         }
                         return 2;
@@ -197,10 +200,15 @@ function generateChartHTML(chartData, investors, top10) {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                layout: {
+                    padding: {
+                        right: 150
+                    }
+                },
                 plugins: {
                     title: {
                         display: true,
-                        text: 'eToro Popular Investors - Follower Distribution',
+                        text: 'eToro Popular Investors - Copier Distribution',
                         font: { size: 18, weight: 'bold' }
                     },
                     legend: { display: false },
@@ -210,7 +218,7 @@ function generateChartHTML(chartData, investors, top10) {
                                 return \`Position: \${context[0].parsed.x}\`;
                             },
                             label: function(context) {
-                                return \`Followers: \${context.parsed.y.toLocaleString()}\`;
+                                return \`Copiers: \${context.parsed.y.toLocaleString()}\`;
                             }
                         }
                     }
@@ -226,7 +234,7 @@ function generateChartHTML(chartData, investors, top10) {
                     y: {
                         title: {
                             display: true,
-                            text: 'Followers',
+                            text: 'Copiers',
                             font: { size: 14, weight: 'bold' }
                         },
                         grid: { color: '#E0E0E0' }
@@ -251,7 +259,7 @@ function generateChartHTML(chartData, investors, top10) {
                             const offsetY = labelData.offsetY || -8;
                             const labelX = xPos + offsetX;
                             const labelY = yPos + offsetY;
-                            
+
                             // Draw label text only - no background, no lines
                             ctx.fillStyle = '#666';
                             ctx.font = 'bold 11px Arial';
