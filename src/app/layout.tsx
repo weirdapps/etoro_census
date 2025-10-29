@@ -27,13 +27,6 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col bg-background`}
       >
-        <header className="bg-card">
-          <div className="container mx-auto px-4 py-6">
-            <h1 className="text-3xl font-bold text-foreground tracking-tight">
-              etoro PI Census
-            </h1>
-          </div>
-        </header>
         <main className="flex-1 container mx-auto px-4 py-8">
           {children}
         </main>

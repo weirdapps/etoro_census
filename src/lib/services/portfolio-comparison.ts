@@ -173,7 +173,7 @@ export class PortfolioComparisonService {
     yourInstrumentIds: Set<number>,
     smartMoney: SmartMoneyData,
     minPenetration: number = 10
-  ): Array<{ symbol: string; penetration: string; avgAllocation: string }> {
+  ): Array<{ symbol: string; penetration: string; avgAllocation: string; instrumentId: number; logoUrl: string }> {
     return smartMoney.topHoldings
       ?.filter(holding =>
         !yourInstrumentIds.has(holding.instrumentId) &&
@@ -183,7 +183,9 @@ export class PortfolioComparisonService {
       .map(h => ({
         symbol: h.symbol,
         penetration: h.penetration.toFixed(0) + '%',
-        avgAllocation: h.averageAllocation.toFixed(1) + '%'
+        avgAllocation: h.averageAllocation.toFixed(1) + '%',
+        instrumentId: h.instrumentId,
+        logoUrl: `https://etoro-cdn.etorostatic.com/market-avatars/${h.instrumentId}/150x150.png`
       })) || [];
   }
 
