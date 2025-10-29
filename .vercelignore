@@ -10,19 +10,19 @@ public/reports/**/*.html
 # ==========================================
 # EXCLUDE OLD DATA FILES (Keep latest only)
 # ==========================================
-# Keep ONLY the latest 3 data files for reliability
-# Current pattern keeps files from October 23rd onwards
+# CRITICAL: Vercel has 250MB serverless function limit
+# Each data file is ~80MB, so we can only keep 1-2 files
+# Exclude ALL data files EXCEPT the latest one
 
-# Exclude all data files from earlier months (January-September)
-public/data/etoro-data-2025-0[1-9]-*.json
+# Exclude all JSON data files by default
+public/data/*.json
 
-# Exclude older October files (keep from 10-23 onwards)
-public/data/etoro-data-2025-10-0[1-9]-*.json
-public/data/etoro-data-2025-10-1[0-9]-*.json
-public/data/etoro-data-2025-10-2[0-2]-*.json
-
-# DO NOT exclude the symlink (needed for app to find latest data)
+# ONLY include the latest file (by negating the exclusion)
+!public/data/etoro-data-2025-10-29-02-06.json
 !public/data/latest-census.json
+
+# Note: Update this when new reports are generated
+# Keep only the absolute latest file to stay under 250MB limit
 
 # ==========================================
 # STANDARD EXCLUSIONS
