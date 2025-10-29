@@ -1,0 +1,47 @@
+# Vercel Deployment Ignore File
+# Exclude old reports and data files from deployment
+# Keep ONLY the latest data file (~80MB) for /public functionality
+
+# ==========================================
+# EXCLUDE ALL HISTORICAL REPORTS
+# ==========================================
+public/reports/**/*.html
+
+# ==========================================
+# EXCLUDE OLD DATA FILES (Keep latest only)
+# ==========================================
+# Exclude all files older than today's date
+# Pattern: Keep only files from last 7 days to be safe
+# This will be automatically maintained by the pattern
+
+# Exclude all data files from earlier months
+public/data/etoro-data-2025-0[1-9]-*.json
+public/data/etoro-data-2025-10-0[1-9]-*.json
+public/data/etoro-data-2025-10-1[0-9]-*.json
+public/data/etoro-data-2025-10-2[0-2]-*.json
+
+# Note: This keeps files from 2025-10-23 onwards
+# Update pattern as needed to keep last 7 days
+
+# ==========================================
+# STANDARD EXCLUSIONS
+# ==========================================
+.github/
+analysis/
+node_modules/
+.git/
+.env*
+*.md
+!README.md
+
+# Development files
+.vscode/
+.idea/
+*.log
+*.tsbuildinfo
+
+# Test files
+**/*.test.ts
+**/*.test.tsx
+**/*.spec.ts
+**/*.spec.tsx

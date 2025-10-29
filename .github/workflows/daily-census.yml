@@ -149,4 +149,20 @@ jobs:
               ref: 'master'
             });
             console.log('✅ Triggered GitHub Pages deployment workflow');
-      
+
+      - name: Trigger Vercel deployment
+        if: success()
+        env:
+          VERCEL_DEPLOY_HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
+        run: |
+          if [ -n "$VERCEL_DEPLOY_HOOK" ]; then
+            echo "🚀 Triggering Vercel deployment..."
+            curl -X POST "$VERCEL_DEPLOY_HOOK" \
+              -H "Content-Type: application/json" \
+              && echo "✅ Vercel deployment triggered successfully" \
+              || echo "⚠️  Vercel deploy hook failed (non-fatal)"
+          else
+            echo "⚠️  VERCEL_DEPLOY_HOOK secret not configured, skipping Vercel deployment"
+            echo "ℹ️  Add the webhook URL to GitHub Secrets to enable automatic Vercel deployments"
+          fi
+
