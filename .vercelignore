@@ -10,18 +10,19 @@ public/reports/**/*.html
 # ==========================================
 # EXCLUDE OLD DATA FILES (Keep latest only)
 # ==========================================
-# Exclude all files older than today's date
-# Pattern: Keep only files from last 7 days to be safe
-# This will be automatically maintained by the pattern
+# Keep ONLY the latest 3 data files for reliability
+# Current pattern keeps files from October 23rd onwards
 
-# Exclude all data files from earlier months
+# Exclude all data files from earlier months (January-September)
 public/data/etoro-data-2025-0[1-9]-*.json
+
+# Exclude older October files (keep from 10-23 onwards)
 public/data/etoro-data-2025-10-0[1-9]-*.json
 public/data/etoro-data-2025-10-1[0-9]-*.json
 public/data/etoro-data-2025-10-2[0-2]-*.json
 
-# Note: This keeps files from 2025-10-23 onwards
-# Update pattern as needed to keep last 7 days
+# DO NOT exclude the symlink (needed for app to find latest data)
+!public/data/latest-census.json
 
 # ==========================================
 # STANDARD EXCLUSIONS
