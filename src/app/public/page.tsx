@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { AlertCircle, User } from 'lucide-react';
 import { ETORO_COUNTRY_MAPPING } from '@/lib/utils/country-mapping';
+import { Disclaimer } from '@/components/Disclaimer';
 
 export default function PublicPortfolioPage() {
   const [username, setUsername] = useState('');
@@ -53,6 +54,10 @@ export default function PublicPortfolioPage() {
           <p className="text-gray-600">
             Compare any investor's portfolio against 1,500+ most copied PIs
           </p>
+        </div>
+
+        <div className="mb-8">
+          <Disclaimer />
         </div>
 
         {/* Search Form */}

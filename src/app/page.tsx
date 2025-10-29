@@ -14,6 +14,7 @@ import { CensusAnalysis } from '@/lib/models/census';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Disclaimer } from '@/components/Disclaimer';
 
 export default function Home() {
   const [analysis, setAnalysis] = useState<CensusAnalysis | null>(null);
@@ -116,6 +117,8 @@ export default function Home() {
           <ReportGenerator />
         </div>
       </div>
+
+      <Disclaimer />
 
       {error && (
         <Alert variant="destructive">

@@ -35,13 +35,13 @@ class PublicPortfolioService {
   }
 
   /**
-   * Get headers for public API requests (no personal keys needed)
+   * Get headers for public API requests
    */
   private getHeaders(): HeadersInit {
     return {
       'Content-Type': 'application/json',
-      'X-API-KEY': process.env.ETORO_API_KEY || '',
-      'X-USER-KEY': process.env.ETORO_USER_KEY || '',
+      'X-API-KEY': process.env.ETORO_PERSONAL_API_KEY || process.env.ETORO_API_KEY || '',
+      'X-USER-KEY': process.env.ETORO_PERSONAL_USER_KEY || process.env.ETORO_USER_KEY || '',
       'X-REQUEST-ID': '1fea900a-bf1f-4b7c-8af2-976dc6ab273f'
     };
   }
@@ -289,10 +289,14 @@ class PublicPortfolioService {
    */
   async validateUsername(username: string): Promise<boolean> {
     try {
-      const response = await fetch(
-        `${this.baseUrl}/user-info/people/${username}/tradeinfo?period=currYear`,
-        { headers: this.getHeaders() }
-      );
+      const url = `${this.baseUrl}/user-info/people/${username}/tradeinfo?period=currYear`;
+      const headers = this.getHeaders();
+
+      const response = await fetch(url, { headers });
+
+      if (!response.ok) {
+        console.error(`Failed to validate username ${username}: ${response.status}`);
+      }
 
       return response.ok;
     } catch (error) {

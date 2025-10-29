@@ -14,15 +14,12 @@ public/reports/**/*.html
 # Each data file is ~80MB, so we can only keep 1-2 files
 # Exclude ALL data files EXCEPT the latest one
 
-# Exclude all JSON data files by default
-public/data/*.json
+# Exclude all JSON data files except the fixed latest file
+public/data/etoro-data-*.json
 
-# ONLY include the latest file (by negating the exclusion)
-!public/data/etoro-data-2025-10-29-02-06.json
-!public/data/latest-census.json
-
-# Note: Update this when new reports are generated
-# Keep only the absolute latest file to stay under 250MB limit
+# Note: census-data-latest.json is NOT excluded and will be deployed
+# This file should be updated by copying the latest etoro-data-*.json file
+# Keep only this file to stay under 250MB limit
 
 # ==========================================
 # STANDARD EXCLUSIONS

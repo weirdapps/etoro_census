@@ -14,7 +14,8 @@ export async function GET(
   try {
     const { username } = await params;
 
-    if (!username) {
+    // Input validation: username must be alphanumeric, underscore, hyphen only
+    if (!username || typeof username !== 'string') {
       return NextResponse.json(
         {
           success: false,
@@ -23,6 +24,22 @@ export async function GET(
         { status: 400 }
       );
     }
+
+    // Sanitize username - only allow alphanumeric, underscore, hyphen (max 50 chars)
+    const sanitizedUsername = username.trim().slice(0, 50);
+    if (!/^[a-zA-Z0-9_-]+$/.test(sanitizedUsername)) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Invalid username format. Only letters, numbers, underscore and hyphen allowed.'
+        },
+        { status: 400 }
+      );
+    }
+
+    // Extract base URL for fetch operations on Vercel
+    const url = new URL(request.url);
+    const baseUrl = `${url.protocol}//${url.host}`;
 
     // Validate username exists
     const isValid = await publicPortfolioService.validateUsername(username);
@@ -45,10 +62,10 @@ export async function GET(
       lowRisk
     ] = await Promise.all([
       publicPortfolioService.getNormalizedData(username),
-      censusDataService.getSmartMoneyFlow('all'),
-      censusDataService.getSmartMoneyFlow('topCopiers'),
-      censusDataService.getSmartMoneyFlow('topPerformers'),
-      censusDataService.getSmartMoneyFlow('lowRisk')
+      censusDataService.getSmartMoneyFlow('all', baseUrl),
+      censusDataService.getSmartMoneyFlow('topCopiers', baseUrl),
+      censusDataService.getSmartMoneyFlow('topPerformers', baseUrl),
+      censusDataService.getSmartMoneyFlow('lowRisk', baseUrl)
     ]);
 
     // Use shared comparison service to build elite group comparison
@@ -69,8 +86,8 @@ export async function GET(
         `https://www.etoro.com/api/public/v1/user-info/people?usernames=${username}`,
         {
           headers: {
-            'X-API-KEY': process.env.ETORO_API_KEY || '',
-            'X-USER-KEY': process.env.ETORO_USER_KEY || '',
+            'X-API-KEY': process.env.ETORO_PERSONAL_API_KEY || process.env.ETORO_API_KEY || '',
+            'X-USER-KEY': process.env.ETORO_PERSONAL_USER_KEY || process.env.ETORO_USER_KEY || '',
             'X-REQUEST-ID': '1fea900a-bf1f-4b7c-8af2-976dc6ab273f'
           }
         }
@@ -128,7 +145,7 @@ export async function GET(
     };
 
     // Get performance data from census file (has weekTDReturn, monthTDReturn)
-    const censusData = await censusDataService.loadCensusData();
+    const censusData = await censusDataService.loadCensusData(baseUrl);
     const performanceHoldings = censusData?.analyses?.[0]?.topHoldings || [];
 
     const response = NextResponse.json({

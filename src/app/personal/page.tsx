@@ -6,6 +6,7 @@ import {
   AlertCircle, CheckCircle, Info, ArrowUpRight, ArrowDownRight
 } from 'lucide-react';
 import EliteGroupComparison from '@/components/intelligence/EliteGroupComparison';
+import { Disclaimer } from '@/components/Disclaimer';
 
 export default function SimplifiedIntelligencePage() {
   const [activeTab, setActiveTab] = useState('performance');
@@ -69,6 +70,10 @@ export default function SimplifiedIntelligencePage() {
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-gray-900">Portfolio Intelligence</h1>
           <p className="text-sm text-gray-600 mt-1">Real market insights based on 1,500+ top investors</p>
+        </div>
+
+        <div className="mb-6">
+          <Disclaimer />
         </div>
 
         {/* Portfolio Summary Cards */}

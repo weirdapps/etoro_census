@@ -106,57 +106,8 @@ class RealPortfolioService {
 
       const portfolioData = await portfolioResponse.json();
 
-      // Log root-level keys to understand structure
-      console.log('=== ROOT LEVEL KEYS ===', Object.keys(portfolioData));
-
-      //Log first 3000 chars of full response to see all fields
-      const fullResponse = JSON.stringify(portfolioData);
-      console.log('=== FULL API RESPONSE (first 3000 chars) ===');
-      console.log(fullResponse.substring(0, 3000));
-
-      console.log('Portfolio Data received:', {
-        hasClientPortfolio: !!portfolioData.clientPortfolio,
-        positionsCount: portfolioData.clientPortfolio?.positions?.length || 0,
-        availableCash: portfolioData.clientPortfolio?.availableCash
-      });
-
-      // DEBUG: Log raw position data
-      if (portfolioData.clientPortfolio?.positions) {
-        console.log('RAW POSITIONS FROM API:', portfolioData.clientPortfolio.positions.length, 'positions');
-        // Log first 5 positions in detail
-        portfolioData.clientPortfolio.positions.slice(0, 5).forEach((pos: any, idx: number) => {
-          console.log(`Position ${idx + 1}:`, {
-            instrumentID: pos.instrumentID,
-            amount: pos.amount,
-            units: pos.units,
-            initialAmountInDollars: pos.initialAmountInDollars
-          });
-        });
-        // Also check if positions is actually an object with positions property
-        if (typeof portfolioData.clientPortfolio.positions === 'object' && !Array.isArray(portfolioData.clientPortfolio.positions)) {
-          console.log('WARNING: positions is not an array, it\'s:', typeof portfolioData.clientPortfolio.positions);
-          console.log('Keys in positions object:', Object.keys(portfolioData.clientPortfolio.positions));
-        }
-      }
-
       // Extract positions from clientPortfolio structure
       const clientPortfolio = portfolioData.clientPortfolio || {};
-
-      // Log all available fields in clientPortfolio to find cash field
-      const portfolioKeys = Object.keys(clientPortfolio).filter(key => key !== 'positions');
-      console.log('Available clientPortfolio fields:', portfolioKeys);
-
-      // Log actual values of important fields
-      console.log('clientPortfolio totals:', {
-        netCreditAndDebits: clientPortfolio.netCreditAndDebits,
-        totalEquity: clientPortfolio.totalEquity,
-        totalValue: clientPortfolio.totalValue,
-        totalPortfolioValue: clientPortfolio.totalPortfolioValue,
-        totalPositionsValue: clientPortfolio.totalPositionsValue,
-        totalInvestment: clientPortfolio.totalInvestment,
-        totalProfit: clientPortfolio.totalProfit,
-        totalProfitPercentage: clientPortfolio.totalProfitPercentage
-      });
 
       // According to swagger.json schema, the cash field is 'credit'
       const availableCash = clientPortfolio.credit ||
@@ -168,19 +119,6 @@ class RealPortfolioService {
                            clientPortfolio.netCredit ||
                            0;
 
-      // Always log available fields to understand API structure
-      if (portfolioKeys.length > 0) {
-        console.log('Cash-related fields in clientPortfolio:');
-        portfolioKeys.forEach(key => {
-          if (key.toLowerCase().includes('cash') ||
-              key.toLowerCase().includes('credit') ||
-              key.toLowerCase().includes('balance') ||
-              key.toLowerCase().includes('debit')) {
-            console.log(`  ${key}: ${clientPortfolio[key]}`);
-          }
-        });
-      }
-
       const rawPositions = clientPortfolio.positions || [];
 
       const positions: Position[] = [];
@@ -190,23 +128,6 @@ class RealPortfolioService {
 
       // Process positions from clientPortfolio
       if (Array.isArray(rawPositions)) {
-        // Log first position to understand structure
-        if (rawPositions.length > 0) {
-          const firstPos = rawPositions[0];
-          console.log('First position key fields:', {
-            instrumentID: firstPos.instrumentID,
-            amount: firstPos.amount,
-            units: firstPos.units,
-            openRate: firstPos.openRate,
-            initialAmountInDollars: firstPos.initialAmountInDollars,
-            unrealizedPnL: firstPos.unrealizedPnL ? {
-              pnL: firstPos.unrealizedPnL.pnL,
-              exposureInAccountCurrency: firstPos.unrealizedPnL.exposureInAccountCurrency,
-              marginInAccountCurrency: firstPos.unrealizedPnL.marginInAccountCurrency
-            } : null
-          });
-        }
-
         for (const item of rawPositions) {
           // CRITICAL FIX: Use initialAmountInDollars + unrealizedPnL.pnL for accurate values
           // The 'amount' field includes margin/collateral, NOT current market value
@@ -465,12 +386,6 @@ class RealPortfolioService {
         totalValue = positions.reduce((sum, p) => sum + p.marketValue, 0);
         totalProfit = positions.reduce((sum, p) => sum + p.profit, 0);
         totalInvested = positions.reduce((sum, p) => sum + p.investedValue, 0);
-
-        console.log('Portfolio totals:');
-        console.log(`  Total invested: $${totalInvested.toFixed(2)}`);
-        console.log(`  Total value: $${totalValue.toFixed(2)}`);
-        console.log(`  Total profit: $${totalProfit.toFixed(2)}`);
-        console.log(`  Return: ${totalInvested > 0 ? ((totalProfit / totalInvested) * 100).toFixed(2) : 0}%`);
 
         // Log positions with high returns for debugging
         const highReturnPositions = positions.filter(p => Math.abs(p.profitPercent) > 100);
@@ -838,20 +753,46 @@ class RealPortfolioService {
    */
   async getCensusData(): Promise<any> {
     try {
-      // Try to load the latest census data
-      const fs = await import('fs/promises');
-      const path = await import('path');
-      const dataDir = path.join(process.cwd(), 'public', 'data');
+      let censusData: any = null;
 
-      const files = await fs.readdir(dataDir);
-      const censusFiles = files.filter(f => f.startsWith('etoro-data-') && f.endsWith('.json'));
+      // On Vercel or client-side, use fetch. On local server, use filesystem
+      if (process.env.VERCEL) {
+        // Vercel: Fetch from static CDN
+        const dataFiles = [
+          '/data/census-data-latest.json',
+          '/data/latest-census.json'
+        ];
 
-      if (censusFiles.length > 0) {
-        censusFiles.sort().reverse();
-        const latestFile = censusFiles[0];
-        const filePath = path.join(dataDir, latestFile);
-        const data = await fs.readFile(filePath, 'utf-8');
-        const censusData = JSON.parse(data);
+        for (const file of dataFiles) {
+          try {
+            const response = await fetch(`${process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : ''}${file}`);
+            if (response.ok) {
+              censusData = await response.json();
+              break;
+            }
+          } catch (err) {
+            console.log(`Failed to fetch ${file}, trying next...`);
+          }
+        }
+      } else {
+        // Local dev: Read from filesystem
+        const fs = await import('fs/promises');
+        const path = await import('path');
+        const dataDir = path.join(process.cwd(), 'public', 'data');
+
+        const files = await fs.readdir(dataDir);
+        const censusFiles = files.filter(f => f.startsWith('etoro-data-') && f.endsWith('.json') || f === 'census-data-latest.json');
+
+        if (censusFiles.length > 0) {
+          censusFiles.sort().reverse();
+          const latestFile = censusFiles[0];
+          const filePath = path.join(dataDir, latestFile);
+          const data = await fs.readFile(filePath, 'utf-8');
+          censusData = JSON.parse(data);
+        }
+      }
+
+      if (censusData) {
 
         // Extract top holdings from census data
         const topHoldings = censusData.analyses?.[0]?.topHoldings || [];

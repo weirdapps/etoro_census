@@ -117,22 +117,25 @@ class CensusDataService {
   /**
    * Load the latest census data
    */
-  async loadCensusData(): Promise<CensusData | null> {
+  async loadCensusData(baseUrl?: string): Promise<CensusData | null> {
     try {
       // Check cache
       if (this.censusData && Date.now() - this.lastFetchTime < this.CACHE_DURATION) {
         return this.censusData;
       }
 
-      // Check if we're running in Node.js (server-side)
-      if (typeof window === 'undefined') {
-        // Server-side: Load directly from filesystem
+      // Check if we're running in Node.js (server-side) AND not on Vercel
+      // On Vercel, static files are served separately, so we use fetch even server-side
+      if (typeof window === 'undefined' && !process.env.VERCEL) {
+        // Local dev server-side: Load directly from filesystem
         const fs = await import('fs/promises');
         const path = await import('path');
 
         const dataDir = path.join(process.cwd(), 'public', 'data');
         const dataFiles = [
-          'latest-census.json',
+          'census-data-latest.json',            // Fixed filename for Vercel deployment
+          'latest-census.json',                 // Symlink fallback (for local dev)
+          'etoro-data-2025-10-29-02-06.json',   // Direct dated file
           'etoro-data-2025-09-29-02-00.json',
           'etoro-data-2025-09-15-02-03.json'
         ];
@@ -151,25 +154,30 @@ class CensusDataService {
           }
         }
       } else {
-        // Client-side: Use fetch with absolute URLs
+        // Client-side OR Vercel server-side: Use fetch
+        // On Vercel serverless, we need absolute URLs, so use baseUrl if provided
+        const urlBase = baseUrl || '';
         const dataFiles = [
-          '/data/latest-census.json',
+          '/data/census-data-latest.json',            // Fixed filename for Vercel deployment
+          '/data/latest-census.json',                 // Symlink fallback (for local dev)
+          '/data/etoro-data-2025-10-29-02-06.json',   // Direct dated file
           '/data/etoro-data-2025-09-29-02-00.json',
           '/data/etoro-data-2025-09-15-02-03.json'
         ];
 
         for (const file of dataFiles) {
           try {
-            console.log(`Attempting to load census data from ${file}`);
-            const response = await fetch(file);
+            const url = `${urlBase}${file}`;
+            console.log(`Attempting to load census data from ${url}`);
+            const response = await fetch(url);
             if (response.ok) {
               this.censusData = await response.json();
               this.lastFetchTime = Date.now();
-              console.log(`Successfully loaded census data from ${file}`);
+              console.log(`Successfully loaded census data from ${url}`);
               return this.censusData;
             }
           } catch (err) {
-            console.log(`Failed to load ${file}, trying next...`);
+            console.log(`Failed to load ${urlBase}${file}, trying next...`);
           }
         }
       }
@@ -311,8 +319,8 @@ class CensusDataService {
    * Get smart money flow (what top investors are buying/selling)
    * Can analyze different investor groups
    */
-  async getSmartMoneyFlow(groupType: 'all' | 'topCopiers' | 'topPerformers' | 'lowRisk' = 'all'): Promise<any> {
-    const data = await this.loadCensusData();
+  async getSmartMoneyFlow(groupType: 'all' | 'topCopiers' | 'topPerformers' | 'lowRisk' = 'all', baseUrl?: string): Promise<any> {
+    const data = await this.loadCensusData(baseUrl);
     if (!data) {
       console.log('No census data loaded for smart money flow');
       return { buying: [], selling: [], topHoldings: [], risingStars: [], consensus: [] };
