@@ -21,6 +21,20 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
+      - name: Free up disk space
+        run: |
+          echo "Disk space before cleanup:"
+          df -h
+
+          # Remove large unnecessary packages to free up ~10GB
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+
+          echo "Disk space after cleanup:"
+          df -h
+
       - name: Checkout
         uses: actions/checkout@v4
       
@@ -55,12 +69,12 @@ jobs:
           # Copy essential files for website
           cp index.html deploy-temp/
 
-          # Copy only recent reports (last 30 days) to avoid disk space issues
+          # Copy only recent reports (last 7 days) to avoid disk space issues
           mkdir -p deploy-temp/reports
-          echo "Copying reports from last 30 days only..."
+          echo "Copying reports from last 7 days only..."
 
-          # Calculate cutoff date (30 days ago)
-          CUTOFF_DATE=$(date -d "30 days ago" +%Y-%m-%d 2>/dev/null || date -v-30d +%Y-%m-%d)
+          # Calculate cutoff date (7 days ago)
+          CUTOFF_DATE=$(date -d "7 days ago" +%Y-%m-%d 2>/dev/null || date -v-7d +%Y-%m-%d)
           echo "Cutoff date: $CUTOFF_DATE"
 
           cd public/reports
