@@ -17,6 +17,20 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
+      - name: Free up disk space
+        run: |
+          echo "Disk space before cleanup:"
+          df -h
+
+          # Remove large unnecessary packages to free up ~10GB
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+
+          echo "Disk space after cleanup:"
+          df -h
+
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
@@ -41,7 +55,15 @@ jobs:
           
       - name: Build Next.js application
         run: npm run build
-      
+
+      - name: Clean up build artifacts
+        run: |
+          echo "Cleaning up unnecessary files to save space..."
+          # Remove Next.js cache (not needed for production server)
+          rm -rf .next/cache
+          echo "Disk space after build cleanup:"
+          df -h
+
       - name: Start Next.js server
         run: |
           npm start &
