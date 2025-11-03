@@ -292,10 +292,10 @@ export default function PublicPortfolioPage() {
               )}
             </div>
 
-            {/* 3. Suggestions - Missing Assets */}
+            {/* 3. Portfolio Comparison */}
             {data.eliteGroupComparison && (
               <div className="bg-white rounded-lg border border-gray-300 p-6">
-                <h2 className="text-xl font-bold text-gray-900 mb-4">Suggestions - Missing Assets</h2>
+                <h2 className="text-xl font-bold text-gray-900 mb-4">Portfolio Comparison</h2>
 
                 {/* Recommendation */}
                 {data.eliteGroupComparison.insights?.recommendation && (
@@ -347,19 +347,6 @@ export default function PublicPortfolioPage() {
             )}
 
             {/* New Analysis */}
-            <div className="text-center">
-              <button
-                onClick={() => {
-                  setData(null);
-                  setUsername('');
-                  setHasSearched(false);
-                  setError(null);
-                }}
-                className="px-6 py-2.5 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 font-medium"
-              >
-                Analyze Another Portfolio
-              </button>
-            </div>
           </div>
         )}
 

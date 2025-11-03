@@ -245,7 +245,7 @@ export class PortfolioComparisonService {
       performerEdgePicks: performerUnique,
       conservativePicks: conservativeConsensus,
       recommendation: mustHave.length > 0
-        ? `Consider adding ${mustHave.join(', ')} - held by all elite groups`
+        ? `Missing assets: ${mustHave.join(', ')} - held by all elite groups`
         : performerUnique.length > 0
         ? `Top performers are uniquely holding ${performerUnique.join(', ')}`
         : conservativeConsensus.length > 0

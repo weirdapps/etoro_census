@@ -205,7 +205,7 @@ export default function EliteGroupComparison({ data }: { data: EliteGroupCompari
             {selectedGroupData.data.topMissing && selectedGroupData.data.topMissing.length > 0 && (
               <div className="mb-6">
                 <h4 className="text-sm font-semibold text-gray-700 mb-3">
-                  Top Opportunities You&apos;re Missing
+                  Missing Assets
                 </h4>
                 <div className="overflow-x-auto">
                   <table className="min-w-full divide-y divide-gray-200">
@@ -250,10 +250,10 @@ export default function EliteGroupComparison({ data }: { data: EliteGroupCompari
                           </td>
                           <td className="px-4 py-3 whitespace-nowrap">
                             <button
-                              className="text-xs font-medium hover:opacity-80"
+                              className="text-xs font-medium hover:opacity-80 transition-opacity"
                               style={{ color: getColorHex(selectedGroupData.color) }}
                             >
-                              Consider Adding
+                              Add
                             </button>
                           </td>
                         </tr>
