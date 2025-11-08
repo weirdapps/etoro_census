@@ -54,6 +54,8 @@ jobs:
           wc -l .env.local
           
       - name: Build Next.js application
+        env:
+          NODE_OPTIONS: "--max-old-space-size=4096"
         run: npm run build
 
       - name: Clean up build artifacts
