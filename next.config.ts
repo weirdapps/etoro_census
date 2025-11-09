@@ -16,6 +16,21 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // Optimize build by excluding large data files from processing
+  webpack: (config, { isServer }) => {
+    // Ignore large JSON data files during build
+    config.module.rules.push({
+      test: /public\/data\/.*\.json$/,
+      use: 'ignore-loader',
+    });
+    return config;
+  },
+  // Exclude data directory from static file optimization
+  experimental: {
+    outputFileTracingExcludes: {
+      '*': ['public/data/**/*'],
+    },
+  },
 };
 
 export default nextConfig;
