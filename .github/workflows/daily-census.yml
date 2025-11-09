@@ -182,7 +182,19 @@ jobs:
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "GitHub Actions Bot"
-      
+
+      - name: Update latest data file for Vercel deployment
+        run: |
+          # Find the most recent data file
+          LATEST_DATA=$(ls public/data/etoro-data-*.json 2>/dev/null | sort -r | head -n 1)
+          if [ -n "$LATEST_DATA" ]; then
+            echo "Copying $LATEST_DATA to public/data/census-data-latest.json for Vercel deployment"
+            cp "$LATEST_DATA" public/data/census-data-latest.json
+            echo "✅ Updated census-data-latest.json for Vercel"
+          else
+            echo "⚠️  No data files found to update census-data-latest.json"
+          fi
+
       - name: Commit and push reports with deployment trigger
         run: |
           # Add ALL reports and JSON files for local history
