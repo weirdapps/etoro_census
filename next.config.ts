@@ -26,10 +26,8 @@ const nextConfig: NextConfig = {
     return config;
   },
   // Exclude data directory from static file optimization
-  experimental: {
-    outputFileTracingExcludes: {
-      '*': ['public/data/**/*'],
-    },
+  outputFileTracingExcludes: {
+    '*': ['public/data/**/*'],
   },
 };
 
