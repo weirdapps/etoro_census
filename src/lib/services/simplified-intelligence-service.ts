@@ -207,6 +207,7 @@ class SimplifiedIntelligenceService {
     const yourHoldings = (portfolio.positions || []).map((position: any) => ({
       symbol: position.symbol,
       name: position.instrumentName,
+      instrumentId: position.instrumentId,
       marketValue: position.marketValue,
       allocation: totalAccountValue > 0
         ? `${((position.marketValue / totalAccountValue) * 100).toFixed(1)}%`
