@@ -170,7 +170,8 @@ jobs:
       - name: Commit and push reports with deployment trigger
         run: |
           # Add ALL reports and JSON files for local history
-          git add public/reports/*.html public/data/*.json
+          # Use --sparse flag to allow adding files outside sparse-checkout definition
+          git add --sparse public/reports/*.html public/data/*.json
 
           # Add deployment trigger file
           echo "$(date -u +'%Y-%m-%d %H:%M:%S UTC')" > .github/last-deployment-trigger
