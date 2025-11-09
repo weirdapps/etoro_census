@@ -44,9 +44,9 @@ jobs:
             package-lock.json
             next.config.ts
             tsconfig.json
-            tailwind.config.ts
             postcss.config.mjs
-            .env.local
+            eslint.config.mjs
+            components.json
           sparse-checkout-cone-mode: false
       
       - name: Create necessary directories
@@ -92,14 +92,28 @@ jobs:
           df -h
 
       - name: Start Next.js server
+        env:
+          NODE_OPTIONS: "--max-old-space-size=6144"
         run: |
+          echo "Starting Next.js server with 6GB memory limit..."
           npm start &
           SERVER_PID=$!
           echo "SERVER_PID=$SERVER_PID" >> $GITHUB_ENV
-          # Wait for server to be ready
-          sleep 10
-          # Check if server is running
-          curl -f http://localhost:3000 || exit 1
+
+          # Wait for server to be ready with retry loop (max 60 seconds)
+          echo "Waiting for server to be ready..."
+          for i in {1..12}; do
+            if curl -f -s http://localhost:3000 > /dev/null 2>&1; then
+              echo "✅ Server is ready!"
+              break
+            fi
+            if [ $i -eq 12 ]; then
+              echo "❌ Server failed to start within 60 seconds"
+              exit 1
+            fi
+            echo "Attempt $i/12: Server not ready yet, waiting 5 seconds..."
+            sleep 5
+          done
       
       - name: Generate census report
         run: |
@@ -111,9 +125,11 @@ jobs:
           echo ""
           
           # Call the optimized report endpoint with 1500 investors
+          # Timeout: 90 minutes (5400 seconds) - typical run is ~60 minutes
           curl -X POST http://localhost:3000/api/optimized-report \
             -H "Content-Type: application/json" \
             -d '{"period": "CurrYear", "maxInvestors": 1500}' \
+            --max-time 5400 \
             --no-buffer \
             --silent \
             --show-error \
