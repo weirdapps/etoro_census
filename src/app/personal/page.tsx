@@ -30,6 +30,11 @@ export default function SimplifiedIntelligencePage() {
       const response = await fetch('/api/personal');
       const result = await response.json();
 
+      // Check for API credentials error
+      if (!response.ok || result.error === 'API_CREDENTIALS_MISSING') {
+        throw new Error(result.message || 'Failed to load portfolio data. API credentials may be missing.');
+      }
+
       // Update loading message with actual portfolio count
       if (result.data?.portfolio) {
         setLoadingMessage(`Loading ${result.data.portfolio.positionCount} positions...`);
@@ -40,6 +45,12 @@ export default function SimplifiedIntelligencePage() {
       console.log('Portfolio data:', result.data?.portfolio);
     } catch (error) {
       console.error('Failed to fetch intelligence data:', error);
+      // Set data to null to trigger error state in UI
+      setData(null);
+      // Store error message for display
+      if (error instanceof Error) {
+        (window as unknown as {portfolioError?: string}).portfolioError = error.message;
+      }
     } finally {
       setLoading(false);
     }
@@ -102,9 +113,31 @@ export default function SimplifiedIntelligencePage() {
               </div>
             </div>
           </div>
+        ) : !loading && data === null ? (
+          <div className="bg-red-50 border border-red-200 p-6 rounded-lg mb-6">
+            <div className="flex items-start">
+              <AlertCircle className="w-6 h-6 text-red-600 mr-3 flex-shrink-0 mt-0.5" />
+              <div>
+                <h3 className="text-lg font-semibold text-red-900 mb-2">Personal Portfolio Analysis Unavailable</h3>
+                <p className="text-red-800 mb-4">
+                  {(window as unknown as {portfolioError?: string}).portfolioError ||
+                   'This feature requires eToro API credentials to be configured.'}
+                </p>
+                <div className="bg-white bg-opacity-50 p-4 rounded border border-red-200">
+                  <p className="text-sm font-semibold text-red-900 mb-2">For Vercel Deployment:</p>
+                  <ol className="text-sm text-red-800 list-decimal list-inside space-y-1">
+                    <li>Go to your Vercel Project Settings</li>
+                    <li>Navigate to Environment Variables</li>
+                    <li>Add <code className="bg-red-100 px-1 rounded">ETORO_API_KEY</code> and <code className="bg-red-100 px-1 rounded">ETORO_USER_KEY</code></li>
+                    <li>Redeploy your application</li>
+                  </ol>
+                </div>
+              </div>
+            </div>
+          </div>
         ) : (
           <div className="bg-yellow-50 p-4 rounded-lg mb-6">
-            <p className="text-yellow-800">Portfolio data not available. Data state: {JSON.stringify(!!data)}, Portfolio state: {JSON.stringify(!!data?.portfolio)}</p>
+            <p className="text-yellow-800">Portfolio data is loading...</p>
           </div>
         )}
 

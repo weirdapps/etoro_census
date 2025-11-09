@@ -14,6 +14,7 @@ import { CensusAnalysis } from '@/lib/models/census';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Info } from 'lucide-react';
 
 // Export data for child pages to use
 export interface AppV2Context {
@@ -179,12 +180,88 @@ export default function HomeV2() {
     }
   };
 
+  const handleLoadLatest = async () => {
+    setIsLoading(true);
+    setError(null);
+    setProgress(0);
+    setProgressMessage('Loading pre-generated census data...');
+
+    try {
+      const response = await fetch('/api/load-latest-census');
+      const result = await response.json();
+
+      if (!result.success || !response.ok) {
+        throw new Error(result.error || 'Failed to load latest census data');
+      }
+
+      setAnalysis(result.analysis);
+      setInvestorCount(result.investorCount);
+      setRequestedCount(result.investorCount);
+      setHasLimit(false);
+
+      // Store in sessionStorage for persistence
+      try {
+        sessionStorage.setItem('v2CensusAnalysis', JSON.stringify(result.analysis));
+        sessionStorage.setItem('v2CensusMetadata', JSON.stringify({
+          investorCount: result.investorCount,
+          requestedCount: result.investorCount,
+          hasLimit: false,
+          dataSource: result.dataSource,
+          timestamp: result.timestamp
+        }));
+      } catch (storageError) {
+        console.error('Failed to store in sessionStorage:', storageError);
+      }
+
+      setProgress(100);
+      setProgressMessage('✅ Loaded pre-generated census data successfully!');
+
+      setTimeout(() => {
+        setProgress(0);
+        setProgressMessage('');
+      }, 2000);
+    } catch (err) {
+      console.error('Error loading latest census:', err);
+      setError(err instanceof Error ? err.message : 'Failed to load latest census data');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="max-w-7xl mx-auto space-y-8">
+
+      {/* Vercel Deployment Notice */}
+      <Alert className="bg-blue-50 border-blue-200">
+        <Info className="h-4 w-4 text-blue-600" />
+        <AlertDescription className="text-blue-800">
+          <strong>Vercel Deployment:</strong> Live census generation may timeout due to serverless function limits (10 seconds).
+          Use <strong>"Load Latest Census"</strong> button below to load pre-generated data from the daily automated reports.
+        </AlertDescription>
+      </Alert>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
           <InvestorSelector onAnalyze={handleAnalyze} isLoading={isLoading} />
+
+          {/* Load Latest Census Button */}
+          <Card className="mt-4">
+            <CardHeader>
+              <CardTitle className="text-lg">Quick Load (Recommended for Vercel)</CardTitle>
+              <CardDescription>
+                Load the most recent pre-generated census data (~1500 investors, updated daily at 00:00 UTC)
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <button
+                onClick={handleLoadLatest}
+                disabled={isLoading}
+                className="w-full px-4 py-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white rounded-lg font-semibold transition-colors"
+              >
+                {isLoading ? 'Loading...' : '📊 Load Latest Census Data'}
+              </button>
+            </CardContent>
+          </Card>
         </div>
         <div className="lg:col-span-1">
           <ReportGenerator />
