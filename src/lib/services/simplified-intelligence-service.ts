@@ -200,9 +200,29 @@ class SimplifiedIntelligenceService {
     const yourPopularHoldings = insights.filter((h: any) => h.inYourPortfolio);
     const missedTopHoldings = insights.filter((h: any) => !h.inYourPortfolio).slice(0, 5);
 
+    // Calculate total account value for allocation percentages
+    const totalAccountValue = (portfolio.totalValue || 0) + (portfolio.cashBalance || 0);
+
+    // Format user's actual holdings with allocation percentages
+    const yourHoldings = (portfolio.positions || []).map((position: any) => ({
+      symbol: position.symbol,
+      name: position.instrumentName,
+      marketValue: position.marketValue,
+      allocation: totalAccountValue > 0
+        ? `${((position.marketValue / totalAccountValue) * 100).toFixed(1)}%`
+        : '0.0%',
+      profit: position.profit,
+      profitPercent: `${position.profitPercent?.toFixed(2) || '0.00'}%`,
+      isPopular: yourInstrumentIds.has(position.instrumentId)
+    })).sort((a: any, b: any) => b.marketValue - a.marketValue); // Sort by value descending
+
     return {
+      // Market-wide top holdings for comparison
       topHoldings: insights.slice(0, 10),
+      // YOUR ACTUAL HOLDINGS
+      yourHoldings: yourHoldings,
       yourStats: {
+        totalHoldings: yourHoldings.length,
         popularHoldingsCount: yourPopularHoldings.length,
         coverageOfTop20: `${((yourPopularHoldings.length / 20) * 100).toFixed(0)}%`,
         missedOpportunities: missedTopHoldings.length

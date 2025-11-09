@@ -265,69 +265,122 @@ function PerformanceTab({ data }: { data: Record<string, unknown> }) {
 
 function HoldingsTab({ data }: { data: Record<string, unknown> }) {
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-bold">Top Holdings Analysis</h2>
-        <div className="text-sm text-gray-600">
-          Coverage: <span className="font-bold">{data.yourStats?.coverageOfTop20}</span>
-        </div>
-      </div>
-
-      {/* Top Holdings Table */}
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead>
-            <tr className="border-b">
-              <th className="text-left py-2">Rank</th>
-              <th className="text-left py-2">Symbol</th>
-              <th className="text-left py-2">Held By</th>
-              <th className="text-left py-2">Yesterday</th>
-              <th className="text-left py-2">Week TD</th>
-              <th className="text-left py-2">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.topHoldings?.slice(0, 10).map((holding: Record<string, unknown>) => (
-              <tr key={holding.rank} className="border-b">
-                <td className="py-2">{holding.rank}</td>
-                <td className="py-2 font-semibold">{holding.symbol}</td>
-                <td className="py-2">{holding.heldBy}</td>
-                <td className={`py-2 ${parseFloat(holding.performance.yesterday) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  {holding.performance.yesterday}
-                </td>
-                <td className={`py-2 ${parseFloat(holding.performance.weekTD) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  {holding.performance.weekTD}
-                </td>
-                <td className="py-2">
-                  {holding.inYourPortfolio ? (
-                    <span className="text-green-600">✓ Owned</span>
-                  ) : (
-                    <span className="text-gray-400">Not owned</span>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Recommendations */}
-      {data.recommendations?.length > 0 && (
-        <div>
-          <h3 className="font-semibold mb-2 flex items-center">
-            <Info className="w-5 h-5 mr-2 text-blue-500" />
-            Consider Adding
-          </h3>
-          <div className="space-y-2">
-            {data.recommendations.slice(0, 3).map((rec: Record<string, unknown>, i: number) => (
-              <div key={i} className="p-3 bg-blue-50 rounded-lg">
-                <span className="font-semibold">{rec.symbol}</span>
-                <span className="ml-2 text-sm text-gray-600">{rec.reason}</span>
-              </div>
-            ))}
+    <div className="space-y-6">
+      {/* Your Portfolio Section */}
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-lg font-bold">Your Portfolio Holdings</h2>
+          <div className="text-sm text-gray-600">
+            Total: <span className="font-bold">{data.yourStats?.totalHoldings || 0}</span> positions
           </div>
         </div>
-      )}
+
+        {/* Your Holdings Table */}
+        {data.yourHoldings && data.yourHoldings.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b bg-gray-50">
+                  <th className="text-left py-2 px-3">#</th>
+                  <th className="text-left py-2 px-3">Symbol</th>
+                  <th className="text-left py-2 px-3">Name</th>
+                  <th className="text-right py-2 px-3">Value</th>
+                  <th className="text-right py-2 px-3">Allocation</th>
+                  <th className="text-right py-2 px-3">P&L</th>
+                  <th className="text-center py-2 px-3">Popular</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.yourHoldings.map((holding: Record<string, unknown>, idx: number) => (
+                  <tr key={idx} className="border-b hover:bg-gray-50">
+                    <td className="py-2 px-3 text-gray-600">{idx + 1}</td>
+                    <td className="py-2 px-3 font-semibold">{holding.symbol}</td>
+                    <td className="py-2 px-3 text-sm text-gray-600">{holding.name}</td>
+                    <td className="py-2 px-3 text-right font-medium">
+                      ${Number(holding.marketValue).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </td>
+                    <td className="py-2 px-3 text-right font-semibold">{holding.allocation}</td>
+                    <td className={`py-2 px-3 text-right font-semibold ${
+                      Number(holding.profit) >= 0 ? 'text-green-600' : 'text-red-600'
+                    }`}>
+                      {Number(holding.profit) >= 0 ? '+' : ''}${Number(holding.profit).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      <span className="text-xs ml-1">({holding.profitPercent})</span>
+                    </td>
+                    <td className="py-2 px-3 text-center">
+                      {holding.isPopular ? (
+                        <span className="text-green-600 text-xs">✓ Popular</span>
+                      ) : (
+                        <span className="text-gray-300 text-xs">—</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <p className="text-gray-500 text-center py-8">No holdings data available</p>
+        )}
+      </div>
+
+      {/* Market Comparison Section */}
+      <div className="border-t pt-6">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-lg font-bold">Market Top Holdings</h3>
+          <div className="text-sm text-gray-600">
+            You own: <span className="font-bold">{data.yourStats?.coverageOfTop20}</span> of top 20
+          </div>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b bg-gray-50">
+                <th className="text-left py-2 px-3">Rank</th>
+                <th className="text-left py-2 px-3">Symbol</th>
+                <th className="text-left py-2 px-3">Held By</th>
+                <th className="text-left py-2 px-3">Avg Allocation</th>
+                <th className="text-center py-2 px-3">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.topHoldings?.slice(0, 10).map((holding: Record<string, unknown>) => (
+                <tr key={holding.rank} className="border-b hover:bg-gray-50">
+                  <td className="py-2 px-3">{holding.rank}</td>
+                  <td className="py-2 px-3 font-semibold">{holding.symbol}</td>
+                  <td className="py-2 px-3 text-sm">{holding.heldBy}</td>
+                  <td className="py-2 px-3 text-sm">{holding.averageAllocation}</td>
+                  <td className="py-2 px-3 text-center">
+                    {holding.inYourPortfolio ? (
+                      <span className="text-green-600 text-sm">✓ Owned</span>
+                    ) : (
+                      <span className="text-gray-400 text-sm">—</span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Recommendations */}
+        {data.recommendations?.length > 0 && (
+          <div className="mt-4">
+            <h4 className="font-semibold mb-2 flex items-center text-sm">
+              <Info className="w-4 h-4 mr-2 text-blue-500" />
+              Consider Adding (Missing Popular Holdings)
+            </h4>
+            <div className="space-y-2">
+              {data.recommendations.slice(0, 3).map((rec: Record<string, unknown>, i: number) => (
+                <div key={i} className="p-2 bg-blue-50 rounded text-sm">
+                  <span className="font-semibold">{rec.symbol}</span>
+                  <span className="ml-2 text-gray-600">{rec.reason}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
