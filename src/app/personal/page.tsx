@@ -28,6 +28,15 @@ export default function PersonalPortfolioPage() {
         throw new Error(result.message || 'Failed to load portfolio data. API credentials may be missing.');
       }
 
+      console.log('Personal API Response:', {
+        hasEliteGroupComparison: !!result.data?.eliteGroupComparison,
+        comparisons: result.data?.eliteGroupComparison?.comparisons,
+        broadMarketMissing: result.data?.eliteGroupComparison?.comparisons?.broadMarket?.topMissing,
+        topCopiersMissing: result.data?.eliteGroupComparison?.comparisons?.topCopiers?.topMissing,
+        topPerformersMissing: result.data?.eliteGroupComparison?.comparisons?.topPerformers?.topMissing,
+        lowRiskMissing: result.data?.eliteGroupComparison?.comparisons?.lowRisk?.topMissing
+      });
+
       setData(result.data);
     } catch (error) {
       console.error('Failed to fetch personal portfolio:', error);
@@ -90,6 +99,13 @@ export default function PersonalPortfolioPage() {
   const portfolio = data.portfolio as any;
   const eliteGroupComparison = data.eliteGroupComparison as any;
   const holdings = data.holdings as any;
+
+  console.log('Rendering Personal Page:', {
+    hasEliteGroupComparison: !!eliteGroupComparison,
+    comparisonsKeys: eliteGroupComparison?.comparisons ? Object.keys(eliteGroupComparison.comparisons) : [],
+    broadMarketData: eliteGroupComparison?.comparisons?.broadMarket,
+    topCopiersData: eliteGroupComparison?.comparisons?.topCopiers
+  });
 
   // Get username from environment or use default
   const username = process.env.NEXT_PUBLIC_ETORO_USERNAME || 'You';
@@ -248,58 +264,10 @@ export default function PersonalPortfolioPage() {
           </div>
 
           {/* 3. Portfolio Comparison */}
-          {eliteGroupComparison && (
-            <div className="bg-white rounded-lg border border-gray-300 p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Portfolio Comparison</h2>
-
-              {/* Recommendation */}
-              {eliteGroupComparison.insights?.recommendation && (
-                <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded">
-                  <p className="text-sm text-gray-800">
-                    {eliteGroupComparison.insights.recommendation}
-                  </p>
-                </div>
-              )}
-
-              {/* Breakdown by Investor Group */}
-              <div>
-                <h3 className="text-sm font-semibold text-gray-700 mb-3">
-                  Missing by Investor Group
-                </h3>
-                <div className="grid md:grid-cols-2 gap-4">
-                  {Object.entries(eliteGroupComparison.comparisons).map(([key, group]: [string, any]) => (
-                    <div key={key} className="border border-gray-200 rounded p-4">
-                      <div className="text-sm font-semibold text-gray-900 mb-3">
-                        {group.group}
-                      </div>
-                      {group.topMissing && group.topMissing.length > 0 && (
-                        <div className="space-y-2">
-                          {group.topMissing.slice(0, 5).map((stock: any, i: number) => (
-                            <div key={i} className="flex items-center justify-between text-sm">
-                              <div className="flex items-center gap-2">
-                                {stock.logoUrl && (
-                                  <img
-                                    src={stock.logoUrl}
-                                    alt={stock.symbol}
-                                    className="w-6 h-6 rounded-full"
-                                    onError={(e) => {
-                                      (e.target as HTMLImageElement).style.display = 'none';
-                                    }}
-                                  />
-                                )}
-                                <span className="font-medium text-gray-900">{stock.symbol}</span>
-                              </div>
-                              <span className="text-gray-600">{stock.penetration}</span>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
+          <div className="bg-white rounded-lg border border-gray-300 p-6">
+            <h2 className="text-xl font-bold text-gray-900 mb-4">Portfolio Comparison</h2>
+            <EliteGroupComparison data={eliteGroupComparison} />
+          </div>
         </div>
       </div>
     </div>
