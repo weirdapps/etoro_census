@@ -180,6 +180,9 @@ class SimplifiedIntelligenceService {
     const yourInstrumentIds = new Set(portfolio.positions?.map((p: any) => p.instrumentId) || []);
     const yourSymbols = new Set(portfolio.positions?.map((p: any) => p.symbol?.toUpperCase()) || []);
 
+    // Create a Set of POPULAR instrument IDs (top holdings from market data)
+    const popularInstrumentIds = new Set(topHoldings.map((h: any) => h.instrumentId));
+
     const insights = topHoldings.map((holding: any) => ({
       rank: topHoldings.indexOf(holding) + 1,
       symbol: holding.symbol,
@@ -214,7 +217,7 @@ class SimplifiedIntelligenceService {
         : '0.0%',
       profit: position.profit,
       profitPercent: `${position.profitPercent?.toFixed(2) || '0.00'}%`,
-      isPopular: yourInstrumentIds.has(position.instrumentId)
+      isPopular: popularInstrumentIds.has(position.instrumentId)
     })).sort((a: any, b: any) => b.marketValue - a.marketValue); // Sort by value descending
 
     return {
