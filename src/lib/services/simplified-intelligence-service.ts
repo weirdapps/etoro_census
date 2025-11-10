@@ -78,11 +78,11 @@ class SimplifiedIntelligenceService {
   /**
    * 1. SMART MONEY ANALYSIS - What top investors are holding
    */
-  async getSmartMoneyAnalysis(groupType: 'all' | 'topCopiers' | 'topPerformers' | 'lowRisk' = 'all'): Promise<any> {
+  async getSmartMoneyAnalysis(groupType: 'all' | 'topCopiers' | 'topPerformers' | 'lowRisk' = 'all', baseUrl?: string): Promise<any> {
     const [portfolio, smartMoney, topHoldings] = await Promise.all([
       realPortfolioService.getPortfolio(),
-      censusDataService.getSmartMoneyFlow(groupType),
-      censusDataService.getTopHoldings(20)
+      censusDataService.getSmartMoneyFlow(groupType, baseUrl),
+      censusDataService.getTopHoldings(20, baseUrl)
     ]);
 
     const totalAccountValue = (portfolio.totalValue || 0) + (portfolio.cashBalance || 0);
@@ -170,10 +170,10 @@ class SimplifiedIntelligenceService {
   /**
    * 3. TOP HOLDINGS INSIGHTS - What's popular and how it's performing
    */
-  async getTopHoldingsInsights(): Promise<any> {
+  async getTopHoldingsInsights(baseUrl?: string): Promise<any> {
     const [portfolio, topHoldings] = await Promise.all([
       realPortfolioService.getPortfolio(),
-      censusDataService.getTopHoldings(20)
+      censusDataService.getTopHoldings(20, baseUrl)
     ]);
 
     // Create a Set of your instrument IDs for more reliable matching
@@ -239,14 +239,14 @@ class SimplifiedIntelligenceService {
   /**
    * ELITE GROUP COMPARISON - Compare against multiple elite investor groups
    */
-  async getEliteGroupComparison(): Promise<any> {
+  async getEliteGroupComparison(baseUrl?: string): Promise<any> {
     console.log('Starting getEliteGroupComparison...');
     const [portfolio, broadMarket, topCopiers, topPerformers, lowRisk] = await Promise.all([
       realPortfolioService.getPortfolio(),
-      censusDataService.getSmartMoneyFlow('all'), // All 1500+ investors
-      censusDataService.getSmartMoneyFlow('topCopiers'),
-      censusDataService.getSmartMoneyFlow('topPerformers'),
-      censusDataService.getSmartMoneyFlow('lowRisk')
+      censusDataService.getSmartMoneyFlow('all', baseUrl), // All 1500+ investors
+      censusDataService.getSmartMoneyFlow('topCopiers', baseUrl),
+      censusDataService.getSmartMoneyFlow('topPerformers', baseUrl),
+      censusDataService.getSmartMoneyFlow('lowRisk', baseUrl)
     ]);
 
     console.log('Elite Group Data Fetched:', {

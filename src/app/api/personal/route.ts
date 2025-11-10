@@ -5,7 +5,7 @@ import { simplifiedIntelligence } from '@/lib/services/simplified-intelligence-s
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     // Check if API credentials are configured
     const apiKey = process.env.ETORO_API_KEY;
@@ -26,6 +26,10 @@ export async function GET() {
       );
     }
 
+    // Extract base URL for fetch operations on Vercel (same as public endpoint)
+    const url = new URL(request.url);
+    const baseUrl = `${url.protocol}//${url.host}`;
+
     // Fetch all simplified intelligence modules in parallel
     const [
       portfolio,
@@ -36,11 +40,11 @@ export async function GET() {
       eliteGroupComparison
     ] = await Promise.all([
       simplifiedIntelligence.getPortfolioSummary(),
-      simplifiedIntelligence.getSmartMoneyAnalysis(),
+      simplifiedIntelligence.getSmartMoneyAnalysis('all', baseUrl),
       simplifiedIntelligence.getPerformanceComparison(),
-      simplifiedIntelligence.getTopHoldingsInsights(),
+      simplifiedIntelligence.getTopHoldingsInsights(baseUrl),
       simplifiedIntelligence.getRiskAssessment(),
-      simplifiedIntelligence.getEliteGroupComparison()
+      simplifiedIntelligence.getEliteGroupComparison(baseUrl)
     ]);
 
     const response = NextResponse.json({
