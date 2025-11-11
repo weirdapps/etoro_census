@@ -171,17 +171,27 @@ class SimplifiedIntelligenceService {
    * 3. TOP HOLDINGS INSIGHTS - What's popular and how it's performing
    */
   async getTopHoldingsInsights(baseUrl?: string): Promise<any> {
-    const [portfolio, topHoldings] = await Promise.all([
+    const [portfolio, topHoldings, broadMarket] = await Promise.all([
       realPortfolioService.getPortfolio(),
-      censusDataService.getTopHoldings(20, baseUrl)
+      censusDataService.getTopHoldings(20, baseUrl),
+      censusDataService.getSmartMoneyFlow('all', baseUrl) // Get full market data with penetration
     ]);
 
     // Create a Set of your instrument IDs for more reliable matching
     const yourInstrumentIds = new Set(portfolio.positions?.map((p: any) => p.instrumentId) || []);
     const yourSymbols = new Set(portfolio.positions?.map((p: any) => p.symbol?.toUpperCase()) || []);
 
-    // Create a Set of POPULAR instrument IDs (top holdings from market data)
-    const popularInstrumentIds = new Set(topHoldings.map((h: any) => h.instrumentId));
+    // Create a Map of ALL popular assets (penetration >= 20%) from broad market data
+    const popularAssetsMap = new Map();
+    (broadMarket.topHoldings || []).forEach((h: any) => {
+      if (h.penetration >= 20) {
+        popularAssetsMap.set(h.instrumentId, h);
+        // Also map by uppercase symbol for fallback matching
+        if (h.symbol) {
+          popularAssetsMap.set(h.symbol.toUpperCase(), h);
+        }
+      }
+    });
 
     const insights = topHoldings.map((holding: any) => ({
       rank: topHoldings.indexOf(holding) + 1,
@@ -217,7 +227,9 @@ class SimplifiedIntelligenceService {
         : '0.0%',
       profit: position.profit,
       profitPercent: `${position.profitPercent?.toFixed(2) || '0.00'}%`,
-      isPopular: popularInstrumentIds.has(position.instrumentId)
+      // Check if asset is popular (penetration >= 20%) using both instrument ID and symbol
+      isPopular: popularAssetsMap.has(position.instrumentId) ||
+                 popularAssetsMap.has(position.symbol?.toUpperCase())
     })).sort((a: any, b: any) => b.marketValue - a.marketValue); // Sort by value descending
 
     return {
