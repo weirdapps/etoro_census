@@ -2,7 +2,7 @@
 
 ## 📊 Analysis Overview
 
-This folder contains the complete risk vs return analysis for the top 100 eToro Popular Investors, showing their performance over the period May 31 - July 31, 2025.
+This folder contains the complete risk vs return analysis for the top 100 eToro Popular Investors, showing their performance over the period May 31 - November 11, 2025 (5.5 months).
 
 ## 📁 Files
 
@@ -14,7 +14,7 @@ This folder contains the complete risk vs return analysis for the top 100 eToro 
   - Mathematical formula: `y = 8.165 * sqrt(x - 1)` (starts at 1,0 ends at 7,20)
 
 - **`calculate-proper-metrics.js`** - Data processing script
-  - Processes 62 daily data files from May 31 - July 31, 2025
+  - Processes 169 daily data files from May 31 - November 11, 2025
   - Calculates daily averaged risk scores and total period returns
   - Ranks investors by copier count (not performance)
   - Run with: `node calculate-proper-metrics.js`
@@ -33,14 +33,15 @@ This folder contains the complete risk vs return analysis for the top 100 eToro 
 
 ## 📈 Key Insights
 
-- **Top Performers**: @hugo13250 (27.1%), @MercedesSotelo (25.9%), @Flaten (24.7%)
-- **Most Copied**: @thomaspj (39K copiers), @JeppeKirkBonde (28K copiers)
-- **Methodology**: Risk = daily average over 62 days, Return = total period performance
+- **Top Performers**: @Ivanectus (63.6%), @Flaten (44.9%), @MercedesSotelo (41.0%), @Enslinjaco (40.2%)
+- **Most Copied**: @thomaspj (37K copiers, 25.5% return), @JeppeKirkBonde (27K copiers, 23.7% return)
+- **Methodology**: Risk = daily average over 169 days, Return = total period performance
 - **Efficient Frontier**: Mathematical curve showing optimal risk/return trade-offs
+- **Average Return**: 14.6% over 5.5 months
 
 ## 🔧 Technical Details
 
-- **Data Period**: May 31 - July 31, 2025 (62 daily snapshots)
+- **Data Period**: May 31 - November 11, 2025 (169 daily snapshots / 5.5 months)
 - **Sample Size**: Top 100 investors by copier count
 - **Chart Library**: Chart.js with custom plugins for labels
 - **Mathematical Model**: Square root efficient frontier theory
@@ -61,25 +62,27 @@ This folder contains the complete risk vs return analysis for the top 100 eToro 
 
 ## 🎯 Labeled Performers
 
-**Above Efficient Frontier:**
-- @hugo13250 (27.09% return)
-- @MercedesSotelo (25.94% return)  
-- @Flaten (24.72% return)
-- @Napoleon-X (23.1% return)
-- @victorlee448 (20.66% return)
+**Exceptional Returns (40%+):**
+- @Ivanectus (63.6% return, 1,067 copiers)
+- @Flaten (44.9% return, 2,277 copiers)
+- @MercedesSotelo (41.0% return, 835 copiers)
+- @Enslinjaco (40.2% return, 2,588 copiers)
 
 **High Volume Leaders:**
-- @thomaspj (39K copiers, 14.8% return)
-- @JeppeKirkBonde (28K copiers, 10.15% return)
+- @thomaspj (37K copiers, 25.5% return)
+- @JeppeKirkBonde (27K copiers, 23.7% return)
 
-**Rising Stars:**
-- @Michalhla (18% return)
-- @mick_repo (17.92% return)
+**Strong Performers (30%+):**
+- @Smudliczek (36.2% return)
+- @Kevin_Pando (33.9% return)
+- @Michalhla (33.6% return)
+- @MarianoPardo (31.2% return)
+- @davoyu (31.3% return)
 
 ## 🔄 Replication Steps
 
-1. **Data Collection**: Process 62 daily eToro census files
-2. **Risk Calculation**: Average daily risk scores per investor
+1. **Data Collection**: Process 169 daily eToro census files (May 31 - November 11, 2025)
+2. **Risk Calculation**: Average daily risk scores per investor across all 169 days
 3. **Return Calculation**: Total period return (end gain - start gain)
 4. **Ranking**: Sort by copier count, select top 100
 5. **Visualization**: Plot with efficient frontier overlay

@@ -1,72 +1,10 @@
 const fs = require('fs');
 
-// Get all data files from May 31 to July 31
-const dataFiles = [
-    'etoro-data-2025-05-31-01-33.json',
-    'etoro-data-2025-06-01-02-33.json', 
-    'etoro-data-2025-06-02-02-01.json',
-    'etoro-data-2025-06-03-01-32.json',
-    'etoro-data-2025-06-04-01-32.json',
-    'etoro-data-2025-06-05-01-30.json',
-    'etoro-data-2025-06-06-01-32.json',
-    'etoro-data-2025-06-07-01-57.json',
-    'etoro-data-2025-06-08-01-37.json',
-    'etoro-data-2025-06-09-01-36.json',
-    'etoro-data-2025-06-10-01-32.json',
-    'etoro-data-2025-06-11-01-32.json',
-    'etoro-data-2025-06-12-01-32.json',
-    'etoro-data-2025-06-13-01-31.json',
-    'etoro-data-2025-06-14-01-55.json',
-    'etoro-data-2025-06-15-02-05.json',
-    'etoro-data-2025-06-16-02-01.json',
-    'etoro-data-2025-06-17-01-57.json',
-    'etoro-data-2025-06-18-01-58.json',
-    'etoro-data-2025-06-19-01-58.json',
-    'etoro-data-2025-06-20-01-58.json',
-    'etoro-data-2025-06-21-01-58.json',
-    'etoro-data-2025-06-22-02-04.json',
-    'etoro-data-2025-06-23-02-02.json',
-    'etoro-data-2025-06-24-02-00.json',
-    'etoro-data-2025-06-25-02-01.json',
-    'etoro-data-2025-06-26-02-01.json',
-    'etoro-data-2025-06-27-01-59.json',
-    'etoro-data-2025-06-28-01-57.json',
-    'etoro-data-2025-06-29-02-05.json',
-    'etoro-data-2025-06-30-02-03.json',
-    'etoro-data-2025-07-01-02-07.json',
-    'etoro-data-2025-07-02-02-00.json',
-    'etoro-data-2025-07-03-02-01.json',
-    'etoro-data-2025-07-04-02-00.json',
-    'etoro-data-2025-07-05-01-57.json',
-    'etoro-data-2025-07-06-02-05.json',
-    'etoro-data-2025-07-07-02-04.json',
-    'etoro-data-2025-07-08-02-00.json',
-    'etoro-data-2025-07-09-02-02.json',
-    'etoro-data-2025-07-10-08-23.json',
-    'etoro-data-2025-07-11-02-03.json',
-    'etoro-data-2025-07-12-02-03.json',
-    'etoro-data-2025-07-13-02-08.json',
-    'etoro-data-2025-07-14-02-05.json',
-    'etoro-data-2025-07-15-02-04.json',
-    'etoro-data-2025-07-16-02-03.json',
-    'etoro-data-2025-07-17-02-04.json',
-    'etoro-data-2025-07-18-02-03.json',
-    'etoro-data-2025-07-19-02-01.json',
-    'etoro-data-2025-07-20-02-09.json',
-    'etoro-data-2025-07-21-02-08.json',
-    'etoro-data-2025-07-22-02-02.json',
-    'etoro-data-2025-07-23-02-05.json',
-    'etoro-data-2025-07-24-02-03.json',
-    'etoro-data-2025-07-25-02-05.json',
-    'etoro-data-2025-07-26-02-02.json',
-    'etoro-data-2025-07-27-02-08.json',
-    'etoro-data-2025-07-28-02-08.json',
-    'etoro-data-2025-07-29-02-10.json',
-    'etoro-data-2025-07-30-02-05.json',
-    'etoro-data-2025-07-31-02-05.json'
-];
-
+// Get all data files from May 31 to November 11 (169 daily files)
 const dataPath = '/Users/plessas/SourceCode/etoro_census/public/data/';
+const dataFiles = fs.readdirSync(dataPath)
+    .filter(f => f.startsWith('etoro-data-2025-') && f.endsWith('.json'))
+    .sort();
 
 // Track investors across all files
 const investorData = new Map();
@@ -136,14 +74,29 @@ chartData.sort((a, b) => b.copiers - a.copiers);
 const top100 = chartData.slice(0, 100);
 
 console.log('\n// Top 100 Popular Investors by Copier Count');
-console.log('// Risk = Daily average over May 31 - July 31');  
+console.log('// Risk = Daily average over May 31 - November 11');
 console.log('// Return = Total period return (end - start)');
 console.log('const realInvestorData = [');
 
+// Select top 10 for labeling: top 5 performers + top 2 copiers + 3 notable
+const sortedByReturn = [...top100].sort((a, b) => b.periodReturn - a.periodReturn);
+const labelSet = new Set();
+
+// Top 5 performers
+sortedByReturn.slice(0, 5).forEach(inv => labelSet.add(inv.username));
+
+// Top 2 by copiers
+top100.slice(0, 2).forEach(inv => labelSet.add(inv.username));
+
+// Add 3 more notable performers (ranks 6-8 by return, if not already labeled)
+for (let i = 5; i < sortedByReturn.length && labelSet.size < 10; i++) {
+    if (!labelSet.has(sortedByReturn[i].username)) {
+        labelSet.add(sortedByReturn[i].username);
+    }
+}
+
 top100.forEach(inv => {
-    const needsLabel = inv.copiers > 20000 || inv.periodReturn > 15 || inv.periodReturn < -5;
-    const labelStr = needsLabel ? `, label: '@${inv.username}'` : '';
-    
+    const labelStr = labelSet.has(inv.username) ? `, label: '@${inv.username}'` : '';
     console.log(`  { x: ${inv.avgRisk}, y: ${inv.periodReturn}, username: '${inv.username}', fullName: '${inv.fullName}', copiers: ${inv.copiers}${labelStr} },`);
 });
 
@@ -158,7 +111,7 @@ const minRisk = Math.min(...top100.map(inv => inv.avgRisk)).toFixed(1);
 const maxRisk = Math.max(...top100.map(inv => inv.avgRisk)).toFixed(1);
 
 console.log(`\nCorrect Statistics:
-- Period: May 31 - July 31, 2025 (${filesProcessed} daily data points)
+- Period: May 31 - November 11, 2025 (${filesProcessed} daily data points / ~5.5 months)
 - Ranking: Top 100 by copier count
 - Risk calculation: Daily average over ${filesProcessed} days
 - Return calculation: Total period return (end gain - start gain)
