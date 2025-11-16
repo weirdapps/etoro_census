@@ -262,9 +262,10 @@ function generateMonthlyPost() {
   
   // Footer (aligned with daily post format)
   console.log('\n**\n');
-  console.log('Check out the census dashboard at:\n');
-  console.log('weirdapps.github.io/etoro_census');
-  console.log('\nupdated daily at 02:00 UTC!');
+  console.log('Check out the daily updated census dashboard at:');
+  console.log('https://weirdapps.github.io/etoro_census\n');
+  console.log('Compare your portfolio to those of top investors at:');
+  console.log('https://etoro-census.vercel.app');
 }
 
 // Run the monthly post generation
