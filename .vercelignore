@@ -1,45 +1,12 @@
-# Vercel Deployment Ignore File
-# Exclude old reports and data files from deployment
-# Keep ONLY the latest data file (~80MB) for /public functionality
+# Exclude historical census data files from Vercel deployment
+# Only census-data-latest.json is needed for the production app
+# Historical files are served via GitHub Pages
 
-# ==========================================
-# EXCLUDE ALL HISTORICAL REPORTS
-# ==========================================
-public/reports/**/*.html
-
-# ==========================================
-# EXCLUDE OLD DATA FILES (Keep latest only)
-# ==========================================
-# CRITICAL: Vercel has 250MB serverless function limit
-# Each data file is ~80MB, so we can only keep 1-2 files
-# Exclude ALL data files EXCEPT the latest one
-
-# Exclude all JSON data files except the fixed latest file
+# Exclude all dated data files
 public/data/etoro-data-*.json
 
-# Note: census-data-latest.json is NOT excluded and will be deployed
-# This file should be updated by copying the latest etoro-data-*.json file
-# Keep only this file to stay under 250MB limit
+# Exclude all dated report files
+public/reports/etoro-census-*.html
 
-# ==========================================
-# STANDARD EXCLUSIONS
-# ==========================================
-.github/
-analysis/
-node_modules/
-.git/
-.env*
-*.md
-!README.md
-
-# Development files
-.vscode/
-.idea/
-*.log
-*.tsbuildinfo
-
-# Test files
-**/*.test.ts
-**/*.test.tsx
-**/*.spec.ts
-**/*.spec.tsx
+# Keep these files (they're needed):
+# - public/data/census-data-latest.json (used by the app)
