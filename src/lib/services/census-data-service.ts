@@ -135,9 +135,6 @@ class CensusDataService {
         const dataFiles = [
           'census-data-latest.json',            // Fixed filename for Vercel deployment
           'latest-census.json',                 // Symlink fallback (for local dev)
-          'etoro-data-2025-10-29-02-06.json',   // Direct dated file
-          'etoro-data-2025-09-29-02-00.json',
-          'etoro-data-2025-09-15-02-03.json'
         ];
 
         for (const fileName of dataFiles) {
@@ -160,9 +157,6 @@ class CensusDataService {
         const dataFiles = [
           '/data/census-data-latest.json',            // Fixed filename for Vercel deployment
           '/data/latest-census.json',                 // Symlink fallback (for local dev)
-          '/data/etoro-data-2025-10-29-02-06.json',   // Direct dated file
-          '/data/etoro-data-2025-09-29-02-00.json',
-          '/data/etoro-data-2025-09-15-02-03.json'
         ];
 
         for (const file of dataFiles) {
