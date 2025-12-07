@@ -1,3 +1,0 @@
-# Track large census data files with Git LFS
-public/data/etoro-data-*.json filter=lfs diff=lfs merge=lfs -text
-public/reports/etoro-census-*.html filter=lfs diff=lfs merge=lfs -text
