@@ -2,6 +2,15 @@
   "buildCommand": "npm run build",
   "framework": "nextjs",
   "regions": ["iad1"],
+  "git": {
+    "deploymentEnabled": {
+      "master": true
+    }
+  },
+  "github": {
+    "silent": true
+  },
+  "installCommand": "npm ci --prefer-offline --no-audit",
   "rewrites": [
     {
       "source": "/",
