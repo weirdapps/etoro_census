@@ -106,7 +106,11 @@ CLAUDE.md
 analyze.js
 generate-daily-post-auto.js
 
-# CRITICAL: NEVER IGNORE REPORTS AND DATA - WE KEEP ALL HISTORY
-# public/reports/*.html - TRACKED IN GIT, NEVER IGNORE
-# public/data/*.json - TRACKED IN GIT, NEVER IGNORE
-# ALL LOCAL HISTORY MUST BE PRESERVED
+# Historical census data - stored locally but not in git to keep repository size small
+# Only census-data-latest.json is tracked for Vercel deployments
+# GitHub Pages pulls from GitHub Actions artifacts, not from git
+public/data/etoro-data-*.json
+public/reports/etoro-census-*.html
+
+# Keep the latest file tracked (negation pattern)
+!public/data/census-data-latest.json
