@@ -2,6 +2,8 @@
 
 A web application for analyzing portfolios and performance metrics of eToro's most popular investors. Provides data-driven insights into investor behavior, portfolio composition, and market sentiment across 1,500 popular investors.
 
+<!-- Deployment trigger: 2025-12-07 -->
+
 🔗 **Live Dashboard**: [weirdapps.github.io/etoro_census](https://weirdapps.github.io/etoro_census)
 📊 **Vercel Deployment**: [etoro-census.vercel.app](https://etoro-census.vercel.app)
 👤 **Author's eToro Profile**: [@plessas](https://www.etoro.com/people/plessas)
