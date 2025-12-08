@@ -1,8 +1,8 @@
 name: Deploy to GitHub Pages
 
 on:
-  push:
-    branches: [ main, master ]
+  # Only trigger from daily census workflow or manual dispatch
+  # Not from pushes (since dated files are in artifacts, not git)
   workflow_dispatch:
 
 permissions:
@@ -38,11 +38,27 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Download census reports from artifacts
-        uses: actions/download-artifact@v4
+      - name: Download census reports from artifacts (if available)
+        continue-on-error: true
+        id: download-artifacts
+        uses: dawidd6/action-download-artifact@v3
         with:
+          workflow: daily-census.yml
           name: census-reports
           path: public/
+          search_artifacts: true
+          if_no_artifact_found: warn
+
+      - name: Check if artifacts were downloaded
+        id: check-artifacts
+        run: |
+          if [ -d "public/reports" ] && [ "$(ls -A public/reports/*.html 2>/dev/null)" ]; then
+            echo "artifacts_found=true" >> $GITHUB_OUTPUT
+            echo "✅ Artifacts downloaded successfully"
+          else
+            echo "artifacts_found=false" >> $GITHUB_OUTPUT
+            echo "⚠️ No artifacts found - using files from git checkout"
+          fi
 
       - name: Find and copy latest report as index.html
         run: |
