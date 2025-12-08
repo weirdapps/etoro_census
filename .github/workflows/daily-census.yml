@@ -199,11 +199,12 @@ jobs:
         run: |
           # Only commit census-data-latest.json (keeps repo small)
           # Dated files are stored in workflow artifacts for GitHub Pages
-          git add public/data/census-data-latest.json
+          # Use --sparse flag for sparse-checkout compatibility
+          git add --sparse public/data/census-data-latest.json
 
           # Add deployment trigger file
           echo "$(date -u +'%Y-%m-%d %H:%M:%S UTC')" > .github/last-deployment-trigger
-          git add .github/last-deployment-trigger
+          git add --sparse .github/last-deployment-trigger
 
           # Commit everything together if there are changes
           git diff --staged --quiet || {
