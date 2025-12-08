@@ -197,9 +197,9 @@ jobs:
 
       - name: Commit and push reports with deployment trigger
         run: |
-          # Add ALL reports and JSON files for local history
-          # Use --sparse flag to allow adding files outside sparse-checkout definition
-          git add --sparse public/reports/*.html public/data/*.json
+          # Only commit census-data-latest.json (keeps repo small)
+          # Dated files are stored in workflow artifacts for GitHub Pages
+          git add public/data/census-data-latest.json
 
           # Add deployment trigger file
           echo "$(date -u +'%Y-%m-%d %H:%M:%S UTC')" > .github/last-deployment-trigger
@@ -212,7 +212,16 @@ jobs:
             git push
             echo "✅ Reports committed and pushed - this should trigger GitHub Pages deployment automatically"
           }
-      
+
+      - name: Upload reports and data as artifacts for GitHub Pages
+        uses: actions/upload-artifact@v4
+        with:
+          name: census-reports
+          path: |
+            public/reports/etoro-census-*.html
+            public/data/etoro-data-*.json
+          retention-days: 30
+
       - name: Trigger GitHub Pages deployment
         if: success()
         uses: actions/github-script@v7

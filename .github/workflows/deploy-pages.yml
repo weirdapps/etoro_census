@@ -37,7 +37,13 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v4
-      
+
+      - name: Download census reports from artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: census-reports
+          path: public/
+
       - name: Find and copy latest report as index.html
         run: |
           cd public/reports
