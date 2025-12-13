@@ -133,7 +133,7 @@ function generateDailyPost() {
   console.log('\n📈 𝗗𝗮𝗶𝗹𝘆 𝗖𝗼𝗽𝗶𝗲𝗿 𝗖𝗵𝗮𝗻𝗴𝗲𝘀:');
   console.log('');
 
-  const copierChanges = utils.findTopCopierChanges(currentData.investors, prevData.investors, 3);
+  const copierChanges = utils.findTopCopierChanges(currentData.investors, prevData.investors, 1);
   const gainers = copierChanges.filter(c => c.change > 0).sort((a, b) => b.change - a.change).slice(0, 5);
   const losers = copierChanges.filter(c => c.change < 0).sort((a, b) => a.change - b.change).slice(0, 5);
 
