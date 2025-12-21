@@ -1,0 +1,80 @@
+name: Setup Data Archive Branch (One-Time)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "GitHub Actions Bot"
+
+      - name: Create orphan data-archive branch
+        run: |
+          # Create new orphan branch (no history)
+          git checkout --orphan data-archive
+
+          # Remove all files from staging
+          git rm -rf .
+
+          # Create directory structure for data files
+          mkdir -p data reports
+
+          # Add README explaining this branch
+          cat > README.md << 'EOF'
+          # eToro Census Data Archive
+
+          This branch contains ALL historical census data files permanently stored in Git.
+
+          ## Structure
+          - `data/` - JSON data files (etoro-data-YYYY-MM-DD-HH-MM.json)
+          - `reports/` - HTML reports (etoro-census-YYYY-MM-DD-HH-MM.html)
+
+          ## Purpose
+          This branch serves as a permanent archive for all census data, eliminating the 30-day
+          expiration risk of GitHub Actions artifacts.
+
+          ## Usage
+          **Do not work on this branch directly.** Files are automatically added by the daily
+          census workflow.
+
+          To access all historical data locally:
+          ```bash
+          git worktree add archive data-archive
+          cd archive
+          # All data files are now in data/ and reports/
+          ```
+
+          ## Automation
+          - Daily census workflow automatically commits new files here
+          - Local sync script pulls updates automatically at 3 AM daily
+          - No manual intervention required
+
+          ## Size
+          This branch will grow to approximately 15-20GB over time. This is intentional and
+          managed separately from the main branch to keep deployments fast.
+          EOF
+
+          git add README.md
+          git commit -m "Initialize data-archive branch for permanent census data storage"
+
+          # Push the new branch to GitHub
+          git push origin data-archive
+
+          echo "✅ Successfully created data-archive branch!"
+          echo "📊 Branch is ready to receive historical census data"
+          echo "🔗 Next steps:"
+          echo "   1. Run 'migrate-historical-data' workflow to populate with existing files"
+          echo "   2. Daily census will automatically commit new files to this branch"

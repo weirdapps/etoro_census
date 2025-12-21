@@ -106,11 +106,21 @@ CLAUDE.md
 analyze.js
 generate-daily-post-auto.js
 
-# Historical census data - stored locally but not in git to keep repository size small
-# Only census-data-latest.json is tracked for Vercel deployments
-# GitHub Pages pulls from GitHub Actions artifacts, not from git
+# Historical census data - stored in data-archive branch (permanent Git storage)
+# Main branch only tracks census-data-latest.json to keep deployments fast
+#
+# Architecture:
+# - data-archive branch: ALL historical dated files (permanent, no expiration)
+# - main branch: Only census-data-latest.json (for Vercel deployment)
+# - Local access: Use 'git worktree add archive data-archive' for all historical files
+# - Auto-sync: LaunchAgent runs daily at 3 AM to sync archive branch locally
+#
+# This eliminates the 30-day artifact expiration risk while keeping main branch clean
 public/data/etoro-data-*.json
 public/reports/etoro-census-*.html
 
-# Keep the latest file tracked (negation pattern)
+# Archive worktree directory (created by sync script)
+archive/
+
+# Keep the latest file tracked for Vercel (negation pattern)
 !public/data/census-data-latest.json

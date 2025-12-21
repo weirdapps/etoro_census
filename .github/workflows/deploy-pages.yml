@@ -35,29 +35,33 @@ jobs:
           echo "Disk space after cleanup:"
           df -h
 
-      - name: Checkout
+      - name: Checkout main branch
         uses: actions/checkout@v4
 
-      - name: Download census reports from artifacts (if available)
-        continue-on-error: true
-        id: download-artifacts
-        uses: dawidd6/action-download-artifact@v3
+      - name: Checkout data-archive branch for historical files
+        uses: actions/checkout@v4
         with:
-          workflow: daily-census.yml
-          name: census-reports
-          path: public/
-          search_artifacts: true
-          if_no_artifact_found: warn
+          ref: data-archive
+          path: archive
 
-      - name: Check if artifacts were downloaded
-        id: check-artifacts
+      - name: Copy archived files to public directories
         run: |
-          if [ -d "public/reports" ] && [ "$(ls -A public/reports/*.html 2>/dev/null)" ]; then
-            echo "artifacts_found=true" >> $GITHUB_OUTPUT
-            echo "✅ Artifacts downloaded successfully"
-          else
-            echo "artifacts_found=false" >> $GITHUB_OUTPUT
-            echo "⚠️ No artifacts found - using files from git checkout"
+          mkdir -p public/data public/reports
+
+          # Copy all historical data from archive branch
+          echo "📦 Copying historical data from data-archive branch..."
+          cp archive/data/*.json public/data/ 2>/dev/null || true
+          cp archive/reports/*.html public/reports/ 2>/dev/null || true
+
+          DATA_COUNT=$(ls public/data/*.json 2>/dev/null | wc -l)
+          REPORT_COUNT=$(ls public/reports/*.html 2>/dev/null | wc -l)
+
+          echo "✅ Copied $DATA_COUNT JSON data files"
+          echo "✅ Copied $REPORT_COUNT HTML reports"
+
+          if [ $REPORT_COUNT -eq 0 ]; then
+            echo "⚠️  Warning: No reports found in archive branch"
+            echo "   Run 'migrate-historical-data' workflow if this is first deployment"
           fi
 
       - name: Find and copy latest report as index.html

@@ -195,6 +195,48 @@ jobs:
             echo "⚠️  No data files found to update census-data-latest.json"
           fi
 
+      - name: Commit dated files to data-archive branch
+        run: |
+          echo "📦 Archiving census data to permanent storage..."
+
+          # Fetch data-archive branch
+          git fetch origin data-archive:data-archive
+
+          # Create worktree for data-archive
+          git worktree add archive data-archive
+          cd archive
+
+          # Copy new dated files from this run
+          echo "Copying dated files to archive..."
+          cp ../public/data/etoro-data-*.json data/ 2>/dev/null || true
+          cp ../public/reports/etoro-census-*.html reports/ 2>/dev/null || true
+
+          # Add files to git
+          git add data/*.json reports/*.html
+
+          # Commit if there are new files
+          if git diff --staged --quiet; then
+            echo "⚠️  No new files to archive (might be a re-run)"
+          else
+            # Count new files
+            NEW_JSON=$(git diff --staged --name-only | grep "data/.*\.json" | wc -l)
+            NEW_HTML=$(git diff --staged --name-only | grep "reports/.*\.html" | wc -l)
+
+            COMMIT_DATE=$(date -u +'%Y-%m-%d %H:%M UTC')
+            git commit -m "Archive census data - $COMMIT_DATE
+
+          Added $NEW_JSON JSON file(s) and $NEW_HTML HTML report(s)
+
+          Auto-committed by daily census workflow"
+
+            git push origin data-archive
+            echo "✅ Successfully archived $NEW_JSON JSON and $NEW_HTML HTML files to data-archive branch"
+            echo "📊 Total files in archive: $(ls data/*.json 2>/dev/null | wc -l) JSON, $(ls reports/*.html 2>/dev/null | wc -l) HTML"
+          fi
+
+          cd ..
+          git worktree remove archive
+
       - name: Commit and push reports with deployment trigger
         run: |
           # Only commit census-data-latest.json (keeps repo small)
