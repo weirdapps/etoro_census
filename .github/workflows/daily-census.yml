@@ -206,13 +206,16 @@ jobs:
           git worktree add archive data-archive
           cd archive
 
+          # Disable sparse-checkout in this worktree (we want all files)
+          git sparse-checkout disable
+
           # Copy new dated files from this run
           echo "Copying dated files to archive..."
           cp ../public/data/etoro-data-*.json data/ 2>/dev/null || true
           cp ../public/reports/etoro-census-*.html reports/ 2>/dev/null || true
 
-          # Add files to git
-          git add data/*.json reports/*.html
+          # Add files to git (use --sparse for compatibility)
+          git add --sparse data/*.json reports/*.html
 
           # Commit if there are new files
           if git diff --staged --quiet; then
