@@ -4,12 +4,15 @@
   "regions": ["iad1"],
   "git": {
     "deploymentEnabled": {
-      "master": true
+      "master": true,
+      "data-archive": false
     }
   },
   "github": {
-    "silent": true
+    "silent": true,
+    "autoJobCancelation": true
   },
+  "ignoreCommand": "bash ./ignore-build-step.sh",
   "installCommand": "npm ci --prefer-offline --no-audit",
   "rewrites": [
     {
