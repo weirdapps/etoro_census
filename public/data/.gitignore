@@ -1,1 +1,5 @@
 .vercel
+
+# Ignore all dated data files (kept in archive branch only)
+# Only census-data-latest.json should be in master branch
+etoro-data-*.json

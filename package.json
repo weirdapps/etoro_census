@@ -14,7 +14,8 @@
     "lint": "next lint",
     "export": "next build && next export",
     "azure-build": "next build",
-    "create-zip": "cd build && zip -r ../build.zip ."
+    "create-zip": "cd build && zip -r ../build.zip .",
+    "sync": "bash scripts/sync-all-data.sh"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.3",
