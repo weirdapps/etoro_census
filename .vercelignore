@@ -1,0 +1,11 @@
+# Vercel Deployment Ignore File
+# Historical reports (deployed via GitHub Pages)
+public/reports/etoro-census-*.html
+
+# Archive data (only latest file needed)
+public/data/etoro-data-*.json
+
+# Keep these for deployment:
+# - public/reports/index.html
+# - public/reports/latest.html
+# - public/data/census-data-latest.json
