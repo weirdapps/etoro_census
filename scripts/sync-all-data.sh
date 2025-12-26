@@ -74,20 +74,24 @@ fi
 # Count archive files
 ARCHIVE_COUNT=$(ls -1 "$ARCHIVE_DATA"/etoro-data-*.json 2>/dev/null | wc -l | tr -d ' ')
 echo -e "${GREEN}✓${NC} Archive has $ARCHIVE_COUNT historical data files\n"
-echo -e "${BLUE}ℹ${NC}  Note: Historical files stay in archive branch"
-echo -e "${BLUE}ℹ${NC}  public/data contains only census-data-latest.json for web app\n"
+echo -e "${BLUE}ℹ${NC}  Note: All historical files stay in archive branch"
+echo -e "${BLUE}ℹ${NC}  public/data gets last 60 days for local analysis (gitignored)\n"
 
-# Step 5: Copy latest file from archive and update census-data-latest.json
-echo -e "${YELLOW}[5/5]${NC} Updating latest data file..."
+# Step 5: Copy recent data files for analysis scripts (last 60 days)
+echo -e "${YELLOW}[5/5]${NC} Syncing recent data files for analysis..."
 
-# Find the most recent data file in ARCHIVE
-LATEST_FILE=$(ls -1t "$ARCHIVE_DATA"/etoro-data-*.json 2>/dev/null | head -1)
+# Find the most recent data files in ARCHIVE (last 60 files = ~2 months)
+RECENT_FILES=$(ls -1t "$ARCHIVE_DATA"/etoro-data-*.json 2>/dev/null | head -60)
 
-if [ -n "$LATEST_FILE" ]; then
+if [ -n "$RECENT_FILES" ]; then
+    # Copy recent files to public/data for analysis scripts
+    echo "$RECENT_FILES" | while read -r file; do
+        cp "$file" "$PUBLIC_DATA/"
+    done
+
+    # Get the latest file for census-data-latest.json
+    LATEST_FILE=$(echo "$RECENT_FILES" | head -1)
     LATEST_FILENAME=$(basename "$LATEST_FILE")
-
-    # Copy only the latest file to public/data
-    cp "$LATEST_FILE" "$PUBLIC_DATA/$LATEST_FILENAME"
 
     # Create/update census-data-latest.json as a copy
     cd "$PUBLIC_DATA"
@@ -98,7 +102,9 @@ if [ -n "$LATEST_FILE" ]; then
 
     # Extract date from filename
     LATEST_DATE=$(echo "$LATEST_FILENAME" | grep -oE '[0-9]{4}-[0-9]{2}-[0-9]{2}')
-    echo -e "${GREEN}✓${NC} Latest data copied: $LATEST_DATE\n"
+    FILES_COPIED=$(echo "$RECENT_FILES" | wc -l | tr -d ' ')
+    echo -e "${GREEN}✓${NC} Synced last ${FILES_COPIED} data files for analysis"
+    echo -e "${GREEN}✓${NC} Latest data: $LATEST_DATE\n"
     cd "$PROJECT_ROOT"
 else
     echo -e "${RED}✗${NC} No data files found in archive\n"
@@ -111,10 +117,10 @@ echo -e "${BLUE}═════════════════════�
 
 # Count total files
 TOTAL_ARCHIVE=$(ls -1 "$ARCHIVE_DATA"/etoro-data-*.json 2>/dev/null | wc -l | tr -d ' ')
-TOTAL_PUBLIC=$(ls -1 "$PUBLIC_DATA"/*.json 2>/dev/null | wc -l | tr -d ' ')
+TOTAL_PUBLIC=$(ls -1 "$PUBLIC_DATA"/etoro-data-*.json 2>/dev/null | wc -l | tr -d ' ')
 
 echo -e "${GREEN}✓${NC} Archive data: ${TOTAL_ARCHIVE} historical files"
-echo -e "${GREEN}✓${NC} Public data:  ${TOTAL_PUBLIC} files (latest + census-data-latest.json)"
+echo -e "${GREEN}✓${NC} Public data:  ${TOTAL_PUBLIC} files (last 60 days for analysis)"
 
 # Show archive date range
 if [ $TOTAL_ARCHIVE -gt 0 ]; then
