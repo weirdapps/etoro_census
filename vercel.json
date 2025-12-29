@@ -11,7 +11,7 @@
   "github": {
     "silent": true,
     "autoJobCancelation": true,
-    "autoAlias": false
+    "autoAlias": true
   },
   "ignoreCommand": "bash ./ignore-build-step.sh",
   "installCommand": "npm ci --prefer-offline --no-audit",
