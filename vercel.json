@@ -2,18 +2,11 @@
   "buildCommand": "npm run build",
   "framework": "nextjs",
   "regions": ["iad1"],
-  "git": {
-    "deploymentEnabled": {
-      "master": true,
-      "data-archive": false
-    }
-  },
   "github": {
     "silent": true,
     "autoJobCancelation": true,
     "autoAlias": true
   },
-  "ignoreCommand": "bash ./ignore-build-step.sh",
   "installCommand": "npm ci --prefer-offline --no-audit",
   "rewrites": [
     {
