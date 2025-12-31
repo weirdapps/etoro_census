@@ -226,7 +226,7 @@ jobs:
             NEW_HTML=$(git diff --staged --name-only | grep "reports/.*\.html" | wc -l)
 
             COMMIT_DATE=$(date -u +'%Y-%m-%d %H:%M UTC')
-            git commit -m "Archive census data - $COMMIT_DATE
+            git commit -m "[skip ci] Archive census data - $COMMIT_DATE
 
           Added $NEW_JSON JSON file(s) and $NEW_HTML HTML report(s)
 
