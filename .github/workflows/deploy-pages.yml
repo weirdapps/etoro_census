@@ -1,9 +1,13 @@
 name: Deploy to GitHub Pages
 
 on:
-  # Only trigger from daily census workflow or manual dispatch
-  # Not from pushes (since dated files are in artifacts, not git)
-  workflow_dispatch:
+  push:
+    branches:
+      - master
+  schedule:
+    # Run at 00:30 UTC every day (30 min after census)
+    - cron: '30 0 * * *'
+  workflow_dispatch: # Allow manual triggering
 
 permissions:
   contents: read

@@ -6,6 +6,17 @@ on:
     # This is 03:00 Athens time during summer (UTC+3)
     # and 02:00 Athens time during winter (UTC+2)
     - cron: '0 0 * * *'
+  push:
+    branches:
+      - master
+    paths:
+      # Only run on changes to source code, not documentation
+      - 'src/**'
+      - 'public/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'next.config.ts'
+      - 'tsconfig.json'
   workflow_dispatch: # Allow manual triggering
 
 permissions:
