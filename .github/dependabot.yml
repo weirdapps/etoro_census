@@ -22,9 +22,24 @@ updates:
         update-types:
           - "minor"
           - "patch"
-    # Ignore packages that are too noisy or need manual handling
+    # Ignore major versions for packages that need coordinated updates
     ignore:
       - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
+      # React ecosystem - react and react-dom must be updated together
+      - dependency-name: "react"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "react-dom"
+        update-types: ["version-update:semver-major"]
+      # Vitest ecosystem - vitest and coverage-v8 must be updated together
+      - dependency-name: "vitest"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@vitest/coverage-v8"
+        update-types: ["version-update:semver-major"]
+      # Other packages with breaking changes that need manual review
+      - dependency-name: "zod"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "jsdom"
         update-types: ["version-update:semver-major"]
 
   # GitHub Actions
