@@ -47,7 +47,8 @@ export default function TopHoldings({ holdings }: TopHoldingsProps) {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <Table>
+        <div className="overflow-x-auto -mx-4 sm:mx-0">
+        <Table className="min-w-[700px]">
           <TableHeader>
             <TableRow>
               <TableHead>Rank</TableHead>
@@ -130,6 +131,7 @@ export default function TopHoldings({ holdings }: TopHoldingsProps) {
             })}
           </TableBody>
         </Table>
+        </div>
         {holdings.length === 0 && (
           <div className="text-center py-8 text-muted-foreground">
             No holdings data available

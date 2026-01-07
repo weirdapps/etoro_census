@@ -38,7 +38,8 @@ export default function TopPerformers({ performers }: TopPerformersProps) {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <Table>
+        <div className="overflow-x-auto -mx-4 sm:mx-0">
+        <Table className="min-w-[750px]">
           <TableHeader>
             <TableRow>
               <TableHead>Rank</TableHead>
@@ -120,6 +121,7 @@ export default function TopPerformers({ performers }: TopPerformersProps) {
             })}
           </TableBody>
         </Table>
+        </div>
         {performers.length === 0 && (
           <div className="text-center py-8 text-muted-foreground">
             No performer data available
