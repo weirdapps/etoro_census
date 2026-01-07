@@ -40,7 +40,7 @@ jobs:
           df -h
 
       - name: Checkout main branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Get recent files from data-archive branch
         run: |
@@ -105,7 +105,7 @@ jobs:
           fi
       
       - name: Setup Pages
-        uses: actions/configure-pages@v4
+        uses: actions/configure-pages@v5
       
       - name: Prepare deployment files
         run: |
@@ -126,7 +126,7 @@ jobs:
           echo "💾 Total size kept minimal (last 7 days only)"
       
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           # Upload only necessary files for GitHub Pages
           path: 'deploy-temp'

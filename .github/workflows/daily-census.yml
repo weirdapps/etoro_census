@@ -43,7 +43,7 @@ jobs:
           df -h
 
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           sparse-checkout: |
@@ -67,7 +67,7 @@ jobs:
           echo "Created public/data directory for report storage"
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: '20'
           cache: 'npm'
@@ -289,7 +289,7 @@ jobs:
           }
 
       - name: Upload reports and data as artifacts for GitHub Pages
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: census-reports
           path: |
@@ -299,7 +299,7 @@ jobs:
 
       - name: Trigger GitHub Pages deployment
         if: success()
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
