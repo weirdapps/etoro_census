@@ -12,28 +12,42 @@ jobs:
   sonarcloud:
     name: SonarCloud
     runs-on: ubuntu-latest
-    # Only run if SONAR_TOKEN is configured
-    if: ${{ secrets.SONAR_TOKEN != '' }}
 
     steps:
+      - name: Check if SonarCloud is configured
+        id: check-sonar
+        run: |
+          if [ -z "${{ secrets.SONAR_TOKEN }}" ]; then
+            echo "⚠️ SONAR_TOKEN not configured - skipping SonarCloud analysis"
+            echo "configured=false" >> $GITHUB_OUTPUT
+          else
+            echo "✅ SONAR_TOKEN found - proceeding with analysis"
+            echo "configured=true" >> $GITHUB_OUTPUT
+          fi
+
       - name: Checkout repository
+        if: steps.check-sonar.outputs.configured == 'true'
         uses: actions/checkout@v4
         with:
           fetch-depth: 0  # Full history for accurate blame information
 
       - name: Setup Node.js
+        if: steps.check-sonar.outputs.configured == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
 
       - name: Install dependencies
+        if: steps.check-sonar.outputs.configured == 'true'
         run: npm ci
 
       - name: Run tests with coverage
+        if: steps.check-sonar.outputs.configured == 'true'
         run: npm test -- --coverage
 
       - name: SonarCloud Scan
+        if: steps.check-sonar.outputs.configured == 'true'
         uses: SonarSource/sonarcloud-github-action@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
