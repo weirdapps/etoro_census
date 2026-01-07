@@ -32,7 +32,6 @@ jobs:
         run: npm run lint
 
       - name: Run type check
-        continue-on-error: true  # Report but don't block - legacy type errors exist
         run: npx tsc --noEmit
 
       - name: Run tests with coverage
