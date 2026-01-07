@@ -23,6 +23,11 @@ permissions:
   contents: write
   actions: write
 
+# Prevent multiple runs from overlapping - cancel in-progress run when new one starts
+concurrency:
+  group: daily-census
+  cancel-in-progress: true
+
 jobs:
   generate-report:
     runs-on: ubuntu-latest
@@ -254,7 +259,13 @@ jobs:
 
           Auto-committed by daily census workflow"
 
-            git push origin data-archive
+            # Pull with rebase to handle any concurrent pushes, then push with retry
+            for i in 1 2 3; do
+              echo "Push attempt $i..."
+              git pull --rebase origin data-archive && git push origin data-archive && break
+              echo "Attempt $i failed, retrying in 5 seconds..."
+              sleep 5
+            done
             echo "✅ Successfully archived $NEW_JSON JSON and $NEW_HTML HTML files to data-archive branch"
             echo "📊 Total files in archive: $(ls data/*.json 2>/dev/null | wc -l) JSON, $(ls reports/*.html 2>/dev/null | wc -l) HTML"
           fi
