@@ -11,21 +11,15 @@ import {
   findDailyMovers,
   findTopCopierChanges
 } from './lib/utils';
-import type { CensusData, Analysis, Holding, CopierChange, HoldingMover } from './lib/types';
-
-interface AnalysisAverages {
-  cashPercentage: number;
-  riskScore: number;
-  gain: number;
-}
-
-interface ExtendedAnalysis extends Analysis {
-  averages: AnalysisAverages;
-  topHoldings: ExtendedHolding[];
-}
+import type { CensusData, Analysis, Holding, CopierChange, HoldingMover, AnalysisAverages } from './lib/types';
 
 interface ExtendedHolding extends Holding {
   holdersPercentage?: number;
+}
+
+interface ExtendedAnalysis extends Omit<Analysis, 'averages' | 'topHoldings'> {
+  averages: Required<Pick<AnalysisAverages, 'cashPercentage' | 'riskScore' | 'gain'>>;
+  topHoldings: ExtendedHolding[];
 }
 
 function generateDailyPost(): void {

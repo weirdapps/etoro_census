@@ -1,9 +1,16 @@
 /**
  * Portfolio Service
  * Manages personal portfolio data fetching and processing
+ *
+ * @deprecated This service is not used. Use real-portfolio-service.ts or public-portfolio-service.ts instead.
  */
 
-import { personalAuth } from '@/lib/auth/personal-auth';
+// TODO: Remove this file - it's dead code. Using placeholder to fix TypeScript errors.
+const personalAuth = {
+  makeRequest: async <T>(_endpoint: string): Promise<T> => {
+    throw new Error('Portfolio service is deprecated. Use real-portfolio-service instead.');
+  }
+};
 
 // Types based on eToro API documentation
 export interface Position {

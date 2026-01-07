@@ -13,23 +13,15 @@ import {
   createInstrumentMap,
   getAssetInfo
 } from './lib/utils';
-import type { Analysis, Holding, Investor } from './lib/types';
-
-interface AnalysisAverages {
-  cashPercentage: number;
-  riskScore: number;
-  gain: number;
-  trades: number;
-  winRatio: number;
-}
-
-interface ExtendedAnalysis extends Analysis {
-  averages: AnalysisAverages;
-  topHoldings: ExtendedHolding[];
-}
+import type { Analysis, Holding, Investor, AnalysisAverages } from './lib/types';
 
 interface ExtendedHolding extends Holding {
   holdersPercentage?: number;
+}
+
+interface ExtendedAnalysis extends Omit<Analysis, 'averages' | 'topHoldings'> {
+  averages: Required<Pick<AnalysisAverages, 'cashPercentage' | 'riskScore' | 'gain' | 'trades' | 'winRatio'>>;
+  topHoldings: ExtendedHolding[];
 }
 
 function generateMonthlyPost(): void {

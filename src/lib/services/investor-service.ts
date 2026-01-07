@@ -1,5 +1,6 @@
 import { UserDetail, UserTradeInfo } from '../models/user';
-import { Position } from '../models/user-portfolio';
+import { UserPosition } from '../models/user-portfolio';
+import { ETORO_COUNTRY_MAPPING } from '../utils/country-mapping';
 import { getUserAvatarUrl } from './user-service';
 import { InstrumentDisplayData, InstrumentPriceData } from './instrument-service';
 
@@ -53,7 +54,7 @@ interface RawDataStructure {
     winRatio?: number;
     tradeInfo?: UserTradeInfo;
     portfolio?: {
-      positions?: Position[];
+      positions?: UserPosition[];
     };
   }>;
   userDetails?: Map<string, UserDetail> | Record<string, UserDetail>;
@@ -94,8 +95,8 @@ export class InvestorService {
       username: investor.userName,
       fullName: investor.fullName || investor.userName,
       avatarUrl: getUserAvatarUrl(userDetail, investor.hasAvatar, username),
-      country: userDetail?.countryName,
-      aboutMe: userDetail?.aboutMe,
+      country: userDetail?.country ? ETORO_COUNTRY_MAPPING[userDetail.country]?.name : undefined,
+      aboutMe: userDetail?.aboutMe ?? undefined,
       isVerified: investor.isVerified || false,
       isPi: investor.isPi || false,
       gain: investor.gain || 0,
@@ -122,7 +123,7 @@ export class InvestorService {
       winRatio?: number;
       tradeInfo?: UserTradeInfo;
       portfolio?: {
-        positions?: Position[];
+        positions?: UserPosition[];
       };
     },
     rawData: RawDataStructure
@@ -137,7 +138,7 @@ export class InvestorService {
         ? rawData.instruments.details
         : new Map(Object.entries(rawData.instruments?.details || {}).map(([k, v]) => [parseInt(k), v as InstrumentDisplayData]));
 
-      investor.portfolio.positions.forEach((position: Position) => {
+      investor.portfolio.positions.forEach((position: UserPosition) => {
         const instrumentDetails = instrumentDetailsMap.get(position.instrumentId);
 
         totalInvested += position.investmentPct || 0;
@@ -201,8 +202,8 @@ export class InvestorService {
         username: investor.userName,
         fullName: investor.fullName || investor.userName,
         avatarUrl: getUserAvatarUrl(userDetail, investor.hasAvatar, investor.userName),
-        country: userDetail?.countryName,
-        aboutMe: userDetail?.aboutMe,
+        country: userDetail?.country ? ETORO_COUNTRY_MAPPING[userDetail.country]?.name : undefined,
+        aboutMe: userDetail?.aboutMe ?? undefined,
         isVerified: investor.isVerified || false,
         isPi: investor.isPi || false,
         gain: investor.gain || 0,
@@ -275,8 +276,8 @@ export class InvestorService {
         username: investor.userName,
         fullName: investor.fullName || investor.userName,
         avatarUrl: getUserAvatarUrl(userDetail, investor.hasAvatar, investor.userName),
-        country: userDetail?.countryName,
-        aboutMe: userDetail?.aboutMe,
+        country: userDetail?.country ? ETORO_COUNTRY_MAPPING[userDetail.country]?.name : undefined,
+        aboutMe: userDetail?.aboutMe ?? undefined,
         isVerified: investor.isVerified || false,
         isPi: investor.isPi || false,
         gain: investor.gain || 0,

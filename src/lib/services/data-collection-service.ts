@@ -165,6 +165,7 @@ export class DataCollectionService {
     return results.map(({ item: investor, result: portfolio, error }) => ({
       ...investor,
       portfolio,
+      tradeInfo: null,
       ...(error && { portfolioError: error }),
     }));
   }

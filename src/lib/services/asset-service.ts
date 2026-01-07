@@ -1,5 +1,5 @@
 import { InstrumentDisplayData, InstrumentPriceData } from './instrument-service';
-import { Position } from '../models/user-portfolio';
+import { UserPosition } from '../models/user-portfolio';
 
 export interface AssetHolder {
   username: string;
@@ -48,7 +48,7 @@ interface RawDataStructure {
     copiers?: number;
     riskScore?: number;
     portfolio?: {
-      positions?: Position[];
+      positions?: UserPosition[];
     };
   }>;
 }
@@ -97,13 +97,13 @@ export class AssetService {
 
       // Find positions for this instrument
       const positions = investor.portfolio.positions.filter(
-        (p: Position) => p.instrumentId === instrumentId
+        (p: UserPosition) => p.instrumentId === instrumentId
       );
 
       if (positions.length > 0) {
         // Sum allocations if multiple positions
         const totalInvestorAllocation = positions.reduce(
-          (sum: number, p: Position) => sum + (p.investmentPct || 0),
+          (sum: number, p: UserPosition) => sum + (p.investmentPct || 0),
           0
         );
 
@@ -119,7 +119,7 @@ export class AssetService {
           riskScore: investor.riskScore || 0,
           position: {
             openDate: positions[0].openTimestamp,
-            netProfit: positions.reduce((sum: number, p: Position) => sum + (p.netProfit || 0), 0),
+            netProfit: positions.reduce((sum: number, p: UserPosition) => sum + (p.netProfit || 0), 0),
             leverage: positions[0].leverage || 1,
           },
         });
@@ -184,7 +184,7 @@ export class AssetService {
       if (!investor.portfolio?.positions) continue;
 
       const uniqueInstruments = new Set<number>();
-      investor.portfolio.positions.forEach((p: Position) => {
+      investor.portfolio.positions.forEach((p: UserPosition) => {
         uniqueInstruments.add(p.instrumentId);
       });
 

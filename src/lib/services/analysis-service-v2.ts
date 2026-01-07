@@ -23,15 +23,15 @@ export class AnalysisServiceV2 {
     onProgress?: ProgressCallback
   ): Promise<CensusAnalysis> {
     // Convert serialized objects back to Maps if needed
-    const instrumentDetailsMap = collectedData.instruments.details instanceof Map
+    const instrumentDetailsMap: Map<number, InstrumentDisplayData> = collectedData.instruments.details instanceof Map
       ? collectedData.instruments.details
-      : new Map(Object.entries(collectedData.instruments.details).map(([k, v]) => [parseInt(k), v]));
+      : new Map(Object.entries(collectedData.instruments.details).map(([k, v]) => [parseInt(k), v as InstrumentDisplayData]));
 
-    const priceDataMap = collectedData.instruments.priceData instanceof Map
+    const priceDataMap: Map<number, InstrumentPriceData> = collectedData.instruments.priceData instanceof Map
       ? collectedData.instruments.priceData
-      : new Map(Object.entries(collectedData.instruments.priceData).map(([k, v]) => [parseInt(k), v]));
+      : new Map(Object.entries(collectedData.instruments.priceData).map(([k, v]) => [parseInt(k), v as InstrumentPriceData]));
 
-    const userDetailsMap = collectedData.userDetails instanceof Map
+    const userDetailsMap: Map<string, UserDetail> = collectedData.userDetails instanceof Map
       ? collectedData.userDetails
       : new Map(Object.entries(collectedData.userDetails));
     const updateProgress = (progress: number, message: string) => {
@@ -62,7 +62,8 @@ export class AnalysisServiceV2 {
     const topHoldings = this.calculateTopHoldings(
       instrumentData,
       instrumentDetailsMap,
-      priceDataMap
+      priceDataMap,
+      investorCount
     );
     updateProgress(80, `Generated ${topHoldings.length} top holdings`);
 
@@ -197,25 +198,31 @@ export class AnalysisServiceV2 {
   private calculateTopHoldings(
     instrumentData: { [instrumentId: number]: { totalAllocation: number; holders: number } },
     instrumentDetails: Map<number, InstrumentDisplayData>,
-    priceData: Map<number, InstrumentPriceData>
+    priceData: Map<number, InstrumentPriceData>,
+    totalInvestors: number = 1500
   ): InstrumentHolding[] {
     const holdings = Object.entries(instrumentData)
       .map(([instrumentId, data]) => {
         const id = parseInt(instrumentId);
         const details = instrumentDetails.get(id);
         const price = priceData.get(id);
+        const returns = price?.returns || { yesterday: 0, weekTD: 0, monthTD: 0 };
 
         return {
           instrumentId: id,
-          name: getInstrumentDisplayName(details),
+          instrumentName: getInstrumentDisplayName(details),
           symbol: getInstrumentSymbol(details),
           imageUrl: getInstrumentImageUrl(details),
+          holdersCount: data.holders,
+          holdersPercentage: (data.holders / totalInvestors) * 100,
           averageAllocation: data.totalAllocation / data.holders,
-          totalHolders: data.holders,
-          returns: price?.returns || { yesterday: 0, weekTD: 0, monthTD: 0 }
+          totalAllocation: data.totalAllocation,
+          yesterdayReturn: returns.yesterday,
+          weekTDReturn: returns.weekTD,
+          monthTDReturn: returns.monthTD
         };
       })
-      .sort((a, b) => b.totalHolders - a.totalHolders)
+      .sort((a, b) => b.holdersCount - a.holdersCount)
       .slice(0, 20);
 
     return holdings;

@@ -354,7 +354,7 @@ class CensusDataService {
         // Top 100 by lowest risk score (most conservative)
         topInvestors = data.investors
           .filter(inv => inv.riskScore !== undefined && inv.riskScore > 0)
-          .sort((a, b) => a.riskScore - b.riskScore)
+          .sort((a, b) => (a.riskScore ?? 0) - (b.riskScore ?? 0))
           .slice(0, 100);
         groupDescription = 'Top 100 Conservative (Low Risk)';
         break;
@@ -377,7 +377,7 @@ class CensusDataService {
 
       for (const position of investor.portfolio?.positions || []) {
         const currentAllocation = investorPositionsByInstrument.get(position.instrumentId) || 0;
-        const positionAllocation = position.investmentPct || (100 / Math.max(10, investor.portfolio?.positions?.length || 20));
+        const positionAllocation = position.percentage || (100 / Math.max(10, investor.portfolio?.positions?.length || 20));
         investorPositionsByInstrument.set(position.instrumentId, currentAllocation + positionAllocation);
       }
 
@@ -501,8 +501,8 @@ class CensusDataService {
     const holdings = new Map<string, number>();
 
     for (const investor of investors) {
-      const uniqueSymbols = new Set(
-        investor.portfolio?.positions?.map((p: any) => p.symbol) || []
+      const uniqueSymbols = new Set<string>(
+        investor.portfolio?.positions?.map((p: any) => p.symbol as string) || []
       );
 
       for (const symbol of uniqueSymbols) {

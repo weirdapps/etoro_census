@@ -6,8 +6,35 @@ import { ETORO_COUNTRY_MAPPING } from '@/lib/utils/country-mapping';
 import { Disclaimer } from '@/components/Disclaimer';
 import EliteGroupComparison from '@/components/intelligence/EliteGroupComparison';
 
+interface RiskMetrics {
+  overallRiskScore?: number;
+  // Add other risk metrics as needed
+}
+
+interface RiskData {
+  riskMetrics?: RiskMetrics;
+}
+
+interface PersonalPortfolioData {
+  portfolio?: {
+    positionCount?: number;
+    totalValue?: number;
+    profitLossPercentage?: number;
+    cashPercentage?: number;
+    positions?: Array<{
+      instrumentId: number;
+      symbol: string;
+      logoUrl?: string;
+      marketValue?: number;
+      profit?: number;
+    }>;
+  };
+  risk?: RiskData;
+  [key: string]: unknown;
+}
+
 export default function PersonalPortfolioPage() {
-  const [data, setData] = useState<Record<string, unknown> | null>(null);
+  const [data, setData] = useState<PersonalPortfolioData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

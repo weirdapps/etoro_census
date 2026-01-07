@@ -105,12 +105,21 @@ export interface AnalysisMetrics {
   averageWinRatio?: number;
 }
 
+export interface AnalysisAverages {
+  cashPercentage: number;
+  riskScore: number;
+  gain: number;
+  trades?: number;
+  winRatio?: number;
+  [key: string]: number | undefined;
+}
+
 export interface Analysis {
   investorCount: number;
   band?: string;
   metrics?: AnalysisMetrics;
   fearGreedIndex?: number;
-  averages?: Record<string, number>;
+  averages?: AnalysisAverages;
   distributions?: Record<string, unknown>;
   topHoldings?: Holding[];
   topPerformers?: Investor[];

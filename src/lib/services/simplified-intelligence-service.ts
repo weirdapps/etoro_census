@@ -82,7 +82,7 @@ class SimplifiedIntelligenceService {
     const [portfolio, smartMoney, topHoldings] = await Promise.all([
       realPortfolioService.getPortfolio(),
       censusDataService.getSmartMoneyFlow(groupType, baseUrl),
-      censusDataService.getTopHoldings(20, baseUrl)
+      censusDataService.getTopHoldings(20)
     ]);
 
     const totalAccountValue = (portfolio.totalValue || 0) + (portfolio.cashBalance || 0);
@@ -173,7 +173,7 @@ class SimplifiedIntelligenceService {
   async getTopHoldingsInsights(baseUrl?: string): Promise<any> {
     const [portfolio, topHoldings, broadMarket] = await Promise.all([
       realPortfolioService.getPortfolio(),
-      censusDataService.getTopHoldings(20, baseUrl),
+      censusDataService.getTopHoldings(20),
       censusDataService.getSmartMoneyFlow('all', baseUrl) // Get full market data with penetration
     ]);
 

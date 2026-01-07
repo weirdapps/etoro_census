@@ -164,8 +164,7 @@ export async function POST(request: NextRequest) {
             }))
           },
 
-          userDetails: Array.from(collectedData.userDetails.entries()).map(([username, details]) => ({
-            username,
+          userDetails: Array.from(collectedData.userDetails.entries()).map(([, details]) => ({
             ...details
           })),
 

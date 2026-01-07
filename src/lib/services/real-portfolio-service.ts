@@ -137,7 +137,7 @@ class RealPortfolioService {
           const units = Math.abs(item.units || 0);
 
           // CORRECT CALCULATION: Current value = invested amount + profit/loss
-          const profit = unrealizedPnL.pnL || 0;
+          let profit = unrealizedPnL.pnL || 0;
           let marketValue = investedAmount + profit;
           let profitPercent = investedAmount > 0 ? (profit / investedAmount) * 100 : 0;
 

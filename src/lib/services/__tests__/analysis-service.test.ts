@@ -169,20 +169,22 @@ function createTestCollectedData(investors?: CollectedInvestorData[]): Comprehen
     investors: testInvestors as CollectedInvestorData[],
     instruments: {
       details: new Map([
-        [1001, { instrumentId: 1001, symbol: 'AAPL', name: 'Apple Inc.', imageUrl: '', instrumentType: 'Stocks' }],
-        [1002, { instrumentId: 1002, symbol: 'GOOGL', name: 'Alphabet Inc.', imageUrl: '', instrumentType: 'Stocks' }],
+        [1001, { instrumentID: 1001, symbolFull: 'AAPL', instrumentDisplayName: 'Apple Inc.', exchangeID: 1, instrumentTypeID: 1, images: [] }],
+        [1002, { instrumentID: 1002, symbolFull: 'GOOGL', instrumentDisplayName: 'Alphabet Inc.', exchangeID: 1, instrumentTypeID: 1, images: [] }],
       ]),
       priceData: new Map([
-        [1001, { yesterdayReturn: 1.5, weekTdReturn: 3.2, monthTdReturn: 5.8 }],
-        [1002, { yesterdayReturn: -0.8, weekTdReturn: 1.1, monthTdReturn: -2.3 }],
+        [1001, { currentPrice: 150, closingPrices: { daily: 148, weekly: 145, monthly: 140 }, returns: { yesterday: 1.5, weekTD: 3.2, monthTD: 5.8 } }],
+        [1002, { currentPrice: 120, closingPrices: { daily: 121, weekly: 119, monthly: 123 }, returns: { yesterday: -0.8, weekTD: 1.1, monthTD: -2.3 } }],
       ]),
     },
     userDetails: new Map(),
     metadata: {
-      period: 'CurrYear',
-      maxRequested: 100,
-      totalCollected: testInvestors.length,
+      collectedAt: new Date().toISOString(),
       collectedAtUTC: new Date().toISOString(),
+      totalInvestors: testInvestors.length,
+      period: 'CurrYear',
+      dataSource: 'test',
+      processingTimeMs: 0,
     },
   };
 }

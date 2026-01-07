@@ -5,9 +5,67 @@ import { AlertCircle, User } from 'lucide-react';
 import { ETORO_COUNTRY_MAPPING } from '@/lib/utils/country-mapping';
 import { Disclaimer } from '@/components/Disclaimer';
 
+interface PortfolioPosition {
+  instrumentId: number;
+  symbol: string;
+  logoUrl?: string;
+  marketValue?: number;
+}
+
+interface PortfolioData {
+  avatar?: string;
+  fullName?: string;
+  username?: string;
+  country?: number;
+  isPopularInvestor?: boolean;
+  piLevel?: number;
+  positionCount?: number;
+  riskScore?: number;
+  winRatio?: number;
+  ytdReturn?: number;
+  cashPercent?: number;
+  topPositions?: PortfolioPosition[];
+}
+
+interface BroadMarketHolding {
+  instrumentId: number;
+  symbol?: string;
+  penetration: number;
+}
+
+interface PerformanceData {
+  instrumentId: number;
+  symbol?: string;
+  weekTDReturn?: number;
+  monthTDReturn?: number;
+}
+
+interface ComparisonGroup {
+  group: string;
+  topMissing?: Array<{
+    symbol: string;
+    logoUrl?: string;
+    penetration: string;
+  }>;
+}
+
+interface EliteGroupComparison {
+  insights?: {
+    recommendation?: string;
+  };
+  comparisons: Record<string, ComparisonGroup>;
+}
+
+interface PublicPortfolioResponse {
+  portfolio?: PortfolioData;
+  broadMarketHoldings?: BroadMarketHolding[];
+  performanceData?: PerformanceData[];
+  eliteGroupComparison?: EliteGroupComparison;
+}
+
 export default function PublicPortfolioPage() {
   const [username, setUsername] = useState('');
-  const [data, setData] = useState<Record<string, unknown> | null>(null);
+  const [data, setData] = useState<PublicPortfolioResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
@@ -204,12 +262,12 @@ export default function PublicPortfolioPage() {
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                      {data.portfolio.topPositions.slice(0, 10).map((pos: any, i: number) => {
+                      {data.portfolio.topPositions.slice(0, 10).map((pos, i) => {
                         // Find penetration from broadMarketHoldings (uses 'penetration' field)
                         let isPopular = false;
-                        if (data.broadMarketHoldings && Array.isArray(data.broadMarketHoldings)) {
+                        if (data.broadMarketHoldings) {
                           const broadHolding = data.broadMarketHoldings.find(
-                            (h: any) => h.instrumentId === pos.instrumentId || h.symbol?.toUpperCase() === pos.symbol?.toUpperCase()
+                            (h) => h.instrumentId === pos.instrumentId || h.symbol?.toUpperCase() === pos.symbol?.toUpperCase()
                           );
                           if (broadHolding && broadHolding.penetration >= 20) {
                             isPopular = true;
@@ -217,11 +275,11 @@ export default function PublicPortfolioPage() {
                         }
 
                         // Find performance data from performanceData (census file has weekTDReturn, monthTDReturn)
-                        let weekTDReturn = null;
-                        let mtdReturn = null;
-                        if (data.performanceData && Array.isArray(data.performanceData)) {
+                        let weekTDReturn: number | null = null;
+                        let mtdReturn: number | null = null;
+                        if (data.performanceData) {
                           const perfHolding = data.performanceData.find(
-                            (h: any) => h.instrumentId === pos.instrumentId || h.symbol?.toUpperCase() === pos.symbol?.toUpperCase()
+                            (h) => h.instrumentId === pos.instrumentId || h.symbol?.toUpperCase() === pos.symbol?.toUpperCase()
                           );
                           if (perfHolding) {
                             weekTDReturn = perfHolding.weekTDReturn !== undefined ? perfHolding.weekTDReturn : null;
@@ -312,14 +370,14 @@ export default function PublicPortfolioPage() {
                     Missing by Investor Group
                   </h3>
                   <div className="grid md:grid-cols-2 gap-4">
-                    {Object.entries(data.eliteGroupComparison.comparisons).map(([key, group]: [string, any]) => (
+                    {Object.entries(data.eliteGroupComparison.comparisons).map(([key, group]) => (
                       <div key={key} className="border border-gray-200 rounded p-4">
                         <div className="text-sm font-semibold text-gray-900 mb-3">
                           {group.group}
                         </div>
                         {group.topMissing && group.topMissing.length > 0 && (
                           <div className="space-y-2">
-                            {group.topMissing.slice(0, 5).map((stock: any, i: number) => (
+                            {group.topMissing.slice(0, 5).map((stock, i) => (
                               <div key={i} className="flex items-center justify-between text-sm">
                                 <div className="flex items-center gap-2">
                                   {stock.logoUrl && (

@@ -98,7 +98,7 @@ export default function EliteGroupComparison({ data }: { data: EliteGroupCompari
         {groups.map((group) => (
           <button
             key={group.id}
-            onClick={() => setSelectedGroup(group.id as 'top100' | 'top500' | 'conservative' | 'performers')}
+            onClick={() => setSelectedGroup(group.id as 'all' | 'topCopiers' | 'topPerformers' | 'lowRisk')}
             className={`p-4 rounded-lg border-2 transition-all ${
               selectedGroup === group.id
                 ? `border-${group.color}-500 bg-${group.color}-50`

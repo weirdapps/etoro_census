@@ -48,7 +48,7 @@ export default function TopHoldingsV2({ holdings, rawData }: TopHoldingsProps) {
                     {holding.imageUrl ? (
                       <img
                         src={holding.imageUrl}
-                        alt={holding.name}
+                        alt={holding.instrumentName}
                         className="w-10 h-10 rounded-lg object-contain bg-gray-50"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
@@ -58,13 +58,13 @@ export default function TopHoldingsV2({ holdings, rawData }: TopHoldingsProps) {
                     ) : (
                       <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center">
                         <span className="text-xs font-semibold text-muted-foreground">
-                          {holding.symbol?.charAt(0) || holding.name.charAt(0)}
+                          {holding.symbol?.charAt(0) || holding.instrumentName.charAt(0)}
                         </span>
                       </div>
                     )}
                     <div>
                       <div className="font-medium truncate max-w-[200px]">
-                        {holding.name}
+                        {holding.instrumentName}
                       </div>
                       {holding.symbol && (
                         <div className="text-sm text-muted-foreground">
@@ -95,7 +95,7 @@ export default function TopHoldingsV2({ holdings, rawData }: TopHoldingsProps) {
                       )}
                     </td>
                     <td className="text-right py-3 px-2 font-medium">
-                      {holding.totalHolders}
+                      {holding.holdersCount}
                     </td>
                     <td className="text-right py-3 px-2">
                       <Badge variant="secondary">
@@ -105,25 +105,25 @@ export default function TopHoldingsV2({ holdings, rawData }: TopHoldingsProps) {
                     <td className="text-right py-3 px-2">
                       <Badge
                         variant="outline"
-                        className={getReturnColor(holding.returns?.yesterday || 0)}
+                        className={getReturnColor(holding.yesterdayReturn || 0)}
                       >
-                        {(holding.returns?.yesterday || 0).toFixed(2)}%
+                        {(holding.yesterdayReturn || 0).toFixed(2)}%
                       </Badge>
                     </td>
                     <td className="text-right py-3 px-2">
                       <Badge
                         variant="outline"
-                        className={getReturnColor(holding.returns?.weekTD || 0)}
+                        className={getReturnColor(holding.weekTDReturn || 0)}
                       >
-                        {(holding.returns?.weekTD || 0).toFixed(2)}%
+                        {(holding.weekTDReturn || 0).toFixed(2)}%
                       </Badge>
                     </td>
                     <td className="text-right py-3 px-2">
                       <Badge
                         variant="outline"
-                        className={getReturnColor(holding.returns?.monthTD || 0)}
+                        className={getReturnColor(holding.monthTDReturn || 0)}
                       >
-                        {(holding.returns?.monthTD || 0).toFixed(2)}%
+                        {(holding.monthTDReturn || 0).toFixed(2)}%
                       </Badge>
                     </td>
                     {enableLinks && (
