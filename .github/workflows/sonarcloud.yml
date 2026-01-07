@@ -12,6 +12,8 @@ jobs:
   sonarcloud:
     name: SonarCloud
     runs-on: ubuntu-latest
+    # Only run if SONAR_TOKEN is configured
+    if: ${{ secrets.SONAR_TOKEN != '' }}
 
     steps:
       - name: Checkout repository
