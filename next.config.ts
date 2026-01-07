@@ -4,6 +4,8 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  // Silence Turbopack warning for Next.js 16+
+  turbopack: {},
   images: {
     remotePatterns: [
       {
