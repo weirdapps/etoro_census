@@ -266,7 +266,14 @@ jobs:
           git diff --staged --quiet || {
             COMMIT_MSG="Daily census report - $(date -u +'%Y-%m-%d %H:%M UTC')"
             git commit -m "$COMMIT_MSG"
-            git push
+
+            # Pull with rebase to handle any concurrent pushes, then push with retry
+            for i in 1 2 3; do
+              echo "Push attempt $i..."
+              git pull --rebase origin master && git push && break
+              echo "Attempt $i failed, retrying in 5 seconds..."
+              sleep 5
+            done
             echo "✅ Reports committed and pushed - this should trigger GitHub Pages deployment automatically"
           }
 
