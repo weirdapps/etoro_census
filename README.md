@@ -54,11 +54,13 @@ The analysis processes data from up to 1,500 popular investors and generates com
 ## Tech Stack
 
 ### Frontend
-- **Framework**: Next.js 15.2.4 with App Router
+- **Framework**: Next.js 15.5.9 with App Router
 - **Language**: TypeScript with strict typing
-- **Styling**: Tailwind CSS + Radix UI components
+- **Styling**: Tailwind CSS v4 + Radix UI components
+- **Theming**: Dark mode support with next-themes
 - **Validation**: Zod schemas
 - **Analytics**: Vercel Analytics + Speed Insights
+- **Testing**: Vitest with 88+ tests
 
 ### Backend
 - **API**: RESTful endpoints with streaming support
@@ -68,8 +70,10 @@ The analysis processes data from up to 1,500 popular investors and generates com
 
 ### Infrastructure
 - **Deployment**: Vercel (production) + GitHub Pages (reports)
+- **Database**: Supabase (PostgreSQL) for historical data
 - **Automation**: Daily reports via GitHub Actions (00:00 UTC)
 - **Monitoring**: Real-time performance tracking
+- **Data Archival**: Gzip compression for historical data (~90% space savings)
 
 ## Architecture
 
@@ -120,14 +124,28 @@ src/
 │   └── utils.ts                  # Utility functions
 └── middleware.ts                 # Next.js middleware
 
-analysis/                         # Analysis tools
-├── daily-post.js                 # Daily census updates
-├── weekly-post.js                # Weekly summaries
-├── monthly-post.js               # Monthly reports
+analysis/                         # Analysis tools (TypeScript)
+├── daily-post.ts                 # Daily census updates
+├── weekly-post.ts                # Weekly summaries
+├── monthly-post.ts               # Monthly reports
+├── generate-all-posts.ts         # Run all post generators
+├── lib/
+│   ├── types.ts                  # Type definitions
+│   └── utils.ts                  # Shared utilities
 ├── hot-hands.js                  # Winning streak analysis
 ├── follower-distribution/        # Follower analysis tools
 ├── performance-comparison/       # Performance tools
 └── risk-return/                  # Risk/return analysis
+
+scripts/                          # Utility scripts
+├── compress-historical-data.js   # Compress old JSON data
+├── decompress-for-analysis.js    # Extract compressed data
+├── import-historical-to-supabase.js  # Import data to Supabase
+└── sync-daily-to-supabase.js     # Sync daily data to Supabase
+
+supabase/                         # Database schema
+└── migrations/
+    └── 001_initial_schema.sql    # Initial database schema
 
 .github/workflows/                # Automation
 ├── daily-census.yml              # Daily report generation
@@ -175,16 +193,16 @@ npm start
 Generate formatted updates for the eToro community:
 
 ```bash
-# Daily market update with Fear & Greed Index
+# Using TypeScript directly with ts-node
+npx ts-node analysis/daily-post.ts
+npx ts-node analysis/weekly-post.ts
+npx ts-node analysis/monthly-post.ts
+npx ts-node analysis/generate-all-posts.ts
+
+# Or use the JavaScript versions (legacy)
 node analysis/daily-post.js
-
-# Weekly summary with trend analysis
 node analysis/weekly-post.js
-
-# Monthly comprehensive report
 node analysis/monthly-post.js
-
-# Generate all posts at once
 node analysis/generate-all-posts.js
 ```
 
@@ -293,7 +311,41 @@ git push origin master
 - Functional components with hooks
 - Typed props interfaces
 - Responsive Tailwind CSS design
+- Dark mode support via CSS variables
+- Loading skeletons for better UX
 - Accessibility considerations
+
+### Testing
+```bash
+# Run tests
+npm test
+
+# Run tests in watch mode
+npm test -- --watch
+
+# Run with coverage
+npm test -- --coverage
+```
+
+Current test coverage: 88+ tests across:
+- Services (DataCollectionService, AnalysisService)
+- Schemas (Investor, Instrument, Portfolio)
+- Utilities (Country mapping, formatting)
+
+### Data Management
+```bash
+# Compress historical data (7+ days old)
+node scripts/compress-historical-data.js
+
+# Decompress data for analysis
+node scripts/decompress-for-analysis.js
+
+# Import to Supabase
+node scripts/import-historical-to-supabase.js
+
+# Sync daily data
+node scripts/sync-daily-to-supabase.js
+```
 
 ## Known Limitations
 

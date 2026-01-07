@@ -40,6 +40,7 @@ jobs:
             public/reports
             .github
             analysis
+            scripts
             package.json
             package-lock.json
             next.config.ts
@@ -182,6 +183,16 @@ jobs:
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "GitHub Actions Bot"
+
+      - name: Compress old data files
+        run: |
+          echo "🗜️ Compressing data files older than 7 days..."
+          if [ -f "scripts/compress-historical-data.js" ]; then
+            node scripts/compress-historical-data.js
+            echo "✅ Data compression complete"
+          else
+            echo "⚠️  Compression script not found (first run?), skipping"
+          fi
 
       - name: Update latest data file for Vercel deployment
         run: |

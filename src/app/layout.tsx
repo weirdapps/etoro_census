@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { VercelAnalytics } from "@/components/analytics";
+import { ThemeProvider } from "@/components/theme-provider";
+import { Header } from "@/components/header";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,14 +26,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full">
+    <html lang="en" className="h-full" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col bg-background`}
       >
-        <main className="flex-1 container mx-auto px-4 py-8">
-          {children}
-        </main>
-        <VercelAnalytics />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <Header />
+          <main className="flex-1 container mx-auto px-4 py-8">
+            {children}
+          </main>
+          <VercelAnalytics />
+        </ThemeProvider>
       </body>
     </html>
   );

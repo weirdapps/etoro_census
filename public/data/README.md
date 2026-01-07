@@ -2,9 +2,62 @@
 
 This directory contains daily JSON exports of eToro Popular Investors census data generated using the **optimized data collection architecture**.
 
-## File Structure
+## Directory Structure
 
-- `etoro-data-YYYY-MM-DD-HH-MM.json` - Complete census data files with timestamp containing all 1500 investors' information
+```
+public/data/
+├── current/           # Recent data (last 7 days, uncompressed)
+│   └── etoro-data-YYYY-MM-DD-HH-MM.json
+├── archive/           # Historical data (compressed with gzip)
+│   ├── 2025/
+│   │   ├── 06/
+│   │   │   └── etoro-data-2025-06-15-02-03.json.gz
+│   │   └── ...
+│   └── 2026/
+├── census-data-latest.json   # Most recent data (always uncompressed)
+├── latest-census.json        # Alternative latest data reference
+└── README.md
+```
+
+## File Naming Convention
+
+- `etoro-data-YYYY-MM-DD-HH-MM.json` - Complete census data with UTC timestamp
+
+## Data Retention Policy
+
+- **Last 7 days**: Kept uncompressed in `current/` for fast access
+- **Older data**: Compressed with gzip (~90% size reduction) in `archive/`
+- **No data is deleted**: All historical data is preserved
+
+## Working with Compressed Data
+
+### Decompress for Analysis
+
+```bash
+# List available archives
+node scripts/decompress-for-analysis.js --list
+
+# Decompress specific month
+node scripts/decompress-for-analysis.js 2025-06
+
+# Decompress specific date
+node scripts/decompress-for-analysis.js 2025-06-15
+
+# Decompress all archives
+node scripts/decompress-for-analysis.js --all
+
+# Files are extracted to public/data/temp-analysis/
+```
+
+### Manual Decompression
+
+```bash
+# Decompress a single file
+gunzip -k archive/2025/06/etoro-data-2025-06-15-02-03.json.gz
+
+# View without decompressing
+zcat archive/2025/06/etoro-data-2025-06-15-02-03.json.gz | head -100
+```
 
 ## JSON Structure
 
@@ -25,25 +78,23 @@ Each JSON file contains the following structure:
     "dataSource": "eToro API",
     "period": "CurrYear"
   },
-  
+
   "investors": [
     {
-      // Basic investor info
       "customerId": 123456,
       "userName": "investor_username",
       "fullName": "Investor Full Name",
       "hasAvatar": true,
       "popularInvestor": true,
-      "gain": 15.5,  // Year-to-date gain percentage
+      "gain": 15.5,
       "dailyGain": 0.5,
-      "riskScore": 5,  // 1-10 scale
+      "riskScore": 5,
       "copiers": 1234,
       "trades": 567,
       "winRatio": 65.5,
       "country": "US",
       "avatarUrl": "https://...",
-      
-      // Portfolio data
+
       "portfolio": {
         "realizedCreditPct": 5.2,
         "unrealizedCreditPct": 10.3,
@@ -52,7 +103,7 @@ Each JSON file contains the following structure:
         "profitLossPercentage": 15.0,
         "positionsCount": 25,
         "socialTradesCount": 3,
-        
+
         "positions": [
           {
             "positionId": 12345,
@@ -68,57 +119,22 @@ Each JSON file contains the following structure:
             "openTimestamp": "2024-01-15T10:30:00"
           }
         ],
-        
-        "socialTrades": [
-          {
-            "socialTradeId": 54321,
-            "parentUsername": "copied_investor",
-            "investmentPct": 10.0,
-            "netProfit": 500,
-            "realizedPct": 2.5,
-            "unrealizedPct": 5.0,
-            "openTimestamp": "2024-02-01T08:00:00"
-          }
-        ]
+
+        "socialTrades": [...]
       }
     }
   ],
-  
-  "instruments": [
-    {
-      "instrumentId": 100,
-      "instrumentName": "Apple Inc",
-      "symbol": "AAPL",
-      "imageUrl": "https://..."
-    }
-  ],
-  
+
+  "instruments": [...],
+
   "analyses": [
     {
       "investorCount": 100,
       "fearGreedIndex": 65,
-      "averages": {
-        "gain": 12.5,
-        "cashPercentage": 15.3,
-        "riskScore": 4.5,
-        "copiers": 500,
-        "uniqueInstruments": 18
-      },
-      "distributions": {
-        "returns": {
-          "Loss": 10,
-          "0-10%": 30,
-          "11-25%": 40,
-          "26-50%": 15,
-          "51-100%": 4,
-          "100%+": 1
-        },
-        "riskScore": { ... },
-        "uniqueInstruments": { ... },
-        "cashPercentage": { ... }
-      },
-      "topHoldings": [ ... ],
-      "topPerformers": [ ... ]
+      "averages": {...},
+      "distributions": {...},
+      "topHoldings": [...],
+      "topPerformers": [...]
     }
   ]
 }
@@ -140,15 +156,35 @@ Each JSON file contains the following structure:
 - `netProfit`: Current profit/loss in USD
 - `leverage`: Leverage used (1 = no leverage)
 
+## Storage Statistics
+
+| Metric | Uncompressed | Compressed |
+|--------|--------------|------------|
+| Per file | ~77 MB | ~8 MB |
+| Compression ratio | - | ~90% |
+| 30 days | ~2.3 GB | ~240 MB |
+| 1 year | ~28 GB | ~2.8 GB |
+
 ## Usage Notes
 
 - Files are generated daily at 00:00 UTC (automatic) and can be generated manually
 - Generated using **optimized single-pass data collection** - no redundant API calls
 - All performance metrics are Year-to-Date (YTD)
 - Portfolio data represents a snapshot at the time of generation
-- Large files (typically 20-50MB) - consider streaming/pagination for processing
 - Multiple files per day are preserved with unique timestamps
 - **Comprehensive data**: Includes all investor details, portfolios, instruments, and price data
+
+## Maintenance
+
+The compression script runs automatically in the GitHub Actions workflow.
+
+```bash
+# Dry run (see what would happen)
+node scripts/compress-historical-data.js --dry-run
+
+# Compress files older than 7 days
+node scripts/compress-historical-data.js
+```
 
 ## Architecture Benefits
 
