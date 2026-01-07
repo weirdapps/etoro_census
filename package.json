@@ -11,7 +11,7 @@
     "build": "NODE_OPTIONS='--max-old-space-size=4096' next build",
     "start": "next start --port ${PORT:-3000}",
     "start-azure": "node server.js",
-    "lint": "next lint",
+    "lint": "eslint",
     "export": "next build && next export",
     "azure-build": "next build",
     "create-zip": "cd build && zip -r ../build.zip .",
