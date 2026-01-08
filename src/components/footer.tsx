@@ -10,12 +10,12 @@ export function Footer() {
             <span>
               Created by{' '}
               <a
-                href="https://github.com/plessas"
+                href="https://github.com/weirdapps"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-primary transition-colors"
               >
-                @plessas
+                @weirdapps
               </a>
             </span>
             <span className="hidden md:inline">·</span>
