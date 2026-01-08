@@ -20,6 +20,9 @@ function renderHoldingRow(holding: InstrumentHolding, index: number, tabIndex: n
     ? `<img src="${holding.imageUrl}" alt="${holding.symbol}" class="instrument-icon">`
     : `<div class="instrument-placeholder">${(holding.symbol || 'UN').slice(0, 2).toUpperCase()}</div>`;
 
+  const symbol = holding.symbol || '';
+  const etoroUrl = symbol ? `https://www.etoro.com/markets/${symbol.toLowerCase()}` : '';
+
   return `
     <tr class="holdings-row-${tabIndex}" data-page="${pageNum}" ${displayStyle}>
       <td class="rank">#${index + 1}</td>
@@ -27,8 +30,10 @@ function renderHoldingRow(holding: InstrumentHolding, index: number, tabIndex: n
         <div class="name-cell">
           ${iconHtml}
           <div>
-            <div class="name-primary" title="${holding.instrumentName || 'Unknown'}">${truncateText(holding.instrumentName || 'Unknown', 24)}</div>
-            <div class="name-secondary">${holding.symbol || ''}</div>
+            <div class="name-primary" title="${holding.instrumentName || 'Unknown'}">
+              ${etoroUrl ? `<a href="${etoroUrl}" target="_blank" rel="noopener noreferrer" class="external-link" title="View on eToro (external site)">${truncateText(holding.instrumentName || 'Unknown', 24)}<svg class="external-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg></a>` : truncateText(holding.instrumentName || 'Unknown', 24)}
+            </div>
+            <div class="name-secondary">${symbol}</div>
           </div>
         </div>
       </td>

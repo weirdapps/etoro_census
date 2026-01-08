@@ -541,4 +541,30 @@ tr:hover {
 .text-muted {
     color: #6b7280;
 }
+
+/* External Links */
+.external-link {
+    color: #111827;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: color 0.2s;
+}
+
+.external-link:hover {
+    color: #00C896;
+}
+
+.external-icon {
+    width: 12px;
+    height: 12px;
+    opacity: 0;
+    transition: opacity 0.2s;
+    flex-shrink: 0;
+}
+
+.external-link:hover .external-icon {
+    opacity: 1;
+}
 `;

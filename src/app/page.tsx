@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import InvestorSelector from '@/components/census/investor-selector';
 import ReportGenerator from '@/components/census/report-generator';
 import FearGreedGauge from '@/components/census/fear-greed-gauge';
@@ -12,19 +12,53 @@ import TopHoldings from '@/components/census/top-holdings';
 import TopPerformers from '@/components/census/top-performers';
 import { CensusAnalysis } from '@/lib/models/census';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { RefreshCw } from 'lucide-react';
 import { Disclaimer } from '@/components/Disclaimer';
+import { TableSkeleton } from '@/components/census/loading/table-skeleton';
+import { ChartSkeleton } from '@/components/census/loading/chart-skeleton';
+import { GaugeSkeleton } from '@/components/census/loading/gauge-skeleton';
+import { CardSkeleton } from '@/components/census/loading/card-skeleton';
 
 export default function Home() {
   const [analysis, setAnalysis] = useState<CensusAnalysis | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isAutoLoading, setIsAutoLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [investorCount, setInvestorCount] = useState<number>(0);
   const [requestedCount, setRequestedCount] = useState<number>(0);
   const [hasLimit, setHasLimit] = useState<boolean>(false);
   const [progress, setProgress] = useState<number>(0);
   const [progressMessage, setProgressMessage] = useState<string>('');
+  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
+  const [dataSource, setDataSource] = useState<'live' | 'pre-generated' | null>(null);
+  const [lastRequest, setLastRequest] = useState<{ limit: number; period: string } | null>(null);
+
+  // Auto-load latest census data on mount
+  useEffect(() => {
+    const loadLatestCensus = async () => {
+      try {
+        setIsAutoLoading(true);
+        const response = await fetch('/api/load-latest-census');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.analysis) {
+            setAnalysis(data.analysis);
+            setInvestorCount(data.investorCount || 0);
+            setLastUpdated(data.timestamp);
+            setDataSource('pre-generated');
+          }
+        }
+      } catch (err) {
+        console.error('Failed to auto-load latest census:', err);
+      } finally {
+        setIsAutoLoading(false);
+      }
+    };
+    loadLatestCensus();
+  }, []);
 
   const handleAnalyze = async (limit: number, period: string) => {
     setIsLoading(true);
@@ -34,6 +68,7 @@ export default function Home() {
     setProgressMessage('Initializing analysis...');
     setRequestedCount(limit);
     setHasLimit(false);
+    setLastRequest({ limit, period });
 
     try {
       console.log('Starting analysis with:', { limit, period });
@@ -83,6 +118,8 @@ export default function Home() {
                 setHasLimit(data.investorCount < limit);
                 setProgress(100);
                 setProgressMessage('Analysis complete!');
+                setDataSource('live');
+                setLastUpdated(new Date().toISOString());
                 
                 // Clear progress after a short delay
                 setTimeout(() => {
@@ -106,6 +143,34 @@ export default function Home() {
     }
   };
 
+  const handleRetry = () => {
+    if (lastRequest) {
+      handleAnalyze(lastRequest.limit, lastRequest.period);
+    }
+  };
+
+  const handleRetryAutoLoad = async () => {
+    setError(null);
+    setIsAutoLoading(true);
+    try {
+      const response = await fetch('/api/load-latest-census');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.analysis) {
+          setAnalysis(data.analysis);
+          setInvestorCount(data.investorCount || 0);
+          setLastUpdated(data.timestamp);
+          setDataSource('pre-generated');
+        }
+      }
+    } catch (err) {
+      console.error('Failed to auto-load latest census:', err);
+      setError('Failed to load census data. Please try again.');
+    } finally {
+      setIsAutoLoading(false);
+    }
+  };
+
   return (
     <div className="max-w-7xl mx-auto space-y-8">
 
@@ -122,7 +187,18 @@ export default function Home() {
 
       {error && (
         <Alert variant="destructive">
-          <AlertDescription>{error}</AlertDescription>
+          <div className="flex items-center justify-between">
+            <AlertDescription>{error}</AlertDescription>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={lastRequest ? handleRetry : handleRetryAutoLoad}
+              className="ml-4 shrink-0"
+            >
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Retry
+            </Button>
+          </div>
         </Alert>
       )}
 
@@ -145,13 +221,18 @@ export default function Home() {
         <div className="space-y-8">
           <div className="text-center bg-muted/50 rounded-lg p-4">
             <p className="text-lg font-medium">
-              Analysis completed for <span className="text-primary font-bold">{investorCount}</span> popular investors
+              Analysis for <span className="text-primary font-bold">{investorCount}</span> popular investors
               {requestedCount > investorCount && (
                 <span className="text-orange-600 block text-sm mt-1">
                   (Requested {requestedCount}, but API limit reached at {investorCount})
                 </span>
               )}
             </p>
+            {lastUpdated && (
+              <p className="text-sm text-muted-foreground mt-2">
+                {dataSource === 'pre-generated' ? '📅 Pre-generated' : '⚡ Live'} · Last updated: {new Date(lastUpdated).toLocaleString()}
+              </p>
+            )}
           </div>
           
           {hasLimit && (
@@ -267,13 +348,32 @@ export default function Home() {
         </div>
       )}
 
-      {!analysis && !isLoading && (
+      {/* Skeleton loading state for auto-load */}
+      {isAutoLoading && !analysis && (
+        <div className="space-y-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <GaugeSkeleton />
+            <CardSkeleton />
+            <CardSkeleton />
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <CardSkeleton />
+            <CardSkeleton />
+          </div>
+          <ChartSkeleton />
+          <ChartSkeleton />
+          <TableSkeleton />
+          <TableSkeleton />
+        </div>
+      )}
+
+      {!analysis && !isLoading && !isAutoLoading && (
         <div className="text-center py-16">
           <h2 className="text-2xl font-semibold text-foreground mb-2">
-            Ready to Analyze
+            No Census Data Available
           </h2>
           <p className="text-muted-foreground">
-            Configure your analysis parameters above and click &quot;Analyze&quot; to get started
+            Configure your analysis parameters above and click &quot;Analyze&quot; to generate live census data
           </p>
         </div>
       )}

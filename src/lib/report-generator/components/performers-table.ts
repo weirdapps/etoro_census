@@ -26,6 +26,7 @@ function renderPerformerRow(performer: PerformerStats, index: number, tabIndex: 
       : 'badge-red';
 
   const countryFlag = performer.countryId ? ` ${getCountryFlag(performer.countryId)}` : '';
+  const etoroUrl = performer.username ? `https://www.etoro.com/people/${performer.username.toLowerCase()}` : '';
 
   return `
     <tr class="performers-row-${tabIndex}" data-page="${pageNum}" ${displayStyle}>
@@ -35,7 +36,7 @@ function renderPerformerRow(performer: PerformerStats, index: number, tabIndex: 
           ${avatarHtml}
           <div>
             <div class="name-primary" title="${performer.fullName || performer.username || 'Unknown'}">
-              ${truncateText(performer.fullName || performer.username || 'Unknown', 24)}
+              ${etoroUrl ? `<a href="${etoroUrl}" target="_blank" rel="noopener noreferrer" class="external-link" title="View on eToro (external site)">${truncateText(performer.fullName || performer.username || 'Unknown', 24)}<svg class="external-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg></a>` : truncateText(performer.fullName || performer.username || 'Unknown', 24)}
             </div>
             <div class="name-secondary" title="@${performer.username}">
               @${truncateText(performer.username, 20)}${countryFlag}
