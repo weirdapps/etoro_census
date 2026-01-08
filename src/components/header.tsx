@@ -8,7 +8,7 @@ import { ThemeToggle } from '@/components/theme-toggle';
 import { cn } from '@/lib/utils';
 
 const navLinks = [
-  { href: '/', label: 'Reports' },
+  { href: '/', label: 'Home' },
   { href: '/public', label: 'Portfolio' },
 ];
 
@@ -17,22 +17,21 @@ export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container mx-auto px-4 h-12 flex items-center justify-between">
-        <div className="flex items-center gap-6">
-          <Link href="/" className="flex items-center gap-1.5">
-            <span className="text-base font-bold text-primary">eToro</span>
-            <span className="text-base font-semibold">Census</span>
+    <header className="border-b bg-background">
+      <div className="container mx-auto px-6 h-16 flex items-center justify-between">
+        <div className="flex items-center gap-10">
+          <Link href="/" className="flex items-center gap-2">
+            <span className="text-xl font-bold text-primary">eToro</span>
+            <span className="text-xl font-semibold">Census</span>
           </Link>
 
-          {/* Desktop Navigation - inline with logo */}
-          <nav className="hidden md:flex items-center gap-4">
+          <nav className="hidden md:flex items-center gap-8">
             {navLinks.map(link => (
               <Link
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  "text-sm font-medium transition-colors hover:text-primary",
+                  "text-base font-medium transition-colors hover:text-primary",
                   pathname === link.href ? "text-primary" : "text-muted-foreground"
                 )}
               >
@@ -42,27 +41,27 @@ export function Header() {
           </nav>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-4">
           <ThemeToggle />
           <button
-            className="md:hidden p-1.5 hover:bg-muted rounded-md"
+            className="md:hidden p-2 hover:bg-muted rounded-lg"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label="Toggle menu"
           >
-            {mobileMenuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+            {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
         </div>
       </div>
 
       {mobileMenuOpen && (
-        <nav className="md:hidden border-t bg-background px-4 py-1">
+        <nav className="md:hidden border-t bg-background px-6 py-4">
           {navLinks.map(link => (
             <Link
               key={link.href}
               href={link.href}
               onClick={() => setMobileMenuOpen(false)}
               className={cn(
-                "block py-1.5 text-sm font-medium transition-colors hover:text-primary",
+                "block py-3 text-base font-medium transition-colors hover:text-primary",
                 pathname === link.href ? "text-primary" : "text-muted-foreground"
               )}
             >
