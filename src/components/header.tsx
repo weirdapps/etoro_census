@@ -8,8 +8,8 @@ import { ThemeToggle } from '@/components/theme-toggle';
 import { cn } from '@/lib/utils';
 
 const navLinks = [
-  { href: '/', label: 'Census' },
-  { href: '/public', label: 'Portfolio Analyzer' },
+  { href: '/', label: 'Reports' },
+  { href: '/public', label: 'Portfolio Insights' },
 ];
 
 export function Header() {
