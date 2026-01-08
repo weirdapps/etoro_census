@@ -54,6 +54,7 @@ jobs:
           sparse-checkout: |
             src
             public/reports
+            public/data
             .github
             analysis
             scripts
