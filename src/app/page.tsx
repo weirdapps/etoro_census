@@ -3,8 +3,6 @@
 import Link from 'next/link';
 import { ArrowRight, BarChart3, Users } from 'lucide-react';
 
-const GITHUB_PAGES_URL = 'https://weirdapps.github.io/etoro_census';
-
 export default function Home() {
   return (
     <div className="flex flex-col items-center justify-center min-h-[70vh] px-4">
@@ -18,10 +16,8 @@ export default function Home() {
       </div>
 
       <div className="grid md:grid-cols-2 gap-8 w-full max-w-2xl">
-        <a
-          href={GITHUB_PAGES_URL}
-          target="_blank"
-          rel="noopener noreferrer"
+        <Link
+          href="/reports"
           className="group flex flex-col items-center p-10 rounded-2xl border-2 border-border hover:border-primary hover:bg-muted/50 transition-all"
         >
           <BarChart3 className="h-12 w-12 mb-6 text-muted-foreground group-hover:text-primary transition-colors" />
@@ -30,7 +26,7 @@ export default function Home() {
             Daily census analysis
           </p>
           <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
-        </a>
+        </Link>
 
         <Link
           href="/public"
