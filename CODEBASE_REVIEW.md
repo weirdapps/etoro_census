@@ -1,8 +1,10 @@
 # eToro Census - Codebase Review & Improvement Plan
 
 **Review Date**: January 7, 2026
-**Last Updated**: January 7, 2026 (Post-Implementation)
+**Last Updated**: January 10, 2026
 **Review Scope**: Full codebase, documentation, GitHub Actions, test coverage
+
+> **Note**: This document contains the initial review from January 7, 2026. For the comprehensive improvement plan with current metrics (291 tests, 89% coverage), see **[IMPROVEMENT_PLAN.md](./IMPROVEMENT_PLAN.md)**.
 
 ---
 
