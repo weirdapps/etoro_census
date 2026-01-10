@@ -749,7 +749,9 @@ Allow comparing:
 | Metric | Original | Current | Target | Status |
 |--------|----------|---------|--------|--------|
 | Test Count | 155 | 281 | 200+ | ✅ Exceeded (+81%) |
-| Test Coverage | 65% | 89.58% | 80% | ✅ Exceeded |
+| Test Coverage (Lines) | 65% | 90% | 80% | ✅ Exceeded |
+| Branch Coverage | 53% | 72.26% | 70% | ✅ Exceeded |
+| Function Coverage | 76% | 93.5% | 85% | ✅ Exceeded |
 | TypeScript Errors | 0 | 0 | 0 | ✅ Maintained |
 | ESLint Errors | 0 | 0 | 0 | ✅ Maintained |
 | Build Time | ~60s | ~60s | <45s | 🔄 Future |
