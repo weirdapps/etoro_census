@@ -60,7 +60,7 @@ The analysis processes data from up to 1,500 popular investors and generates com
 - **Theming**: Dark mode support with next-themes
 - **Validation**: Zod schemas
 - **Analytics**: Vercel Analytics + Speed Insights
-- **Testing**: Vitest with 281+ tests (comprehensive service, schema, and utility coverage)
+- **Testing**: Vitest with 291+ tests (comprehensive service, schema, and utility coverage)
 
 ### Backend
 - **API**: RESTful endpoints with streaming support
@@ -330,7 +330,7 @@ npm test -- --watch
 npm test -- --coverage
 ```
 
-Current test coverage: 281+ tests across:
+Current test coverage: 291+ tests across:
 - Services (DataCollectionService, AnalysisService, InstrumentService, UserService, AssetService)
 - Schemas (Investor, Instrument, Portfolio - 100% coverage)
 - Middleware (Request validation, API response utilities)
