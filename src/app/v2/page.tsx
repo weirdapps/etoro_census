@@ -3,13 +3,13 @@
 import { useState, useEffect } from 'react';
 import InvestorSelector from '@/components/census/investor-selector';
 import ReportGenerator from '@/components/census/report-generator';
-import FearGreedGauge from '@/components-v2/census/fear-greed-gauge';
+import FearGreedGaugeEnhanced from '@/components/census/fear-greed-gauge-enhanced';
 import PortfolioDiversification from '@/components/census/portfolio-diversification';
 import CashAllocation from '@/components/census/cash-allocation';
 import ReturnsDistribution from '@/components/census/returns-distribution';
 import RiskScoreDistribution from '@/components/census/risk-score-distribution';
-import TopHoldings from '@/components-v2/census/top-holdings';
-import TopPerformers from '@/components-v2/census/top-performers';
+import TopHoldingsLinked from '@/components/census/top-holdings-linked';
+import TopPerformersLinked from '@/components/census/top-performers-linked';
 import { CensusAnalysis } from '@/lib/models/census';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
@@ -324,7 +324,7 @@ export default function HomeV2() {
           <div className="space-y-8">
             {/* Top Row: Fear/Greed + Key Metrics */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <FearGreedGauge
+              <FearGreedGaugeEnhanced
                 value={analysis.fearGreedIndex}
                 averageCash={analysis.averageCashPercentage}
                 averageRiskScore={analysis.averageRiskScore}
@@ -412,9 +412,9 @@ export default function HomeV2() {
             <RiskScoreDistribution distribution={analysis.riskScoreDistribution} />
 
             {/* Full Width Tables - V2 versions with clickable items */}
-            <TopHoldings holdings={analysis.topHoldings} rawData={rawData} />
+            <TopHoldingsLinked holdings={analysis.topHoldings} rawData={rawData} />
 
-            <TopPerformers performers={analysis.topPerformers} rawData={rawData} />
+            <TopPerformersLinked performers={analysis.topPerformers} rawData={rawData} />
           </div>
         </div>
       )}

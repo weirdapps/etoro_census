@@ -6,12 +6,17 @@ import { Badge } from '@/components/ui/badge';
 import { InstrumentHolding } from '@/lib/models/census';
 import { ExternalLink } from 'lucide-react';
 
-interface TopHoldingsProps {
+interface TopHoldingsLinkedProps {
   holdings: InstrumentHolding[];
   rawData?: unknown;
 }
 
-export default function TopHoldingsV2({ holdings, rawData }: TopHoldingsProps) {
+/**
+ * Top Holdings component with internal linking support.
+ * Links to internal asset detail pages when rawData is available.
+ * Used in the V2 dashboard for clickable asset exploration.
+ */
+export default function TopHoldingsLinked({ holdings, rawData }: TopHoldingsLinkedProps) {
   const getReturnColor = (value: number) => {
     if (value > 0) return 'bg-green-100 text-green-800 border-green-300';
     if (value < 0) return 'bg-red-100 text-red-800 border-red-300';

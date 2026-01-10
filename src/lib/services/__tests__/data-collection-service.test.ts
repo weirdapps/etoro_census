@@ -81,11 +81,12 @@ describe('DataCollectionService', () => {
       vi.mocked(getInstrumentPriceData).mockResolvedValue(new Map());
 
       // Should not throw, should handle gracefully
+      // Extended timeout due to retry logic in batch fetcher
       const result = await dataCollectionService.collectAllData('CurrYear', 10);
 
       expect(result).toBeDefined();
       expect(result.investors).toHaveLength(3);
-    });
+    }, 30000); // 30 second timeout for retry handling
 
     it('should sort investors by copiers descending', async () => {
       const unsortedInvestors = [

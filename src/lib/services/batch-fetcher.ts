@@ -13,12 +13,17 @@ export interface BatchFetcherConfig<TItem, TResult> {
   progressUpdateInterval?: number;
   /** Base delay between requests in milliseconds */
   baseDelayMs?: number;
+  /** Maximum retry attempts per request */
+  maxRetries?: number;
+  /** Base delay for exponential backoff in milliseconds */
+  retryBaseDelayMs?: number;
 }
 
 export interface BatchFetchResult<TItem, TResult> {
   item: TItem;
   result: TResult | null;
   error?: string;
+  retryCount?: number;
 }
 
 const DEFAULT_CONFIG = {
@@ -26,7 +31,52 @@ const DEFAULT_CONFIG = {
   maxConsecutiveErrors: 10,
   progressUpdateInterval: 2000,
   baseDelayMs: 75,
+  maxRetries: 3,
+  retryBaseDelayMs: 1000,
 };
+
+/**
+ * Sleep utility for delays.
+ */
+const sleep = (ms: number): Promise<void> =>
+  new Promise((resolve) => setTimeout(resolve, ms));
+
+/**
+ * Fetch with exponential backoff retry.
+ * Retries failed requests with increasing delays.
+ *
+ * @param fn - Function to execute
+ * @param maxRetries - Maximum retry attempts
+ * @param baseDelay - Base delay in ms (doubles with each retry)
+ * @returns Result of the function
+ */
+async function fetchWithRetry<T>(
+  fn: () => Promise<T>,
+  maxRetries: number,
+  baseDelay: number
+): Promise<{ result: T; retryCount: number }> {
+  let lastError: Error | null = null;
+
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      const result = await fn();
+      return { result, retryCount: attempt };
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error(String(error));
+
+      if (attempt < maxRetries) {
+        // Exponential backoff with jitter
+        const delay = baseDelay * Math.pow(2, attempt) + Math.random() * 100;
+        console.log(
+          `Retry attempt ${attempt + 1}/${maxRetries} after ${Math.round(delay)}ms...`
+        );
+        await sleep(delay);
+      }
+    }
+  }
+
+  throw lastError || new Error('Max retries exceeded');
+}
 
 /**
  * Generic batch fetcher with circuit breaker, adaptive delays, and error handling.
@@ -44,12 +94,15 @@ export async function batchFetch<TItem, TResult>(
     maxConsecutiveErrors = DEFAULT_CONFIG.maxConsecutiveErrors,
     progressUpdateInterval = DEFAULT_CONFIG.progressUpdateInterval,
     baseDelayMs = DEFAULT_CONFIG.baseDelayMs,
+    maxRetries = DEFAULT_CONFIG.maxRetries,
+    retryBaseDelayMs = DEFAULT_CONFIG.retryBaseDelayMs,
   } = config;
 
   const results: BatchFetchResult<TItem, TResult>[] = [];
   let processedCount = 0;
   let successCount = 0;
   let errorCount = 0;
+  let retryCount = 0;
   let consecutiveErrors = 0;
   let lastProgressUpdate = Date.now();
 
@@ -63,39 +116,50 @@ export async function batchFetch<TItem, TResult>(
     // Circuit breaker: if too many consecutive errors, increase delays
     if (consecutiveErrors >= maxConsecutiveErrors) {
       console.warn(`${name} circuit breaker activated: ${consecutiveErrors} consecutive errors. Increasing delays.`);
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await sleep(2000);
       consecutiveErrors = 0; // Reset after pause
     }
 
     try {
-      // Add timeout wrapper around fetch
-      const result = await Promise.race([
-        fetchFn(item),
-        new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error(`${name} fetch timeout`)), timeoutMs)
-        )
-      ]);
+      // Fetch with retry and timeout
+      const fetchWithTimeout = async () => {
+        return Promise.race([
+          fetchFn(item),
+          new Promise<never>((_, reject) =>
+            setTimeout(() => reject(new Error(`${name} fetch timeout`)), timeoutMs)
+          ),
+        ]);
+      };
 
-      results.push({ item, result });
+      const { result, retryCount: itemRetries } = await fetchWithRetry(
+        fetchWithTimeout,
+        maxRetries,
+        retryBaseDelayMs
+      );
+
+      results.push({ item, result, retryCount: itemRetries });
       successCount++;
+      retryCount += itemRetries;
       consecutiveErrors = 0; // Reset consecutive error count on success
 
     } catch (error) {
       consecutiveErrors++;
       const errorMessage = error instanceof Error ? error.message : `Failed to fetch ${name}`;
-      console.error(`Error in ${name} fetch (consecutive errors: ${consecutiveErrors}):`, errorMessage);
+      console.error(`Error in ${name} fetch after ${maxRetries} retries (consecutive errors: ${consecutiveErrors}):`, errorMessage);
 
       results.push({
         item,
         result: null,
-        error: errorMessage
+        error: errorMessage,
+        retryCount: maxRetries,
       });
       errorCount++;
+      retryCount += maxRetries;
 
       // If it's a timeout or rate limit error, increase delays
       if (errorMessage.includes('timeout') || errorMessage.includes('rate') || errorMessage.includes('429')) {
         console.warn(`Detected timeout/rate limit in ${name}. Increasing delays...`);
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await sleep(1000);
       }
     }
 
@@ -133,21 +197,21 @@ export async function batchFetch<TItem, TResult>(
     if (processedCount % 50 === 0 && processedCount > 0) {
       const batchDelay = items.length > 1000 ? 2000 : 1500;
       console.log(`${name} batch checkpoint: ${processedCount} processed. Taking ${batchDelay}ms break...`);
-      await new Promise(resolve => setTimeout(resolve, batchDelay));
+      await sleep(batchDelay);
     } else {
-      await new Promise(resolve => setTimeout(resolve, delay));
+      await sleep(delay);
     }
 
     // Emergency brake: if error rate is too high, pause and warn
     if (processedCount > 50 && errorRate > 0.3) {
       console.warn(`High ${name} error rate detected (${(errorRate * 100).toFixed(1)}%). Pausing for recovery...`);
-      await new Promise(resolve => setTimeout(resolve, 5000));
+      await sleep(5000);
       consecutiveErrors = 0; // Reset after pause
     }
   }
 
   const finalErrorRate = (errorCount / processedCount * 100).toFixed(1);
-  console.log(`${name} collection complete: ${successCount} success, ${errorCount} errors out of ${processedCount} total (${finalErrorRate}% error rate)`);
+  console.log(`${name} collection complete: ${successCount} success, ${errorCount} errors, ${retryCount} retries out of ${processedCount} total (${finalErrorRate}% error rate)`);
 
   // Log warning if error rate is high
   if (errorCount / processedCount > 0.1) {

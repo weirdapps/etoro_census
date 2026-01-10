@@ -6,12 +6,17 @@ import { Badge } from '@/components/ui/badge';
 import { PerformerStats } from '@/lib/models/census';
 import { ExternalLink, TrendingUp, TrendingDown } from 'lucide-react';
 
-interface TopPerformersProps {
+interface TopPerformersLinkedProps {
   performers: PerformerStats[];
   rawData?: unknown;
 }
 
-export default function TopPerformersV2({ performers, rawData }: TopPerformersProps) {
+/**
+ * Top Performers component with internal linking support.
+ * Links to internal investor detail pages when rawData is available.
+ * Used in the V2 dashboard for clickable investor exploration.
+ */
+export default function TopPerformersLinked({ performers, rawData }: TopPerformersLinkedProps) {
   const getCashBadgeColor = (cashPct: number): string => {
     if (cashPct > 25) return 'bg-green-100 text-green-800 border-green-300';
     if (cashPct >= 5) return 'bg-blue-100 text-blue-800 border-blue-300';

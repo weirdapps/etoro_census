@@ -10,13 +10,18 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 
-interface FearGreedGaugeProps {
+interface FearGreedGaugeEnhancedProps {
   value: number;
   averageCash?: number;
   averageRiskScore?: number;
 }
 
-export default function FearGreedGaugeV2({ value, averageCash, averageRiskScore }: FearGreedGaugeProps) {
+/**
+ * Enhanced Fear & Greed Gauge with S-curve algorithm.
+ * Shows a progress bar visualization with component breakdown.
+ * Used in the V2 dashboard for more detailed market sentiment analysis.
+ */
+export default function FearGreedGaugeEnhanced({ value, averageCash, averageRiskScore }: FearGreedGaugeEnhancedProps) {
   const getStatus = (val: number): string => {
     if (val <= 20) return 'Extreme Fear';
     if (val <= 40) return 'Fear';
