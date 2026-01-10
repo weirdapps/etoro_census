@@ -378,6 +378,6 @@ This project is for educational and analysis purposes. Please ensure compliance 
 ## Support
 
 For questions or issues:
-- Check existing documentation
-- Review CLAUDE.md for development context
+- Check existing documentation (ARCHITECTURE.md, CONTRIBUTING.md)
+- Review IMPROVEMENT_PLAN.md for development roadmap
 - Create an issue in the repository
