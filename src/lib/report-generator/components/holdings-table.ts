@@ -1,5 +1,5 @@
 import { InstrumentHolding } from '@/lib/models/census';
-import { truncateText } from '@/lib/utils';
+import { truncateText, getEtoroMarketUrl } from '@/lib/utils';
 
 function renderReturnBadge(returnValue: number | undefined): string {
   if (returnValue === undefined) {
@@ -21,7 +21,7 @@ function renderHoldingRow(holding: InstrumentHolding, index: number, tabIndex: n
     : `<div class="instrument-placeholder">${(holding.symbol || 'UN').slice(0, 2).toUpperCase()}</div>`;
 
   const symbol = holding.symbol || '';
-  const etoroUrl = symbol ? `https://www.etoro.com/markets/${symbol.toLowerCase()}` : '';
+  const etoroUrl = getEtoroMarketUrl(symbol);
 
   return `
     <tr class="holdings-row-${tabIndex}" data-page="${pageNum}" ${displayStyle}>

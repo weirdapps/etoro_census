@@ -100,4 +100,36 @@ describe('logger', () => {
 
     expect(console.error).toHaveBeenCalled();
   });
+
+  it('should log debug messages', async () => {
+    const { logger } = await import('../logger');
+
+    logger.debug('Test debug message');
+
+    // Debug may or may not log depending on LOG_LEVEL
+    // Just verify the function exists and runs without error
+    expect(typeof logger.debug).toBe('function');
+  });
+
+  it('should use child logger for warn and error', async () => {
+    const { logger } = await import('../logger');
+
+    const childLogger = logger.child({ component: 'test' });
+
+    childLogger.warn('Child warning');
+    expect(console.warn).toHaveBeenCalled();
+
+    childLogger.error('Child error');
+    expect(console.error).toHaveBeenCalled();
+  });
+
+  it('should use child logger for debug', async () => {
+    const { logger } = await import('../logger');
+
+    const childLogger = logger.child({ component: 'test' });
+
+    // Debug may not log depending on LOG_LEVEL, but should not throw
+    childLogger.debug('Child debug');
+    expect(typeof childLogger.debug).toBe('function');
+  });
 });

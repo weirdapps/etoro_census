@@ -40,7 +40,8 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   typescript: {
-    ignoreBuildErrors: true,
+    // All TypeScript errors are fixed - strict mode enabled
+    ignoreBuildErrors: false,
   },
   // Silence Turbopack warning for Next.js 16+
   turbopack: {},

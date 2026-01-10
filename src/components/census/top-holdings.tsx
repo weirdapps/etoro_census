@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Pagination } from '@/components/ui/pagination';
 import { Input } from '@/components/ui/input';
 import { InstrumentHolding } from '@/lib/models/census';
-import { truncateText } from '@/lib/utils';
+import { truncateText, getEtoroMarketUrl } from '@/lib/utils';
 import Image from 'next/image';
 import { ArrowUpDown, ArrowUp, ArrowDown, ExternalLink, Search } from 'lucide-react';
 
@@ -168,7 +168,7 @@ export default function TopHoldings({ holdings }: TopHoldingsProps) {
                     )}
                     <div>
                       <a
-                        href={`https://www.etoro.com/markets/${holding.symbol.toLowerCase()}`}
+                        href={getEtoroMarketUrl(holding.symbol)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="font-medium hover:text-primary transition-colors inline-flex items-center gap-1 group"
