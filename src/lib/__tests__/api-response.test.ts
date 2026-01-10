@@ -132,18 +132,19 @@ describe('api/response', () => {
   describe('withTiming', () => {
     it('should track duration of successful operations', async () => {
       const { result, duration } = await withTiming(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 10));
+        await new Promise((resolve) => setTimeout(resolve, 20));
         return 'success';
       });
 
       expect(result).toBe('success');
-      expect(duration).toBeGreaterThanOrEqual(10);
+      // setTimeout is not exact, especially on CI runners - allow some tolerance
+      expect(duration).toBeGreaterThanOrEqual(15);
     });
 
     it('should track duration of failed operations', async () => {
       await expect(
         withTiming(async () => {
-          await new Promise((resolve) => setTimeout(resolve, 10));
+          await new Promise((resolve) => setTimeout(resolve, 20));
           throw new Error('Test error');
         })
       ).rejects.toMatchObject({
