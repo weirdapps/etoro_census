@@ -11,6 +11,7 @@ const securityHeaders = [
       "img-src 'self' https://etoro-cdn.etorostatic.com https://ui-avatars.com data: blob:",
       "font-src 'self' data:",
       "connect-src 'self' https://www.etoro.com",
+      "frame-src 'self' https://weirdapps.github.io",
       "frame-ancestors 'none'",
       "base-uri 'self'",
       "form-action 'self'",
