@@ -10,7 +10,7 @@
 
 The eToro Census project is a **well-architected Next.js 16 application** with a robust data collection and analysis system. After thorough review, the codebase is in excellent health with:
 
-- **258 tests passing** (100% pass rate)
+- **281 tests passing** (100% pass rate)
 - **0 TypeScript errors**
 - **0 ESLint errors**
 - **~75% overall test coverage**
@@ -450,10 +450,10 @@ const securityHeaders = [
 ];
 ```
 
-##### 3.2.2 Validate External URLs
+##### 3.2.2 Validate External URLs ✅ COMPLETED
 **Priority**: Medium
 **Effort**: 1 hour
-**Location**: `src/components/census/top-holdings.tsx`
+**Location**: `src/lib/utils.ts` (getEtoroMarketUrl, getEtoroProfileUrl)
 
 ```typescript
 // Validate instrument URLs before rendering
@@ -748,7 +748,7 @@ Allow comparing:
 
 | Metric | Original | Current | Target | Status |
 |--------|----------|---------|--------|--------|
-| Test Count | 155 | 258 | 200+ | ✅ Exceeded (+66%) |
+| Test Count | 155 | 281 | 200+ | ✅ Exceeded (+81%) |
 | Test Coverage | 65% | 89.58% | 80% | ✅ Exceeded |
 | TypeScript Errors | 0 | 0 | 0 | ✅ Maintained |
 | ESLint Errors | 0 | 0 | 0 | ✅ Maintained |
@@ -764,7 +764,7 @@ The eToro Census codebase has been significantly improved and is now production-
 
 ### ✅ Completed Improvements
 
-1. **Testing**: Increased from 155 to 258 tests (+66%), including comprehensive instrument-service coverage
+1. **Testing**: Increased from 155 to 281 tests (+81%), including comprehensive instrument-service and URL utility coverage
 2. **Security**: Added Content Security Policy headers for XSS protection
 3. **Resilience**: Added circuit breaker pattern and exponential backoff retry logic
 4. **UX**: Consolidated V2 components into unified component library
@@ -785,4 +785,4 @@ The codebase is now fully production-grade with comprehensive test coverage, rob
 
 *Initial Review: January 10, 2026*
 *Implementation Completed: January 10, 2026*
-*Based on comprehensive analysis of 100+ source files, 258 tests, and 4 GitHub workflows*
+*Based on comprehensive analysis of 100+ source files, 281 tests, and 4 GitHub workflows*
