@@ -9,8 +9,23 @@ export interface ProgressCallback {
 }
 
 /**
- * Analysis service that works with pre-collected data instead of making API calls
- * This eliminates redundant API requests and enables faster multi-band analysis
+ * Analysis service that works with pre-collected data instead of making API calls.
+ * This eliminates redundant API requests and enables faster multi-band analysis.
+ *
+ * @description
+ * This is the standard analysis service used for:
+ * - HTML report generation
+ * - API endpoints that return JSON data
+ * - Batch analysis of multiple investor bands (100/500/1000/1500)
+ *
+ * For the enhanced V2 dashboard with S-curve Fear & Greed Index,
+ * see {@link AnalysisServiceV2} in analysis-service-v2.ts
+ *
+ * @example
+ * ```typescript
+ * const service = new AnalysisService();
+ * const analysis = await service.analyzeInvestorSubset(data, 1000, onProgress);
+ * ```
  */
 export class AnalysisService {
   

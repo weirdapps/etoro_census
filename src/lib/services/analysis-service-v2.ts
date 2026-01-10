@@ -9,8 +9,28 @@ export interface ProgressCallback {
 }
 
 /**
- * Enhanced Analysis service with S-curve Fear & Greed Index
- * This V2 version incorporates both cash percentage and risk score
+ * Enhanced Analysis service with S-curve Fear & Greed Index.
+ * This V2 version incorporates both cash percentage and risk score.
+ *
+ * @description
+ * This enhanced service is specifically designed for the V2 dashboard (/v2 routes)
+ * and provides:
+ * - S-curve Fear & Greed Index calculation (more nuanced than linear)
+ * - Proper handling of serialized Map objects from session storage
+ * - Enhanced investor detail pages with linked navigation
+ *
+ * Key differences from standard AnalysisService:
+ * 1. Fear & Greed uses S-curve algorithm considering both cash and risk score
+ * 2. Handles JSON-serialized Maps from browser storage
+ * 3. Optimized for client-side navigation in V2 UI
+ *
+ * For standard analysis (reports, API endpoints), use {@link AnalysisService}
+ *
+ * @example
+ * ```typescript
+ * const service = new AnalysisServiceV2();
+ * const analysis = await service.analyzeInvestorSubset(dataFromSession, 1000, onProgress);
+ * ```
  */
 export class AnalysisServiceV2 {
 
