@@ -60,11 +60,14 @@ The analysis processes data from up to 1,500 popular investors and generates com
 - **Theming**: Dark mode support with next-themes
 - **Validation**: Zod schemas
 - **Analytics**: Vercel Analytics + Speed Insights
-- **Testing**: Vitest with 88+ tests
+- **Testing**: Vitest with 258+ tests (comprehensive service, schema, and middleware coverage)
 
 ### Backend
 - **API**: RESTful endpoints with streaming support
 - **Data Collection**: Single-pass architecture with circuit breakers
+- **Resilience**: Circuit breaker pattern with exponential backoff retry
+- **Validation**: Zod middleware for request/response validation
+- **Logging**: Structured JSON logging (production) / Pretty printing (development)
 - **Error Handling**: Adaptive delays and timeout protection
 - **Export**: JSON data with comprehensive details
 
@@ -327,10 +330,12 @@ npm test -- --watch
 npm test -- --coverage
 ```
 
-Current test coverage: 88+ tests across:
-- Services (DataCollectionService, AnalysisService)
-- Schemas (Investor, Instrument, Portfolio)
+Current test coverage: 258+ tests across:
+- Services (DataCollectionService, AnalysisService, InstrumentService, UserService, AssetService)
+- Schemas (Investor, Instrument, Portfolio - 100% coverage)
+- Middleware (Request validation, API response utilities)
 - Utilities (Country mapping, formatting)
+- API Config (Circuit breaker, retry logic)
 
 ### Data Management
 ```bash
