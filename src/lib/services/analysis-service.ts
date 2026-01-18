@@ -304,6 +304,13 @@ export class AnalysisService {
         const portfolio = portfolioStats.find(p => p.username === investor.userName);
         const userDetail = userDetails.get(investor.userName);
 
+        // Get avatar URL from userDetails first, then fallback to constructed URL
+        // Popular Investors typically have avatars even when hasAvatar flag is false
+        const avatarFromDetails = userDetail ? getUserAvatarUrl(userDetail) : undefined;
+        const fallbackAvatarUrl = investor.userName
+          ? `https://etoro-cdn.etorostatic.com/avatars/${investor.userName.toLowerCase()}/150x150.png`
+          : undefined;
+
         return {
           username: investor.userName || 'Unknown',
           fullName: investor.fullName || investor.userName || 'Unknown Investor',
@@ -313,8 +320,8 @@ export class AnalysisService {
           cashPercentage: portfolio?.cashPercentage || 0,
           trades: investor.tradeInfo?.trades || investor.trades || 0,
           winRatio: investor.tradeInfo?.winRatio || investor.winRatio || 0,
-          avatarUrl: userDetail ? getUserAvatarUrl(userDetail) : investor.avatarUrl,
-          countryId: userDetail?.country
+          avatarUrl: avatarFromDetails || investor.avatarUrl || fallbackAvatarUrl,
+          countryId: userDetail?.country || investor.tradeInfo?.countryId
         };
       })
       .filter(performer => performer.username !== 'Unknown')

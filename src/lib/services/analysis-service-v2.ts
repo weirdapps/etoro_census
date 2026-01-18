@@ -263,10 +263,17 @@ export class AnalysisServiceV2 {
         const stats = statsMap.get(investor.userName);
         const userDetail = userDetails.get(investor.userName);
 
+        // Get avatar URL from userDetails first, then fallback to constructed URL
+        // Popular Investors typically have avatars even when hasAvatar flag is false
+        const avatarFromDetails = getUserAvatarUrl(userDetail, investor.hasAvatar, investor.userName);
+        const fallbackAvatarUrl = investor.userName
+          ? `https://etoro-cdn.etorostatic.com/avatars/${investor.userName.toLowerCase()}/150x150.png`
+          : undefined;
+
         return {
           username: investor.userName,
           fullName: investor.fullName || investor.userName,
-          avatarUrl: getUserAvatarUrl(userDetail, investor.hasAvatar, investor.userName),
+          avatarUrl: avatarFromDetails || fallbackAvatarUrl,
           copiers: investor.copiers || 0,
           gain: investor.gain || 0,
           riskScore: investor.riskScore || 0,
