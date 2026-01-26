@@ -58,7 +58,7 @@
     "@testing-library/react": "^16.1.0",
     "@types/lodash": "^4.17.16",
     "@types/node": "^20.19.0",
-    "@types/react": "^19.2.0",
+    "@types/react": "^19.2.9",
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^5.1.2",
     "@vitest/coverage-v8": "^4.0.16",
