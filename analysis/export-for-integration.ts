@@ -106,14 +106,32 @@ function calculateGroupAverages(investors: Investor[]): InvestorGroup['averages'
   };
 }
 
-function aggregateHoldings(investors: Investor[], limit: number = 30): GroupHolding[] {
+function buildInstrumentMap(analyses: Analysis[]): Map<number, string> {
+  const map = new Map<number, string>();
+  for (const analysis of analyses) {
+    if (analysis.topHoldings) {
+      for (const h of analysis.topHoldings) {
+        if ((h as any).instrumentId && h.symbol) {
+          map.set((h as any).instrumentId, h.symbol);
+        }
+      }
+    }
+  }
+  return map;
+}
+
+function aggregateHoldings(
+  investors: Investor[],
+  instrumentMap: Map<number, string>,
+  limit: number = 30
+): GroupHolding[] {
   const holdingMap = new Map<string, { count: number; totalAlloc: number }>();
 
   for (const inv of investors) {
     const seen = new Set<string>();
     if (inv.portfolio?.positions) {
       for (const pos of inv.portfolio.positions) {
-        const symbol = (pos as any).symbol || `ID${pos.instrumentId}`;
+        const symbol = instrumentMap.get(pos.instrumentId) || (pos as any).symbol || `ID${pos.instrumentId}`;
         if (!seen.has(symbol)) {
           seen.add(symbol);
           const current = holdingMap.get(symbol) || { count: 0, totalAlloc: 0 };
@@ -143,6 +161,7 @@ function createInvestorGroup(
   name: string,
   description: string,
   investors: Investor[],
+  instrumentMap: Map<number, string>,
   existingAnalysis?: Analysis
 ): InvestorGroup {
   const topInvestors: GroupInvestor[] = investors.slice(0, 20).map(inv => ({
@@ -164,7 +183,7 @@ function createInvestorGroup(
       avgAllocation: h.avgAllocation || h.averageAllocation || 0
     }));
   } else {
-    topHoldings = aggregateHoldings(investors);
+    topHoldings = aggregateHoldings(investors, instrumentMap);
   }
 
   return {
@@ -187,6 +206,10 @@ function generateExport(): void {
   const currentData = loadDataFile(files.todayPath);
   const prevData = loadDataFile(files.yesterdayPath);
 
+  // Build instrument ID → symbol mapping from analyses
+  const instrumentMap = buildInstrumentMap(currentData.analyses);
+  console.log(`Built instrument map with ${instrumentMap.size} symbols\n`);
+
   // Sort investors by copiers (default)
   const byCopers = [...currentData.investors].sort((a, b) => b.copiers - a.copiers);
 
@@ -204,23 +227,27 @@ function generateExport(): void {
       'Top 100',
       'Top 100 investors by number of copiers (social proof)',
       byCopers.slice(0, 100),
+      instrumentMap,
       currentData.analyses[0]
     ),
     broad1500: createInvestorGroup(
       'Broad Group',
       'All 1,500 popular investors (market sentiment)',
       byCopers,
+      instrumentMap,
       currentData.analyses[3]
     ),
     topPerformers: createInvestorGroup(
       'Top Performers',
       'Top 100 investors by YTD gain (alpha seekers)',
-      byGain.slice(0, 100)
+      byGain.slice(0, 100),
+      instrumentMap
     ),
     safeGroup: createInvestorGroup(
       'Safe Group',
       'Investors with risk score <= 4 (conservative)',
-      safeInvestors.slice(0, 200)
+      safeInvestors.slice(0, 200),
+      instrumentMap
     )
   };
 
