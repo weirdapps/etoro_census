@@ -24,7 +24,7 @@ export function withBodyValidation<T>(
           {
             success: false,
             error: 'Validation failed',
-            details: error.errors.map((e) => ({
+            details: error.issues.map((e) => ({
               path: e.path.join('.'),
               message: e.message,
             })),
@@ -71,7 +71,7 @@ export function withQueryValidation<T>(
           {
             success: false,
             error: 'Invalid query parameters',
-            details: error.errors.map((e) => ({
+            details: error.issues.map((e) => ({
               path: e.path.join('.'),
               message: e.message,
             })),
