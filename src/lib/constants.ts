@@ -92,12 +92,18 @@ export const API = {
 export const DATA_COLLECTION = {
   /** Base delay between requests in batch fetcher (ms) */
   BASE_DELAY_MS: 75,
+  /** Inter-batch delay for user details fetching (ms) */
+  INTER_BATCH_DELAY_MS: 200,
+  /** Short delay for retry loops (ms) */
+  SHORT_DELAY_MS: 100,
   /** Progress update interval (ms) */
   PROGRESS_UPDATE_INTERVAL: 2000,
   /** Fetch timeout per request (ms) */
   FETCH_TIMEOUT_MS: 30000,
   /** Maximum consecutive errors before pausing */
   MAX_CONSECUTIVE_ERRORS: 10,
+  /** Maximum page size for eToro API requests */
+  MAX_PAGE_SIZE: 500,
 } as const;
 
 /**

@@ -120,17 +120,20 @@ describe('etoro-api-config', () => {
   describe('fetchFromEtoroApi', () => {
     const originalFetch = global.fetch;
     const originalConsoleLog = console.log;
+    const originalConsoleWarn = console.warn;
     const originalConsoleError = console.error;
 
     beforeEach(() => {
       resetCircuitBreaker();
       console.log = vi.fn();
+      console.warn = vi.fn();
       console.error = vi.fn();
     });
 
     afterEach(() => {
       global.fetch = originalFetch;
       console.log = originalConsoleLog;
+      console.warn = originalConsoleWarn;
       console.error = originalConsoleError;
       vi.restoreAllMocks();
     });
@@ -175,7 +178,8 @@ describe('etoro-api-config', () => {
         fetchFromEtoroApi('https://www.etoro.com/api/public/v1/test')
       ).rejects.toThrow('eToro API request failed: 429');
 
-      expect(console.log).toHaveBeenCalledWith(
+      // Logger.warn uses console.warn internally
+      expect(console.warn).toHaveBeenCalledWith(
         expect.stringContaining('Rate limited')
       );
     }, 10000);

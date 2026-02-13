@@ -295,6 +295,11 @@ describe('Census Report Generation Flow', () => {
   });
 
   describe('analysisServiceV2 (S-curve Fear & Greed)', () => {
+    beforeEach(() => {
+      // Clear cache to ensure test isolation
+      analysisServiceV2.clearCache();
+    });
+
     it('should generate complete census analysis with S-curve Fear & Greed', async () => {
       const mockData = createMockCollectedData(100);
 

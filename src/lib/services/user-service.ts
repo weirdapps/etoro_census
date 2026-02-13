@@ -1,6 +1,7 @@
 import { API_ENDPOINTS, fetchFromEtoroApi } from '../etoro-api-config';
 import { PopularInvestor, PopularInvestorsResponse, PeriodType, UserDetail, UserInfoResponse, UserTradeInfo } from '../models/user';
 import { UserPortfolio } from '../models/user-portfolio';
+import { API, DATA_COLLECTION } from '../constants';
 
 export async function getPopularInvestors(
   period: PeriodType = "CurrMonth",
@@ -9,8 +10,8 @@ export async function getPopularInvestors(
   try {
     console.log(`Requesting ${limit} investors from eToro API...`);
     
-    // eToro might have a max page size, let's check
-    const pageSize = Math.min(limit, 500); // Try smaller page size
+    // eToro might have a max page size
+    const pageSize = Math.min(limit, DATA_COLLECTION.MAX_PAGE_SIZE);
     const totalPages = Math.ceil(limit / pageSize);
     const allInvestors: PopularInvestor[] = [];
     
@@ -55,7 +56,7 @@ export async function getPopularInvestors(
       
       // Small delay between pages to avoid rate limiting
       if (page < totalPages) {
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise(resolve => setTimeout(resolve, DATA_COLLECTION.SHORT_DELAY_MS));
       }
     }
     
@@ -163,7 +164,7 @@ export async function getUsersDetailsByUsernames(
     const userMap = new Map<string, UserDetail>();
     
     // Batch requests to avoid URL length limits and API rate limits
-    const batchSize = 50; // Process 50 users at a time
+    const batchSize = API.BATCH_SIZE;
     const batches = [];
     
     for (let i = 0; i < usernames.length; i += batchSize) {
@@ -200,7 +201,7 @@ export async function getUsersDetailsByUsernames(
         
         // Add delay between batches to avoid rate limiting
         if (i < batches.length - 1) {
-          await new Promise(resolve => setTimeout(resolve, 200));
+          await new Promise(resolve => setTimeout(resolve, DATA_COLLECTION.INTER_BATCH_DELAY_MS));
         }
         
       } catch (batchError) {
@@ -226,7 +227,7 @@ export async function getUsersDetails(userIds: number[]): Promise<Map<number, Us
     const userMap = new Map<number, UserDetail>();
     
     // Batch requests to avoid URL length limits and API rate limits
-    const batchSize = 50; // Process 50 users at a time
+    const batchSize = API.BATCH_SIZE;
     const batches = [];
     
     for (let i = 0; i < userIds.length; i += batchSize) {
@@ -257,7 +258,7 @@ export async function getUsersDetails(userIds: number[]): Promise<Map<number, Us
         
         // Add delay between batches to avoid rate limiting
         if (i < batches.length - 1) {
-          await new Promise(resolve => setTimeout(resolve, 200));
+          await new Promise(resolve => setTimeout(resolve, DATA_COLLECTION.INTER_BATCH_DELAY_MS));
         }
         
       } catch (batchError) {

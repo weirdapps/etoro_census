@@ -4,6 +4,7 @@ import { getInstrumentDisplayName, getInstrumentSymbol, getInstrumentImageUrl, I
 import { getUserAvatarUrl } from './user-service';
 import { UserDetail } from '../models/user';
 import { FearGreedStrategy, linearStrategy } from './analysis/fear-greed-strategy';
+import { Cache } from '../cache';
 
 export interface ProgressCallback {
   (progress: number, message: string): void;
@@ -38,9 +39,35 @@ export interface ProgressCallback {
  */
 export class AnalysisService {
   private fearGreedStrategy: FearGreedStrategy;
+  private analysisCache: Cache<CensusAnalysis>;
 
   constructor(fearGreedStrategy: FearGreedStrategy = linearStrategy) {
     this.fearGreedStrategy = fearGreedStrategy;
+    this.analysisCache = new Cache<CensusAnalysis>({
+      maxSize: 20,
+      ttlMs: 5 * 60 * 1000, // 5 minutes
+    });
+  }
+
+  /**
+   * Generate a cache key based on data characteristics and investor count.
+   * Includes a simple checksum of portfolio data to differentiate datasets.
+   */
+  private generateCacheKey(data: ComprehensiveDataCollection, investorCount: number): string {
+    // Create a simple checksum from the first few investors' portfolio data
+    const sampleInvestors = data.investors.slice(0, Math.min(5, investorCount));
+    let checksum = 0;
+    for (const inv of sampleInvestors) {
+      // Sum of position counts and a multiplier for data variation
+      const posCount = inv.portfolio?.positions?.length || 0;
+      const totalPct = inv.portfolio?.positions?.reduce((sum, p) => sum + (p.investmentPct || 0), 0) || 0;
+      checksum += posCount * 100 + Math.round(totalPct * 10);
+    }
+
+    const dataId = data.investors.length > 0
+      ? `${data.investors.length}-${data.investors[0]?.userName || 'unknown'}-${checksum}`
+      : 'empty';
+    return `analysis-${dataId}-${investorCount}-${this.fearGreedStrategy.name}`;
   }
 
   /**
@@ -73,7 +100,8 @@ export class AnalysisService {
   }
 
   /**
-   * Perform census analysis on a subset of investors using pre-collected data
+   * Perform census analysis on a subset of investors using pre-collected data.
+   * Results are cached for 5 minutes to avoid redundant computation.
    */
   async analyzeInvestorSubset(
     collectedData: ComprehensiveDataCollection,
@@ -82,6 +110,17 @@ export class AnalysisService {
   ): Promise<CensusAnalysis> {
     // Normalize data to ensure Maps are properly instantiated
     const normalizedData = AnalysisService.normalizeCollectedData(collectedData);
+
+    // Check cache first
+    const cacheKey = this.generateCacheKey(normalizedData, investorCount);
+    const cached = this.analysisCache.get(cacheKey);
+    if (cached) {
+      console.log(`Analysis cache hit for ${investorCount} investors`);
+      if (onProgress) {
+        onProgress(100, `Analysis complete (cached) for ${investorCount} investors!`);
+      }
+      return cached;
+    }
 
     const updateProgress = (progress: number, message: string) => {
       console.log(`Analysis Progress (${investorCount} investors): ${progress}% - ${message}`);
@@ -149,8 +188,18 @@ export class AnalysisService {
       }
     };
 
+    // Cache the result
+    this.analysisCache.set(cacheKey, result);
+
     updateProgress(100, `Analysis complete for ${investorCount} investors!`);
     return result;
+  }
+
+  /**
+   * Clear the analysis cache (useful for testing or forced refresh)
+   */
+  clearCache(): void {
+    this.analysisCache.clear();
   }
 
   /**

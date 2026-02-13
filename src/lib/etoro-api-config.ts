@@ -1,3 +1,5 @@
+import { logger } from './logger';
+
 export const ETORO_API_BASE_URL = process.env.ETORO_API_BASE_URL || 'https://www.etoro.com/api/public';
 
 // Use functions to get these values at runtime instead of build time
@@ -39,7 +41,7 @@ export const getDefaultHeaders = () => {
   // Log warning if keys are missing (only in development)
   if (process.env.NODE_ENV !== 'production') {
     if (!headers['X-USER-KEY'] || !headers['X-API-KEY']) {
-      console.warn('[eToro API] API keys are not configured');
+      logger.warn('eToro API keys are not configured');
     }
   }
   
@@ -87,7 +89,7 @@ class CircuitBreaker {
   async call<T>(fn: () => Promise<T>): Promise<T> {
     if (this.state === 'open') {
       if (Date.now() - this.lastFailureTime > this.resetTimeout) {
-        console.log('[Circuit Breaker] Transitioning from OPEN to HALF-OPEN');
+        logger.debug('Circuit breaker transitioning', { from: 'OPEN', to: 'HALF-OPEN' });
         this.state = 'half-open';
         this.successesInHalfOpen = 0;
       } else {
@@ -114,7 +116,7 @@ class CircuitBreaker {
     if (this.state === 'half-open') {
       this.successesInHalfOpen++;
       if (this.successesInHalfOpen >= this.successThreshold) {
-        console.log('[Circuit Breaker] Transitioning from HALF-OPEN to CLOSED');
+        logger.debug('Circuit breaker transitioning', { from: 'HALF-OPEN', to: 'CLOSED' });
         this.state = 'closed';
         this.failures = 0;
       }
@@ -128,12 +130,14 @@ class CircuitBreaker {
     this.lastFailureTime = Date.now();
 
     if (this.state === 'half-open') {
-      console.log('[Circuit Breaker] Failure in HALF-OPEN, transitioning to OPEN');
+      logger.debug('Circuit breaker transitioning', { from: 'HALF-OPEN', to: 'OPEN', reason: 'failure' });
       this.state = 'open';
     } else if (this.failures >= this.failureThreshold) {
-      console.log(
-        `[Circuit Breaker] Failure threshold (${this.failureThreshold}) reached, transitioning to OPEN`
-      );
+      logger.warn('Circuit breaker threshold reached', {
+        failures: this.failures,
+        threshold: this.failureThreshold,
+        newState: 'OPEN',
+      });
       this.state = 'open';
     }
   }
@@ -168,7 +172,7 @@ export async function fetchFromEtoroApi<T>(
 
     if (timeSinceLastRequest < MIN_REQUEST_INTERVAL) {
       const waitTime = MIN_REQUEST_INTERVAL - timeSinceLastRequest;
-      console.log(`[eToro API] Rate limiting: waiting ${waitTime}ms before request`);
+      logger.debug('Rate limiting', { waitTimeMs: waitTime });
       await new Promise((resolve) => setTimeout(resolve, waitTime));
     }
 
@@ -184,8 +188,7 @@ export async function fetchFromEtoroApi<T>(
     };
     
     // Log request details for debugging
-    console.log(`[eToro API] Request to: ${endpoint}`);
-    console.log(`[eToro API] Request headers configured`);
+    logger.debug('API request', { endpoint });
     
     
     const controller = new AbortController();
@@ -198,26 +201,26 @@ export async function fetchFromEtoroApi<T>(
     
     clearTimeout(timeoutId);
     
-    console.log(`[eToro API] Response: ${response.status} in ${responseTime}ms`);
-    
+    logger.debug('API response', { status: response.status, responseTimeMs: responseTime });
+
     if (!response.ok) {
       const errorText = await response.text().catch(() => 'Unknown error');
-      console.error(`[eToro API] Request failed (${response.status}):`, errorText);
-      
+      logger.error('API request failed', { status: response.status, errorText });
+
       // If we get 429, wait longer before next request
       if (response.status === 429) {
-        console.log(`[eToro API] Rate limited! Waiting 5 seconds before next request...`);
+        logger.warn('Rate limited by API, forcing 5s delay');
         lastRequestTime = Date.now() + 5000; // Force 5 second wait
       }
-      
+
       throw new Error(`eToro API request failed: ${response.status}`);
     }
-    
+
     const data = await response.json() as T;
-    
+
     // Log response data size for debugging
     const dataStr = JSON.stringify(data);
-    console.log(`[eToro API] Response size: ${dataStr.length} bytes`);
+    logger.debug('API response received', { responseBytes: dataStr.length });
     
     return data;
   });

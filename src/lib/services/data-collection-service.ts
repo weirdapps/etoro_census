@@ -3,6 +3,7 @@ import { UserPortfolio } from '../models/user-portfolio';
 import { getPopularInvestors, getUserPortfolio, getUsersDetailsByUsernames, getUserTradeInfo } from './user-service';
 import { getInstrumentDetails, getInstrumentPriceData, InstrumentPriceData, InstrumentDisplayData } from './instrument-service';
 import { batchFetch } from './batch-fetcher';
+import { logger } from '../logger';
 
 export interface ProgressCallback {
   (progress: number, message: string): void;
@@ -48,7 +49,7 @@ export class DataCollectionService {
     
     const updateProgress = (progress: number, message: string) => {
       const elapsed = ((Date.now() - this.startTime) / 1000).toFixed(1);
-      console.log(`Data Collection [${elapsed}s]: ${progress}% - ${message}`);
+      logger.debug('Data collection progress', { elapsed, progress, message });
       if (onProgress) {
         onProgress(progress, message);
       }
@@ -58,9 +59,9 @@ export class DataCollectionService {
     
     // Log dataset size for monitoring
     if (maxInvestors >= 2000) {
-      console.warn(`Large dataset requested: ${maxInvestors} investors. This may take 15-30 minutes.`);
+      logger.warn('Large dataset requested', { maxInvestors, estimatedTime: '15-30 minutes' });
     } else if (maxInvestors >= 1500) {
-      console.log(`Medium dataset requested: ${maxInvestors} investors. Estimated time: 10-20 minutes.`);
+      logger.info('Medium dataset requested', { maxInvestors, estimatedTime: '10-20 minutes' });
     }
 
     // Step 1: Fetch all investors (always fetch maximum to ensure consistency)
@@ -73,7 +74,7 @@ export class DataCollectionService {
 
     // Check if we hit API limit
     if (investors.length < maxInvestors) {
-      console.warn(`API LIMIT: Requested ${maxInvestors} investors but only received ${investors.length}`);
+      logger.warn('API limit reached', { requested: maxInvestors, received: investors.length });
       updateProgress(8, `⚠️ eToro API limit: Only ${investors.length} investors available (requested ${maxInvestors})`);
     }
 

@@ -1,4 +1,5 @@
 import { ProgressCallback } from './data-collection-service';
+import { logger } from '../logger';
 
 export interface BatchFetcherConfig<TItem, TResult> {
   /** Name for logging purposes */
@@ -70,9 +71,11 @@ async function fetchWithRetry<T>(
       if (attempt < maxRetries) {
         // Exponential backoff with jitter
         const delay = baseDelay * Math.pow(2, attempt) + Math.random() * 100;
-        console.log(
-          `Retry attempt ${attempt + 1}/${maxRetries} after ${Math.round(delay)}ms...`
-        );
+        logger.debug('Retry attempt', {
+          attempt: attempt + 1,
+          maxRetries,
+          delayMs: Math.round(delay),
+        });
         await sleep(delay);
       }
     }
@@ -182,7 +185,11 @@ export async function batchFetch<TItem, TResult>(
   for (let i = 0; i < items.length; i += concurrency) {
     // Circuit breaker: if too many consecutive errors, pause
     if (consecutiveErrors >= maxConsecutiveErrors) {
-      console.warn(`${name} circuit breaker activated: ${consecutiveErrors} consecutive errors. Pausing...`);
+      logger.warn('Circuit breaker activated', {
+        name,
+        consecutiveErrors,
+        action: 'pausing',
+      });
       await sleep(2000);
       consecutiveErrors = 0;
     }
@@ -214,7 +221,11 @@ export async function batchFetch<TItem, TResult>(
     // Add extra delay every 50 requests to avoid rate limiting
     if (processedCount % 50 === 0 && processedCount > 0 && processedCount < items.length) {
       const batchDelay = items.length > 1000 ? 2000 : 1500;
-      console.log(`${name} batch checkpoint: ${processedCount} processed. Taking ${batchDelay}ms break...`);
+      logger.debug('Batch checkpoint', {
+        name,
+        processedCount,
+        batchDelay,
+      });
       await sleep(batchDelay);
     } else if (i + concurrency < items.length) {
       // Delay between batches
@@ -223,17 +234,30 @@ export async function batchFetch<TItem, TResult>(
 
     // Emergency brake: if error rate is too high, pause and warn
     if (processedCount > 50 && errorRate > 0.3) {
-      console.warn(`High ${name} error rate detected (${(errorRate * 100).toFixed(1)}%). Pausing for recovery...`);
+      logger.warn('High error rate detected, pausing for recovery', {
+        name,
+        errorRate: (errorRate * 100).toFixed(1) + '%',
+      });
       await sleep(5000);
       consecutiveErrors = 0;
     }
   }
 
   const finalErrorRate = processedCount > 0 ? (errorCount / processedCount * 100).toFixed(1) : '0';
-  console.log(`${name} collection complete: ${successCount} success, ${errorCount} errors, ${retryCount} retries out of ${processedCount} total (${finalErrorRate}% error rate)`);
+  logger.info('Collection complete', {
+    name,
+    successCount,
+    errorCount,
+    retryCount,
+    processedCount,
+    errorRate: finalErrorRate + '%',
+  });
 
   if (processedCount > 0 && errorCount / processedCount > 0.1) {
-    console.warn(`High ${name} error rate detected (${finalErrorRate}%). Consider investigating API issues or rate limits.`);
+    logger.warn('High error rate detected, consider investigating', {
+      name,
+      errorRate: finalErrorRate + '%',
+    });
   }
 
   return results;
