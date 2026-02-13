@@ -44,7 +44,8 @@ export async function POST(request: NextRequest) {
         const parseResult = CensusStreamInputSchema.safeParse(rawInput);
 
         if (!parseResult.success) {
-          sendError(`Invalid input: ${parseResult.error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ')}`);
+          const errorMessages = parseResult.error.issues.map(e => `${String(e.path.join('.'))}: ${e.message}`).join(', ');
+          sendError(`Invalid input: ${errorMessages}`);
           controller.close();
           return;
         }
