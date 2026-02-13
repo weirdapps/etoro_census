@@ -2,8 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { PeriodType } from '@/lib/models/user';
 import { dataCollectionService } from '@/lib/services/data-collection-service';
-import { analysisService } from '@/lib/services/analysis-service';
-import { AnalysisServiceV2 } from '@/lib/services/analysis-service-v2';
+import { analysisService, analysisServiceV2 } from '@/lib/services/analysis-service';
 
 // Input validation schema
 const CensusStreamInputSchema = z.object({
@@ -68,9 +67,9 @@ export async function POST(request: NextRequest) {
         // Phase 2: Analysis (70-100%)
         sendProgress(70, 'Analyzing collected data...');
 
-        // Use V2 analysis service if requested
+        // Use V2 analysis service (S-curve Fear & Greed) if requested
         const analysis = useV2
-          ? await new AnalysisServiceV2().analyzeInvestorSubset(
+          ? await analysisServiceV2.analyzeInvestorSubset(
               collectedData,
               Math.min(limit, collectedData.investors.length),
               (progress, message) => {

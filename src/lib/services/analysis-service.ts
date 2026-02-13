@@ -14,18 +14,26 @@ export interface ProgressCallback {
  * This eliminates redundant API requests and enables faster multi-band analysis.
  *
  * @description
- * This is the standard analysis service used for:
+ * Features:
  * - HTML report generation
  * - API endpoints that return JSON data
  * - Batch analysis of multiple investor bands (100/500/1000/1500)
+ * - Pluggable Fear & Greed strategy (linear or S-curve)
+ * - Automatic Map normalization for session storage data
  *
- * For the enhanced V2 dashboard with S-curve Fear & Greed Index,
- * see {@link AnalysisServiceV2} in analysis-service-v2.ts
+ * Use the exported singletons:
+ * - `analysisService` - Uses linear Fear & Greed strategy
+ * - `analysisServiceV2` - Uses S-curve Fear & Greed strategy
  *
  * @example
  * ```typescript
- * const service = new AnalysisService();
- * const analysis = await service.analyzeInvestorSubset(data, 1000, onProgress);
+ * // Standard analysis with linear Fear & Greed
+ * import { analysisService } from './analysis-service';
+ * const analysis = await analysisService.analyzeInvestorSubset(data, 1000);
+ *
+ * // V2 analysis with S-curve Fear & Greed
+ * import { analysisServiceV2 } from './analysis-service';
+ * const analysis = await analysisServiceV2.analyzeInvestorSubset(data, 1000);
  * ```
  */
 export class AnalysisService {
@@ -36,6 +44,35 @@ export class AnalysisService {
   }
 
   /**
+   * Normalize collected data to ensure Maps are properly instantiated.
+   * Handles data from JSON.parse (session storage) where Maps become plain objects.
+   */
+  static normalizeCollectedData(data: ComprehensiveDataCollection): ComprehensiveDataCollection {
+    const instrumentDetailsMap: Map<number, InstrumentDisplayData> = data.instruments.details instanceof Map
+      ? data.instruments.details
+      : new Map(Object.entries(data.instruments.details as Record<string, InstrumentDisplayData>)
+          .map(([k, v]) => [parseInt(k), v]));
+
+    const priceDataMap: Map<number, InstrumentPriceData> = data.instruments.priceData instanceof Map
+      ? data.instruments.priceData
+      : new Map(Object.entries(data.instruments.priceData as Record<string, InstrumentPriceData>)
+          .map(([k, v]) => [parseInt(k), v]));
+
+    const userDetailsMap: Map<string, UserDetail> = data.userDetails instanceof Map
+      ? data.userDetails
+      : new Map(Object.entries(data.userDetails as Record<string, UserDetail>));
+
+    return {
+      ...data,
+      instruments: {
+        details: instrumentDetailsMap,
+        priceData: priceDataMap,
+      },
+      userDetails: userDetailsMap,
+    };
+  }
+
+  /**
    * Perform census analysis on a subset of investors using pre-collected data
    */
   async analyzeInvestorSubset(
@@ -43,6 +80,9 @@ export class AnalysisService {
     investorCount: number,
     onProgress?: ProgressCallback
   ): Promise<CensusAnalysis> {
+    // Normalize data to ensure Maps are properly instantiated
+    const normalizedData = AnalysisService.normalizeCollectedData(collectedData);
+
     const updateProgress = (progress: number, message: string) => {
       console.log(`Analysis Progress (${investorCount} investors): ${progress}% - ${message}`);
       if (onProgress) {
@@ -53,7 +93,7 @@ export class AnalysisService {
     updateProgress(0, `Starting analysis of top ${investorCount} investors...`);
 
     // Take subset of investors (already sorted by copiers)
-    const investors = collectedData.investors.slice(0, investorCount);
+    const investors = normalizedData.investors.slice(0, investorCount);
     updateProgress(10, `Selected top ${investors.length} investors`);
 
     // Calculate portfolio statistics
@@ -70,15 +110,15 @@ export class AnalysisService {
     updateProgress(70, 'Calculating top holdings...');
     const topHoldings = this.calculateTopHoldings(
       instrumentData,
-      collectedData.instruments.details,
-      collectedData.instruments.priceData,
+      normalizedData.instruments.details,
+      normalizedData.instruments.priceData,
       investors.length
     );
     updateProgress(80, `Generated ${topHoldings.length} top holdings`);
 
     // Calculate top performers
     updateProgress(90, 'Calculating top performers...');
-    const topPerformers = this.calculateTopPerformers(investors, portfolioStats, collectedData.userDetails);
+    const topPerformers = this.calculateTopPerformers(investors, portfolioStats, normalizedData.userDetails);
     updateProgress(95, `Generated ${topPerformers.length} top performers`);
 
     // Final analysis compilation
@@ -121,6 +161,9 @@ export class AnalysisService {
     bands: number[] = [100, 500, 1000, 1500, 2000],
     onProgress?: ProgressCallback
   ): Promise<{ count: number; analysis: CensusAnalysis }[]> {
+    // Normalize data once for all band analyses
+    const normalizedData = AnalysisService.normalizeCollectedData(collectedData);
+
     const updateProgress = (progress: number, message: string) => {
       console.log(`Multi-band Analysis: ${progress}% - ${message}`);
       if (onProgress) {
@@ -129,8 +172,8 @@ export class AnalysisService {
     };
 
     updateProgress(0, 'Starting multi-band analysis...');
-    
-    const validBands = bands.filter(count => count <= collectedData.investors.length);
+
+    const validBands = bands.filter(count => count <= normalizedData.investors.length);
     const results: { count: number; analysis: CensusAnalysis }[] = [];
 
     for (let i = 0; i < validBands.length; i++) {
@@ -141,7 +184,7 @@ export class AnalysisService {
       updateProgress(progressOffset, `Analyzing band: top ${band} investors`);
 
       const analysis = await this.analyzeInvestorSubset(
-        collectedData,
+        normalizedData,
         band,
         (subProgress, subMessage) => {
           const scaledProgress = progressOffset + (subProgress * progressRange / 100);

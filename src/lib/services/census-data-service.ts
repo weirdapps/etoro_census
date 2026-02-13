@@ -6,6 +6,126 @@
 // Distribution bucket type (e.g., { "0-10%": 15, "10-20%": 25 })
 type DistributionBuckets = Record<string, number>;
 
+// Instrument detail from census data
+interface CensusInstrumentDetail {
+  instrumentId: number;
+  instrumentID: number;
+  instrumentDisplayName: string;
+  symbolFull: string;
+  images?: Array<{
+    width: number;
+    height: number;
+    uri: string;
+  }>;
+}
+
+// Instrument price data from census
+interface CensusInstrumentPrice {
+  instrumentId: number;
+  currentPrice?: number;
+  previousDayPrice?: number;
+  weekPrice?: number;
+  monthPrice?: number;
+}
+
+// Enhanced holding with computed fields
+export interface EnhancedHolding {
+  instrumentId: number;
+  symbol: string;
+  instrumentName: string;
+  name: string;
+  averageAllocation: number;
+  holdersCount: number;
+  holdersPercentage: number;
+  totalAllocation: number;
+  imageUrl?: string;
+  currentPrice?: number;
+  dayChange?: number;
+  weekChange?: number;
+  monthChange?: number;
+  yesterdayReturn?: number;
+  weekTDReturn?: number;
+  monthTDReturn?: number;
+}
+
+// Top performer with portfolio info
+export interface EnhancedPerformer {
+  username: string;
+  gain: number;
+  copiers: number;
+  riskScore?: number;
+  cashPercent?: number;
+  tradeInfo?: {
+    trades: number;
+    winRatio: number;
+  };
+  portfolio: {
+    positions: Array<{
+      instrumentId: number;
+      symbol?: string;
+      percentage: number;
+    }>;
+    positionsCount?: number;
+    totalValue?: number;
+  };
+  portfolioSize: number;
+  topHoldings?: Array<{
+    symbol: string;
+    allocation: number;
+    name: string;
+  }>;
+}
+
+// Market sentiment type
+export type MarketSentiment = 'FEARFUL' | 'GREEDY' | 'BULLISH' | 'BEARISH' | 'NEUTRAL';
+
+// Market statistics
+export interface MarketStats {
+  totalInvestors: number;
+  averageGain: number;
+  averageCopiers: number;
+  averageRiskScore: number;
+  averageCashPercent: number;
+  averagePositions: number;
+  fearGreedIndex?: {
+    value: number;
+    status: string;
+    components: FearGreedComponents;
+  };
+  marketSentiment: MarketSentiment;
+}
+
+// Smart holding (simplified for smart money analysis)
+export interface SmartHolding {
+  instrumentId: number;
+  symbol: string;
+  holdersCount: number;
+  averageAllocation: number;
+  penetration: number;
+}
+
+// Smart money flow result
+export interface SmartMoneyFlow {
+  groupType: 'all' | 'topCopiers' | 'topPerformers' | 'lowRisk';
+  groupDescription: string;
+  investorCount: number;
+  topHoldings: SmartHolding[];
+  risingStars: SmartHolding[];
+  consensus: SmartHolding[];
+  buying?: SmartHolding[];
+  selling?: SmartHolding[];
+}
+
+// Divergence opportunity (smart money vs mass holdings)
+export interface DivergenceOpportunity {
+  symbol: string;
+  smartMoneyHolding: number;
+  massHolding: number;
+  divergence: number;
+  signal: 'SMART_ACCUMULATING' | 'SMART_DISTRIBUTING';
+  opportunity: string;
+}
+
 // Fear & Greed components (cash and risk contributions)
 interface FearGreedComponents {
   cashComponent?: number;
@@ -13,87 +133,77 @@ interface FearGreedComponents {
   combinedScore?: number;
 }
 
-interface CensusData {
-  analyses: Array<{
-    investorCount: number;
-    averages: {
-      gain: number;
-      riskScore: number;
-      copiers?: number;
-      cashPercent?: number;
-      positions?: number;
-      trades?: number;
-      winRatio?: number;
-    };
-    distributions?: {
-      gains: DistributionBuckets;
-      risk: DistributionBuckets;
-      cash: DistributionBuckets;
-    };
-    fearGreedIndex?: {
-      value: number;
-      status: string;
-      components: FearGreedComponents;
-    };
-    topHoldings: Array<{
+// Census investor data
+interface CensusInvestor {
+  username?: string;
+  gain: number;
+  copiers: number;
+  riskScore?: number;
+  cashPercent?: number;
+  tradeInfo?: {
+    trades: number;
+    winRatio: number;
+  };
+  portfolio: {
+    positions: Array<{
       instrumentId: number;
-      symbol: string;
-      instrumentName: string;
-      averageAllocation: number;
-      holdersCount: number;
-      holdersPercentage: number;
-      totalAllocation: number;
-      imageUrl?: string;
-      yesterdayReturn?: number;
-      weekTDReturn?: number;
-      monthTDReturn?: number;
+      symbol?: string;
+      percentage: number;
     }>;
-    topPerformers: Array<{
-      username?: string;
-      gain: number;
-      copiers: number;
-      riskScore: number;
-    }>;
+    positionsCount?: number;
+    totalValue?: number;
+  };
+}
+
+// Census analysis entry
+interface CensusAnalysis {
+  investorCount: number;
+  averages: {
+    gain: number;
+    riskScore: number;
+    copiers?: number;
+    cashPercent?: number;
+    positions?: number;
+    trades?: number;
+    winRatio?: number;
+  };
+  distributions?: {
+    gains: DistributionBuckets;
+    risk: DistributionBuckets;
+    cash: DistributionBuckets;
+  };
+  fearGreedIndex?: {
+    value: number;
+    status: string;
+    components: FearGreedComponents;
+  };
+  topHoldings: Array<{
+    instrumentId: number;
+    symbol: string;
+    instrumentName: string;
+    averageAllocation: number;
+    holdersCount: number;
+    holdersPercentage: number;
+    totalAllocation: number;
+    imageUrl?: string;
+    yesterdayReturn?: number;
+    weekTDReturn?: number;
+    monthTDReturn?: number;
   }>;
-  investors: Array<{
+  topPerformers: Array<{
     username?: string;
     gain: number;
     copiers: number;
-    riskScore?: number;
-    cashPercent?: number;
-    tradeInfo?: {
-      trades: number;
-      winRatio: number;
-    };
-    portfolio: {
-      positions: Array<{
-        instrumentId: number;
-        symbol?: string;
-        percentage: number;
-      }>;
-      positionsCount?: number;
-      totalValue?: number;
-    };
+    riskScore: number;
   }>;
+}
+
+interface CensusData {
+  analyses: CensusAnalysis[];
+  investors: CensusInvestor[];
   instruments: {
-    details: Array<{
-      instrumentId: number;
-      instrumentID: number;
-      instrumentDisplayName: string;
-      symbolFull: string;
-      images?: Array<{
-        width: number;
-        height: number;
-        uri: string;
-      }>;
-    }>;
-    priceData: Array<{
-      instrumentId: number;
-      currentPrice?: number;
-      previousDayPrice?: number;
-      weekPrice?: number;
-      monthPrice?: number;
-    }>;
+    details: CensusInstrumentDetail[];
+    priceData: CensusInstrumentPrice[];
   };
   userDetails?: Record<string, {
     username: string;
@@ -114,7 +224,51 @@ class CensusDataService {
   private lastFetchTime: number = 0;
   private readonly CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
+  // Memoized instrument maps - built once when census data is loaded
+  private instrumentDetailsMap: Map<number, CensusInstrumentDetail> | null = null;
+  private instrumentPriceMap: Map<number, CensusInstrumentPrice> | null = null;
+
   private constructor() {}
+
+  /**
+   * Build memoized instrument maps from census data.
+   * Called once after data is loaded to avoid recreating maps on every method call.
+   */
+  private buildInstrumentMaps(): void {
+    if (!this.censusData) return;
+
+    // Build instrument details map
+    this.instrumentDetailsMap = new Map();
+    if (this.censusData.instruments?.details) {
+      for (const inst of this.censusData.instruments.details) {
+        this.instrumentDetailsMap.set(inst.instrumentId || inst.instrumentID, inst);
+      }
+    }
+
+    // Build instrument price map
+    this.instrumentPriceMap = new Map();
+    if (this.censusData.instruments?.priceData) {
+      for (const price of this.censusData.instruments.priceData) {
+        this.instrumentPriceMap.set(price.instrumentId, price);
+      }
+    }
+  }
+
+  /**
+   * Get memoized instrument details map.
+   * Returns cached map or empty map if no data loaded.
+   */
+  private getInstrumentDetailsMap(): Map<number, CensusInstrumentDetail> {
+    return this.instrumentDetailsMap || new Map();
+  }
+
+  /**
+   * Get memoized instrument price map.
+   * Returns cached map or empty map if no data loaded.
+   */
+  private getInstrumentPriceMap(): Map<number, CensusInstrumentPrice> {
+    return this.instrumentPriceMap || new Map();
+  }
 
   static getInstance(): CensusDataService {
     if (!CensusDataService.instance) {
@@ -153,6 +307,7 @@ class CensusDataService {
             const fileContent = await fs.readFile(filePath, 'utf-8');
             this.censusData = JSON.parse(fileContent);
             this.lastFetchTime = Date.now();
+            this.buildInstrumentMaps();
             console.log(`Successfully loaded census data from ${fileName}`);
             return this.censusData;
           } catch (err) {
@@ -176,6 +331,7 @@ class CensusDataService {
             if (response.ok) {
               this.censusData = await response.json();
               this.lastFetchTime = Date.now();
+              this.buildInstrumentMaps();
               console.log(`Successfully loaded census data from ${url}`);
               return this.censusData;
             }
@@ -196,25 +352,13 @@ class CensusDataService {
   /**
    * Get top holdings from census data
    */
-  async getTopHoldings(limit: number = 20): Promise<Array<any>> {
+  async getTopHoldings(limit: number = 20): Promise<EnhancedHolding[]> {
     const data = await this.loadCensusData();
     if (!data?.analyses?.[0]?.topHoldings) return [];
 
-    // Create lookup maps for instruments
-    const instrumentDetailsMap = new Map<number, any>();
-    const instrumentPriceMap = new Map<number, any>();
-
-    if (data.instruments?.details) {
-      data.instruments.details.forEach((inst: any) => {
-        instrumentDetailsMap.set(inst.instrumentId || inst.instrumentID, inst);
-      });
-    }
-
-    if (data.instruments?.priceData) {
-      data.instruments.priceData.forEach((price: any) => {
-        instrumentPriceMap.set(price.instrumentId, price);
-      });
-    }
+    // Use memoized maps (built when data was loaded)
+    const instrumentDetailsMap = this.getInstrumentDetailsMap();
+    const instrumentPriceMap = this.getInstrumentPriceMap();
 
     return data.analyses[0].topHoldings
       .slice(0, limit)
@@ -237,17 +381,12 @@ class CensusDataService {
   /**
    * Get top performers
    */
-  async getTopPerformers(limit: number = 100): Promise<Array<any>> {
+  async getTopPerformers(limit: number = 100): Promise<EnhancedPerformer[]> {
     const data = await this.loadCensusData();
     if (!data?.investors) return [];
 
-    // Create lookup map for instruments
-    const instrumentDetailsMap = new Map<number, any>();
-    if (data.instruments?.details) {
-      data.instruments.details.forEach((inst: any) => {
-        instrumentDetailsMap.set(inst.instrumentId || inst.instrumentID, inst);
-      });
-    }
+    // Use memoized map (built when data was loaded)
+    const instrumentDetailsMap = this.getInstrumentDetailsMap();
 
     // Get usernames from userDetails if available
     const userDetailsMap = data.userDetails || {};
@@ -279,7 +418,7 @@ class CensusDataService {
   /**
    * Get market statistics
    */
-  async getMarketStats(): Promise<any> {
+  async getMarketStats(): Promise<MarketStats | null> {
     const data = await this.loadCensusData();
     if (!data?.analyses?.[0]) return null;
 
@@ -322,21 +461,23 @@ class CensusDataService {
    * Get smart money flow (what top investors are buying/selling)
    * Can analyze different investor groups
    */
-  async getSmartMoneyFlow(groupType: 'all' | 'topCopiers' | 'topPerformers' | 'lowRisk' = 'all', baseUrl?: string): Promise<any> {
+  async getSmartMoneyFlow(groupType: 'all' | 'topCopiers' | 'topPerformers' | 'lowRisk' = 'all', baseUrl?: string): Promise<SmartMoneyFlow> {
     const data = await this.loadCensusData(baseUrl);
     if (!data) {
       console.log('No census data loaded for smart money flow');
-      return { buying: [], selling: [], topHoldings: [], risingStars: [], consensus: [] };
+      return {
+        groupType,
+        groupDescription: 'No data available',
+        investorCount: 0,
+        topHoldings: [],
+        risingStars: [],
+        consensus: []
+      };
     }
     console.log('Census data loaded, investors count:', data.investors?.length);
 
-    // Create lookup map for instruments
-    const instrumentDetailsMap = new Map<number, any>();
-    if (data.instruments?.details) {
-      data.instruments.details.forEach((inst: any) => {
-        instrumentDetailsMap.set(inst.instrumentId || inst.instrumentID, inst);
-      });
-    }
+    // Use memoized map (built when data was loaded)
+    const instrumentDetailsMap = this.getInstrumentDetailsMap();
 
     // Select investor group based on type
     let topInvestors;
@@ -448,7 +589,7 @@ class CensusDataService {
   /**
    * Calculate market sentiment
    */
-  private calculateMarketSentiment(analysis: any): string {
+  private calculateMarketSentiment(analysis: CensusAnalysis): MarketSentiment {
     const fearGreed = analysis.fearGreedIndex?.value || 50;
     const avgGain = analysis.averages?.gain || 0;
     const avgCash = analysis.averages?.cashPercent || 15;
@@ -463,7 +604,7 @@ class CensusDataService {
   /**
    * Get divergence opportunities (what masses do vs smart money)
    */
-  async getDivergenceOpportunities(): Promise<any> {
+  async getDivergenceOpportunities(): Promise<DivergenceOpportunity[]> {
     const data = await this.loadCensusData();
     if (!data) return [];
 
@@ -489,12 +630,13 @@ class CensusDataService {
       const divergence = topRate - massRate;
 
       if (Math.abs(divergence) > 20) { // Significant divergence
+        const signal: DivergenceOpportunity['signal'] = divergence > 0 ? 'SMART_ACCUMULATING' : 'SMART_DISTRIBUTING';
         opportunities.push({
           symbol,
           smartMoneyHolding: topRate,
           massHolding: massRate,
           divergence,
-          signal: divergence > 0 ? 'SMART_ACCUMULATING' : 'SMART_DISTRIBUTING',
+          signal,
           opportunity: divergence > 0 ? 'Consider following smart money' : 'Consider taking profits'
         });
       }
@@ -506,12 +648,12 @@ class CensusDataService {
   /**
    * Calculate holding rates for a group of investors
    */
-  private calculateHoldingRates(investors: any[]): Map<string, number> {
+  private calculateHoldingRates(investors: CensusInvestor[]): Map<string, number> {
     const holdings = new Map<string, number>();
 
     for (const investor of investors) {
       const uniqueSymbols = new Set<string>(
-        investor.portfolio?.positions?.map((p: any) => p.symbol as string) || []
+        investor.portfolio?.positions?.map((p) => p.symbol).filter((s): s is string => !!s) || []
       );
 
       for (const symbol of uniqueSymbols) {

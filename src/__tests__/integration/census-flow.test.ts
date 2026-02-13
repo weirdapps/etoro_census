@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { AnalysisService } from '@/lib/services/analysis-service';
-import { AnalysisServiceV2 } from '@/lib/services/analysis-service-v2';
+import { AnalysisService, analysisServiceV2 } from '@/lib/services/analysis-service';
 import { ComprehensiveDataCollection, CollectedInvestorData } from '@/lib/services/data-collection-service';
 import { InstrumentDisplayData, InstrumentPriceData } from '@/lib/services/instrument-service';
 import { UserDetail } from '@/lib/models/user';
@@ -295,17 +294,11 @@ describe('Census Report Generation Flow', () => {
     });
   });
 
-  describe('AnalysisServiceV2', () => {
-    let service: AnalysisServiceV2;
-
-    beforeEach(() => {
-      service = new AnalysisServiceV2();
-    });
-
-    it('should generate complete census analysis with V2 features', async () => {
+  describe('analysisServiceV2 (S-curve Fear & Greed)', () => {
+    it('should generate complete census analysis with S-curve Fear & Greed', async () => {
       const mockData = createMockCollectedData(100);
 
-      const analysis = await service.analyzeInvestorSubset(mockData, 100);
+      const analysis = await analysisServiceV2.analyzeInvestorSubset(mockData, 100);
 
       // Verify V2 analysis structure (same as V1 but with S-curve Fear/Greed)
       expect(analysis).toBeDefined();
@@ -330,8 +323,8 @@ describe('Census Report Generation Flow', () => {
         userDetails: Object.fromEntries(mockData.userDetails),
       };
 
-      // V2 service should handle this gracefully
-      const analysis = await service.analyzeInvestorSubset(
+      // Service should handle this gracefully via static normalizeCollectedData
+      const analysis = await analysisServiceV2.analyzeInvestorSubset(
         serializedData as unknown as ComprehensiveDataCollection,
         50
       );
@@ -340,20 +333,18 @@ describe('Census Report Generation Flow', () => {
       expect(analysis.fearGreedIndex).toBeGreaterThanOrEqual(0);
     });
 
-    it('should produce consistent results between V1 and V2', async () => {
+    it('should produce consistent results between linear and S-curve services', async () => {
       const mockData = createMockCollectedData(100);
       const v1Service = new AnalysisService();
-      const v2Service = new AnalysisServiceV2();
 
       const v1Analysis = await v1Service.analyzeInvestorSubset(mockData, 100);
-      const v2Analysis = await v2Service.analyzeInvestorSubset(mockData, 100);
+      const v2Analysis = await analysisServiceV2.analyzeInvestorSubset(mockData, 100);
 
-      // Core metrics should be similar (Fear/Greed may differ due to S-curve)
-      // Use tolerance of 0 (integer precision) since random data may vary
+      // Core metrics should be identical (only Fear/Greed differs due to S-curve)
       expect(v1Analysis.averageCashPercentage).toBeCloseTo(v2Analysis.averageCashPercentage, 0);
       expect(v1Analysis.averageRiskScore).toBeCloseTo(v2Analysis.averageRiskScore, 0);
 
-      // Both should have top performers arrays (may differ in length due to implementation differences)
+      // Both should have top performers arrays
       expect(Array.isArray(v1Analysis.topPerformers)).toBe(true);
       expect(Array.isArray(v2Analysis.topPerformers)).toBe(true);
     });

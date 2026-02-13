@@ -3,20 +3,10 @@
  * Shared comparison logic used by both personal and public portfolio intelligence
  */
 
-interface SmartMoneyData {
-  groupType: string;
-  groupDescription: string;
-  investorCount: number;
-  topHoldings: Array<{
-    instrumentId: number;
-    symbol: string;
-    holdersCount: number;
-    averageAllocation: number;
-    penetration: number;
-  }>;
-  risingStars?: Array<any>;
-  consensus?: Array<any>;
-}
+import { SmartMoneyFlow } from './census-data-service';
+
+// Alias for backward compatibility
+type SmartMoneyData = SmartMoneyFlow;
 
 interface PortfolioPosition {
   instrumentId: number;
