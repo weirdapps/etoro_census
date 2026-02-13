@@ -13,19 +13,20 @@ import {
 
 describe('constants', () => {
   describe('FEAR_GREED', () => {
-    it('should have correct threshold values', () => {
-      expect(FEAR_GREED.EXTREME_FEAR).toBe(20);
-      expect(FEAR_GREED.FEAR).toBe(15);
-      expect(FEAR_GREED.NEUTRAL).toBe(12);
-      expect(FEAR_GREED.GREED).toBe(8);
-      expect(FEAR_GREED.EXTREME_GREED).toBe(7);
+    it('should have correct 0-100 scale threshold values', () => {
+      expect(FEAR_GREED.EXTREME_FEAR_MAX).toBe(24);
+      expect(FEAR_GREED.FEAR_MAX).toBe(44);
+      expect(FEAR_GREED.NEUTRAL_MIN).toBe(45);
+      expect(FEAR_GREED.NEUTRAL_MAX).toBe(55);
+      expect(FEAR_GREED.GREED_MAX).toBe(75);
+      expect(FEAR_GREED.EXTREME_GREED_MIN).toBe(76);
     });
 
-    it('should have thresholds in descending order', () => {
-      expect(FEAR_GREED.EXTREME_FEAR).toBeGreaterThan(FEAR_GREED.FEAR);
-      expect(FEAR_GREED.FEAR).toBeGreaterThan(FEAR_GREED.NEUTRAL);
-      expect(FEAR_GREED.NEUTRAL).toBeGreaterThan(FEAR_GREED.GREED);
-      expect(FEAR_GREED.GREED).toBeGreaterThan(FEAR_GREED.EXTREME_GREED);
+    it('should have thresholds in ascending order (0=Fear, 100=Greed)', () => {
+      expect(FEAR_GREED.EXTREME_FEAR_MAX).toBeLessThan(FEAR_GREED.FEAR_MAX);
+      expect(FEAR_GREED.FEAR_MAX).toBeLessThan(FEAR_GREED.NEUTRAL_MIN);
+      expect(FEAR_GREED.NEUTRAL_MAX).toBeLessThan(FEAR_GREED.GREED_MAX);
+      expect(FEAR_GREED.GREED_MAX).toBeLessThan(FEAR_GREED.EXTREME_GREED_MIN);
     });
   });
 

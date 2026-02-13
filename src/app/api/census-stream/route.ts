@@ -1,12 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 import { PeriodType } from '@/lib/models/user';
 import { dataCollectionService } from '@/lib/services/data-collection-service';
 import { analysisService } from '@/lib/services/analysis-service';
 import { AnalysisServiceV2 } from '@/lib/services/analysis-service-v2';
 
+// Input validation schema
+const CensusStreamInputSchema = z.object({
+  limit: z.number().int().min(1).max(2000).default(100),
+  period: z.enum(['CurrYear', 'CurrMonth', 'CurrWeek']).default('CurrYear'),
+  useV2: z.boolean().default(false)
+});
+
 export async function POST(request: NextRequest) {
   const encoder = new TextEncoder();
-  
+
   // Create a streaming response
   const stream = new ReadableStream({
     async start(controller) {
@@ -31,7 +39,17 @@ export async function POST(request: NextRequest) {
       };
 
       try {
-        const { limit = 100, period = 'CurrYear', useV2 = false } = await request.json();
+        // Parse and validate input
+        const rawInput = await request.json();
+        const parseResult = CensusStreamInputSchema.safeParse(rawInput);
+
+        if (!parseResult.success) {
+          sendError(`Invalid input: ${parseResult.error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ')}`);
+          controller.close();
+          return;
+        }
+
+        const { limit, period, useV2 } = parseResult.data;
 
         sendProgress(0, `Starting census analysis for ${limit} investors...`);
 

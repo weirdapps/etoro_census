@@ -1,3 +1,13 @@
+/**
+ * Disclaimer metadata for census analysis results.
+ * Documents selection and survivorship bias in the data.
+ */
+export interface AnalysisDisclaimer {
+  selectionBias: string;
+  survivorshipBias: string;
+  dataLimitations: string;
+}
+
 export interface CensusAnalysis {
   fearGreedIndex: number;
   averageUniqueInstruments: number;
@@ -12,6 +22,8 @@ export interface CensusAnalysis {
   topHoldings: InstrumentHolding[];
   returnsDistribution: { [range: string]: number };
   topPerformers: PerformerStats[];
+  /** Analysis methodology disclaimers */
+  _disclaimer?: AnalysisDisclaimer;
 }
 
 export interface InstrumentHolding {

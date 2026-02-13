@@ -3,13 +3,22 @@
  * Loads and provides real eToro census data for market intelligence
  */
 
+// Distribution bucket type (e.g., { "0-10%": 15, "10-20%": 25 })
+type DistributionBuckets = Record<string, number>;
+
+// Fear & Greed components (cash and risk contributions)
+interface FearGreedComponents {
+  cashComponent?: number;
+  riskComponent?: number;
+  combinedScore?: number;
+}
+
 interface CensusData {
   analyses: Array<{
     investorCount: number;
     averages: {
       gain: number;
       riskScore: number;
-      // Note: copiers, cashPercent, positions, trades, winRatio might not exist
       copiers?: number;
       cashPercent?: number;
       positions?: number;
@@ -17,14 +26,14 @@ interface CensusData {
       winRatio?: number;
     };
     distributions?: {
-      gains: any;
-      risk: any;
-      cash: any;
+      gains: DistributionBuckets;
+      risk: DistributionBuckets;
+      cash: DistributionBuckets;
     };
     fearGreedIndex?: {
       value: number;
       status: string;
-      components: any;
+      components: FearGreedComponents;
     };
     topHoldings: Array<{
       instrumentId: number;

@@ -267,14 +267,33 @@ export function getAssetInfo(instrumentId: number, instrumentMap: Map<number, In
 }
 
 /**
- * Calculates risk-adjusted score for an investor
+ * Calculates an engagement-adjusted performance score for an investor.
+ *
+ * IMPORTANT: This is NOT a standard financial risk-adjustment (like Sharpe or Sortino).
+ * It combines performance with eToro-specific engagement metrics:
+ * - gainFactor: Return divided by eToro's subjective riskScore (1-10 scale)
+ * - winRatioFactor: Percentage of profitable trades (0-1)
+ * - engagementFactor: Logarithmic scaling based on copier count
+ *
+ * Use this for ranking/sorting within the eToro ecosystem, not for financial comparisons.
+ *
+ * @returns Engagement-adjusted score (higher = better within eToro context)
  */
 export function calculateRiskAdjustedScore(investor: Investor): number {
+  // Performance relative to eToro's subjective risk rating
   const gainFactor = investor.gain / Math.max(investor.riskScore, 1);
+  // Trading consistency factor (0-1)
   const winRatioFactor = (investor.winRatio || 70) / 100;
-  const trustFactor = Math.log(Math.max(investor.copiers, 1000) / 1000);
-  return gainFactor * winRatioFactor * trustFactor;
+  // Engagement/popularity factor (logarithmic, base at 1000 copiers)
+  const engagementFactor = Math.log(Math.max(investor.copiers, 1000) / 1000);
+  return gainFactor * winRatioFactor * engagementFactor;
 }
+
+/**
+ * Alias for backward compatibility - use calculateRiskAdjustedScore instead
+ * @deprecated Use calculateRiskAdjustedScore with awareness of its limitations
+ */
+export const calculateEngagementAdjustedScore = calculateRiskAdjustedScore;
 
 /**
  * Calculates Fear & Greed Index based on cash percentage

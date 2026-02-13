@@ -13,8 +13,11 @@ import * as fs from 'fs';
 import * as path from 'path';
 import {
   getLatestDataFiles,
+  getAllDataFiles,
+  getDataDirectory,
   loadDataFile,
-  formatPercentage
+  formatPercentage,
+  calculateFearGreedIndex
 } from './lib/utils';
 import type { CensusData, Investor, Holding, Analysis } from './lib/types';
 
@@ -48,6 +51,19 @@ interface GroupHolding {
   avgAllocation: number;
 }
 
+interface TrendDataPoint {
+  date: string;
+  fearGreedIndex: number;
+  cashPercentage: number;
+}
+
+interface MomentumStock {
+  symbol: string;
+  trend: 'accumulating' | 'distributing';
+  daysInTrend: number;
+  totalChange: number;
+}
+
 interface ExportData {
   exportedAt: string;
   censusDate: string;
@@ -69,11 +85,23 @@ interface ExportData {
       direction: 'gained' | 'lost';
     }>;
   };
+  trends: {
+    history7d: TrendDataPoint[];
+    history30d: TrendDataPoint[];
+    cashTrend: 'rising' | 'falling' | 'stable';
+    fearGreedTrend: 'improving' | 'worsening' | 'stable';
+  };
+  momentum: {
+    accumulating: MomentumStock[];
+    distributing: MomentumStock[];
+  };
   summary: {
     fearGreedIndex: number;
     avgCashTop100: number;
     avgCashBroad: number;
     top100Advantage: number;
+    avgWinRatioTop100: number;
+    avgWinRatioTopPerformers: number;
   };
 }
 
@@ -196,6 +224,114 @@ function createInvestorGroup(
   };
 }
 
+function calculateCashPercentage(investors: Investor[]): number {
+  if (investors.length === 0) return 0;
+  const totalCash = investors.reduce((sum, inv) => {
+    const cashPct = inv.portfolio?.positions
+      ? 100 - inv.portfolio.positions.reduce((s, p) => s + (p.investmentPct || 0), 0)
+      : 0;
+    return sum + Math.max(0, cashPct);
+  }, 0);
+  return Math.round((totalCash / investors.length) * 10) / 10;
+}
+
+function getHistoricalTrends(days: number): TrendDataPoint[] {
+  const allFiles = getAllDataFiles();
+  const dataDir = getDataDirectory();
+  const trends: TrendDataPoint[] = [];
+
+  for (let i = 0; i < Math.min(days, allFiles.length); i++) {
+    try {
+      const filepath = path.join(dataDir, allFiles[i]);
+      const data = loadDataFile(filepath);
+      const dateMatch = allFiles[i].match(/(\d{4}-\d{2}-\d{2})/);
+      const date = dateMatch ? dateMatch[1] : allFiles[i];
+
+      // Use stored analysis data which has consistent F&G calculation
+      const fearGreedIndex = data.analyses[0]?.fearGreedIndex || 0;
+      const cashPct = data.analyses[0]?.averages?.cashPercentage || 0;
+
+      trends.push({
+        date,
+        fearGreedIndex,
+        cashPercentage: cashPct
+      });
+    } catch {
+      // Skip files that can't be loaded
+    }
+  }
+
+  return trends.reverse(); // Oldest first
+}
+
+function detectMomentum(days: number = 5): { accumulating: MomentumStock[]; distributing: MomentumStock[] } {
+  const allFiles = getAllDataFiles();
+  const dataDir = getDataDirectory();
+
+  if (allFiles.length < days) {
+    return { accumulating: [], distributing: [] };
+  }
+
+  // Track holding changes over the last N days
+  const holdingHistory = new Map<string, number[]>();
+
+  for (let i = 0; i < days && i < allFiles.length; i++) {
+    try {
+      const filepath = path.join(dataDir, allFiles[i]);
+      const data = loadDataFile(filepath);
+
+      if (data.analyses[0]?.topHoldings) {
+        for (const h of data.analyses[0].topHoldings.slice(0, 50)) {
+          const history = holdingHistory.get(h.symbol) || [];
+          history.unshift(h.holdersCount); // Add to front
+          holdingHistory.set(h.symbol, history);
+        }
+      }
+    } catch {
+      // Skip files that can't be loaded
+    }
+  }
+
+  const accumulating: MomentumStock[] = [];
+  const distributing: MomentumStock[] = [];
+
+  for (const [symbol, history] of holdingHistory) {
+    if (history.length < 3) continue;
+
+    let increaseDays = 0;
+    let decreaseDays = 0;
+    let totalChange = 0;
+
+    for (let i = 1; i < history.length; i++) {
+      const change = history[i] - history[i - 1];
+      totalChange += change;
+      if (change > 0) increaseDays++;
+      else if (change < 0) decreaseDays++;
+    }
+
+    if (increaseDays >= 3 && totalChange > 0) {
+      accumulating.push({ symbol, trend: 'accumulating', daysInTrend: increaseDays, totalChange });
+    } else if (decreaseDays >= 3 && totalChange < 0) {
+      distributing.push({ symbol, trend: 'distributing', daysInTrend: decreaseDays, totalChange: Math.abs(totalChange) });
+    }
+  }
+
+  accumulating.sort((a, b) => b.totalChange - a.totalChange);
+  distributing.sort((a, b) => b.totalChange - a.totalChange);
+
+  return {
+    accumulating: accumulating.slice(0, 10),
+    distributing: distributing.slice(0, 10)
+  };
+}
+
+function calculateAvgWinRatio(investors: Investor[]): number {
+  const withWinRatio = investors.filter(inv => inv.winRatio !== undefined && inv.winRatio > 0);
+  if (withWinRatio.length === 0) return 0;
+  const total = withWinRatio.reduce((sum, inv) => sum + (inv.winRatio || 0), 0);
+  return Math.round((total / withWinRatio.length) * 10) / 10;
+}
+
 function generateExport(): void {
   console.log('Exporting census data for integration...\n');
 
@@ -305,6 +441,35 @@ function generateExport(): void {
   const top100Gain = groups.top100.averages.gain;
   const broadGain = groups.broad1500.averages.gain;
 
+  // Calculate historical trends
+  console.log('Calculating historical trends...');
+  const history7d = getHistoricalTrends(7);
+  const history30d = getHistoricalTrends(30);
+
+  // Determine trend directions
+  let cashTrend: 'rising' | 'falling' | 'stable' = 'stable';
+  let fearGreedTrend: 'improving' | 'worsening' | 'stable' = 'stable';
+
+  if (history7d.length >= 3) {
+    const recentCash = history7d.slice(-3).reduce((s, d) => s + d.cashPercentage, 0) / 3;
+    const olderCash = history7d.slice(0, 3).reduce((s, d) => s + d.cashPercentage, 0) / 3;
+    if (recentCash - olderCash > 1) cashTrend = 'rising';
+    else if (olderCash - recentCash > 1) cashTrend = 'falling';
+
+    const recentFG = history7d.slice(-3).reduce((s, d) => s + d.fearGreedIndex, 0) / 3;
+    const olderFG = history7d.slice(0, 3).reduce((s, d) => s + d.fearGreedIndex, 0) / 3;
+    if (recentFG - olderFG > 5) fearGreedTrend = 'improving';
+    else if (olderFG - recentFG > 5) fearGreedTrend = 'worsening';
+  }
+
+  // Calculate momentum
+  console.log('Detecting momentum patterns...');
+  const momentum = detectMomentum(5);
+
+  // Calculate win ratios
+  const avgWinRatioTop100 = calculateAvgWinRatio(byCopers.slice(0, 100));
+  const avgWinRatioTopPerformers = calculateAvgWinRatio(byGain.slice(0, 100));
+
   const exportData: ExportData = {
     exportedAt: new Date().toISOString(),
     censusDate: (currentData.metadata as any)?.collectedAt || currentData.metadata?.generatedAt || files.today,
@@ -313,11 +478,20 @@ function generateExport(): void {
       holdingMovers: holdingMovers.slice(0, 10),
       copierChanges: copierChanges.slice(0, 10)
     },
+    trends: {
+      history7d,
+      history30d,
+      cashTrend,
+      fearGreedTrend
+    },
+    momentum,
     summary: {
       fearGreedIndex,
       avgCashTop100: groups.top100.averages.cashPercentage,
       avgCashBroad: groups.broad1500.averages.cashPercentage,
-      top100Advantage: Math.round((top100Gain - broadGain) * 10) / 10
+      top100Advantage: Math.round((top100Gain - broadGain) * 10) / 10,
+      avgWinRatioTop100,
+      avgWinRatioTopPerformers
     }
   };
 
@@ -347,8 +521,17 @@ function generateExport(): void {
   console.log(`- Safe Group: ${groups.safeGroup.count} investors`);
   console.log(`\nHolding movers: ${holdingMovers.length}`);
   console.log(`Copier changes: ${copierChanges.length}`);
+  console.log(`\nTrends:`);
+  console.log(`- 7-day history: ${history7d.length} data points`);
+  console.log(`- 30-day history: ${history30d.length} data points`);
+  console.log(`- Cash trend: ${cashTrend}`);
+  console.log(`- Fear/Greed trend: ${fearGreedTrend}`);
+  console.log(`\nMomentum:`);
+  console.log(`- Accumulating: ${momentum.accumulating.map(m => m.symbol).join(', ') || 'None'}`);
+  console.log(`- Distributing: ${momentum.distributing.map(m => m.symbol).join(', ') || 'None'}`);
   console.log(`\nFear & Greed Index: ${fearGreedIndex}`);
   console.log(`Top 100 advantage: ${formatPercentage(top100Gain - broadGain)}pp`);
+  console.log(`Win Ratio - Top 100: ${avgWinRatioTop100}% | Top Performers: ${avgWinRatioTopPerformers}%`);
 }
 
 try {

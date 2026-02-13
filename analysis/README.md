@@ -6,7 +6,7 @@ This directory contains analysis scripts for generating insights and social medi
 
 ### Daily Post Generator
 ```bash
-node daily-post.js
+npm run analysis:daily
 ```
 Generates a formatted daily update comparing today vs yesterday:
 - 📊 Performance comparison (Top 100 vs Broad Group)
@@ -18,7 +18,7 @@ Generates a formatted daily update comparing today vs yesterday:
 
 ### Weekly Post Generator
 ```bash
-node weekly-post.js
+npm run analysis:weekly
 ```
 Creates weekly summary with trend analysis:
 - 📈 Performance trends over the week
@@ -30,7 +30,7 @@ Creates weekly summary with trend analysis:
 
 ### Monthly Post Generator
 ```bash
-node monthly-post.js
+npm run analysis:monthly
 ```
 Comprehensive monthly report with deep insights:
 - 🎯 Performance overview with monthly changes
@@ -59,7 +59,7 @@ Advanced momentum-based analysis for identifying trending investors.
 
 ### Generate All Posts
 ```bash
-node generate-all-posts.js
+npm run analysis:all
 ```
 Batch generate all social media posts (daily, weekly, monthly) at once.
 
@@ -88,10 +88,10 @@ Tools in `performance-comparison/` for detailed outperformance analysis and stan
 
 ```
 analysis/
-├── daily-post.js                # Daily census update
-├── weekly-post.js               # Weekly summary
-├── monthly-post.js              # Monthly report
-├── generate-all-posts.js        # Batch generate all posts
+├── daily-post.ts                # Daily census update
+├── weekly-post.ts               # Weekly summary
+├── monthly-post.ts              # Monthly report
+├── generate-all-posts.ts        # Batch generate all posts
 ├── hot-hands.js                 # Hot hands analysis
 ├── hot-hands-momentum.js        # Momentum-based analysis
 ├── follower-distribution/       # Follower distribution analysis
@@ -107,13 +107,14 @@ analysis/
 │   ├── simple-working-chart.html
 │   └── README.md
 ├── lib/                        # Shared utilities
-│   └── utils.js               # Common functions
+│   ├── utils.ts               # Common functions (TypeScript)
+│   └── types.ts               # Type definitions
 └── output/                    # Analysis results directory
 ```
 
 ## 🔧 Shared Utilities
 
-All scripts use `lib/utils.js` for common operations:
+All scripts use `lib/utils.ts` for common operations:
 - Dynamic path resolution (works from any directory)
 - Data file loading and parsing
 - Instrument mapping and asset info
@@ -143,13 +144,19 @@ All social media posts feature:
 
 From project root:
 ```bash
-# Social media posts
-node analysis/daily-post.js
-node analysis/weekly-post.js
-node analysis/monthly-post.js
-node analysis/generate-all-posts.js
+# Social media posts (via npm scripts)
+npm run analysis:daily
+npm run analysis:weekly
+npm run analysis:monthly
+npm run analysis:all
 
-# Performance analysis
+# Or directly with tsx:
+npx tsx analysis/daily-post.ts
+npx tsx analysis/weekly-post.ts
+npx tsx analysis/monthly-post.ts
+npx tsx analysis/generate-all-posts.ts
+
+# Performance analysis (JavaScript)
 node analysis/hot-hands.js
 node analysis/hot-hands-momentum.js
 

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 import { PeriodType } from '@/lib/models/user';
 import { dataCollectionService } from '@/lib/services/data-collection-service';
 import { analysisService } from '@/lib/services/analysis-service';
@@ -9,6 +10,12 @@ import zlib from 'zlib';
 import { promisify } from 'util';
 
 const gzip = promisify(zlib.gzip);
+
+// Input validation schema
+const OptimizedReportInputSchema = z.object({
+  period: z.enum(['CurrYear', 'CurrMonth', 'CurrWeek']).default('CurrYear'),
+  maxInvestors: z.number().int().min(1).max(2000).default(1500)
+});
 
 export async function POST(request: NextRequest) {
   const encoder = new TextEncoder();
@@ -32,7 +39,17 @@ export async function POST(request: NextRequest) {
       };
 
       try {
-        const { period = 'CurrYear', maxInvestors = 1500 } = await request.json();
+        // Parse and validate input
+        const rawInput = await request.json();
+        const parseResult = OptimizedReportInputSchema.safeParse(rawInput);
+
+        if (!parseResult.success) {
+          sendError(`Invalid input: ${parseResult.error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ')}`);
+          controller.close();
+          return;
+        }
+
+        const { period, maxInvestors } = parseResult.data;
 
         sendProgress(0, 'Starting optimized report generation...');
 

@@ -5,25 +5,31 @@
 
 /**
  * Fear & Greed Index thresholds.
- * The index is based on the average risk score across all investors.
- * Lower average risk = more greed (investors taking more risk).
- * Higher average risk = more fear (investors being more conservative).
+ * Uses 0-100 scale matching CNN Fear & Greed Index convention:
+ * - 0 = Extreme Fear (investors holding high cash, taking less risk)
+ * - 100 = Extreme Greed (investors fully invested, taking more risk)
+ *
+ * This is calculated from average cash percentage and risk scores:
+ * - High cash + low risk = Fear (low index)
+ * - Low cash + high risk = Greed (high index)
  */
 export const FEAR_GREED = {
-  /** Threshold for Extreme Fear (average risk >= 20) */
-  EXTREME_FEAR: 20,
-  /** Threshold for Fear (average risk 15-19) */
-  FEAR: 15,
-  /** Threshold for Neutral (average risk 12-14) */
-  NEUTRAL: 12,
-  /** Threshold for Greed (average risk 8-11) */
-  GREED: 8,
-  /** Threshold for Extreme Greed (average risk <= 7) */
-  EXTREME_GREED: 7,
+  /** Extreme Fear zone: 0-24 */
+  EXTREME_FEAR_MAX: 24,
+  /** Fear zone: 25-44 */
+  FEAR_MAX: 44,
+  /** Neutral zone: 45-55 */
+  NEUTRAL_MIN: 45,
+  NEUTRAL_MAX: 55,
+  /** Greed zone: 56-75 */
+  GREED_MAX: 75,
+  /** Extreme Greed zone: 76-100 */
+  EXTREME_GREED_MIN: 76,
 } as const;
 
 /**
  * Fear & Greed Index labels.
+ * Returns appropriate label based on 0-100 scale index value.
  */
 export const FEAR_GREED_LABELS = {
   EXTREME_FEAR: 'Extreme Fear',
@@ -32,6 +38,17 @@ export const FEAR_GREED_LABELS = {
   GREED: 'Greed',
   EXTREME_GREED: 'Extreme Greed',
 } as const;
+
+/**
+ * Get Fear & Greed label from index value (0-100 scale).
+ */
+export function getFearGreedLabel(index: number): string {
+  if (index <= FEAR_GREED.EXTREME_FEAR_MAX) return FEAR_GREED_LABELS.EXTREME_FEAR;
+  if (index <= FEAR_GREED.FEAR_MAX) return FEAR_GREED_LABELS.FEAR;
+  if (index <= FEAR_GREED.NEUTRAL_MAX) return FEAR_GREED_LABELS.NEUTRAL;
+  if (index <= FEAR_GREED.GREED_MAX) return FEAR_GREED_LABELS.GREED;
+  return FEAR_GREED_LABELS.EXTREME_GREED;
+}
 
 /**
  * Pagination settings.

@@ -3,6 +3,7 @@ import { ComprehensiveDataCollection, CollectedInvestorData } from './data-colle
 import { getInstrumentDisplayName, getInstrumentSymbol, getInstrumentImageUrl, InstrumentDisplayData, InstrumentPriceData } from './instrument-service';
 import { getUserAvatarUrl } from './user-service';
 import { UserDetail } from '../models/user';
+import { FearGreedStrategy, linearStrategy } from './analysis/fear-greed-strategy';
 
 export interface ProgressCallback {
   (progress: number, message: string): void;
@@ -28,7 +29,12 @@ export interface ProgressCallback {
  * ```
  */
 export class AnalysisService {
-  
+  private fearGreedStrategy: FearGreedStrategy;
+
+  constructor(fearGreedStrategy: FearGreedStrategy = linearStrategy) {
+    this.fearGreedStrategy = fearGreedStrategy;
+  }
+
   /**
    * Perform census analysis on a subset of investors using pre-collected data
    */
@@ -77,12 +83,17 @@ export class AnalysisService {
 
     // Final analysis compilation
     updateProgress(98, 'Finalizing analysis...');
+
+    // Calculate averages needed for Fear & Greed Index
+    const averageCashPercentage = this.calculateAverageCashPercentage(portfolioStats);
+    const averageRiskScore = this.calculateAverageRiskScore(investors);
+
     const result: CensusAnalysis = {
-      fearGreedIndex: this.calculateFearGreedIndex(portfolioStats),
+      fearGreedIndex: this.calculateFearGreedIndex(averageCashPercentage, averageRiskScore),
       averageUniqueInstruments: this.calculateAverageUniqueInstruments(portfolioStats),
-      averageCashPercentage: this.calculateAverageCashPercentage(portfolioStats),
+      averageCashPercentage,
       averageGain: this.calculateAverageGain(investors),
-      averageRiskScore: this.calculateAverageRiskScore(investors),
+      averageRiskScore,
       averageTrades: this.calculateAverageTrades(investors),
       averageWinRatio: this.calculateAverageWinRatio(investors),
       uniqueInstrumentsDistribution: this.calculateUniqueInstrumentsDistribution(portfolioStats),
@@ -90,7 +101,12 @@ export class AnalysisService {
       topHoldings,
       returnsDistribution: this.calculateReturnsDistribution(investors),
       riskScoreDistribution: this.calculateRiskScoreDistribution(investors),
-      topPerformers
+      topPerformers,
+      _disclaimer: {
+        selectionBias: `Analysis based on top ${investorCount} Popular Investors ranked by copier count`,
+        survivorshipBias: 'Excludes failed, unpopular, or delisted investors; average returns likely biased upward',
+        dataLimitations: 'Volatility and Sharpe ratios estimated from risk scores, not historical price data'
+      }
     };
 
     updateProgress(100, `Analysis complete for ${investorCount} investors!`);
@@ -328,34 +344,15 @@ export class AnalysisService {
       .sort((a, b) => b.copiers - a.copiers);
   }
 
-  // Distribution calculation methods (updated Fear & Greed scale: 20-7)
-  private calculateFearGreedIndex(portfolioStats: PortfolioStats[]): number {
-    if (portfolioStats.length === 0) return 13; // Neutral on new scale
-    
-    const avgCashPercentage = portfolioStats.reduce((sum, stats) => sum + stats.cashPercentage, 0) / portfolioStats.length;
-    
-    // New scale: 20+ = Extreme Fear, 13 = Neutral, 7- = Extreme Greed
-    // High cash = Fear (higher numbers), Low cash = Greed (lower numbers)
-    let fearGreedIndex: number;
-    
-    if (avgCashPercentage >= 35) {
-      // Very high cash = Extreme Fear (20+)
-      fearGreedIndex = Math.min(25, 20 + (avgCashPercentage - 35) * 0.3);
-    } else if (avgCashPercentage >= 20) {
-      // High cash = Fear (15-19)
-      fearGreedIndex = 15 + ((avgCashPercentage - 20) / 15) * 4;
-    } else if (avgCashPercentage >= 12) {
-      // Medium cash = Neutral (12-14)
-      fearGreedIndex = 12 + ((avgCashPercentage - 12) / 8) * 2;
-    } else if (avgCashPercentage >= 5) {
-      // Low-medium cash = Greed (8-11)
-      fearGreedIndex = 8 + ((avgCashPercentage - 5) / 7) * 3;
-    } else {
-      // Very low cash = Extreme Greed (7-)
-      fearGreedIndex = Math.max(4, 7 - (5 - avgCashPercentage) * 0.6);
-    }
-    
-    return Math.round(Math.max(4, Math.min(25, fearGreedIndex)));
+  /**
+   * Calculate Fear & Greed Index using the configured strategy.
+   * Uses 0-100 scale matching CNN convention:
+   * - 0 = Extreme Fear
+   * - 50 = Neutral
+   * - 100 = Extreme Greed
+   */
+  private calculateFearGreedIndex(avgCashPercentage: number, avgRiskScore: number): number {
+    return Math.round(this.fearGreedStrategy.calculate(avgCashPercentage, avgRiskScore));
   }
 
   private calculateAverageUniqueInstruments(portfolioStats: PortfolioStats[]): number {
@@ -508,5 +505,8 @@ export class AnalysisService {
   }
 }
 
-// Export singleton instance
-export const analysisService = new AnalysisService();
+import { sCurveStrategy } from './analysis/fear-greed-strategy';
+
+// Export singleton instances
+export const analysisService = new AnalysisService(linearStrategy);
+export const analysisServiceV2 = new AnalysisService(sCurveStrategy);

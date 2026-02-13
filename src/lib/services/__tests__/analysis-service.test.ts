@@ -94,19 +94,20 @@ describe('AnalysisService', () => {
   describe('Fear & Greed Index calculation', () => {
     it('should calculate fear greed index from cash percentage', async () => {
       // Create test data with known cash percentages
-      // Scale: 20+ = Extreme Fear, 13 = Neutral, 7- = Extreme Greed
-      // Higher cash = Fear (higher index), Lower cash = Greed (lower index)
-      const lowCashInvestors = createInvestorsWithCash(5); // Low cash = Greed (lower index)
+      // Scale: 0-100 (CNN convention): 0 = Extreme Fear, 100 = Extreme Greed
+      // Higher cash = Fear (LOWER index), Lower cash = Greed (HIGHER index)
+      const lowCashInvestors = createInvestorsWithCash(5); // Low cash = Greed (higher index)
       const lowCashData = createTestCollectedData(lowCashInvestors);
 
-      const highCashInvestors = createInvestorsWithCash(25); // High cash = Fear (higher index)
+      const highCashInvestors = createInvestorsWithCash(25); // High cash = Fear (lower index)
       const highCashData = createTestCollectedData(highCashInvestors);
 
       const lowCashResult = await analysisService.analyzeInvestorSubset(lowCashData, 1);
       const highCashResult = await analysisService.analyzeInvestorSubset(highCashData, 1);
 
-      // High cash should result in higher fear/greed index (fear)
-      expect(highCashResult.fearGreedIndex).toBeGreaterThan(lowCashResult.fearGreedIndex);
+      // Low cash should result in higher fear/greed index (greed)
+      // High cash should result in lower fear/greed index (fear)
+      expect(lowCashResult.fearGreedIndex).toBeGreaterThan(highCashResult.fearGreedIndex);
     });
   });
 

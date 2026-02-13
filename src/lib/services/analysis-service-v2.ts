@@ -3,6 +3,7 @@ import { ComprehensiveDataCollection, CollectedInvestorData } from './data-colle
 import { getInstrumentDisplayName, getInstrumentSymbol, getInstrumentImageUrl, InstrumentDisplayData, InstrumentPriceData } from './instrument-service';
 import { getUserAvatarUrl } from './user-service';
 import { UserDetail } from '../models/user';
+import { FearGreedStrategy, sCurveStrategy } from './analysis/fear-greed-strategy';
 
 export interface ProgressCallback {
   (progress: number, message: string): void;
@@ -33,6 +34,11 @@ export interface ProgressCallback {
  * ```
  */
 export class AnalysisServiceV2 {
+  private fearGreedStrategy: FearGreedStrategy;
+
+  constructor(fearGreedStrategy: FearGreedStrategy = sCurveStrategy) {
+    this.fearGreedStrategy = fearGreedStrategy;
+  }
 
   /**
    * Perform census analysis on a subset of investors using pre-collected data
@@ -111,7 +117,12 @@ export class AnalysisServiceV2 {
       topHoldings,
       returnsDistribution: this.calculateReturnsDistribution(investors),
       riskScoreDistribution: this.calculateRiskScoreDistribution(investors),
-      topPerformers
+      topPerformers,
+      _disclaimer: {
+        selectionBias: `Analysis based on top ${investorCount} Popular Investors ranked by copier count`,
+        survivorshipBias: 'Excludes failed, unpopular, or delisted investors; average returns likely biased upward',
+        dataLimitations: 'Fear & Greed uses S-curve transformation; volatility estimated from risk scores'
+      }
     };
 
     updateProgress(100, `V2 Analysis complete for ${investorCount} investors!`);
@@ -119,31 +130,11 @@ export class AnalysisServiceV2 {
   }
 
   /**
-   * Enhanced Fear & Greed Index using S-curve (sigmoid) function
-   * Combines cash percentage and risk score
+   * Calculate Fear & Greed Index using the configured strategy.
+   * Default is S-curve (sigmoid) for V2 analysis.
    */
   private calculateFearGreedIndexV2(avgCashPercentage: number, avgRiskScore: number): number {
-    // Normalize inputs
-    // Cash: 0% = max greed (0), 30% = max fear (30)
-    const cashComponent = Math.min(30, Math.max(0, avgCashPercentage));
-
-    // Risk: 1 = max fear (10), 10 = max greed (0)
-    // Invert risk score so high risk = greed, low risk = fear
-    const riskComponent = Math.max(0, Math.min(10, 10 - avgRiskScore));
-
-    // Weight combination: 70% cash, 30% risk (multiplied by 5 as requested)
-    const combinedScore = (cashComponent * 0.7) + (riskComponent * 5 * 0.3);
-
-    // Apply sigmoid (S-curve) transformation
-    // Center around 15 (midpoint), with steepness factor of 0.15
-    const sigmoid = 1 / (1 + Math.exp(-0.15 * (combinedScore - 15)));
-
-    // Map sigmoid output (0-1) to Fear & Greed scale (0-100)
-    // Invert so high combined score = fear (low index), low score = greed (high index)
-    const fearGreedIndex = Math.round(100 - (sigmoid * 100));
-
-    // Ensure bounds
-    return Math.max(0, Math.min(100, fearGreedIndex));
+    return Math.round(this.fearGreedStrategy.calculate(avgCashPercentage, avgRiskScore));
   }
 
   private calculatePortfolioStats(investors: CollectedInvestorData[]): PortfolioStats[] {

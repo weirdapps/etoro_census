@@ -19,7 +19,7 @@ export const API_ENDPOINTS = {
 };
 
 // Generate a UUID v4
-function generateUUID(): string {
+export function generateUUID(): string {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
     const r = Math.random() * 16 | 0;
     const v = c === 'x' ? r : (r & 0x3 | 0x8);
@@ -36,13 +36,11 @@ export const getDefaultHeaders = () => {
     'Content-Type': 'application/json'
   };
   
-  // Debug log to check if keys are present (log full headers for debugging)
-  
-  if (!headers['X-USER-KEY'] || !headers['X-API-KEY']) {
-    console.error('WARNING: API keys are missing!', {
-      userKeyLength: headers['X-USER-KEY']?.length || 0,
-      apiKeyLength: headers['X-API-KEY']?.length || 0
-    });
+  // Log warning if keys are missing (only in development)
+  if (process.env.NODE_ENV !== 'production') {
+    if (!headers['X-USER-KEY'] || !headers['X-API-KEY']) {
+      console.warn('[eToro API] API keys are not configured');
+    }
   }
   
   return headers;

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { publicPortfolioService } from '@/lib/services/public-portfolio-service';
 import { censusDataService } from '@/lib/services/census-data-service';
 import { portfolioComparison } from '@/lib/services/portfolio-comparison';
+import { generateUUID } from '@/lib/etoro-api-config';
 
 // Disable all caching for this endpoint
 export const dynamic = 'force-dynamic';
@@ -88,7 +89,7 @@ export async function GET(
           headers: {
             'X-API-KEY': process.env.ETORO_PERSONAL_API_KEY || process.env.ETORO_API_KEY || '',
             'X-USER-KEY': process.env.ETORO_PERSONAL_USER_KEY || process.env.ETORO_USER_KEY || '',
-            'X-REQUEST-ID': '1fea900a-bf1f-4b7c-8af2-976dc6ab273f'
+            'X-REQUEST-ID': generateUUID()
           }
         }
       );

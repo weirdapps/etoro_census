@@ -6,31 +6,67 @@ import { ETORO_COUNTRY_MAPPING } from '@/lib/utils/country-mapping';
 import { Disclaimer } from '@/components/Disclaimer';
 import EliteGroupComparison from '@/components/intelligence/EliteGroupComparison';
 
+interface Position {
+  instrumentId: number;
+  symbol: string;
+  instrumentName?: string;
+  logoUrl?: string;
+  marketValue?: number;
+  profit?: number;
+  profitPercent?: number;
+  allocation?: number;
+  inCensus?: boolean;
+}
+
+interface Portfolio {
+  positionCount?: number;
+  totalValue?: number;
+  totalInvested?: number;
+  profitLossPercentage?: number;
+  ytdProfitPercent?: number;
+  cashPercentage?: number;
+  cashBalance?: number;
+  positions?: Position[];
+  riskScore?: number;
+}
+
 interface RiskMetrics {
   overallRiskScore?: number;
-  // Add other risk metrics as needed
 }
 
 interface RiskData {
   riskMetrics?: RiskMetrics;
 }
 
-interface PersonalPortfolioData {
-  portfolio?: {
-    positionCount?: number;
-    totalValue?: number;
-    profitLossPercentage?: number;
-    cashPercentage?: number;
-    positions?: Array<{
-      instrumentId: number;
-      symbol: string;
-      logoUrl?: string;
-      marketValue?: number;
-      profit?: number;
-    }>;
+interface EliteGroupData {
+  avgCashPercentage?: number;
+  avgRiskScore?: number;
+  avgGain?: number;
+  topHoldings?: Array<{
+    symbol: string;
+    holdersPercentage: number;
+    averageAllocation: number;
+  }>;
+}
+
+interface EliteGroupComparison {
+  comparisons?: {
+    broadMarket?: EliteGroupData;
+    topCopiers?: EliteGroupData;
+    topPerformers?: EliteGroupData;
+    lowRisk?: EliteGroupData;
   };
+}
+
+interface HoldingsData {
+  yourHoldings?: Position[];
+}
+
+interface PersonalPortfolioData {
+  portfolio?: Portfolio;
+  eliteGroupComparison?: EliteGroupComparison;
+  holdings?: HoldingsData;
   risk?: RiskData;
-  [key: string]: unknown;
 }
 
 export default function PersonalPortfolioPage() {
@@ -123,9 +159,9 @@ export default function PersonalPortfolioPage() {
     );
   }
 
-  const portfolio = data.portfolio as any;
-  const eliteGroupComparison = data.eliteGroupComparison as any;
-  const holdings = data.holdings as any;
+  const portfolio = data.portfolio;
+  const eliteGroupComparison = data.eliteGroupComparison;
+  const holdings = data.holdings;
 
   console.log('Rendering Personal Page:', {
     hasEliteGroupComparison: !!eliteGroupComparison,
@@ -198,7 +234,7 @@ export default function PersonalPortfolioPage() {
               <div>
                 <div className="text-sm text-gray-600">Cash</div>
                 <div className="text-2xl font-bold text-gray-900">
-                  {((portfolio.cashBalance / (portfolio.totalValue + portfolio.cashBalance)) * 100).toFixed(1)}%
+                  {(((portfolio.cashBalance || 0) / ((portfolio.totalValue || 0) + (portfolio.cashBalance || 0))) * 100).toFixed(1)}%
                 </div>
               </div>
             </div>
@@ -293,7 +329,7 @@ export default function PersonalPortfolioPage() {
           {/* 3. Portfolio Comparison */}
           <div className="bg-white rounded-lg border border-gray-300 p-6">
             <h2 className="text-xl font-bold text-gray-900 mb-4">Portfolio Comparison</h2>
-            <EliteGroupComparison data={eliteGroupComparison} />
+            <EliteGroupComparison data={eliteGroupComparison as any || null} />
           </div>
         </div>
       </div>

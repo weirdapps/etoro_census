@@ -17,6 +17,8 @@ export interface BatchFetcherConfig<TItem, TResult> {
   maxRetries?: number;
   /** Base delay for exponential backoff in milliseconds */
   retryBaseDelayMs?: number;
+  /** Number of concurrent requests (default: 1 for sequential processing) */
+  concurrency?: number;
 }
 
 export interface BatchFetchResult<TItem, TResult> {
@@ -33,6 +35,7 @@ const DEFAULT_CONFIG = {
   baseDelayMs: 75,
   maxRetries: 3,
   retryBaseDelayMs: 1000,
+  concurrency: 3, // Default to 3 concurrent requests for better performance
 };
 
 /**
@@ -81,6 +84,7 @@ async function fetchWithRetry<T>(
 /**
  * Generic batch fetcher with circuit breaker, adaptive delays, and error handling.
  * Designed to handle large-scale API fetching with rate limiting protection.
+ * Supports parallel processing with configurable concurrency.
  */
 export async function batchFetch<TItem, TResult>(
   items: TItem[],
@@ -96,15 +100,17 @@ export async function batchFetch<TItem, TResult>(
     baseDelayMs = DEFAULT_CONFIG.baseDelayMs,
     maxRetries = DEFAULT_CONFIG.maxRetries,
     retryBaseDelayMs = DEFAULT_CONFIG.retryBaseDelayMs,
+    concurrency = DEFAULT_CONFIG.concurrency,
   } = config;
 
-  const results: BatchFetchResult<TItem, TResult>[] = [];
+  const results: BatchFetchResult<TItem, TResult>[] = new Array(items.length);
   let processedCount = 0;
   let successCount = 0;
   let errorCount = 0;
   let retryCount = 0;
   let consecutiveErrors = 0;
   let lastProgressUpdate = Date.now();
+  let currentDelay = baseDelayMs;
 
   const updateProgress = (progress: number, message: string) => {
     if (onProgress) {
@@ -112,14 +118,8 @@ export async function batchFetch<TItem, TResult>(
     }
   };
 
-  for (const item of items) {
-    // Circuit breaker: if too many consecutive errors, increase delays
-    if (consecutiveErrors >= maxConsecutiveErrors) {
-      console.warn(`${name} circuit breaker activated: ${consecutiveErrors} consecutive errors. Increasing delays.`);
-      await sleep(2000);
-      consecutiveErrors = 0; // Reset after pause
-    }
-
+  // Process a single item and return result with index
+  const processItem = async (item: TItem, index: number): Promise<void> => {
     try {
       // Fetch with retry and timeout
       const fetchWithTimeout = async () => {
@@ -137,29 +137,27 @@ export async function batchFetch<TItem, TResult>(
         retryBaseDelayMs
       );
 
-      results.push({ item, result, retryCount: itemRetries });
+      results[index] = { item, result, retryCount: itemRetries };
       successCount++;
       retryCount += itemRetries;
-      consecutiveErrors = 0; // Reset consecutive error count on success
+      consecutiveErrors = 0;
 
     } catch (error) {
       consecutiveErrors++;
       const errorMessage = error instanceof Error ? error.message : `Failed to fetch ${name}`;
-      console.error(`Error in ${name} fetch after ${maxRetries} retries (consecutive errors: ${consecutiveErrors}):`, errorMessage);
 
-      results.push({
+      results[index] = {
         item,
         result: null,
         error: errorMessage,
         retryCount: maxRetries,
-      });
+      };
       errorCount++;
       retryCount += maxRetries;
 
-      // If it's a timeout or rate limit error, increase delays
-      if (errorMessage.includes('timeout') || errorMessage.includes('rate') || errorMessage.includes('429')) {
-        console.warn(`Detected timeout/rate limit in ${name}. Increasing delays...`);
-        await sleep(1000);
+      // If it's a rate limit error, signal to slow down
+      if (errorMessage.includes('429') || errorMessage.includes('rate')) {
+        currentDelay = Math.min(currentDelay * 2, 2000);
       }
     }
 
@@ -178,43 +176,63 @@ export async function batchFetch<TItem, TResult>(
       updateProgress(progress, message);
       lastProgressUpdate = now;
     }
+  };
 
-    // Adaptive delay based on error rate and progress
-    const errorRate = errorCount / processedCount;
-    let delay = baseDelayMs;
+  // Process items in batches with concurrency limit
+  for (let i = 0; i < items.length; i += concurrency) {
+    // Circuit breaker: if too many consecutive errors, pause
+    if (consecutiveErrors >= maxConsecutiveErrors) {
+      console.warn(`${name} circuit breaker activated: ${consecutiveErrors} consecutive errors. Pausing...`);
+      await sleep(2000);
+      consecutiveErrors = 0;
+    }
 
-    if (errorRate > 0.2) { // If error rate > 20%, significantly slow down
-      delay = 1500;
-    } else if (errorRate > 0.1) { // If error rate > 10%, slow down
-      delay = 750;
-    } else if (processedCount > 500) { // After 500 requests, be very conservative
-      delay = 300;
-    } else if (processedCount > 100) { // After 100 requests, be more conservative
-      delay = 200;
+    // Get batch of items to process concurrently
+    const batch = items.slice(i, Math.min(i + concurrency, items.length));
+    const batchPromises = batch.map((item, batchIndex) =>
+      processItem(item, i + batchIndex)
+    );
+
+    // Wait for all items in batch to complete
+    await Promise.all(batchPromises);
+
+    // Adaptive delay based on error rate
+    const errorRate = processedCount > 0 ? errorCount / processedCount : 0;
+
+    if (errorRate > 0.2) {
+      currentDelay = 1500;
+    } else if (errorRate > 0.1) {
+      currentDelay = 750;
+    } else if (processedCount > 500) {
+      currentDelay = 300;
+    } else if (processedCount > 100) {
+      currentDelay = 200;
+    } else {
+      currentDelay = baseDelayMs;
     }
 
     // Add extra delay every 50 requests to avoid rate limiting
-    if (processedCount % 50 === 0 && processedCount > 0) {
+    if (processedCount % 50 === 0 && processedCount > 0 && processedCount < items.length) {
       const batchDelay = items.length > 1000 ? 2000 : 1500;
       console.log(`${name} batch checkpoint: ${processedCount} processed. Taking ${batchDelay}ms break...`);
       await sleep(batchDelay);
-    } else {
-      await sleep(delay);
+    } else if (i + concurrency < items.length) {
+      // Delay between batches
+      await sleep(currentDelay);
     }
 
     // Emergency brake: if error rate is too high, pause and warn
     if (processedCount > 50 && errorRate > 0.3) {
       console.warn(`High ${name} error rate detected (${(errorRate * 100).toFixed(1)}%). Pausing for recovery...`);
       await sleep(5000);
-      consecutiveErrors = 0; // Reset after pause
+      consecutiveErrors = 0;
     }
   }
 
-  const finalErrorRate = (errorCount / processedCount * 100).toFixed(1);
+  const finalErrorRate = processedCount > 0 ? (errorCount / processedCount * 100).toFixed(1) : '0';
   console.log(`${name} collection complete: ${successCount} success, ${errorCount} errors, ${retryCount} retries out of ${processedCount} total (${finalErrorRate}% error rate)`);
 
-  // Log warning if error rate is high
-  if (errorCount / processedCount > 0.1) {
+  if (processedCount > 0 && errorCount / processedCount > 0.1) {
     console.warn(`High ${name} error rate detected (${finalErrorRate}%). Consider investigating API issues or rate limits.`);
   }
 

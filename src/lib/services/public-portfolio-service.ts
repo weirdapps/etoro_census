@@ -4,6 +4,8 @@
  * Uses public API endpoints (no personal API keys required)
  */
 
+import { generateUUID } from '@/lib/etoro-api-config';
+
 interface PublicPosition {
   instrumentId: number;
   symbol: string;
@@ -42,7 +44,7 @@ class PublicPortfolioService {
       'Content-Type': 'application/json',
       'X-API-KEY': process.env.ETORO_PERSONAL_API_KEY || process.env.ETORO_API_KEY || '',
       'X-USER-KEY': process.env.ETORO_PERSONAL_USER_KEY || process.env.ETORO_USER_KEY || '',
-      'X-REQUEST-ID': '1fea900a-bf1f-4b7c-8af2-976dc6ab273f'
+      'X-REQUEST-ID': generateUUID()
     };
   }
 
@@ -70,7 +72,6 @@ class PublicPortfolioService {
    */
   async getPortfolio(username: string): Promise<PublicPortfolio | null> {
     try {
-      console.log(`Fetching public portfolio for username: ${username}`);
 
       // Fetch public portfolio/live endpoint
       const portfolioResponse = await fetch(
@@ -151,27 +152,16 @@ class PublicPortfolioService {
    */
   async getTradeInfo(username: string): Promise<any | null> {
     try {
-      console.log(`Fetching trade info for username: ${username}`);
-
       const response = await fetch(
         `${this.baseUrl}/user-info/people/${username}/tradeinfo?period=currYear`,
         { headers: this.getHeaders() }
       );
 
       if (!response.ok) {
-        console.error(`Failed to fetch trade info for ${username}:`, response.status);
         return null;
       }
 
-      const data = await response.json();
-      console.log(`Trade info received for ${username}:`, {
-        gain: data.gain,
-        riskScore: data.riskScore,
-        trades: data.trades,
-        winRatio: data.winRatio
-      });
-
-      return data;
+      return await response.json();
     } catch (error) {
       console.error(`Failed to fetch trade info for ${username}:`, error);
       return null;

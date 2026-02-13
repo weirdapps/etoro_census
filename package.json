@@ -19,7 +19,11 @@
     "test": "vitest",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "prepare": "husky"
+    "prepare": "husky",
+    "analysis:daily": "tsx analysis/daily-post.ts",
+    "analysis:weekly": "tsx analysis/weekly-post.ts",
+    "analysis:monthly": "tsx analysis/monthly-post.ts",
+    "analysis:all": "tsx analysis/generate-all-posts.ts"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.3",
@@ -53,6 +57,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "tsx": "^4.19.0",
     "@tailwindcss/postcss": "^4",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.2",

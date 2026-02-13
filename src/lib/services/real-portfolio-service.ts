@@ -3,6 +3,8 @@
  * Fetches live portfolio data from your eToro account
  */
 
+import { generateUUID } from '@/lib/etoro-api-config';
+
 interface Position {
   instrumentId: number;
   symbol: string;
@@ -21,7 +23,7 @@ class RealPortfolioService {
   private readonly baseUrl = 'https://www.etoro.com/api/public/v1';
   private cachedPortfolio: any = null;
   private cacheTimestamp: number = 0;
-  private readonly CACHE_DURATION = 0; // Caching disabled - always fetch fresh data
+  private readonly CACHE_DURATION = 5 * 60 * 1000; // 5 minute cache for portfolio data
   private instrumentCache: Map<number, any> = new Map();
   private instrumentCacheTimestamp: number = 0;
   private readonly INSTRUMENT_CACHE_DURATION = 300000; // 5 minute cache for instruments
@@ -46,7 +48,7 @@ class RealPortfolioService {
       'Content-Type': 'application/json',
       'X-API-KEY': process.env.ETORO_PERSONAL_API_KEY || process.env.ETORO_API_KEY || '',
       'X-USER-KEY': process.env.ETORO_PERSONAL_USER_KEY || process.env.ETORO_USER_KEY || '',
-      'X-REQUEST-ID': '1fea900a-bf1f-4b7c-8af2-976dc6ab273f'
+      'X-REQUEST-ID': generateUUID()
     };
   }
 
@@ -85,10 +87,6 @@ class RealPortfolioService {
   private async fetchPortfolioData(): Promise<any> {
     try {
       const headers = this.getHeaders();
-      console.log('Fetching portfolio with headers:', {
-        'X-API-KEY': headers['X-API-KEY' as keyof typeof headers] ? 'SET' : 'NOT SET',
-        'X-USER-KEY': headers['X-USER-KEY' as keyof typeof headers] ? 'SET' : 'NOT SET',
-      });
 
       // CRITICAL FIX: Use P&L endpoint which returns ALL positions with unrealized P&L
       // The regular portfolio endpoint only returns 5 aggregated positions
@@ -359,10 +357,9 @@ class RealPortfolioService {
                               position.profit = calculatedProfit;
                               position.profitPercent = calculatedProfitPercent;
 
-                              // Log high returns for monitoring (but accept them)
-                              if (Math.abs(position.profitPercent) > 100) {
-                                console.log(`HIGH RETURN - ${position.symbol} (ID:${instrumentId}): invested=${position.investedValue.toFixed(2)}, current=${position.marketValue.toFixed(2)}, profit=${position.profit.toFixed(2)} (${position.profitPercent.toFixed(1)}%)`);
-                                console.log(`  Details: price=${currentPrice}, units=${position.units}, openRate=${openPrice}`);
+                              // High return positions are logged in development only
+                              if (process.env.NODE_ENV !== 'production' && Math.abs(position.profitPercent) > 100) {
+                                console.log(`HIGH RETURN - ${position.symbol}: ${position.profitPercent.toFixed(1)}%`);
                               }
                             }
                             updateCount++;
@@ -674,9 +671,17 @@ class RealPortfolioService {
 
   /**
    * Calculate portfolio metrics
+   *
+   * IMPORTANT DISCLAIMERS:
+   * - "volatility" is estimated from eToro's riskScore (1-10 scale mapped to 5-50%)
+   *   since we don't have historical price data for true volatility calculation
+   * - "sharpeRatio" uses this estimated volatility and is therefore approximate
+   * - "maxDrawdown" is based on current unrealized P/L, not historical peak-to-trough
+   * - These metrics are for informational purposes and should not be used for
+   *   professional investment decisions without proper historical data analysis
    */
   calculateMetrics(portfolio: any): any {
-    const totalValue = portfolio.totalValue || 10000; // Default $10k portfolio
+    const totalValue = portfolio.totalValue || 10000;
     const totalInvested = portfolio.totalInvested || 10000;
     const totalProfit = portfolio.totalProfit || 0;
     const positions = portfolio.positions || [];
@@ -686,8 +691,8 @@ class RealPortfolioService {
       { marketValue: totalValue, symbol: 'CASH', profitPercent: 0 }
     ];
 
-    // Calculate volatility based on position distribution (ensure no NaN)
-    let volatility = 15; // Default moderate volatility
+    // Calculate concentration score (how concentrated the portfolio is)
+    let concentrationScore = 50; // Default moderate concentration
     if (totalValue > 0 && effectivePositions.length > 0) {
       const positionWeights = effectivePositions.map((p: any) =>
         (p.marketValue || 0) / totalValue
@@ -695,14 +700,21 @@ class RealPortfolioService {
       const avgWeight = 1 / effectivePositions.length;
       const weightVariance = positionWeights.reduce((sum: number, w: number) =>
         sum + Math.pow(w - avgWeight, 2), 0) / effectivePositions.length;
-      volatility = Math.min(50, Math.max(5, Math.sqrt(weightVariance) * 100));
+      concentrationScore = Math.min(100, Math.max(0, Math.sqrt(weightVariance) * 100));
     }
 
-    // Calculate Sharpe ratio (simplified)
+    // Estimate volatility from eToro's riskScore (1-10 scale)
+    // riskScore 1 = very low risk ≈ 5% volatility
+    // riskScore 10 = very high risk ≈ 50% volatility
+    const riskScore = portfolio.riskScore || 5;
+    const estimatedVolatility = Math.max(5, Math.min(50, riskScore * 5));
+
+    // Calculate Sharpe ratio using estimated volatility
+    // NOTE: This is an approximation since we don't have true price volatility
     const riskFreeRate = 0.04; // 4% risk-free rate
     const portfolioReturn = totalInvested > 0 ? (totalProfit / totalInvested) : 0;
     const excessReturn = portfolioReturn - riskFreeRate;
-    let sharpeRatio = volatility > 0 ? excessReturn / (volatility / 100) : 1.0;
+    let sharpeRatio = estimatedVolatility > 0 ? excessReturn / (estimatedVolatility / 100) : 1.0;
     sharpeRatio = Math.min(3, Math.max(-2, sharpeRatio)); // Cap between -2 and 3
 
     // Calculate max drawdown (simplified - would need historical data for accuracy)
@@ -735,7 +747,8 @@ class RealPortfolioService {
       totalInvested: totalInvested || 10000,
       totalProfit: totalProfit || 0,
       totalReturn: totalInvested > 0 ? (totalProfit / totalInvested) * 100 : 0,
-      volatility: Math.max(5, Math.min(50, isNaN(volatility) ? 15 : volatility)),
+      volatility: Math.max(5, Math.min(50, isNaN(estimatedVolatility) ? 15 : estimatedVolatility)),
+      concentrationScore: Math.max(0, Math.min(100, isNaN(concentrationScore) ? 50 : concentrationScore)),
       sharpeRatio: Math.max(-2, Math.min(3, isNaN(sharpeRatio) ? 1.0 : sharpeRatio)),
       maxDrawdown: Math.max(-50, Math.min(0, isNaN(maxDrawdown) ? -10 : maxDrawdown)),
       diversificationScore: Math.max(10, Math.min(100, isNaN(diversificationScore) ? 50 : diversificationScore)),
@@ -744,7 +757,13 @@ class RealPortfolioService {
       avgWin: isNaN(avgWin) ? 100 : avgWin,
       avgLoss: isNaN(avgLoss) ? -50 : avgLoss,
       profitFactor: Math.max(0, Math.min(10, profitFactor)),
-      cashAllocation: portfolio.cashPercent || 0
+      cashAllocation: portfolio.cashPercent || 0,
+      // Disclaimer metadata
+      _disclaimers: {
+        volatility: 'Estimated from eToro riskScore, not historical price data',
+        sharpeRatio: 'Uses estimated volatility; for informational purposes only',
+        maxDrawdown: 'Based on current unrealized P/L, not historical peak-to-trough'
+      }
     };
   }
 

@@ -196,17 +196,17 @@ npm start
 Generate formatted updates for the eToro community:
 
 ```bash
-# Using TypeScript directly with ts-node
-npx ts-node analysis/daily-post.ts
-npx ts-node analysis/weekly-post.ts
-npx ts-node analysis/monthly-post.ts
-npx ts-node analysis/generate-all-posts.ts
+# Using npm scripts (recommended)
+npm run analysis:daily
+npm run analysis:weekly
+npm run analysis:monthly
+npm run analysis:all
 
-# Or use the JavaScript versions (legacy)
-node analysis/daily-post.js
-node analysis/weekly-post.js
-node analysis/monthly-post.js
-node analysis/generate-all-posts.js
+# Or using tsx directly
+npx tsx analysis/daily-post.ts
+npx tsx analysis/weekly-post.ts
+npx tsx analysis/monthly-post.ts
+npx tsx analysis/generate-all-posts.ts
 ```
 
 Features:
