@@ -188,6 +188,7 @@ describe('Census Report Generation Flow', () => {
         period: 'CurrYear',
         dataSource: 'test',
         processingTimeMs: 1000,
+        includesFeeds: false,
       },
     };
   };

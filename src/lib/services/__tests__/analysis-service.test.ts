@@ -186,6 +186,7 @@ function createTestCollectedData(investors?: CollectedInvestorData[]): Comprehen
       period: 'CurrYear',
       dataSource: 'test',
       processingTimeMs: 0,
+      includesFeeds: false,
     },
   };
 }

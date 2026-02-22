@@ -14,7 +14,8 @@ const gzip = promisify(zlib.gzip);
 // Input validation schema
 const OptimizedReportInputSchema = z.object({
   period: z.enum(['CurrYear', 'CurrMonth', 'CurrWeek']).default('CurrYear'),
-  maxInvestors: z.number().int().min(1).max(2000).default(1500)
+  maxInvestors: z.number().int().min(1).max(2000).default(1500),
+  includeFeeds: z.boolean().default(true) // Include PI feed posts for briefings
 });
 
 export async function POST(request: NextRequest) {
@@ -50,19 +51,21 @@ export async function POST(request: NextRequest) {
           return;
         }
 
-        const { period, maxInvestors } = parseResult.data;
+        const { period, maxInvestors, includeFeeds } = parseResult.data;
 
         sendProgress(0, 'Starting optimized report generation...');
 
         // Phase 1: Comprehensive data collection (0-60%)
-        sendProgress(5, 'Phase 1: Collecting all data from eToro API...');
+        const feedsInfo = includeFeeds ? ' (with PI feeds)' : '';
+        sendProgress(5, `Phase 1: Collecting all data from eToro API${feedsInfo}...`);
         const collectedData = await dataCollectionService.collectAllData(
           period as PeriodType,
           maxInvestors,
           (progress, message) => {
             const scaledProgress = 5 + (progress * 55 / 100); // 5-60% range
             sendProgress(Math.round(scaledProgress), `Data Collection: ${message}`);
-          }
+          },
+          { includeFeeds, feedConfig: { pisPerCategory: 5, postsPerPI: 3 } }
         );
 
         // Phase 2: Multi-band analysis (60-80%)
@@ -206,7 +209,22 @@ export async function POST(request: NextRequest) {
             },
             topHoldings: analysis.topHoldings,
             topPerformers: analysis.topPerformers
-          }))
+          })),
+
+          // PI Feed posts (for morning briefings)
+          ...(collectedData.feeds && {
+            feeds: {
+              collectedAt: collectedData.feeds.collectedAt,
+              totalPosts: collectedData.feeds.totalPosts,
+              totalPIs: collectedData.feeds.totalPIs,
+              nonEnglishCount: collectedData.feeds.nonEnglishCount,
+              posts: collectedData.feeds.posts,
+              byCategory: collectedData.feeds.byCategory,
+              tickerMentions: collectedData.feeds.tickerMentions,
+              topTickers: collectedData.feeds.topTickers,
+              stats: collectedData.feeds.stats
+            }
+          })
         };
 
         const jsonFilePath = path.join(dataDir, jsonFileName);

@@ -1,7 +1,9 @@
 import { PopularInvestor, PeriodType, UserDetail, UserTradeInfo } from '../models/user';
 import { UserPortfolio } from '../models/user-portfolio';
+import { FeedCollection } from '../models/feed';
 import { getPopularInvestors, getUserPortfolio, getUsersDetailsByUsernames, getUserTradeInfo } from './user-service';
 import { getInstrumentDetails, getInstrumentPriceData, InstrumentPriceData, InstrumentDisplayData } from './instrument-service';
+import { collectPIFeeds, FeedCollectionConfig } from './feed-service';
 import { batchFetch } from './batch-fetcher';
 import { logger } from '../logger';
 
@@ -16,6 +18,13 @@ export interface CollectedInvestorData extends PopularInvestor {
   tradeInfoError?: string;
 }
 
+export interface DataCollectionOptions {
+  /** Include PI feed collection (default: false) */
+  includeFeeds?: boolean;
+  /** Feed collection configuration */
+  feedConfig?: FeedCollectionConfig;
+}
+
 export interface ComprehensiveDataCollection {
   metadata: {
     collectedAt: string;
@@ -24,6 +33,7 @@ export interface ComprehensiveDataCollection {
     period: string;
     dataSource: string;
     processingTimeMs: number;
+    includesFeeds: boolean;
   };
   investors: CollectedInvestorData[];
   instruments: {
@@ -31,6 +41,8 @@ export interface ComprehensiveDataCollection {
     priceData: Map<number, InstrumentPriceData>;
   };
   userDetails: Map<string, UserDetail>;
+  /** PI feed posts (only populated if includeFeeds=true) */
+  feeds?: FeedCollection;
 }
 
 /**
@@ -43,7 +55,8 @@ export class DataCollectionService {
   async collectAllData(
     period: PeriodType = 'CurrYear',
     maxInvestors: number = 2000,
-    onProgress?: ProgressCallback
+    onProgress?: ProgressCallback,
+    options?: DataCollectionOptions
   ): Promise<ComprehensiveDataCollection> {
     this.startTime = Date.now();
     
@@ -116,14 +129,39 @@ export class DataCollectionService {
     });
 
     // Step 6: Fetch user details for avatars
-    updateProgress(90, 'Fetching user details and avatars...');
+    updateProgress(85, 'Fetching user details and avatars...');
     const usernames = investors.map(inv => inv.userName);
     const userDetails = await getUsersDetailsByUsernames(usernames, (progress, message) => {
-      const scaledProgress = 90 + (progress * 8 / 100); // 90-98% range
+      const scaledProgress = 85 + (progress * 8 / 100); // 85-93% range
       updateProgress(Math.round(scaledProgress), message);
     });
 
-    // Step 7: Compile final data structure
+    // Step 7: Optionally fetch PI feeds
+    let feeds: FeedCollection | undefined;
+    if (options?.includeFeeds) {
+      updateProgress(93, 'Collecting PI feed posts...');
+      try {
+        feeds = await collectPIFeeds(
+          investors,
+          userDetails,
+          options.feedConfig || {},
+          (progress, message) => {
+            const scaledProgress = 93 + (progress * 5 / 100); // 93-98% range
+            updateProgress(Math.round(scaledProgress), message);
+          }
+        );
+        logger.info('PI feeds collected', {
+          posts: feeds.totalPosts,
+          pis: feeds.totalPIs,
+          tickers: feeds.topTickers.length,
+        });
+      } catch (feedError) {
+        logger.error('Failed to collect PI feeds', { error: String(feedError) });
+        // Continue without feeds - non-critical
+      }
+    }
+
+    // Step 8: Compile final data structure
     updateProgress(98, 'Finalizing data collection...');
     const processingTime = Date.now() - this.startTime;
     const collectionDate = new Date();
@@ -135,18 +173,21 @@ export class DataCollectionService {
         totalInvestors: investors.length,
         period,
         dataSource: 'eToro API',
-        processingTimeMs: processingTime
+        processingTimeMs: processingTime,
+        includesFeeds: !!feeds,
       },
       investors: investorsWithTradeInfo,
       instruments: {
         details: instrumentDetails,
         priceData: instrumentPriceData
       },
-      userDetails
+      userDetails,
+      ...(feeds && { feeds }),
     };
 
-    updateProgress(100, `Data collection complete! Processed ${investors.length} investors and ${uniqueInstrumentIds.length} instruments in ${(processingTime / 1000).toFixed(1)}s`);
-    
+    const feedsInfo = feeds ? `, ${feeds.totalPosts} PI posts` : '';
+    updateProgress(100, `Data collection complete! Processed ${investors.length} investors and ${uniqueInstrumentIds.length} instruments${feedsInfo} in ${(processingTime / 1000).toFixed(1)}s`);
+
     return result;
   }
 

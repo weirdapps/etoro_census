@@ -137,16 +137,16 @@ jobs:
         run: |
           echo "🚀 Starting census report generation for 1500 investors..."
           echo "This process includes multiple phases:"
-          echo "1. Data Collection: Fetching investors, portfolios, trade info, instruments, and user details"
+          echo "1. Data Collection: Fetching investors, portfolios, trade info, instruments, user details, and PI feeds"
           echo "2. Analysis: Generating insights for multiple investor bands"
           echo "3. Report Generation: Creating HTML and JSON outputs"
           echo ""
-          
-          # Call the optimized report endpoint with 1500 investors
+
+          # Call the optimized report endpoint with 1500 investors and PI feeds for briefings
           # Timeout: 90 minutes (5400 seconds) - typical run is ~60 minutes
           curl -X POST http://localhost:3000/api/optimized-report \
             -H "Content-Type: application/json" \
-            -d '{"period": "CurrYear", "maxInvestors": 1500}' \
+            -d '{"period": "CurrYear", "maxInvestors": 1500, "includeFeeds": true}' \
             --max-time 5400 \
             --no-buffer \
             --silent \
@@ -166,6 +166,8 @@ jobs:
                   echo "💼 [$PROGRESS%] Portfolio Phase: $MESSAGE"
                 elif echo "$MESSAGE" | grep -q "instrument"; then
                   echo "📈 [$PROGRESS%] Instrument Phase: $MESSAGE"
+                elif echo "$MESSAGE" | grep -q "feed"; then
+                  echo "💬 [$PROGRESS%] PI Feeds Phase: $MESSAGE"
                 elif echo "$MESSAGE" | grep -q "analysis"; then
                   echo "🔍 [$PROGRESS%] Analysis Phase: $MESSAGE"
                 else
