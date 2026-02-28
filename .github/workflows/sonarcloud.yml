@@ -35,7 +35,7 @@ jobs:
         if: steps.check-sonar.outputs.configured == 'true'
         uses: actions/setup-node@v6
         with:
-          node-version: '20.18'
+          node-version: '22'
           cache: 'npm'
 
       - name: Install dependencies
