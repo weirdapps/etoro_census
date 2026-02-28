@@ -97,11 +97,11 @@ export async function GET(
       if (userDetailsResponse.ok) {
         const details = await userDetailsResponse.json();
         if (details.users && Array.isArray(details.users) && details.users.length > 0) {
-          const user = details.users.find((u: any) => u.username === username) || details.users[0];
+          const user = details.users.find((u: Record<string, unknown>) => u.username === username) || details.users[0];
           // Get avatar - the API returns avatars array, pick the 150x150 or first one
           let avatarUrl = null;
           if (user.avatars && Array.isArray(user.avatars) && user.avatars.length > 0) {
-            const avatar150 = user.avatars.find((a: any) => a.width === 150);
+            const avatar150 = user.avatars.find((a: Record<string, unknown>) => a.width === 150);
             avatarUrl = avatar150?.url || user.avatars[0].url;
           }
 
@@ -135,9 +135,9 @@ export async function GET(
       trades: portfolio.trades,
       winRatio: portfolio.winRatio,
       topPositions: portfolio.positions
-        ?.sort((a: any, b: any) => b.marketValue - a.marketValue) // Ensure sorted by allocation
+        ?.sort((a: { marketValue: number }, b: { marketValue: number }) => b.marketValue - a.marketValue)
         ?.slice(0, 10)
-        ?.map((p: any) => ({
+        ?.map((p: { symbol: string; instrumentName?: string; instrumentId: number; marketValue: number }) => ({
           symbol: p.symbol,
           instrumentName: p.instrumentName,
           instrumentId: p.instrumentId,

@@ -68,7 +68,7 @@ const nextConfig: NextConfig = {
     ],
   },
   // Optimize build by excluding large data files from processing
-  webpack: (config, { isServer }) => {
+  webpack: (config) => {
     // Ignore large JSON data files during build
     config.module.rules.push({
       test: /public\/data\/.*\.json$/,

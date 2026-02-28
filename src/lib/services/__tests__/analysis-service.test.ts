@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { AnalysisService } from '../analysis-service';
-import { mockCollectedData, mockInvestors } from '@/__tests__/mocks/etoro-api';
+import { mockInvestors } from '@/__tests__/mocks/etoro-api';
 import { ComprehensiveDataCollection, CollectedInvestorData } from '../data-collection-service';
 
 describe('AnalysisService', () => {

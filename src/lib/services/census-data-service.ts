@@ -312,7 +312,7 @@ class CensusDataService {
             this.buildInstrumentMaps();
             logger.info('Successfully loaded census data', { source: fileName });
             return this.censusData;
-          } catch (err) {
+          } catch (_err) {
             logger.debug('Census data file not found, trying next', { source: fileName });
           }
         }
@@ -337,7 +337,7 @@ class CensusDataService {
               logger.info('Successfully loaded census data', { source: url });
               return this.censusData;
             }
-          } catch (err) {
+          } catch (_err) {
             logger.debug('Census data file not found, trying next', { source: file });
           }
         }

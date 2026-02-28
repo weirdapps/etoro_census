@@ -18,7 +18,7 @@ const eslintConfig = defineConfig([
   {
     rules: {
       '@typescript-eslint/no-explicit-any': 'warn',
-      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' }],
       'prefer-const': 'error',
       '@next/next/no-img-element': 'off',
       'react/no-unescaped-entities': 'off',

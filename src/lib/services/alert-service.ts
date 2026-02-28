@@ -1,4 +1,4 @@
-import { FEAR_GREED, getFearGreedLabel } from '../constants';
+import { getFearGreedLabel } from '../constants';
 import { logger } from '../logger';
 
 export type AlertSeverity = 'info' | 'warning' | 'critical';
@@ -132,7 +132,6 @@ export class AlertService {
       enabled: true,
       check: (context: AlertContext): Alert | null => {
         const significantChangeThreshold = 10; // 10% change
-        const alerts: Alert[] = [];
 
         for (const holding of context.topHoldings) {
           if (holding.previousHolders === 0) continue;

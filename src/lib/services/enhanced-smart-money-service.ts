@@ -1,4 +1,4 @@
-import { censusDataService, SmartMoneyFlow, SmartHolding } from './census-data-service';
+import { censusDataService, SmartHolding } from './census-data-service';
 import { historicalTrackingService, HoldingTrend } from './historical-tracking-service';
 import { logger } from '../logger';
 

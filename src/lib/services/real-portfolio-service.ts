@@ -87,8 +87,6 @@ class RealPortfolioService {
    */
   private async fetchPortfolioData(): Promise<any> {
     try {
-      const headers = this.getHeaders();
-
       // CRITICAL FIX: Use P&L endpoint which returns ALL positions with unrealized P&L
       // The regular portfolio endpoint only returns 5 aggregated positions
       const portfolioResponse = await fetch(`${this.baseUrl}/trading/info/real/pnl`, {
@@ -301,10 +299,6 @@ class RealPortfolioService {
                       let updateCount = 0;
                       positions.forEach(position => {
                         if (position.instrumentId === instrumentId) {
-                          const openPrice = rawPositions.find((p: any) =>
-                            (p.instrumentID || p.instrumentId) === instrumentId
-                          )?.openRate;
-
                           // ONLY update prices if we don't already have good values from the API
                           // The API's 'amount' field is already the correct market value in USD
                           if (position.marketValue === 0 && position.units && currentPrice > 0) {
@@ -369,7 +363,6 @@ class RealPortfolioService {
                             }
 
                             // Calculate real market value and profit with adjusted price
-                            const oldValue = position.marketValue;
                             const calculatedValue = position.units * adjustedPrice;
                             const calculatedProfit = calculatedValue - position.investedValue;
                             const calculatedProfitPercent = position.investedValue > 0
@@ -831,7 +824,7 @@ class RealPortfolioService {
               censusData = await response.json();
               break;
             }
-          } catch (err) {
+          } catch (_err) {
             logger.debug('Census data file not found, trying next', { file });
           }
         }

@@ -125,8 +125,6 @@ class PublicPortfolioService {
       const positions: PublicPosition[] = Array.from(positionsMap.values());
 
       // Calculate cash percentage (what's left after all positions)
-      const realizedCreditPct = portfolioData.realizedCreditPct || 0;
-      const unrealizedCreditPct = portfolioData.unrealizedCreditPct || 0;
       const cashPercent = Math.max(0, 100 - totalInvestedPct);
 
       // For display purposes, use normalized percentages as "value"
@@ -242,7 +240,6 @@ class PublicPortfolioService {
       }
 
       // Normalize to match realPortfolioService structure
-      const totalAccountValue = portfolio.totalValue + portfolio.cashBalance;
 
       return {
         totalValue: portfolio.totalValue,

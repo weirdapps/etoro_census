@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { AlertCircle, User } from 'lucide-react';
-import { ETORO_COUNTRY_MAPPING } from '@/lib/utils/country-mapping';
 import { Disclaimer } from '@/components/Disclaimer';
 import EliteGroupComparison from '@/components/intelligence/EliteGroupComparison';
 
@@ -155,8 +154,8 @@ export default function PersonalPortfolioPage() {
   const holdings = data.holdings;
 
 
-  // Get username from environment or use default
-  const username = process.env.NEXT_PUBLIC_ETORO_USERNAME || 'You';
+  // Username from environment
+  const _username = process.env.NEXT_PUBLIC_ETORO_USERNAME || 'You';
 
   return (
     <div className="min-h-screen">

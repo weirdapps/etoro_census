@@ -79,10 +79,9 @@ class SimplifiedIntelligenceService {
    * 1. SMART MONEY ANALYSIS - What top investors are holding
    */
   async getSmartMoneyAnalysis(groupType: 'all' | 'topCopiers' | 'topPerformers' | 'lowRisk' = 'all', baseUrl?: string): Promise<any> {
-    const [portfolio, smartMoney, topHoldings] = await Promise.all([
+    const [portfolio, smartMoney] = await Promise.all([
       realPortfolioService.getPortfolio(),
       censusDataService.getSmartMoneyFlow(groupType, baseUrl),
-      censusDataService.getTopHoldings(20)
     ]);
 
     const totalAccountValue = (portfolio.totalValue || 0) + (portfolio.cashBalance || 0);
@@ -100,7 +99,7 @@ class SimplifiedIntelligenceService {
    * 2. PERFORMANCE COMPARISON - How you stack up against the market
    */
   async getPerformanceComparison(): Promise<any> {
-    const [portfolio, pnl, tradeInfo, sp500Data] = await Promise.all([
+    const [portfolio, _pnl, tradeInfo, sp500Data] = await Promise.all([
       realPortfolioService.getPortfolio(),
       realPortfolioService.getPnL(),
       realPortfolioService.getTradeInfo(),
