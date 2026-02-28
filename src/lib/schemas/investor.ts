@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { logger } from '../logger';
 
 // Popular investor schema
 export const popularInvestorSchema = z.object({
@@ -56,7 +57,7 @@ export type UserTradeInfoOutput = z.output<typeof userTradeInfoSchema>;
 export function validatePopularInvestors(data: unknown): PopularInvestorOutput[] {
   const result = popularInvestorsResponseSchema.safeParse(data);
   if (!result.success) {
-    console.error('Invalid popular investors data:', result.error.issues);
+    logger.warn('Invalid popular investors data', { issues: result.error.issues });
     return [];
   }
   return result.data.items;

@@ -4,6 +4,7 @@ import { PeriodType } from '@/lib/models/user';
 import { dataCollectionService } from '@/lib/services/data-collection-service';
 import { analysisService } from '@/lib/services/analysis-service';
 import { generateReportHTML } from '@/lib/report-generator';
+import { logger } from '@/lib/logger';
 import fs from 'fs/promises';
 import path from 'path';
 import zlib from 'zlib';
@@ -238,13 +239,13 @@ export async function POST(request: NextRequest) {
 
         const originalSize = (jsonString.length / 1024 / 1024).toFixed(2);
         const gzipSize = (gzippedData.length / 1024 / 1024).toFixed(2);
-        console.log(`Comprehensive data saved: ${jsonFilePath} (${originalSize} MB, gzip: ${gzipSize} MB)`);
+        logger.info('Comprehensive data saved', { path: jsonFilePath, originalSizeMB: originalSize, gzipSizeMB: gzipSize });
 
         sendProgress(90, 'Generating HTML report...');
 
         // Debug: Log the analyses data being passed to HTML generator
         analyses.forEach((item, index) => {
-          console.log(`Analysis ${index}: count=${item.count}, holdings=${item.analysis.topHoldings?.length || 0}, performers=${item.analysis.topPerformers?.length || 0}`);
+          logger.debug('Analysis band data', { index, count: item.count, holdings: item.analysis.topHoldings?.length || 0, performers: item.analysis.topPerformers?.length || 0 });
         });
 
         // Generate the HTML report using original analyses data
@@ -262,7 +263,7 @@ export async function POST(request: NextRequest) {
         sendComplete(reportUrl, dataUrl);
 
       } catch (error) {
-        console.error('Optimized report generation error:', error);
+        logger.error('Optimized report generation error', { error: error instanceof Error ? error.message : String(error) });
         sendError(error instanceof Error ? error.message : 'Failed to generate optimized report');
       } finally {
         controller.close();

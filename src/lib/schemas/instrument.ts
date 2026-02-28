@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { logger } from '../logger';
 
 // Instrument details schema
 export const instrumentDetailsSchema = z.object({
@@ -36,7 +37,7 @@ export type ClosingPriceResponseOutput = z.output<typeof closingPriceResponseSch
 export function validateInstrumentDetails(data: unknown): InstrumentDetailsOutput | null {
   const result = instrumentDetailsSchema.safeParse(data);
   if (!result.success) {
-    console.error('Invalid instrument details:', result.error.issues);
+    logger.warn('Invalid instrument details', { issues: result.error.issues });
     return null;
   }
   return result.data;
@@ -45,7 +46,7 @@ export function validateInstrumentDetails(data: unknown): InstrumentDetailsOutpu
 export function validateInstrumentPriceData(data: unknown): InstrumentPriceDataOutput | null {
   const result = instrumentPriceDataSchema.safeParse(data);
   if (!result.success) {
-    console.error('Invalid instrument price data:', result.error.issues);
+    logger.warn('Invalid instrument price data', { issues: result.error.issues });
     return null;
   }
   return result.data;

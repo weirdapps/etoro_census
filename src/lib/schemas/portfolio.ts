@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { logger } from '../logger';
 
 // Portfolio position schema
 export const portfolioPositionSchema = z.object({
@@ -30,7 +31,7 @@ export type UserPortfolioOutput = z.output<typeof userPortfolioSchema>;
 export function validatePortfolio(data: unknown): UserPortfolioOutput {
   const result = userPortfolioSchema.safeParse(data);
   if (!result.success) {
-    console.error('Invalid portfolio data:', result.error.issues);
+    logger.warn('Invalid portfolio data', { issues: result.error.issues });
     return { positions: [] };
   }
   return result.data;

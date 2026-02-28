@@ -154,7 +154,6 @@ export default function TopHoldings({ holdings }: TopHoldingsProps) {
                           className="object-cover"
                           unoptimized
                           onError={(e) => {
-                            console.log('Image failed to load:', holding.imageUrl);
                             (e.target as HTMLImageElement).style.display = 'none';
                           }}
                         />

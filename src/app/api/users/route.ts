@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getPopularInvestors } from '@/lib/services/user-service';
 import { PeriodType } from '@/lib/models/user';
+import { logger } from '@/lib/logger';
 
 export async function GET(request: NextRequest) {
   try {
@@ -16,7 +17,7 @@ export async function GET(request: NextRequest) {
       count: investors.length
     });
   } catch (error) {
-    console.error('Error fetching popular investors:', error);
+    logger.error('Error fetching popular investors', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { success: false, error: 'Failed to fetch popular investors' },
       { status: 500 }

@@ -91,15 +91,6 @@ export default function PersonalPortfolioPage() {
         throw new Error(result.message || 'Failed to load portfolio data. API credentials may be missing.');
       }
 
-      console.log('Personal API Response:', {
-        hasEliteGroupComparison: !!result.data?.eliteGroupComparison,
-        comparisons: result.data?.eliteGroupComparison?.comparisons,
-        broadMarketMissing: result.data?.eliteGroupComparison?.comparisons?.broadMarket?.topMissing,
-        topCopiersMissing: result.data?.eliteGroupComparison?.comparisons?.topCopiers?.topMissing,
-        topPerformersMissing: result.data?.eliteGroupComparison?.comparisons?.topPerformers?.topMissing,
-        lowRiskMissing: result.data?.eliteGroupComparison?.comparisons?.lowRisk?.topMissing
-      });
-
       setData(result.data);
     } catch (error) {
       console.error('Failed to fetch personal portfolio:', error);
@@ -163,12 +154,6 @@ export default function PersonalPortfolioPage() {
   const eliteGroupComparison = data.eliteGroupComparison;
   const holdings = data.holdings;
 
-  console.log('Rendering Personal Page:', {
-    hasEliteGroupComparison: !!eliteGroupComparison,
-    comparisonsKeys: eliteGroupComparison?.comparisons ? Object.keys(eliteGroupComparison.comparisons) : [],
-    broadMarketData: eliteGroupComparison?.comparisons?.broadMarket,
-    topCopiersData: eliteGroupComparison?.comparisons?.topCopiers
-  });
 
   // Get username from environment or use default
   const username = process.env.NEXT_PUBLIC_ETORO_USERNAME || 'You';

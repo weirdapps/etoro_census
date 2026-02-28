@@ -1,14 +1,15 @@
 import { NextResponse } from 'next/server';
 import { getPopularInvestors, getUserPortfolio } from '@/lib/services/user-service';
 import { getInstrumentDetails } from '@/lib/services/instrument-service';
+import { logger } from '@/lib/logger';
 
 export async function GET() {
   try {
-    console.log('Extracting real instrument IDs from portfolios...');
+    logger.info('Extracting real instrument IDs from portfolios');
     
     // Get a few popular investors
     const investors = await getPopularInvestors('CurrMonth', 3);
-    console.log(`Found ${investors.length} investors`);
+    logger.info('Found investors', { count: investors.length });
     
     if (investors.length === 0) {
       return NextResponse.json({
@@ -23,7 +24,7 @@ export async function GET() {
     // Extract instrument IDs from their portfolios
     for (const investor of investors.slice(0, 2)) { // Just test 2 to avoid rate limits
       try {
-        console.log(`Fetching portfolio for ${investor.userName}`);
+        logger.debug('Fetching portfolio', { investor: investor.userName });
         const portfolio = await getUserPortfolio(investor.userName);
         
         const portfolioInstruments = portfolio.positions
@@ -40,12 +41,12 @@ export async function GET() {
         
         await new Promise(resolve => setTimeout(resolve, 500)); // Rate limiting
       } catch (error) {
-        console.error(`Error fetching portfolio for ${investor.userName}:`, error);
+        logger.error('Error fetching portfolio', { investor: investor.userName, error: error instanceof Error ? error.message : String(error) });
       }
     }
     
     const uniqueInstrumentIds = Array.from(instrumentIds).slice(0, 10); // Test first 10
-    console.log(`Testing instrument details for IDs: ${uniqueInstrumentIds.join(', ')}`);
+    logger.debug('Testing instrument details', { ids: uniqueInstrumentIds });
     
     let instrumentDetails = new Map();
     let instrumentError = null;
@@ -81,7 +82,7 @@ export async function GET() {
     });
     
   } catch (error) {
-    console.error('Extract instruments test failed:', error);
+    logger.error('Extract instruments test failed', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json({
       success: false,
       error: error instanceof Error ? error.message : 'Extract instruments test failed'

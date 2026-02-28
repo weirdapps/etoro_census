@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { logger } from '../logger';
 
 /**
  * Zod schemas for PI feed data validation
@@ -97,7 +98,7 @@ export const etoroFeedResponseSchema = z.object({
 export function validateFeedResponse(data: unknown) {
   const result = etoroFeedResponseSchema.safeParse(data);
   if (!result.success) {
-    console.error('Invalid feed response:', result.error.issues);
+    logger.warn('Invalid feed response', { issues: result.error.issues });
     return null;
   }
   return result.data;
@@ -109,7 +110,7 @@ export function validateFeedResponse(data: unknown) {
 export function validateFeedCollection(data: unknown) {
   const result = feedCollectionSchema.safeParse(data);
   if (!result.success) {
-    console.error('Invalid feed collection:', result.error.issues);
+    logger.warn('Invalid feed collection', { issues: result.error.issues });
     return null;
   }
   return result.data;

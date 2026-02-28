@@ -3,6 +3,8 @@
  * Loads and provides real eToro census data for market intelligence
  */
 
+import { logger } from '../logger';
+
 // Distribution bucket type (e.g., { "0-10%": 15, "10-20%": 25 })
 type DistributionBuckets = Record<string, number>;
 
@@ -303,15 +305,15 @@ class CensusDataService {
         for (const fileName of dataFiles) {
           try {
             const filePath = path.join(dataDir, fileName);
-            console.log(`Attempting to load census data from ${filePath}`);
+            logger.debug('Attempting to load census data', { source: filePath });
             const fileContent = await fs.readFile(filePath, 'utf-8');
             this.censusData = JSON.parse(fileContent);
             this.lastFetchTime = Date.now();
             this.buildInstrumentMaps();
-            console.log(`Successfully loaded census data from ${fileName}`);
+            logger.info('Successfully loaded census data', { source: fileName });
             return this.censusData;
           } catch (err) {
-            console.log(`Failed to load ${fileName}, trying next...`);
+            logger.debug('Census data file not found, trying next', { source: fileName });
           }
         }
       } else {
@@ -326,24 +328,24 @@ class CensusDataService {
         for (const file of dataFiles) {
           try {
             const url = `${urlBase}${file}`;
-            console.log(`Attempting to load census data from ${url}`);
+            logger.debug('Attempting to load census data', { source: url });
             const response = await fetch(url);
             if (response.ok) {
               this.censusData = await response.json();
               this.lastFetchTime = Date.now();
               this.buildInstrumentMaps();
-              console.log(`Successfully loaded census data from ${url}`);
+              logger.info('Successfully loaded census data', { source: url });
               return this.censusData;
             }
           } catch (err) {
-            console.log(`Failed to load ${urlBase}${file}, trying next...`);
+            logger.debug('Census data file not found, trying next', { source: file });
           }
         }
       }
 
-      console.error('Failed to load census data from any source');
+      logger.error('Failed to load census data from any source');
     } catch (error) {
-      console.error('Failed to load census data:', error);
+      logger.error('Failed to load census data', { error: error instanceof Error ? error.message : String(error) });
     }
 
     return null;
@@ -464,7 +466,7 @@ class CensusDataService {
   async getSmartMoneyFlow(groupType: 'all' | 'topCopiers' | 'topPerformers' | 'lowRisk' = 'all', baseUrl?: string): Promise<SmartMoneyFlow> {
     const data = await this.loadCensusData(baseUrl);
     if (!data) {
-      console.log('No census data loaded for smart money flow');
+      logger.debug('No census data loaded for smart money flow');
       return {
         groupType,
         groupDescription: 'No data available',
@@ -474,7 +476,7 @@ class CensusDataService {
         consensus: []
       };
     }
-    console.log('Census data loaded, investors count:', data.investors?.length);
+    logger.debug('Census data loaded for smart money flow', { investorCount: data.investors?.length });
 
     // Use memoized map (built when data was loaded)
     const instrumentDetailsMap = this.getInstrumentDetailsMap();
@@ -515,7 +517,7 @@ class CensusDataService {
         groupDescription = `All ${data.investors.length} Popular Investors`;
     }
 
-    console.log('Top investors count:', topInvestors.length);
+    logger.debug('Smart money flow group selected', { count: topInvestors.length });
 
     // Aggregate their holdings by instrumentId (more reliable than symbol)
     const holdingsMap = new Map<number, { symbol: string, investors: Set<number>, totalAllocation: number }>();
@@ -552,7 +554,7 @@ class CensusDataService {
     }
 
     // Convert to array and sort by popularity
-    console.log('Holdings map size:', holdingsMap.size);
+    logger.debug('Holdings aggregated', { size: holdingsMap.size });
     const smartHoldings = Array.from(holdingsMap.entries())
       .map(([instrumentId, data]) => {
         const uniqueHolders = data.investors.size;
@@ -566,7 +568,7 @@ class CensusDataService {
       })
       .sort((a, b) => b.penetration - a.penetration);
 
-    console.log('Smart holdings count:', smartHoldings.length, 'First holding:', smartHoldings[0]);
+    logger.debug('Smart holdings computed', { count: smartHoldings.length });
 
     return {
       groupType,

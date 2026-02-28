@@ -6,6 +6,7 @@
 import { realPortfolioService } from './real-portfolio-service';
 import { censusDataService } from './census-data-service';
 import { portfolioComparison } from './portfolio-comparison';
+import { logger } from '../logger';
 
 class SimplifiedIntelligenceService {
   private static instance: SimplifiedIntelligenceService;
@@ -38,8 +39,7 @@ class SimplifiedIntelligenceService {
     const actualYTDProfitPercent = tradeInfo?.gain || 0;
     const actualYTDProfit = portfolio.totalProfit || 0;
 
-    // Log for debugging
-    console.log('P&L Data:', {
+    logger.debug('P&L data', {
       daily: pnl?.daily,
       weekly: pnl?.weekly,
       monthly: pnl?.monthly,
@@ -123,7 +123,7 @@ class SimplifiedIntelligenceService {
     // Use S&P 500 YTD return as market benchmark
     const marketYTDReturn = sp500Data?.ytdReturn || 20;  // Default to ~20% if API fails
 
-    console.log('YTD Performance comparison - Your return:', yourYTDReturn, 'Market average:', marketYTDReturn);
+    logger.debug('YTD Performance comparison', { yourReturn: yourYTDReturn, marketAverage: marketYTDReturn });
     const outperformance = yourYTDReturn - marketYTDReturn;
 
     // Calculate percentile rank (simplified)
@@ -255,7 +255,7 @@ class SimplifiedIntelligenceService {
    * ELITE GROUP COMPARISON - Compare against multiple elite investor groups
    */
   async getEliteGroupComparison(baseUrl?: string): Promise<any> {
-    console.log('Starting getEliteGroupComparison...');
+    logger.debug('Starting elite group comparison');
     const [portfolio, broadMarket, topCopiers, topPerformers, lowRisk] = await Promise.all([
       realPortfolioService.getPortfolio(),
       censusDataService.getSmartMoneyFlow('all', baseUrl), // All 1500+ investors
@@ -264,27 +264,11 @@ class SimplifiedIntelligenceService {
       censusDataService.getSmartMoneyFlow('lowRisk', baseUrl)
     ]);
 
-    console.log('Elite Group Data Fetched:', {
-      portfolio: !!portfolio,
-      broadMarket: {
-        loaded: !!broadMarket,
-        holdings: broadMarket?.topHoldings?.length || 0,
-        consensus: broadMarket?.consensus?.length || 0,
-        firstHolding: broadMarket?.topHoldings?.[0]
-      },
-      topCopiers: {
-        loaded: !!topCopiers,
-        holdings: topCopiers?.topHoldings?.length || 0,
-        consensus: topCopiers?.consensus?.length || 0
-      },
-      topPerformers: {
-        loaded: !!topPerformers,
-        holdings: topPerformers?.topHoldings?.length || 0
-      },
-      lowRisk: {
-        loaded: !!lowRisk,
-        holdings: lowRisk?.topHoldings?.length || 0
-      }
+    logger.debug('Elite group data fetched', {
+      broadMarketHoldings: broadMarket?.topHoldings?.length || 0,
+      topCopiersHoldings: topCopiers?.topHoldings?.length || 0,
+      topPerformersHoldings: topPerformers?.topHoldings?.length || 0,
+      lowRiskHoldings: lowRisk?.topHoldings?.length || 0
     });
 
     // Use shared comparison service
@@ -298,17 +282,7 @@ class SimplifiedIntelligenceService {
       lowRisk
     );
 
-    console.log('Elite Group Comparison Result:', {
-      hasData: true,
-      portfolioCount: portfolio.positions?.length || 0,
-      comparisons: {
-        broadMarket: !!result.comparisons.broadMarket.topMissing?.length,
-        topCopiers: !!result.comparisons.topCopiers.topMissing?.length,
-        topPerformers: !!result.comparisons.topPerformers.topMissing?.length,
-        lowRisk: !!result.comparisons.lowRisk.topMissing?.length
-      },
-      insights: !!result.insights
-    });
+    logger.debug('Elite group comparison complete', { portfolioCount: portfolio.positions?.length || 0 });
 
     return result;
   }

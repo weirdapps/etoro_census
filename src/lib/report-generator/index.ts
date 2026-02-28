@@ -33,10 +33,6 @@ function renderTabContent(item: AnalysisBand, index: number): string {
 }
 
 export function generateReportHTML(analyses: AnalysisBand[], generatedAt: string): string {
-  console.log(`HTML Generator received ${analyses.length} analyses`);
-  analyses.forEach((item, idx) => {
-    console.log(`  Analysis ${idx}: count=${item.count}, holdings=${item.analysis?.topHoldings?.length || 0}, performers=${item.analysis?.topPerformers?.length || 0}`);
-  });
 
   const tabs = analyses.map((item, index) => `
     <button class="tab ${index === 0 ? 'active' : ''}" onclick="showTab(${index})">

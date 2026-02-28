@@ -67,8 +67,6 @@ export default function HomeV2() {
     setHasLimit(false);
 
     try {
-      console.log('Starting V2 analysis with:', { limit, period });
-
       // Use the streaming endpoint for real-time progress
       const response = await fetch('/api/census-stream', {
         method: 'POST',

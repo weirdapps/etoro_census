@@ -4,6 +4,7 @@
  */
 
 import { generateUUID } from '@/lib/etoro-api-config';
+import { logger } from '../logger';
 
 interface Position {
   instrumentId: number;
@@ -58,18 +59,18 @@ class RealPortfolioService {
   async getPortfolio(): Promise<any> {
     // Check cache
     if (this.cachedPortfolio && Date.now() - this.cacheTimestamp < this.CACHE_DURATION) {
-      console.log('Returning cached portfolio');
+      logger.debug('Returning cached portfolio');
       return this.cachedPortfolio;
     }
 
     // If a fetch is already in progress, return that promise
     if (this.portfolioFetchPromise) {
-      console.log('Portfolio fetch already in progress, waiting for it...');
+      logger.debug('Portfolio fetch already in progress');
       return this.portfolioFetchPromise;
     }
 
     // Start a new fetch and store the promise for deduplication
-    console.log('Starting new portfolio fetch...');
+    logger.debug('Starting new portfolio fetch');
     this.portfolioFetchPromise = this.fetchPortfolioData();
 
     try {
@@ -94,11 +95,11 @@ class RealPortfolioService {
         headers: this.getHeaders()
       });
 
-      console.log('Portfolio Response status:', portfolioResponse.status);
+      logger.debug('Portfolio response', { status: portfolioResponse.status });
 
       if (!portfolioResponse.ok) {
         const errorText = await portfolioResponse.text();
-        console.error('Portfolio API Error:', errorText);
+        logger.error('Portfolio API error', { errorText });
         throw new Error(`Failed to fetch portfolio data: ${portfolioResponse.status} - ${errorText}`);
       }
 
@@ -141,7 +142,7 @@ class RealPortfolioService {
 
           // Only fall back to calculation if we don't have the amount field
           if (!marketValue && item.currentRate && units) {
-            console.log('No amount field, calculating from currentRate');
+            logger.debug('No amount field, calculating from currentRate');
             const calculatedValue = units * item.currentRate;
             const calculatedProfit = calculatedValue - investedAmount;
             const calculatedProfitPercent = investedAmount > 0 ? (calculatedProfit / investedAmount) * 100 : 0;
@@ -149,7 +150,7 @@ class RealPortfolioService {
             // Only reject truly unrealistic values (>10000% return)
             // Some crypto/leveraged positions can legitimately have 200-1000% returns
             if (Math.abs(calculatedProfitPercent) > 10000) {
-              console.warn('Warning: Unrealistic return detected, using invested amount');
+              logger.warn('Unrealistic return detected, using invested amount');
               // Use invested amount as a safe fallback
               marketValue = investedAmount;
               profit = 0;
@@ -160,12 +161,12 @@ class RealPortfolioService {
               profitPercent = calculatedProfitPercent;
 
               if (Math.abs(calculatedProfitPercent) > 200) {
-                console.warn(`High return position: ${calculatedProfitPercent.toFixed(1)}% - may be legitimate`);
+                logger.debug('High return position', { profitPercent: calculatedProfitPercent.toFixed(1) });
               }
             }
           } else if (!marketValue) {
             // Last resort fallback - assume no profit/loss
-            console.warn('Warning: No market value available for position');
+            logger.warn('No market value available for position');
             marketValue = investedAmount;
             profit = 0;
             profitPercent = 0;
@@ -198,8 +199,7 @@ class RealPortfolioService {
 
         // Get unique instrument IDs
         const uniqueInstrumentIds = Array.from(new Set(positions.map(p => p.instrumentId)));
-        console.log(`Found ${uniqueInstrumentIds.length} unique instruments from ${positions.length} positions`);
-        console.log(`Instrument IDs: ${uniqueInstrumentIds.sort((a, b) => a - b).join(', ')}`);
+        logger.debug('Found unique instruments', { unique: uniqueInstrumentIds.length, positions: positions.length });
 
         // Only fetch instruments that aren't cached
         const uncachedIds = uniqueInstrumentIds
@@ -214,7 +214,11 @@ class RealPortfolioService {
             for (let i = 0; i < uncachedIds.length; i += batchSize) {
               const batch = uncachedIds.slice(i, i + batchSize);
               const instrumentIds = batch.join(',');
-              console.log(`Fetching instrument batch ${Math.floor(i/batchSize) + 1}/${Math.ceil(uncachedIds.length/batchSize)} (${batch.length} instruments)...`);
+              logger.debug('Fetching instrument batch', {
+                batch: Math.floor(i/batchSize) + 1,
+                total: Math.ceil(uncachedIds.length/batchSize),
+                size: batch.length
+              });
 
               // Fetch instrument details
               const instrumentResponse = await fetch(
@@ -234,17 +238,17 @@ class RealPortfolioService {
               }
             }
 
-            console.log(`Fetched and cached ${allInstruments.length} instruments total`);
+            logger.debug('Fetched and cached instruments', { count: allInstruments.length });
             this.instrumentCacheTimestamp = Date.now();
           } catch (error) {
-            console.warn('Failed to fetch instrument data:', error);
+            logger.warn('Failed to fetch instrument data', { error: error instanceof Error ? error.message : String(error) });
           }
         }
 
         // Always fetch current prices regardless of instrument cache status
         if (uniqueInstrumentIds.length > 0) {
           try {
-            console.log('Fetching current prices...');
+            logger.debug('Fetching current prices');
 
             // Batch price fetching
             const priceBatchSize = 50;
@@ -263,22 +267,28 @@ class RealPortfolioService {
                   }
                 );
 
-                console.log(`Price batch ${Math.floor(i/priceBatchSize) + 1}/${Math.ceil(uniqueInstrumentIds.length/priceBatchSize)} - status: ${priceResponse.status}`);
+                logger.debug('Price batch fetched', {
+                  batch: Math.floor(i/priceBatchSize) + 1,
+                  total: Math.ceil(uniqueInstrumentIds.length/priceBatchSize),
+                  status: priceResponse.status
+                });
 
                 if (priceResponse.ok) {
                   const priceData = await priceResponse.json();
                   const rates = priceData.rates || [];
                   allRates.push(...rates);
-                  console.log(`Got ${rates.length} prices in this batch`);
+                  logger.debug('Prices in batch', { count: rates.length });
                 }
               } catch (err) {
-                console.warn(`Failed to fetch price batch ${Math.floor(i/priceBatchSize) + 1}:`, err);
+                logger.warn('Failed to fetch price batch', {
+                  batch: Math.floor(i/priceBatchSize) + 1,
+                  error: err instanceof Error ? err.message : String(err)
+                });
               }
             }
 
             if (allRates.length > 0) {
-              console.log(`Total prices fetched: ${allRates.length}`);
-              console.log('First rate:', JSON.stringify(allRates[0]).substring(0, 200));
+              logger.debug('Total prices fetched', { count: allRates.length });
 
               // Update positions with current prices
               allRates.forEach((rate: any) => {
@@ -298,7 +308,7 @@ class RealPortfolioService {
                           // ONLY update prices if we don't already have good values from the API
                           // The API's 'amount' field is already the correct market value in USD
                           if (position.marketValue === 0 && position.units && currentPrice > 0) {
-                            console.log(`Position ${position.symbol} has no market value from API, calculating from price`);
+                            logger.debug('No market value from API, calculating from price', { symbol: position.symbol });
 
                             // Get instrument details for exchange-specific handling
                             const instrument = this.instrumentCache.get(instrumentId);
@@ -311,28 +321,51 @@ class RealPortfolioService {
                             // UK stocks are priced in pence (GBX) and need to be converted to pounds
                             if (symbolToCheck?.endsWith('.L') || instrument?.exchangeID === 9) {
                               adjustedPrice = currentPrice / 100; // Convert pence to pounds
-                              console.log(`UK stock ${symbolToCheck}: Converting price from ${currentPrice} pence to ${adjustedPrice} pounds`);
+                              logger.debug('Stock price conversion', {
+                                symbol: symbolToCheck,
+                                from: currentPrice,
+                                to: adjustedPrice,
+                                exchange: 'UK'
+                              });
                             }
                             // Check for Copenhagen/Danish stocks
                             else if (symbolToCheck?.endsWith('.CO')) {
                               // Danish stocks are typically in øre (1/100 of a krone)
                               adjustedPrice = currentPrice / 100;
-                              console.log(`Danish stock ${symbolToCheck}: Converting price from ${currentPrice} øre to ${adjustedPrice} DKK`);
+                              logger.debug('Stock price conversion', {
+                                symbol: symbolToCheck,
+                                from: currentPrice,
+                                to: adjustedPrice,
+                                exchange: 'Danish'
+                              });
                             }
                             // Check for Brussels stocks
                             else if (symbolToCheck?.endsWith('.BR')) {
                               // Brussels stocks are typically in cents
                               adjustedPrice = currentPrice / 100;
-                              console.log(`Brussels stock ${symbolToCheck}: Converting price from ${currentPrice} cents to ${adjustedPrice} EUR`);
+                              logger.debug('Stock price conversion', {
+                                symbol: symbolToCheck,
+                                from: currentPrice,
+                                to: adjustedPrice,
+                                exchange: 'Brussels'
+                              });
                             }
                             // Check for Hong Kong stocks
                             else if (symbolToCheck?.endsWith('.HK') || instrument?.exchangeID === 10) {
                               // HK stocks are typically already in HKD, no conversion needed
-                              console.log(`HK stock ${symbolToCheck}: Using price ${currentPrice} HKD (exchangeID: ${instrument?.exchangeID})`);
+                              logger.debug('Stock price conversion', {
+                                symbol: symbolToCheck,
+                                from: currentPrice,
+                                to: adjustedPrice,
+                                exchange: 'HK'
+                              });
                             }
                             // Log exchange ID for debugging unknown exchanges
                             else if (instrument?.exchangeID) {
-                              console.log(`Stock ${symbolToCheck}: ExchangeID ${instrument.exchangeID}, using price ${currentPrice}`);
+                              logger.debug('Stock exchange info', {
+                                symbol: symbolToCheck,
+                                exchangeId: instrument.exchangeID
+                              });
                             }
 
                             // Calculate real market value and profit with adjusted price
@@ -346,7 +379,11 @@ class RealPortfolioService {
                             // Only reject truly unrealistic returns (>10000%)
                             // Crypto and leveraged positions can have legitimate 200-1000% returns
                             if (Math.abs(calculatedProfitPercent) > 10000) {
-                              console.error(`Unrealistic return for ${position.symbol} (ID:${instrumentId}): ${calculatedProfitPercent.toFixed(1)}% - using invested amount`);
+                              logger.warn('Unrealistic return detected', {
+                                symbol: position.symbol,
+                                instrumentId,
+                                profitPercent: calculatedProfitPercent.toFixed(1)
+                              });
                               // Don't update with unrealistic values
                               position.marketValue = position.investedValue;
                               position.profit = 0;
@@ -359,7 +396,10 @@ class RealPortfolioService {
 
                               // High return positions are logged in development only
                               if (process.env.NODE_ENV !== 'production' && Math.abs(position.profitPercent) > 100) {
-                                console.log(`HIGH RETURN - ${position.symbol}: ${position.profitPercent.toFixed(1)}%`);
+                                logger.debug('High return position', {
+                                  symbol: position.symbol,
+                                  profitPercent: position.profitPercent.toFixed(1)
+                                });
                               }
                             }
                             updateCount++;
@@ -367,15 +407,19 @@ class RealPortfolioService {
                         }
                       });
                       if (updateCount > 0) {
-                        console.log(`Applied price ${currentPrice} to ${updateCount} positions with instrumentId ${instrumentId}`);
+                        logger.debug('Applied price to positions', {
+                          price: currentPrice,
+                          count: updateCount,
+                          instrumentId
+                        });
                       }
                     }
                   });
             } else {
-              console.log('No price data received');
+              logger.debug('No price data received');
             }
           } catch (error) {
-            console.warn('Failed to fetch prices:', error);
+            logger.warn('Failed to fetch prices', { error: error instanceof Error ? error.message : String(error) });
           }
         }
 
@@ -387,25 +431,25 @@ class RealPortfolioService {
         // Log positions with high returns for debugging
         const highReturnPositions = positions.filter(p => Math.abs(p.profitPercent) > 100);
         if (highReturnPositions.length > 0) {
-          console.log(`Positions with >100% returns: ${highReturnPositions.length}`);
+          logger.debug('High return positions found', { count: highReturnPositions.length });
           const uniqueHighReturnInstruments = new Set(highReturnPositions.map(p => p.instrumentId));
-          console.log(`Unique instruments with high returns: ${Array.from(uniqueHighReturnInstruments).join(', ')}`);
 
           // Try to identify what these instruments are
           uniqueHighReturnInstruments.forEach(id => {
             const instrument = this.instrumentCache.get(id as number);
             const positionsForInstrument = highReturnPositions.filter(p => p.instrumentId === id);
             const avgReturn = positionsForInstrument.reduce((sum, p) => sum + p.profitPercent, 0) / positionsForInstrument.length;
-            if (instrument) {
-              console.log(`  ID ${id}: ${instrument.symbolFull} - ${instrument.instrumentDisplayName} (avg return: ${avgReturn.toFixed(1)}%)`);
-            } else {
-              console.log(`  ID ${id}: Unknown instrument (avg return: ${avgReturn.toFixed(1)}%)`);
-            }
+            logger.debug('High return instrument', {
+              id,
+              symbol: instrument?.symbolFull || 'Unknown',
+              name: instrument?.instrumentDisplayName || 'Unknown',
+              avgReturn: avgReturn.toFixed(1)
+            });
           });
         }
 
         // Enhance positions with cached instrument data
-        console.log(`Enhancing ${positions.length} positions with instrument data...`);
+        logger.debug('Enhancing positions with instrument data', { count: positions.length });
         positions.forEach(position => {
           const instrument = this.instrumentCache.get(position.instrumentId);
           if (instrument) {
@@ -414,10 +458,14 @@ class RealPortfolioService {
             position.instrumentName = instrument.instrumentDisplayName || instrument.name || position.instrumentName;
 
             if (oldSymbol === 'N/A' && position.symbol !== 'N/A') {
-              console.log(`Updated symbol for ID ${position.instrumentId}: ${oldSymbol} -> ${position.symbol}`);
+              logger.debug('Updated symbol', {
+                instrumentId: position.instrumentId,
+                from: oldSymbol,
+                to: position.symbol
+              });
             }
           } else {
-            console.log(`No instrument data cached for ID ${position.instrumentId}`);
+            logger.debug('No instrument data cached', { instrumentId: position.instrumentId });
           }
         });
       }
@@ -448,7 +496,10 @@ class RealPortfolioService {
       const aggregatedPositions = Array.from(aggregatedPositionsMap.values())
         .sort((a, b) => b.marketValue - a.marketValue);
 
-      console.log(`Aggregated ${positions.length} positions into ${aggregatedPositions.length} unique instruments`);
+      logger.info('Aggregated positions', {
+        raw: positions.length,
+        unique: aggregatedPositions.length
+      });
 
       // Calculate total account value including cash
       const accountValue = totalValue + availableCash;
@@ -481,7 +532,7 @@ class RealPortfolioService {
       return this.cachedPortfolio;
 
     } catch (error) {
-      console.error('Failed to fetch real portfolio:', error);
+      logger.error('Failed to fetch real portfolio', { error: error instanceof Error ? error.message : String(error) });
       // Return a minimal portfolio structure on error
       return {
         totalValue: 0,
@@ -506,18 +557,18 @@ class RealPortfolioService {
       const username = process.env.ETORO_USERNAME || 'plessas';
       const url = `https://www.etoro.com/api/public/v1/user-info/people/${username}/tradeinfo?period=currYear`;
 
-      console.log('Fetching trade info for:', username);
+      logger.debug('Fetching trade info', { username });
       const response = await fetch(url, {
         headers: this.getHeaders()
       });
 
       if (!response.ok) {
-        console.error('TradeInfo API Error:', response.status);
+        logger.error('TradeInfo API error', { status: response.status });
         return null;
       }
 
       const data = await response.json();
-      console.log('TradeInfo data:', {
+      logger.debug('TradeInfo data', {
         gain: data.gain,
         dailyGain: data.dailyGain,
         weekGain: data.thisWeekGain,
@@ -528,7 +579,7 @@ class RealPortfolioService {
 
       return data;
     } catch (error) {
-      console.error('Failed to fetch trade info:', error);
+      logger.error('Failed to fetch trade info', { error: error instanceof Error ? error.message : String(error) });
       return null;
     }
   }
@@ -548,7 +599,7 @@ class RealPortfolioService {
       );
 
       if (!marketResponse.ok) {
-        console.error('Failed to fetch SPY market data');
+        logger.error('Failed to fetch SPY market data');
         return null;
       }
 
@@ -556,7 +607,7 @@ class RealPortfolioService {
       const spyData = marketData.instrumentDisplayDatas?.[0] || marketData.instruments?.[0];
 
       if (!spyData) {
-        console.error('No SPY data found');
+        logger.error('No SPY data found');
         return null;
       }
 
@@ -567,7 +618,7 @@ class RealPortfolioService {
       );
 
       if (!ratesResponse.ok) {
-        console.error('Failed to fetch SPY rates');
+        logger.error('Failed to fetch SPY rates');
         return null;
       }
 
@@ -580,18 +631,10 @@ class RealPortfolioService {
       const yearStartPrice = 590; // SPY price at end of 2024/start of 2025
       const ytdReturn = ((currentPrice - yearStartPrice) / yearStartPrice) * 100;
 
-      console.log('S&P 500 YTD Calculation:');
-      console.log('  Year start price (Jan 1, 2025): $' + yearStartPrice);
-      console.log('  Current price: $' + currentPrice.toFixed(2));
-      console.log('  YTD return: ' + ytdReturn.toFixed(2) + '%');
-
-      console.log('S&P 500 (SPY) data:', {
-        instrumentId: spyInstrumentId,
-        currentPrice,
+      logger.debug('S&P 500 YTD data', {
         yearStartPrice,
-        ytdReturn: ytdReturn.toFixed(2) + '%',
-        symbol: spyData.symbolFull || 'SPY',
-        name: spyData.instrumentDisplayName || 'S&P 500 ETF'
+        currentPrice: currentPrice.toFixed(2),
+        ytdReturn: ytdReturn.toFixed(2)
       });
 
       return {
@@ -603,7 +646,7 @@ class RealPortfolioService {
         ytdReturn
       };
     } catch (error) {
-      console.error('Failed to fetch S&P 500 data:', error);
+      logger.error('Failed to fetch S&P 500 data', { error: error instanceof Error ? error.message : String(error) });
       return null;
     }
   }
@@ -613,19 +656,18 @@ class RealPortfolioService {
    */
   async getPnL(): Promise<any> {
     try {
-      console.log('Fetching P&L data from eToro...');
+      logger.debug('Fetching P&L data from eToro');
       const response = await fetch(`${this.baseUrl}/trading/info/real/pnl`, {
         headers: this.getHeaders()
       });
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('P&L API Error:', errorText);
+        logger.error('P&L API error', { errorText });
         throw new Error(`Failed to fetch P&L: ${response.status}`);
       }
 
       const data = await response.json();
-      console.log('P&L Data received:', JSON.stringify(data).substring(0, 500));
 
       // The P&L endpoint might return different field names
       // Check for various possible field names
@@ -658,7 +700,7 @@ class RealPortfolioService {
         }
       };
     } catch (error) {
-      console.error('Failed to fetch P&L:', error);
+      logger.error('Failed to fetch P&L', { error: error instanceof Error ? error.message : String(error) });
       return {
         daily: { amount: 0, percentage: 0 },
         weekly: { amount: 0, percentage: 0 },
@@ -790,7 +832,7 @@ class RealPortfolioService {
               break;
             }
           } catch (err) {
-            console.log(`Failed to fetch ${file}, trying next...`);
+            logger.debug('Census data file not found, trying next', { file });
           }
         }
       } else {
@@ -831,7 +873,7 @@ class RealPortfolioService {
         };
       }
     } catch (error) {
-      console.error('Failed to load census data:', error);
+      logger.error('Failed to load census data', { error: error instanceof Error ? error.message : String(error) });
     }
 
     // Return default census data if loading fails

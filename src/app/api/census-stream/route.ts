@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { PeriodType } from '@/lib/models/user';
 import { dataCollectionService } from '@/lib/services/data-collection-service';
 import { analysisService, analysisServiceV2 } from '@/lib/services/analysis-service';
+import { logger } from '@/lib/logger';
 
 // Input validation schema
 const CensusStreamInputSchema = z.object({
@@ -108,7 +109,7 @@ export async function POST(request: NextRequest) {
         sendComplete(analysis, collectedData.investors.length, serializedData);
         
       } catch (error) {
-        console.error('Census analysis error:', error);
+        logger.error('Census analysis error', { error: error instanceof Error ? error.message : String(error) });
         sendError(error instanceof Error ? error.message : 'An unexpected error occurred');
       } finally {
         controller.close();

@@ -1,4 +1,5 @@
 import { API_ENDPOINTS, fetchFromEtoroApi } from '../etoro-api-config';
+import { logger } from '../logger';
 import { PopularInvestor, PopularInvestorsResponse, PeriodType, UserDetail, UserInfoResponse, UserTradeInfo } from '../models/user';
 import { UserPortfolio } from '../models/user-portfolio';
 import { API, DATA_COLLECTION } from '../constants';
@@ -8,27 +9,27 @@ export async function getPopularInvestors(
   limit: number = 50
 ): Promise<PopularInvestor[]> {
   try {
-    console.log(`Requesting ${limit} investors from eToro API...`);
-    
+    logger.info('Requesting investors from eToro API', { limit });
+
     // eToro might have a max page size
     const pageSize = Math.min(limit, DATA_COLLECTION.MAX_PAGE_SIZE);
     const totalPages = Math.ceil(limit / pageSize);
     const allInvestors: PopularInvestor[] = [];
-    
+
     for (let page = 1; page <= totalPages; page++) {
       const endpoint = `${API_ENDPOINTS.USER_INFO_SEARCH}?period=${period}&pageSize=${pageSize}&page=${page}&sort=-copiers&`;
-      
-      console.log(`Fetching page ${page} (pageSize: ${pageSize}) from: ${endpoint}`);
-      
+
+      logger.debug('Fetching page', { page, pageSize, endpoint });
+
       const response = await fetchFromEtoroApi<PopularInvestorsResponse>(endpoint);
-      
+
       if (!response || !response.items || !Array.isArray(response.items)) {
-        console.error(`Invalid response format for page ${page}:`, response);
+        logger.error('Invalid response format for page', { page, response });
         break;
       }
 
-      console.log(`Page ${page}: Found ${response.items.length} investors`);
-      
+      logger.debug('Page found investors', { page, investorsFound: response.items.length });
+
       // Check response metadata
       const metadata = {
         page,
@@ -37,41 +38,41 @@ export async function getPopularInvestors(
         pageSize: response.items.length,
         totalAvailable: response.totalRows || 'unknown'
       };
-      
-      console.log(`Page ${page} Metadata:`, metadata);
-      
+
+      logger.debug('Page metadata', metadata);
+
       allInvestors.push(...response.items);
-      
+
       // Stop if we got less than a full page (no more data)
       if (response.items.length < pageSize) {
-        console.log(`Reached end of available data at page ${page}`);
+        logger.debug('Reached end of available data', { page });
         break;
       }
-      
+
       // Stop if we have enough
       if (allInvestors.length >= limit) {
-        console.log(`Collected enough investors: ${allInvestors.length}`);
+        logger.debug('Collected enough investors', { collected: allInvestors.length });
         break;
       }
-      
+
       // Small delay between pages to avoid rate limiting
       if (page < totalPages) {
         await new Promise(resolve => setTimeout(resolve, DATA_COLLECTION.SHORT_DELAY_MS));
       }
     }
-    
-    console.log(`Total investors collected: ${allInvestors.length} (requested: ${limit})`);
-    
+
+    logger.info('Total investors collected', { collected: allInvestors.length, requested: limit });
+
     // If we got less than requested, log it
     if (allInvestors.length < limit) {
-      console.warn(`⚠️ Could only fetch ${allInvestors.length} investors (requested: ${limit})`);
-      console.log(`This appears to be all available popular investors for period: ${period}`);
+      logger.warn('Could only fetch partial investors', { fetched: allInvestors.length, requested: limit });
+      logger.info('This appears to be all available popular investors', { period });
     }
-    
+
     // Return only up to the requested limit
     return allInvestors.slice(0, limit);
   } catch (error) {
-    console.error('Error fetching popular investors:', error);
+    logger.error('Error fetching popular investors', { error: error instanceof Error ? error.message : String(error) });
     throw error;
   }
 }
@@ -79,26 +80,26 @@ export async function getPopularInvestors(
 export async function getUserPortfolio(username: string): Promise<UserPortfolio> {
   try {
     const endpoint = API_ENDPOINTS.USER_PORTFOLIO_LIVE.replace('{username}', username);
-    console.log(`[Portfolio] Fetching portfolio for user: ${username}`);
-    
+    logger.info('[Portfolio] Fetching portfolio for user', { username });
+
     const response = await fetchFromEtoroApi<UserPortfolio>(endpoint);
-    
+
     // Detailed logging of response
     if (!response) {
-      console.warn(`[Portfolio] No response for user ${username}`);
+      logger.warn('[Portfolio] No response for user', { username });
       return { positions: [] };
     }
-    
+
     if (!response.positions) {
-      console.warn(`[Portfolio] No positions array for user ${username}, response keys:`, Object.keys(response));
+      logger.warn('[Portfolio] No positions array for user', { username, responseKeys: Object.keys(response) });
       return { positions: [] };
     }
-    
-    console.log(`[Portfolio] User ${username} has ${response.positions.length} positions`);
-    
+
+    logger.info('[Portfolio] User portfolio retrieved', { username, positionsCount: response.positions.length });
+
     let totalValue = 0;
     let profitLoss = 0;
-    
+
     response.positions.forEach(position => {
       if (position.netProfit !== undefined) {
         const positionValue = position.investmentPct || 0;
@@ -106,7 +107,7 @@ export async function getUserPortfolio(username: string): Promise<UserPortfolio>
         profitLoss += (position.netProfit * positionValue) / 100;
       }
     });
-    
+
     return {
       ...response,
       totalValue,
@@ -114,7 +115,7 @@ export async function getUserPortfolio(username: string): Promise<UserPortfolio>
       profitLossPercentage: totalValue > 0 ? (profitLoss / totalValue) * 100 : 0
     };
   } catch (error) {
-    console.error(`Error fetching portfolio for user ${username}:`, error);
+    logger.error('[Portfolio] Error fetching portfolio for user', { username, error: error instanceof Error ? error.message : String(error) });
     return { positions: [] };
   }
 }
@@ -123,30 +124,30 @@ export const clientUserService = {
   getPopularInvestors: async (period: PeriodType = "CurrMonth", limit: number = 50): Promise<PopularInvestor[]> => {
     try {
       const response = await fetch(`/api/users/popular?period=${period}&limit=${limit}`);
-      
+
       if (!response.ok) {
         throw new Error(`Failed to fetch popular investors: ${response.status}`);
       }
-      
+
       const data = await response.json();
       return data.investors || [];
     } catch (error) {
-      console.error('Error fetching popular investors:', error);
+      logger.error('Error fetching popular investors', { error: error instanceof Error ? error.message : String(error) });
       return [];
     }
   },
-  
+
   getUserPortfolio: async (username: string): Promise<UserPortfolio> => {
     try {
       const response = await fetch(`/api/users/${username}/portfolio`);
-      
+
       if (!response.ok) {
         throw new Error(`Failed to fetch user portfolio: ${response.status}`);
       }
-      
+
       return await response.json();
     } catch (error) {
-      console.error(`Error fetching portfolio for user ${username}:`, error);
+      logger.error('Error fetching portfolio for user', { username, error: error instanceof Error ? error.message : String(error) });
       return { positions: [] };
     }
   }
@@ -162,58 +163,58 @@ export async function getUsersDetailsByUsernames(
     }
 
     const userMap = new Map<string, UserDetail>();
-    
+
     // Batch requests to avoid URL length limits and API rate limits
     const batchSize = API.BATCH_SIZE;
     const batches = [];
-    
+
     for (let i = 0; i < usernames.length; i += batchSize) {
       batches.push(usernames.slice(i, i + batchSize));
     }
-    
-    console.log(`Fetching user details by username in ${batches.length} batches for ${usernames.length} users`);
-    
+
+    logger.info('Fetching user details by username in batches', { batchesCount: batches.length, usersCount: usernames.length });
+
     for (let i = 0; i < batches.length; i++) {
       const batch = batches[i];
       try {
         const usernamesParam = batch.join(',');
         const endpoint = `${API_ENDPOINTS.USER_INFO}?usernames=${usernamesParam}`;
-        
-        console.log(`Fetching username batch ${i + 1}/${batches.length}: ${batch.length} users`);
-        console.log(`API endpoint: ${endpoint}`);
-        console.log(`Usernames in batch:`, batch);
-        
+
+        logger.debug('Fetching username batch', { batchNumber: i + 1, totalBatches: batches.length, batchSize: batch.length });
+        logger.debug('API endpoint', { endpoint });
+        logger.debug('Usernames in batch', { usernames: batch });
+
         // Report progress during fetching
         if (onProgress) {
           const progress = Math.round((i / batches.length) * 100);
           onProgress(progress, `Fetching user avatars batch ${i + 1}/${batches.length}...`);
         }
-        
+
         const response = await fetchFromEtoroApi<UserInfoResponse>(endpoint);
-        
+
         if (response && response.users && Array.isArray(response.users)) {
           response.users.forEach(user => {
             userMap.set(user.username, user);
           });
         } else {
-          console.warn(`Invalid response for username batch ${i + 1}:`, response);
+          logger.warn('Invalid response for username batch', { batchNumber: i + 1, response });
         }
-        
+
         // Add delay between batches to avoid rate limiting
         if (i < batches.length - 1) {
           await new Promise(resolve => setTimeout(resolve, DATA_COLLECTION.INTER_BATCH_DELAY_MS));
         }
-        
+
       } catch (batchError) {
-        console.error(`Error fetching username batch ${i + 1}:`, batchError);
+        logger.error('Error fetching username batch', { batchNumber: i + 1, error: batchError instanceof Error ? batchError.message : String(batchError) });
         // Continue with next batch even if one fails
       }
     }
 
-    console.log(`Successfully fetched details for ${userMap.size}/${usernames.length} users by username`);
+    logger.info('Successfully fetched user details by username', { fetchedCount: userMap.size, totalCount: usernames.length });
     return userMap;
   } catch (error) {
-    console.error('Error fetching user details by username:', error);
+    logger.error('Error fetching user details by username', { error: error instanceof Error ? error.message : String(error) });
     return new Map();
   }
 }
@@ -225,52 +226,52 @@ export async function getUsersDetails(userIds: number[]): Promise<Map<number, Us
     }
 
     const userMap = new Map<number, UserDetail>();
-    
+
     // Batch requests to avoid URL length limits and API rate limits
     const batchSize = API.BATCH_SIZE;
     const batches = [];
-    
+
     for (let i = 0; i < userIds.length; i += batchSize) {
       batches.push(userIds.slice(i, i + batchSize));
     }
-    
-    console.log(`Fetching user details in ${batches.length} batches for ${userIds.length} users`);
-    
+
+    logger.info('Fetching user details in batches', { batchesCount: batches.length, usersCount: userIds.length });
+
     for (let i = 0; i < batches.length; i++) {
       const batch = batches[i];
       try {
         const idsParam = batch.join(',');
         const endpoint = `${API_ENDPOINTS.USER_INFO}?cidList=${idsParam}`;
-        
-        console.log(`Fetching user batch ${i + 1}/${batches.length}: ${batch.length} users`);
-        console.log(`API endpoint: ${endpoint}`);
-        console.log(`Customer IDs in batch:`, batch);
-        
+
+        logger.debug('Fetching user batch', { batchNumber: i + 1, totalBatches: batches.length, batchSize: batch.length });
+        logger.debug('API endpoint', { endpoint });
+        logger.debug('Customer IDs in batch', { customerIds: batch });
+
         const response = await fetchFromEtoroApi<UserInfoResponse>(endpoint);
-        
+
         if (response && response.users && Array.isArray(response.users)) {
           response.users.forEach(user => {
             userMap.set(user.gcid, user);
           });
         } else {
-          console.warn(`Invalid response for user batch ${i + 1}:`, response);
+          logger.warn('Invalid response for user batch', { batchNumber: i + 1, response });
         }
-        
+
         // Add delay between batches to avoid rate limiting
         if (i < batches.length - 1) {
           await new Promise(resolve => setTimeout(resolve, DATA_COLLECTION.INTER_BATCH_DELAY_MS));
         }
-        
+
       } catch (batchError) {
-        console.error(`Error fetching user batch ${i + 1}:`, batchError);
+        logger.error('Error fetching user batch', { batchNumber: i + 1, error: batchError instanceof Error ? batchError.message : String(batchError) });
         // Continue with next batch even if one fails
       }
     }
 
-    console.log(`Successfully fetched details for ${userMap.size}/${userIds.length} users`);
+    logger.info('Successfully fetched user details', { fetchedCount: userMap.size, totalCount: userIds.length });
     return userMap;
   } catch (error) {
-    console.error('Error fetching user details:', error);
+    logger.error('Error fetching user details', { error: error instanceof Error ? error.message : String(error) });
     return new Map();
   }
 }
@@ -279,20 +280,20 @@ export async function getUserTradeInfo(username: string, period: PeriodType = 'C
   try {
     const baseEndpoint = API_ENDPOINTS.USER_TRADE_INFO.replace('{username}', username);
     const endpoint = `${baseEndpoint}?period=${period}`;
-    console.log(`[TradeInfo] Fetching trade info for user: ${username}, period: ${period}`);
-    
+    logger.info('[TradeInfo] Fetching trade info for user', { username, period });
+
     const response = await fetchFromEtoroApi<UserTradeInfo>(endpoint);
-    
+
     if (!response) {
-      console.warn(`[TradeInfo] No response for user ${username}`);
+      logger.warn('[TradeInfo] No response for user', { username });
       return null;
     }
-    
-    console.log(`[TradeInfo] User ${username} has ${response.trades || 0} trades, win ratio: ${response.winRatio || 0}%`);
-    
+
+    logger.info('[TradeInfo] User trade info retrieved', { username, trades: response.trades || 0, winRatio: response.winRatio || 0 });
+
     return response;
   } catch (error) {
-    console.error(`[TradeInfo] Error fetching trade info for user ${username}:`, error);
+    logger.error('[TradeInfo] Error fetching trade info for user', { username, error: error instanceof Error ? error.message : String(error) });
     return null;
   }
 }

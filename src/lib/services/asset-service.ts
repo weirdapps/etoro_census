@@ -1,5 +1,6 @@
 import { InstrumentDisplayData, InstrumentPriceData } from './instrument-service';
 import { UserPosition } from '../models/user-portfolio';
+import { logger } from '../logger';
 
 export interface AssetHolder {
   username: string;
@@ -84,7 +85,7 @@ export class AssetService {
     const instrumentPrice = priceMap.get(instrumentId);
 
     if (!instrumentDetails || !instrumentPrice) {
-      console.warn(`Asset ${instrumentId} not found in data`);
+      logger.warn('Asset not found in data', { instrumentId });
       return null;
     }
 

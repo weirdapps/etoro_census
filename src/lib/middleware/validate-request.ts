@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '../logger';
 
 /**
  * Creates a handler with request validation using Zod schemas.
@@ -92,7 +93,7 @@ export function validateEnvVars(requiredVars: string[]): NextResponse | null {
   const missing = requiredVars.filter((varName) => !process.env[varName]);
 
   if (missing.length > 0) {
-    console.error('Missing required environment variables:', missing);
+    logger.error('Missing required environment variables', { missing });
     return NextResponse.json(
       {
         success: false,

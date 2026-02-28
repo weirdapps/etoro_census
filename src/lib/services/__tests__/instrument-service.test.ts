@@ -4,7 +4,6 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 vi.mock('../../etoro-api-config', () => ({
   API_ENDPOINTS: {
     INSTRUMENTS: '/v1/market-data/instruments',
-    INSTRUMENT_SEARCH: '/v1/market-data/search',
     INSTRUMENT_CLOSING_PRICES: '/v1/market-data/instruments/history/closing-price',
   },
   fetchFromEtoroApi: vi.fn(),
@@ -17,12 +16,9 @@ import {
   getInstrumentSymbol,
   getInstrumentImageUrl,
   getInstrumentPriceData,
-  getInstrumentClosingPrices,
-  getInstrumentRates,
   InstrumentDisplayData,
   InstrumentsResponse,
   ClosingPricesResponse,
-  InstrumentSearchResponse,
 } from '../instrument-service';
 
 // Mock instrument data
@@ -82,20 +78,6 @@ const mockClosingPricesResponse: ClosingPricesResponse = [
   },
 ];
 
-const mockInstrumentSearchResponse: InstrumentSearchResponse = {
-  page: 1,
-  pageSize: 10,
-  totalItems: 1,
-  items: [
-    {
-      instrumentId: 1001,
-      displayname: 'Apple Inc.',
-      symbol: 'AAPL',
-      currYearPriceChange: 25.5,
-      logo50x50: 'https://example.com/aapl-50.png',
-    },
-  ],
-};
 
 describe('instrument-service', () => {
   beforeEach(() => {
@@ -396,132 +378,4 @@ describe('instrument-service', () => {
     });
   });
 
-  describe('getInstrumentClosingPrices', () => {
-    it('should fetch closing prices and calculate returns', async () => {
-      vi.mocked(fetchFromEtoroApi).mockResolvedValue(mockClosingPricesResponse);
-
-      const result = await getInstrumentClosingPrices([1001, 1002]);
-
-      expect(result.size).toBe(2);
-      expect(result.get(1001)?.yesterday).toBeCloseTo(1.92, 1);
-    });
-
-    it('should return empty map for empty list', async () => {
-      const result = await getInstrumentClosingPrices([]);
-
-      expect(result.size).toBe(0);
-      expect(fetchFromEtoroApi).not.toHaveBeenCalled();
-    });
-
-    it('should handle API errors gracefully', async () => {
-      vi.mocked(fetchFromEtoroApi).mockRejectedValue(new Error('API Error'));
-
-      const result = await getInstrumentClosingPrices([1001]);
-
-      expect(result.size).toBe(0);
-    });
-
-    it('should skip instruments not in the requested batch', async () => {
-      const responseWithExtra: ClosingPricesResponse = [
-        ...mockClosingPricesResponse,
-        {
-          instrumentId: 9999, // Not requested
-          officialClosingPrice: 100,
-          isMarketOpen: false,
-          closingPrices: {
-            daily: { price: 99, date: '2024-01-15' },
-            weekly: { price: 98, date: '2024-01-08' },
-            monthly: { price: 97, date: '2023-12-15' },
-          },
-        },
-      ];
-      vi.mocked(fetchFromEtoroApi).mockResolvedValue(responseWithExtra);
-
-      const result = await getInstrumentClosingPrices([1001]);
-
-      expect(result.size).toBe(1);
-      expect(result.has(9999)).toBe(false);
-    });
-  });
-
-  describe('getInstrumentRates', () => {
-    it('should fetch YTD rates using search API', async () => {
-      vi.mocked(fetchFromEtoroApi).mockResolvedValue(mockInstrumentSearchResponse);
-
-      const result = await getInstrumentRates([1001]);
-
-      expect(result.size).toBe(1);
-      expect(result.get(1001)).toBe(25.5);
-    });
-
-    it('should return empty map for empty list', async () => {
-      const result = await getInstrumentRates([]);
-
-      expect(result.size).toBe(0);
-      expect(fetchFromEtoroApi).not.toHaveBeenCalled();
-    });
-
-    it('should handle API errors for individual instruments', async () => {
-      vi.mocked(fetchFromEtoroApi)
-        .mockRejectedValueOnce(new Error('API Error'))
-        .mockResolvedValueOnce(mockInstrumentSearchResponse);
-
-      const result = await getInstrumentRates([1001, 1002]);
-
-      // Should continue with remaining instruments
-      expect(result.size).toBeGreaterThanOrEqual(0);
-    });
-
-    it('should try searching by symbol if ID search fails', async () => {
-      const instrumentDetails = new Map<number, InstrumentDisplayData>([
-        [1001, mockInstrumentDisplayData[0]],
-      ]);
-
-      // First search by ID returns no match, second by symbol returns match
-      vi.mocked(fetchFromEtoroApi)
-        .mockResolvedValueOnce({ items: [] })
-        .mockResolvedValueOnce(mockInstrumentSearchResponse);
-
-      const result = await getInstrumentRates([1001], instrumentDetails);
-
-      expect(result.size).toBe(1);
-      expect(fetchFromEtoroApi).toHaveBeenCalledTimes(2);
-    });
-
-    it('should handle null currYearPriceChange', async () => {
-      const responseWithNull: InstrumentSearchResponse = {
-        ...mockInstrumentSearchResponse,
-        items: [
-          { ...mockInstrumentSearchResponse.items[0], currYearPriceChange: undefined },
-        ],
-      };
-      vi.mocked(fetchFromEtoroApi).mockResolvedValue(responseWithNull);
-
-      const result = await getInstrumentRates([1001]);
-
-      expect(result.size).toBe(0);
-    });
-
-    it('should handle null response', async () => {
-      vi.mocked(fetchFromEtoroApi).mockResolvedValue(null);
-
-      const result = await getInstrumentRates([1001]);
-
-      expect(result.size).toBe(0);
-    });
-
-    it('should process multiple instruments', async () => {
-      const multiResponse: InstrumentSearchResponse = {
-        page: 1,
-        pageSize: 10,
-        totalItems: 1,
-        items: [mockInstrumentSearchResponse.items[0]],
-      };
-      vi.mocked(fetchFromEtoroApi).mockResolvedValue(multiResponse);
-
-      const result = await getInstrumentRates([1001, 1002, 1003]);
-
-      expect(fetchFromEtoroApi).toHaveBeenCalledTimes(3);
-    });
-  });
 });

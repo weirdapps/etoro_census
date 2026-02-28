@@ -1,4 +1,6 @@
 import { logger } from './logger';
+import { API } from './constants';
+import { randomUUID } from 'crypto';
 
 export const ETORO_API_BASE_URL = process.env.ETORO_API_BASE_URL || 'https://www.etoro.com/api/public';
 
@@ -20,13 +22,9 @@ export const API_ENDPOINTS = {
   USER_DISCOVERY_INFO: `${ETORO_API_BASE_URL}/sapi/portfolio/discover/user-discovery-info`,
 };
 
-// Generate a UUID v4
+// Generate a UUID v4 using cryptographically secure random
 export function generateUUID(): string {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-    const r = Math.random() * 16 | 0;
-    const v = c === 'x' ? r : (r & 0x3 | 0x8);
-    return v.toString(16);
-  });
+  return randomUUID();
 }
 
 export const getDefaultHeaders = () => {
@@ -56,9 +54,42 @@ export const getApiRequestOptions = (method = 'GET') => {
   };
 };
 
-// Global rate limiting state
-let lastRequestTime = 0;
-const MIN_REQUEST_INTERVAL = 1000; // 1 second between requests
+/**
+ * Rate limiter that enforces minimum intervals between API requests.
+ * Encapsulates state to avoid global mutability and improve testability.
+ */
+class RateLimiter {
+  private lastRequestTime = 0;
+  private readonly minInterval: number;
+
+  constructor(minIntervalMs = 1000) {
+    this.minInterval = minIntervalMs;
+  }
+
+  async waitIfNeeded(): Promise<void> {
+    const now = Date.now();
+    const timeSinceLastRequest = now - this.lastRequestTime;
+
+    if (timeSinceLastRequest < this.minInterval) {
+      const waitTime = this.minInterval - timeSinceLastRequest;
+      logger.debug('Rate limiting', { waitTimeMs: waitTime });
+      await new Promise((resolve) => setTimeout(resolve, waitTime));
+    }
+
+    this.lastRequestTime = Date.now();
+  }
+
+  penalize(extraDelayMs: number): void {
+    this.lastRequestTime = Date.now() + extraDelayMs;
+  }
+
+  reset(): void {
+    this.lastRequestTime = 0;
+  }
+}
+
+// Global rate limiter instance
+const rateLimiter = new RateLimiter();
 
 /**
  * Circuit breaker state for the eToro API.
@@ -166,17 +197,8 @@ export async function fetchFromEtoroApi<T>(
 ): Promise<T> {
   // Use circuit breaker to prevent cascading failures
   return circuitBreaker.call(async () => {
-    // Implement aggressive rate limiting
-    const now = Date.now();
-    const timeSinceLastRequest = now - lastRequestTime;
-
-    if (timeSinceLastRequest < MIN_REQUEST_INTERVAL) {
-      const waitTime = MIN_REQUEST_INTERVAL - timeSinceLastRequest;
-      logger.debug('Rate limiting', { waitTimeMs: waitTime });
-      await new Promise((resolve) => setTimeout(resolve, waitTime));
-    }
-
-    lastRequestTime = Date.now();
+    // Enforce rate limiting
+    await rateLimiter.waitIfNeeded();
     
     const requestOptions = {
       ...getApiRequestOptions(),
@@ -192,7 +214,7 @@ export async function fetchFromEtoroApi<T>(
     
     
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 15000); // Increased timeout
+    const timeoutId = setTimeout(() => controller.abort(), API.TIMEOUT_MS);
     requestOptions.signal = controller.signal;
     
     const startTime = Date.now();
@@ -210,7 +232,7 @@ export async function fetchFromEtoroApi<T>(
       // If we get 429, wait longer before next request
       if (response.status === 429) {
         logger.warn('Rate limited by API, forcing 5s delay');
-        lastRequestTime = Date.now() + 5000; // Force 5 second wait
+        rateLimiter.penalize(5000);
       }
 
       throw new Error(`eToro API request failed: ${response.status}`);
@@ -218,10 +240,6 @@ export async function fetchFromEtoroApi<T>(
 
     const data = await response.json() as T;
 
-    // Log response data size for debugging
-    const dataStr = JSON.stringify(data);
-    logger.debug('API response received', { responseBytes: dataStr.length });
-    
     return data;
   });
 }

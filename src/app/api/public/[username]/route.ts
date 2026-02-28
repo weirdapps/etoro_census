@@ -3,6 +3,7 @@ import { publicPortfolioService } from '@/lib/services/public-portfolio-service'
 import { censusDataService } from '@/lib/services/census-data-service';
 import { portfolioComparison } from '@/lib/services/portfolio-comparison';
 import { generateUUID } from '@/lib/etoro-api-config';
+import { logger } from '@/lib/logger';
 
 // Disable all caching for this endpoint
 export const dynamic = 'force-dynamic';
@@ -114,7 +115,7 @@ export async function GET(
         }
       }
     } catch (error) {
-      console.error('Failed to fetch user details:', error);
+      logger.warn('Failed to fetch user details', { error: error instanceof Error ? error.message : String(error) });
     }
 
     // Build portfolio summary with sorted positions and logos
@@ -167,7 +168,7 @@ export async function GET(
 
     return response;
   } catch (error) {
-    console.error('Failed to get public portfolio insights:', error);
+    logger.error('Failed to get public portfolio insights', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
         success: false,

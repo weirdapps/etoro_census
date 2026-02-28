@@ -71,8 +71,6 @@ export default function Home() {
     setLastRequest({ limit, period });
 
     try {
-      console.log('Starting analysis with:', { limit, period });
-      
       // Use the streaming endpoint for real-time progress
       const response = await fetch('/api/census-stream', {
         method: 'POST',

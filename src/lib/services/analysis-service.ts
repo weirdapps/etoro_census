@@ -5,6 +5,7 @@ import { getUserAvatarUrl } from './user-service';
 import { UserDetail } from '../models/user';
 import { FearGreedStrategy, linearStrategy } from './analysis/fear-greed-strategy';
 import { Cache } from '../cache';
+import { logger } from '../logger';
 
 export interface ProgressCallback {
   (progress: number, message: string): void;
@@ -115,7 +116,7 @@ export class AnalysisService {
     const cacheKey = this.generateCacheKey(normalizedData, investorCount);
     const cached = this.analysisCache.get(cacheKey);
     if (cached) {
-      console.log(`Analysis cache hit for ${investorCount} investors`);
+      logger.debug('Analysis cache hit', { investorCount });
       if (onProgress) {
         onProgress(100, `Analysis complete (cached) for ${investorCount} investors!`);
       }
@@ -123,7 +124,7 @@ export class AnalysisService {
     }
 
     const updateProgress = (progress: number, message: string) => {
-      console.log(`Analysis Progress (${investorCount} investors): ${progress}% - ${message}`);
+      logger.debug('Analysis progress', { investorCount, progress, message });
       if (onProgress) {
         onProgress(progress, message);
       }
@@ -214,7 +215,7 @@ export class AnalysisService {
     const normalizedData = AnalysisService.normalizeCollectedData(collectedData);
 
     const updateProgress = (progress: number, message: string) => {
-      console.log(`Multi-band Analysis: ${progress}% - ${message}`);
+      logger.debug('Multi-band analysis progress', { progress, message });
       if (onProgress) {
         onProgress(progress, message);
       }
@@ -359,7 +360,10 @@ export class AnalysisService {
     instrumentPriceData: Map<number, InstrumentPriceData>,
     totalInvestors: number
   ): InstrumentHolding[] {
-    console.log(`Calculating top holdings for ${totalInvestors} investors, found ${Object.keys(instrumentData).length} unique instruments`);
+    logger.debug('Calculating top holdings', {
+      totalInvestors,
+      uniqueInstruments: Object.keys(instrumentData).length
+    });
     
     return Object.entries(instrumentData)
       .map(([instrumentId, data]) => {
@@ -381,7 +385,12 @@ export class AnalysisService {
 
         // Validation logging for top instruments
         if (data.holdersCount > totalInvestors) {
-          console.warn(`Instrument ${instrumentName} (${id}) has ${data.holdersCount} holders but only ${totalInvestors} total investors!`);
+          logger.warn('Instrument holders exceed total investors', {
+            instrumentName,
+            instrumentId: id,
+            holdersCount: data.holdersCount,
+            totalInvestors
+          });
         }
 
         return {

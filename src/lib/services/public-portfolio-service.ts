@@ -5,6 +5,7 @@
  */
 
 import { generateUUID } from '@/lib/etoro-api-config';
+import { logger } from '../logger';
 
 interface PublicPosition {
   instrumentId: number;
@@ -81,7 +82,7 @@ class PublicPortfolioService {
 
       if (!portfolioResponse.ok) {
         const errorText = await portfolioResponse.text();
-        console.error(`Failed to fetch public portfolio for ${username}:`, errorText);
+        logger.error('Failed to fetch public portfolio', { username, errorText });
         return null;
       }
 
@@ -142,7 +143,7 @@ class PublicPortfolioService {
         cashPercent
       };
     } catch (error) {
-      console.error(`Failed to fetch public portfolio for ${username}:`, error);
+      logger.error('Failed to fetch public portfolio', { username, error: error instanceof Error ? error.message : String(error) });
       return null;
     }
   }
@@ -163,7 +164,7 @@ class PublicPortfolioService {
 
       return await response.json();
     } catch (error) {
-      console.error(`Failed to fetch trade info for ${username}:`, error);
+      logger.error('Failed to fetch trade info', { username, error: error instanceof Error ? error.message : String(error) });
       return null;
     }
   }
@@ -235,7 +236,7 @@ class PublicPortfolioService {
             }
           }
         } catch (error) {
-          console.error('Failed to fetch instrument symbols:', error);
+          logger.error('Failed to fetch instrument symbols', { error: error instanceof Error ? error.message : String(error) });
           // Continue with IDs if fetching fails
         }
       }
@@ -269,7 +270,7 @@ class PublicPortfolioService {
         username
       };
     } catch (error) {
-      console.error(`Failed to get normalized portfolio for ${username}:`, error);
+      logger.error('Failed to get normalized portfolio', { username, error: error instanceof Error ? error.message : String(error) });
       throw error;
     }
   }
@@ -285,12 +286,12 @@ class PublicPortfolioService {
       const response = await fetch(url, { headers });
 
       if (!response.ok) {
-        console.error(`Failed to validate username ${username}: ${response.status}`);
+        logger.error('Failed to validate username', { username, status: response.status });
       }
 
       return response.ok;
     } catch (error) {
-      console.error(`Failed to validate username ${username}:`, error);
+      logger.error('Failed to validate username', { username, error: error instanceof Error ? error.message : String(error) });
       return false;
     }
   }

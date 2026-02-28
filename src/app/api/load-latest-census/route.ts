@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import fs from 'fs/promises';
 import path from 'path';
+import { logger } from '@/lib/logger';
 
 export async function GET() {
   try {
@@ -55,7 +56,7 @@ export async function GET() {
     });
 
   } catch (error) {
-    console.error('Error loading latest census data:', error);
+    logger.error('Error loading latest census data', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
         success: false,

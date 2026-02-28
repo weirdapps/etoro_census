@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { simplifiedIntelligence } from '@/lib/services/simplified-intelligence-service';
+import { logger } from '@/lib/logger';
 
 // Disable all caching for this endpoint
 export const dynamic = 'force-dynamic';
@@ -67,7 +68,7 @@ export async function GET(request: Request) {
 
     return response;
   } catch (error) {
-    console.error('Failed to get simplified intelligence:', error);
+    logger.error('Failed to get simplified intelligence', { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       {
         success: false,
