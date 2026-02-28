@@ -22,6 +22,7 @@ on:
 permissions:
   contents: write
   actions: write
+  issues: write
 
 # Prevent multiple runs from overlapping - cancel in-progress run when new one starts
 concurrency:
