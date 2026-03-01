@@ -38,7 +38,7 @@ jobs:
         run: npm test -- --coverage --reporter=verbose
 
       - name: Upload coverage reports
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: coverage-report
           path: coverage/

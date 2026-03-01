@@ -305,7 +305,7 @@ jobs:
           }
 
       - name: Upload reports and data as artifacts for GitHub Pages
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: census-reports
           path: |
