@@ -1,9 +1,13 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getPopularInvestors, getUserPortfolio } from '@/lib/services/user-service';
 import { getInstrumentDetails } from '@/lib/services/instrument-service';
 import { logger } from '@/lib/logger';
+import { validateApiKey } from '@/lib/auth';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const authError = validateApiKey(request);
+  if (authError) return authError;
+
   try {
     logger.info('Extracting real instrument IDs from portfolios');
     
