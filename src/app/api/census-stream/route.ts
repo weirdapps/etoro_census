@@ -4,6 +4,7 @@ import { PeriodType } from '@/lib/models/user';
 import { dataCollectionService } from '@/lib/services/data-collection-service';
 import { analysisService, analysisServiceV2 } from '@/lib/services/analysis-service';
 import { logger } from '@/lib/logger';
+import { validateApiKey } from '@/lib/auth';
 
 // Input validation schema
 const CensusStreamInputSchema = z.object({
@@ -13,6 +14,9 @@ const CensusStreamInputSchema = z.object({
 });
 
 export async function POST(request: NextRequest) {
+  const authError = validateApiKey(request);
+  if (authError) return authError;
+
   const encoder = new TextEncoder();
 
   // Create a streaming response
