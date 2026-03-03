@@ -5,6 +5,7 @@ import { dataCollectionService } from '@/lib/services/data-collection-service';
 import { analysisService } from '@/lib/services/analysis-service';
 import { generateReportHTML } from '@/lib/report-generator';
 import { logger } from '@/lib/logger';
+import { validateApiKey } from '@/lib/auth';
 import fs from 'fs/promises';
 import path from 'path';
 import zlib from 'zlib';
@@ -20,6 +21,9 @@ const OptimizedReportInputSchema = z.object({
 });
 
 export async function POST(request: NextRequest) {
+  const authError = validateApiKey(request);
+  if (authError) return authError;
+
   const encoder = new TextEncoder();
 
   // Create a streaming response
