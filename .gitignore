@@ -106,6 +106,9 @@ CLAUDE.md
 analyze.js
 generate-daily-post-auto.js
 
+# Analysis output (generated data, can be regenerated)
+analysis/output/
+
 # Historical census data - stored in data-archive branch (permanent Git storage)
 # Main branch only tracks census-data-latest.json to keep deployments fast
 #

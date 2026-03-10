@@ -41,6 +41,18 @@ Comprehensive monthly report with deep insights:
 - 👥 Monthly copier momentum
 - 📝 Monthly market assessment (Bullish/Bearish/Sideways)
 
+### PI Feed Collection
+```bash
+npx tsx analysis/collect-feeds.ts
+```
+Collects recent posts from top Popular Investors across 5 categories (elite, performers, etc.):
+- Fetches user details and gcids from census data
+- Collects posts via the feed-service infrastructure
+- Extracts ticker mentions and engagement metrics
+- Saves structured JSON output to `analysis/output/`
+
+Requires `ETORO_USER_KEY` and `ETORO_API_KEY` environment variables.
+
 ### Hot Hands Analysis
 ```bash
 node hot-hands.js
@@ -92,6 +104,7 @@ analysis/
 ├── weekly-post.ts               # Weekly summary
 ├── monthly-post.ts              # Monthly report
 ├── generate-all-posts.ts        # Batch generate all posts
+├── collect-feeds.ts             # PI feed collection script
 ├── hot-hands.js                 # Hot hands analysis
 ├── hot-hands-momentum.js        # Momentum-based analysis
 ├── follower-distribution/       # Follower distribution analysis

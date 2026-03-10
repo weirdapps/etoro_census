@@ -132,13 +132,16 @@ analysis/                         # Analysis tools (TypeScript)
 ├── weekly-post.ts                # Weekly summaries
 ├── monthly-post.ts               # Monthly reports
 ├── generate-all-posts.ts         # Run all post generators
+├── collect-feeds.ts              # PI feed collection
 ├── lib/
 │   ├── types.ts                  # Type definitions
 │   └── utils.ts                  # Shared utilities
 ├── hot-hands.js                  # Winning streak analysis
+├── export-for-integration.ts     # Data export for integrations
 ├── follower-distribution/        # Follower analysis tools
 ├── performance-comparison/       # Performance tools
-└── risk-return/                  # Risk/return analysis
+├── risk-return/                  # Risk/return analysis
+└── output/                       # Generated analysis results (gitignored)
 
 scripts/                          # Utility scripts
 ├── compress-historical-data.js   # Compress old JSON data
@@ -214,6 +217,12 @@ Features:
 - Copier activity tracking (daily/weekly/monthly gainers/losers)
 - Top 100 vs. broad market performance comparisons
 - Adaptive insights based on data
+
+### PI Feed Collection
+```bash
+# Collect recent posts from top Popular Investors
+npx tsx analysis/collect-feeds.ts
+```
 
 ### Performance Analysis
 ```bash
