@@ -54,13 +54,13 @@ The analysis processes data from up to 1,500 popular investors and generates com
 ## Tech Stack
 
 ### Frontend
-- **Framework**: Next.js 15.5.9 with App Router
+- **Framework**: Next.js 16.2.1 with App Router
 - **Language**: TypeScript with strict typing
 - **Styling**: Tailwind CSS v4 + Radix UI components
 - **Theming**: Dark mode support with next-themes
 - **Validation**: Zod schemas
 - **Analytics**: Vercel Analytics + Speed Insights
-- **Testing**: Vitest with 291+ tests (comprehensive service, schema, and utility coverage)
+- **Testing**: Vitest with 326+ tests (comprehensive service, schema, and utility coverage)
 
 ### Backend
 - **API**: RESTful endpoints with streaming support
@@ -339,7 +339,7 @@ npm test -- --watch
 npm test -- --coverage
 ```
 
-Current test coverage: 291+ tests across:
+Current test coverage: 326+ tests across:
 - Services (DataCollectionService, AnalysisService, InstrumentService, UserService, AssetService)
 - Schemas (Investor, Instrument, Portfolio - 100% coverage)
 - Middleware (Request validation, API response utilities)
