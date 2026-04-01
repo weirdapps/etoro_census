@@ -1,4 +1,4 @@
-import { Github } from 'lucide-react';
+import { GitHub } from 'lucide-react';
 
 export function Footer() {
   return (
@@ -10,7 +10,7 @@ export function Footer() {
           rel="noopener noreferrer"
           className="inline-flex items-center gap-2 hover:text-primary transition-colors"
         >
-          <Github className="h-4 w-4" />
+          <GitHub className="h-4 w-4" />
           weirdapps
         </a>
         <span>·</span>
