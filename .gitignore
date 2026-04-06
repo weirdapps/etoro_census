@@ -81,6 +81,9 @@ coverage/
 tmp/
 temp/
 
+# Test artifacts
+.vercel-test-deploy.txt
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
