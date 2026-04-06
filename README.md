@@ -388,5 +388,4 @@ This project is for educational and analysis purposes. Please ensure compliance 
 
 For questions or issues:
 - Check existing documentation (ARCHITECTURE.md, CONTRIBUTING.md)
-- Review IMPROVEMENT_PLAN.md for development roadmap
 - Create an issue in the repository
