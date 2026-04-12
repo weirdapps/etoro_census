@@ -130,3 +130,9 @@ archive/
 
 # Keep the latest file tracked for Vercel (negation pattern)
 !public/data/census-data-latest.json
+
+# Private keys and certificates
+*.pem
+*.key
+*.p12
+*.pfx
