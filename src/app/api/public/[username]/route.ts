@@ -39,9 +39,11 @@ export async function GET(
       );
     }
 
-    // Extract base URL for fetch operations on Vercel
-    const url = new URL(request.url);
-    const baseUrl = `${url.protocol}//${url.host}`;
+    // Trusted base URL for server-side fetch on Vercel.
+    // Derived from environment, NOT from request.url (Host header is user-controlled).
+    const baseUrl = process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : (process.env.NEXT_PUBLIC_SITE_URL ?? '');
 
     // Validate username exists
     const isValid = await publicPortfolioService.validateUsername(username);
