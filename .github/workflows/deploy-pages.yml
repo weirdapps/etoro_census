@@ -126,7 +126,7 @@ jobs:
           echo "💾 Total size kept minimal (last 7 days only)"
       
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4
+        uses: actions/upload-pages-artifact@v5
         with:
           # Upload only necessary files for GitHub Pages
           path: 'deploy-temp'
