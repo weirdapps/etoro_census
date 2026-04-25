@@ -8,20 +8,19 @@ import {
   loadDataFile,
   formatPercentage,
   formatNumber,
-  findDailyMovers,
   findTopCopierChanges,
   createInstrumentMap,
-  getAssetInfo
+  getAssetInfo,
+  getPortfolioCoverage,
+  adjustedPct,
+  findPpMovers,
+  GROUP_SIZES
 } from './lib/utils';
-import type { Analysis, Holding, CopierChange, HoldingMover, AnalysisAverages } from './lib/types';
-
-interface ExtendedHolding extends Holding {
-  holdersPercentage?: number;
-}
+import type { Analysis, Holding, CopierChange, AnalysisAverages } from './lib/types';
 
 interface ExtendedAnalysis extends Omit<Analysis, 'averages' | 'topHoldings'> {
   averages: Required<Pick<AnalysisAverages, 'cashPercentage' | 'riskScore' | 'gain' | 'trades'>>;
-  topHoldings: ExtendedHolding[];
+  topHoldings: Holding[];
 }
 
 function generateWeeklyPost(): void {
@@ -35,6 +34,13 @@ function generateWeeklyPost(): void {
   const current100 = currentData.analyses[0] as ExtendedAnalysis;
   const weekAgo1500 = weekAgoData.analyses[3] as ExtendedAnalysis;
   const weekAgo100 = weekAgoData.analyses[0] as ExtendedAnalysis;
+
+  const cov = {
+    cur100: getPortfolioCoverage(currentData, 0),
+    cur1500: getPortfolioCoverage(currentData, 3),
+    prev100: getPortfolioCoverage(weekAgoData, 0),
+    prev1500: getPortfolioCoverage(weekAgoData, 3)
+  };
 
   const currentDateMatch = files.latest.match(/(\d{4}-\d{2}-\d{2})/);
   const weekAgoDateMatch = files.weekAgo.match(/(\d{4}-\d{2}-\d{2})/);
@@ -93,14 +99,19 @@ function generateWeeklyPost(): void {
   const holdings100 = current100.topHoldings.slice(0, 10);
   const weekAgoHoldings100 = weekAgo100.topHoldings.slice(0, 10);
 
-  console.log('𝗧𝗼𝗽 𝟭𝟬𝟬:');
-  holdings100.forEach((holding, i) => {
+  function formatHolding(holding: Holding, prevHoldings: Holding[], groupSize: number, curCov: number, prevCov: number): string {
     const asset = getAssetInfo(holding.instrumentId, instrumentMap);
-    const weekAgoHolding = weekAgoHoldings100.find(h => h.instrumentId === holding.instrumentId);
-    const holderChange = weekAgoHolding ? holding.holdersCount - weekAgoHolding.holdersCount : 0;
-    const changeIcon = holderChange > 0 ? '+' : holderChange < 0 ? '-' : '=';
+    const prev = prevHoldings.find(h => h.instrumentId === holding.instrumentId);
+    const curPct = adjustedPct(holding.holdersCount, groupSize, curCov);
+    const prevPct = prev ? adjustedPct(prev.holdersCount, groupSize, prevCov) : 0;
+    const ppChange = prev ? curPct - prevPct : 0;
+    const sign = ppChange > 0 ? '+' : ppChange < 0 ? '-' : '=';
+    return `$${asset.symbol} (${curPct.toFixed(0)}% ${sign}${Math.abs(ppChange).toFixed(1)}pp)`;
+  }
 
-    console.log(`${i+1}. $${asset.symbol} (${holding.holdersCount}% ${changeIcon}${Math.abs(holderChange)})`);
+  console.log('𝗧𝗼𝗽 𝟭𝟬𝟬:');
+  holdings100.forEach((h, i) => {
+    console.log(`${i+1}. ${formatHolding(h, weekAgoHoldings100, GROUP_SIZES[0], cov.cur100, cov.prev100)}`);
   });
 
   const holdings1500 = current1500.topHoldings.slice(0, 10);
@@ -108,64 +119,49 @@ function generateWeeklyPost(): void {
 
   console.log('');
   console.log('𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽:');
-  holdings1500.forEach((holding, i) => {
-    const asset = getAssetInfo(holding.instrumentId, instrumentMap);
-    const weekAgoHolding = weekAgoHoldings1500.find(h => h.instrumentId === holding.instrumentId);
-    const holderChange = weekAgoHolding ? holding.holdersCount - weekAgoHolding.holdersCount : 0;
-    const changeIcon = holderChange > 0 ? '+' : holderChange < 0 ? '-' : '=';
-    const extHolding = holding as ExtendedHolding;
-    const percentage = extHolding.holdersPercentage || (holding.holdersCount / 15 || 0);
-
-    console.log(`${i+1}. $${asset.symbol} (${percentage.toFixed(0)}% ${changeIcon}${Math.abs(holderChange)})`);
+  holdings1500.forEach((h, i) => {
+    console.log(`${i+1}. ${formatHolding(h, weekAgoHoldings1500, GROUP_SIZES[3], cov.cur1500, cov.prev1500)}`);
   });
 
   console.log('');
   console.log('🔄 𝗕𝗶𝗴𝗴𝗲𝘀𝘁 𝗪𝗲𝗲𝗸𝗹𝘆 𝗔𝘀𝘀𝗲𝘁 𝗠𝗼𝘃𝗲𝘀:');
   console.log('');
 
-  const weeklyMovers100 = findDailyMovers(current100.topHoldings, weekAgo100.topHoldings, 2);
-  const weeklyMovers1500 = findDailyMovers(current1500.topHoldings, weekAgo1500.topHoldings, 5);
+  const weeklyMovers100 = findPpMovers(current100.topHoldings, weekAgo100.topHoldings, GROUP_SIZES[0], cov.cur100, cov.prev100, 1.0);
+  const weeklyMovers1500 = findPpMovers(current1500.topHoldings, weekAgo1500.topHoldings, GROUP_SIZES[3], cov.cur1500, cov.prev1500, 0.5);
 
   if (weeklyMovers100.length > 0) {
-    const adds100 = weeklyMovers100.filter(m => m.change > 0).slice(0, 3);
-    const drops100 = weeklyMovers100.filter(m => m.change < 0).slice(0, 3);
+    const adds100 = weeklyMovers100.filter(m => m.ppChange > 0).slice(0, 3);
+    const drops100 = weeklyMovers100.filter(m => m.ppChange < 0).slice(0, 3);
 
     if (adds100.length > 0) {
       console.log('𝗧𝗼𝗽 𝟭𝟬𝟬 - 𝗠𝗼𝘀𝘁 𝗔𝗱𝗱𝗲𝗱:');
-      adds100.forEach(m => {
-        console.log(`• $${m.symbol}: +${m.change} investors (${formatPercentage(m.percentChange)})`);
-      });
+      adds100.forEach(m => console.log(`• $${m.symbol}: +${m.ppChange.toFixed(1)}pp`));
     }
 
     if (drops100.length > 0) {
       console.log('');
       console.log('𝗧𝗼𝗽 𝟭𝟬𝟬 - 𝗠𝗼𝘀𝘁 𝗥𝗲𝗱𝘂𝗰𝗲𝗱:');
-      drops100.forEach(m => {
-        console.log(`• $${m.symbol}: ${m.change} investors (${m.percentChange.toFixed(1)}%)`);
-      });
+      drops100.forEach(m => console.log(`• $${m.symbol}: ${m.ppChange.toFixed(1)}pp`));
     }
   } else {
     console.log('𝗧𝗼𝗽 𝟭𝟬𝟬: Minimal portfolio changes this week');
   }
 
   if (weeklyMovers1500.length > 0) {
-    const adds1500 = weeklyMovers1500.filter(m => m.change > 0).slice(0, 3);
-    const drops1500 = weeklyMovers1500.filter(m => m.change < 0).slice(0, 3);
+    const adds1500 = weeklyMovers1500.filter(m => m.ppChange > 0).slice(0, 3);
+    const drops1500 = weeklyMovers1500.filter(m => m.ppChange < 0).slice(0, 3);
 
     if (adds1500.length > 0) {
       console.log('');
       console.log('𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽 - 𝗠𝗼𝘀𝘁 𝗔𝗱𝗱𝗲𝗱:');
-      adds1500.forEach(m => {
-        console.log(`• $${m.symbol}: +${m.change} investors (${formatPercentage(m.percentChange)})`);
-      });
+      adds1500.forEach(m => console.log(`• $${m.symbol}: +${m.ppChange.toFixed(1)}pp`));
     }
 
     if (drops1500.length > 0) {
       console.log('');
       console.log('𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽 - 𝗠𝗼𝘀𝘁 𝗥𝗲𝗱𝘂𝗰𝗲𝗱:');
-      drops1500.forEach(m => {
-        console.log(`• $${m.symbol}: ${m.change} investors (${m.percentChange.toFixed(1)}%)`);
-      });
+      drops1500.forEach(m => console.log(`• $${m.symbol}: ${m.ppChange.toFixed(1)}pp`));
     }
   } else {
     console.log('𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽: Minimal portfolio changes this week');

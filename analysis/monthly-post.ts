@@ -8,20 +8,19 @@ import {
   loadDataFile,
   formatPercentage,
   formatNumber,
-  findDailyMovers,
   findTopCopierChanges,
   createInstrumentMap,
-  getAssetInfo
+  getAssetInfo,
+  getPortfolioCoverage,
+  adjustedPct,
+  findPpMovers,
+  GROUP_SIZES
 } from './lib/utils';
 import type { Analysis, Holding, Investor, AnalysisAverages } from './lib/types';
 
-interface ExtendedHolding extends Holding {
-  holdersPercentage?: number;
-}
-
 interface ExtendedAnalysis extends Omit<Analysis, 'averages' | 'topHoldings'> {
   averages: Required<Pick<AnalysisAverages, 'cashPercentage' | 'riskScore' | 'gain' | 'trades' | 'winRatio'>>;
-  topHoldings: ExtendedHolding[];
+  topHoldings: Holding[];
 }
 
 function generateMonthlyPost(): void {
@@ -35,6 +34,13 @@ function generateMonthlyPost(): void {
   const current100 = currentData.analyses[0] as ExtendedAnalysis;
   const monthAgo1500 = monthAgoData.analyses[3] as ExtendedAnalysis;
   const monthAgo100 = monthAgoData.analyses[0] as ExtendedAnalysis;
+
+  const cov = {
+    cur100: getPortfolioCoverage(currentData, 0),
+    cur1500: getPortfolioCoverage(currentData, 3),
+    prev100: getPortfolioCoverage(monthAgoData, 0),
+    prev1500: getPortfolioCoverage(monthAgoData, 3)
+  };
 
   const currentDateMatch = files.latest.match(/(\d{4}-\d{2}-\d{2})/);
   const monthAgoDateMatch = files.monthAgo.match(/(\d{4}-\d{2}-\d{2})/);
@@ -94,17 +100,22 @@ function generateMonthlyPost(): void {
 
   const instrumentMap = createInstrumentMap(currentData);
 
+  function formatHolding(h: Holding, prevHoldings: Holding[], groupSize: number, curCov: number, prevCov: number): string {
+    const asset = getAssetInfo(h.instrumentId, instrumentMap);
+    const prev = prevHoldings.find(ph => ph.instrumentId === h.instrumentId);
+    const curPct = adjustedPct(h.holdersCount, groupSize, curCov);
+    const prevPct = prev ? adjustedPct(prev.holdersCount, groupSize, prevCov) : 0;
+    const ppChange = prev ? curPct - prevPct : 0;
+    const sign = ppChange > 0 ? '+' : ppChange < 0 ? '-' : '=';
+    return `$${asset.symbol} (${curPct.toFixed(0)}% ${sign}${Math.abs(ppChange).toFixed(1)}pp)`;
+  }
+
   const holdings100 = current100.topHoldings.slice(0, 10);
   const monthAgoHoldings100 = monthAgo100.topHoldings.slice(0, 10);
 
   console.log('𝗧𝗼𝗽 𝟭𝟬𝟬:');
-  holdings100.forEach((holding, i) => {
-    const asset = getAssetInfo(holding.instrumentId, instrumentMap);
-    const monthAgoHolding = monthAgoHoldings100.find(h => h.instrumentId === holding.instrumentId);
-    const holderChange = monthAgoHolding ? holding.holdersCount - monthAgoHolding.holdersCount : 0;
-    const changeIcon = holderChange > 0 ? '+' : holderChange < 0 ? '-' : '=';
-
-    console.log(`${i+1}. $${asset.symbol} (${holding.holdersCount}% ${changeIcon}${Math.abs(holderChange)})`);
+  holdings100.forEach((h, i) => {
+    console.log(`${i+1}. ${formatHolding(h, monthAgoHoldings100, GROUP_SIZES[0], cov.cur100, cov.prev100)}`);
   });
 
   console.log('');
@@ -112,62 +123,47 @@ function generateMonthlyPost(): void {
   const holdings1500 = current1500.topHoldings.slice(0, 10);
   const monthAgoHoldings1500 = monthAgo1500.topHoldings.slice(0, 10);
 
-  holdings1500.forEach((holding, i) => {
-    const asset = getAssetInfo(holding.instrumentId, instrumentMap);
-    const monthAgoHolding = monthAgoHoldings1500.find(h => h.instrumentId === holding.instrumentId);
-    const holderChange = monthAgoHolding ? holding.holdersCount - monthAgoHolding.holdersCount : 0;
-    const changeIcon = holderChange > 0 ? '+' : holderChange < 0 ? '-' : '=';
-    const extHolding = holding as ExtendedHolding;
-    const percentage = extHolding.holdersPercentage || (holding.holdersCount / 15 || 0);
-
-    console.log(`${i+1}. $${asset.symbol} (${percentage.toFixed(0)}% ${changeIcon}${Math.abs(holderChange)})`);
+  holdings1500.forEach((h, i) => {
+    console.log(`${i+1}. ${formatHolding(h, monthAgoHoldings1500, GROUP_SIZES[3], cov.cur1500, cov.prev1500)}`);
   });
 
   console.log('');
   console.log('🚀 𝗕𝗶𝗴𝗴𝗲𝘀𝘁 𝗔𝘀𝘀𝗲𝘁 𝗠𝗼𝘃𝗲𝘀:');
   console.log('');
 
-  const monthlyMovers100 = findDailyMovers(current100.topHoldings, monthAgo100.topHoldings, 3);
-  const monthlyMovers1500 = findDailyMovers(current1500.topHoldings, monthAgo1500.topHoldings, 10);
+  const monthlyMovers100 = findPpMovers(current100.topHoldings, monthAgo100.topHoldings, GROUP_SIZES[0], cov.cur100, cov.prev100, 2.0);
+  const monthlyMovers1500 = findPpMovers(current1500.topHoldings, monthAgo1500.topHoldings, GROUP_SIZES[3], cov.cur1500, cov.prev1500, 1.0);
 
   if (monthlyMovers100.length > 0) {
-    const additions100 = monthlyMovers100.filter(m => m.change > 0).slice(0, 5);
-    const drops100 = monthlyMovers100.filter(m => m.change < 0).slice(0, 5);
+    const additions100 = monthlyMovers100.filter(m => m.ppChange > 0).slice(0, 5);
+    const drops100 = monthlyMovers100.filter(m => m.ppChange < 0).slice(0, 5);
 
     if (additions100.length > 0) {
       console.log('𝗧𝗼𝗽 𝟭𝟬𝟬 - 𝗠𝗼𝘀𝘁 𝗔𝗱𝗱𝗲𝗱:');
-      additions100.forEach(m => {
-        console.log(`• $${m.symbol}: +${m.change} investors (${formatPercentage(m.percentChange)})`);
-      });
+      additions100.forEach(m => console.log(`• $${m.symbol}: +${m.ppChange.toFixed(1)}pp`));
     }
 
     if (drops100.length > 0) {
       console.log('');
       console.log('𝗧𝗼𝗽 𝟭𝟬𝟬 - 𝗠𝗼𝘀𝘁 𝗗𝗿𝗼𝗽𝗽𝗲𝗱:');
-      drops100.forEach(m => {
-        console.log(`• $${m.symbol}: ${m.change} investors (${m.percentChange.toFixed(1)}%)`);
-      });
+      drops100.forEach(m => console.log(`• $${m.symbol}: ${m.ppChange.toFixed(1)}pp`));
     }
   }
 
   if (monthlyMovers1500.length > 0) {
-    const additions1500 = monthlyMovers1500.filter(m => m.change > 0).slice(0, 5);
-    const drops1500 = monthlyMovers1500.filter(m => m.change < 0).slice(0, 5);
+    const additions1500 = monthlyMovers1500.filter(m => m.ppChange > 0).slice(0, 5);
+    const drops1500 = monthlyMovers1500.filter(m => m.ppChange < 0).slice(0, 5);
 
     if (additions1500.length > 0) {
       console.log('');
       console.log('𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽 - 𝗠𝗼𝘀𝘁 𝗔𝗱𝗱𝗲𝗱:');
-      additions1500.forEach(m => {
-        console.log(`• $${m.symbol}: +${m.change} investors (${formatPercentage(m.percentChange)})`);
-      });
+      additions1500.forEach(m => console.log(`• $${m.symbol}: +${m.ppChange.toFixed(1)}pp`));
     }
 
     if (drops1500.length > 0) {
       console.log('');
       console.log('𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽 - 𝗠𝗼𝘀𝘁 𝗗𝗿𝗼𝗽𝗽𝗲𝗱:');
-      drops1500.forEach(m => {
-        console.log(`• $${m.symbol}: ${m.change} investors (${m.percentChange.toFixed(1)}%)`);
-      });
+      drops1500.forEach(m => console.log(`• $${m.symbol}: ${m.ppChange.toFixed(1)}pp`));
     }
   }
 
@@ -243,9 +239,12 @@ function generateMonthlyPost(): void {
   }
 
   const topHolding100 = holdings100[0];
-  if (topHolding100 && topHolding100.holdersCount > 60) {
-    const asset = getAssetInfo(topHolding100.instrumentId, instrumentMap);
-    takeaways.push(`• Extreme concentration in $${asset.symbol} among Top 100 (${topHolding100.holdersCount}% holders)`);
+  if (topHolding100) {
+    const topPct = adjustedPct(topHolding100.holdersCount, GROUP_SIZES[0], cov.cur100);
+    if (topPct > 60) {
+      const asset = getAssetInfo(topHolding100.instrumentId, instrumentMap);
+      takeaways.push(`• Extreme concentration in $${asset.symbol} among Top 100 (${topPct.toFixed(0)}% holders)`);
+    }
   }
 
   const avgTradesChange = (tradesChange100 + tradesChange1500) / 2;

@@ -68,7 +68,8 @@ export function getLatestDataFile(): DataFileInfo {
 }
 
 /**
- * Gets the two most recent data files for comparison
+ * Gets the two most recent data files (with sufficient portfolio coverage) for comparison.
+ * Skips partial-sync files that would produce inflated day-over-day deltas.
  */
 export function getLatestDataFiles(): DataFilePair {
   const files = getAllDataFiles();
@@ -77,11 +78,26 @@ export function getLatestDataFiles(): DataFilePair {
   }
 
   const dataDir = getDataDirectory();
+  const goodFiles: string[] = [];
+  for (const file of files) {
+    if (hasGoodCoverage(path.join(dataDir, path.basename(file)))) { // nosemgrep
+      goodFiles.push(file);
+      if (goodFiles.length === 2) break;
+    }
+  }
+
+  if (goodFiles.length < 2) {
+    throw new Error(
+      `Need at least 2 data files with Broad Group portfolio coverage ≥${COVERAGE_THRESHOLD * 100}%. ` +
+      `Most recent files appear to be partial syncs.`
+    );
+  }
+
   return {
-    today: files[0],
-    yesterday: files[1],
-    todayPath: path.join(dataDir, files[0]),
-    yesterdayPath: path.join(dataDir, files[1])
+    today: goodFiles[0],
+    yesterday: goodFiles[1],
+    todayPath: path.join(dataDir, path.basename(goodFiles[0])), // nosemgrep
+    yesterdayPath: path.join(dataDir, path.basename(goodFiles[1])) // nosemgrep
   };
 }
 
@@ -106,45 +122,37 @@ export function getWeeklyDataFiles(): WeeklyDataFiles {
   const targetDate = new Date(latestDate);
   targetDate.setDate(targetDate.getDate() - 7);
 
+  // Walk a ±2 day window around the 7-days-ago target, picking the closest
+  // file with sufficient portfolio coverage. Skipping partial-sync baselines
+  // is critical — they invent thousands of phantom holding additions.
   let weekAgoFile: string | null = null;
   let minDiff = Infinity;
 
   for (const file of files) {
     const dateMatch = file.match(/(\d{4}-\d{2}-\d{2})/);
-    if (dateMatch) {
-      const fileDate = new Date(dateMatch[1]);
-      const diffDays = Math.abs((targetDate.getTime() - fileDate.getTime()) / (1000 * 60 * 60 * 24));
-
-      if (diffDays < minDiff && diffDays <= 1) {
-        minDiff = diffDays;
-        weekAgoFile = file;
-      }
-    }
+    if (!dateMatch) continue;
+    const fileDate = new Date(dateMatch[1]);
+    const diffDays = Math.abs((targetDate.getTime() - fileDate.getTime()) / (1000 * 60 * 60 * 24));
+    if (diffDays > 2) continue;
+    if (diffDays >= minDiff) continue;
+    if (!hasGoodCoverage(path.join(dataDir, path.basename(file)))) continue; // nosemgrep
+    minDiff = diffDays;
+    weekAgoFile = file;
   }
 
   if (!weekAgoFile) {
-    for (const file of files) {
-      const dateMatch = file.match(/(\d{4}-\d{2}-\d{2})/);
-      if (dateMatch) {
-        const fileDate = new Date(dateMatch[1]);
-        const diffDays = (latestDate.getTime() - fileDate.getTime()) / (1000 * 60 * 60 * 24);
-        if (diffDays >= 6 && diffDays <= 8) {
-          weekAgoFile = file;
-          break;
-        }
-      }
-    }
-  }
-
-  if (!weekAgoFile) {
-    throw new Error('No data file found from approximately 7 days ago');
+    const targetStr = targetDate.toISOString().split('T')[0];
+    throw new Error(
+      `No data file with Broad Group portfolio coverage ≥${COVERAGE_THRESHOLD * 100}% found ` +
+      `within ±2 days of ${targetStr}. Recent baselines appear to be partial syncs.`
+    );
   }
 
   return {
     latest: latestFile,
     weekAgo: weekAgoFile,
-    latestPath: path.join(dataDir, latestFile),
-    weekAgoPath: path.join(dataDir, weekAgoFile),
+    latestPath: path.join(dataDir, path.basename(latestFile)), // nosemgrep
+    weekAgoPath: path.join(dataDir, path.basename(weekAgoFile)), // nosemgrep
     allFiles: files
   };
 }
@@ -160,14 +168,14 @@ export function getMonthlyDataFiles(): MonthlyDataFiles {
     throw new Error('Need at least 2 data files to compare');
   }
 
+  // Allow days 1-5 to give the coverage filter room to skip partial-sync days.
   const firstOfMonthFiles = files.filter(file => {
     const dateMatch = file.match(/(\d{4}-\d{2}-\d{2})/);
-    if (dateMatch) {
-      const date = new Date(dateMatch[1]);
-      const dayOfMonth = date.getDate();
-      return dayOfMonth >= 1 && dayOfMonth <= 3;
-    }
-    return false;
+    if (!dateMatch) return false;
+    const date = new Date(dateMatch[1]);
+    const dayOfMonth = date.getDate();
+    if (!(dayOfMonth >= 1 && dayOfMonth <= 5)) return false;
+    return hasGoodCoverage(path.join(dataDir, path.basename(file))); // nosemgrep
   });
 
   if (firstOfMonthFiles.length < 2) {
@@ -196,8 +204,8 @@ export function getMonthlyDataFiles(): MonthlyDataFiles {
   return {
     latest: currentMonthFirst,
     monthAgo: previousMonthFirst,
-    latestPath: path.join(dataDir, currentMonthFirst),
-    monthAgoPath: path.join(dataDir, previousMonthFirst),
+    latestPath: path.join(dataDir, path.basename(currentMonthFirst)), // nosemgrep
+    monthAgoPath: path.join(dataDir, path.basename(previousMonthFirst)), // nosemgrep
     allFiles: Object.values(monthlyFiles)
   };
 }
@@ -213,6 +221,89 @@ export function loadDataFile(filepath: string): CensusData {
     const message = error instanceof Error ? error.message : String(error);
     throw new Error(`Failed to load data file ${filepath}: ${message}`);
   }
+}
+
+/**
+ * Minimum portfolio coverage in the Broad Group (1500) for a snapshot to be
+ * usable as a comparison baseline. Files below this represent a partial sync
+ * (missing investor portfolios) and produce inflated week-over-week deltas.
+ */
+const COVERAGE_THRESHOLD = 0.95;
+
+/**
+ * Fraction of investors at the given group level that have actual portfolio data.
+ * Levels: 0=Top100, 1=Top500, 2=Top1000, 3=Broad/1500.
+ */
+export function getPortfolioCoverage(data: CensusData, level: number = 3): number {
+  const groupSizes = [100, 500, 1000, 1500];
+  const size = groupSizes[level] ?? 1500;
+  const slice = data.investors.slice(0, size);
+  if (slice.length === 0) return 0;
+  const withPortfolio = slice.filter(
+    inv => inv.portfolio?.positions !== undefined && inv.portfolio.positions.length > 0
+  ).length;
+  return withPortfolio / slice.length;
+}
+
+/**
+ * True if the file's Broad Group portfolio coverage meets the threshold.
+ */
+export function hasGoodCoverage(filepath: string, threshold: number = COVERAGE_THRESHOLD): boolean {
+  try {
+    const data = loadDataFile(filepath);
+    return getPortfolioCoverage(data, 3) >= threshold;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Investor count per analysis level — index matches CensusData.analyses[].
+ * 0=Top100, 1=Top500, 2=Top1000, 3=Broad/1500.
+ */
+export const GROUP_SIZES = [100, 500, 1000, 1500] as const;
+
+export interface PpMover {
+  symbol: string;
+  ppChange: number;
+  currentPct: number;
+}
+
+/**
+ * Coverage-adjusted holders%, using investors-with-portfolio as the denominator.
+ * Lets percentages be compared across snapshots even when one has fewer
+ * portfolios fetched than the other.
+ */
+export function adjustedPct(holdersCount: number, groupSize: number, coverage: number): number {
+  if (coverage <= 0) return 0;
+  return (holdersCount * 100) / (groupSize * coverage);
+}
+
+/**
+ * Holdings that moved by at least `threshold` percentage points between two
+ * snapshots, sorted by absolute pp change. Coverage-aware: use the level's
+ * portfolio coverage from each snapshot.
+ */
+export function findPpMovers(
+  currentHoldings: Holding[],
+  prevHoldings: Holding[],
+  groupSize: number,
+  currentCoverage: number,
+  prevCoverage: number,
+  threshold: number
+): PpMover[] {
+  const movers: PpMover[] = [];
+  for (const h of currentHoldings.slice(0, 50)) {
+    const prev = prevHoldings.find(p => p.instrumentId === h.instrumentId);
+    if (!prev) continue;
+    const currentPct = adjustedPct(h.holdersCount, groupSize, currentCoverage);
+    const prevPct = adjustedPct(prev.holdersCount, groupSize, prevCoverage);
+    const ppChange = currentPct - prevPct;
+    if (Math.abs(ppChange) >= threshold) {
+      movers.push({ symbol: h.symbol, ppChange, currentPct });
+    }
+  }
+  return movers.sort((a, b) => Math.abs(b.ppChange) - Math.abs(a.ppChange));
 }
 
 /**
@@ -429,7 +520,7 @@ export function ensureOutputDirectory(): string {
  */
 export function saveAnalysisResult(filename: string, data: unknown): string {
   const outputDir = ensureOutputDirectory();
-  const filepath = path.join(outputDir, filename);
+  const filepath = path.join(outputDir, path.basename(filename)); // nosemgrep
 
   try {
     const jsonData = JSON.stringify(data, null, 2);

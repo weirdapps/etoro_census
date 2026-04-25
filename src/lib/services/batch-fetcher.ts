@@ -20,6 +20,13 @@ export interface BatchFetcherConfig<TItem, TResult> {
   retryBaseDelayMs?: number;
   /** Number of concurrent requests (default: 1 for sequential processing) */
   concurrency?: number;
+  /**
+   * After the main pass, retry failed items with conservative settings
+   * (concurrency=1, longer timeouts, more retries, longer backoff).
+   * Skipped if 0 items failed or if more than 70% failed (genuine outage,
+   * recovery won't help). Default: true.
+   */
+  enableRecovery?: boolean;
 }
 
 export interface BatchFetchResult<TItem, TResult> {
@@ -104,6 +111,7 @@ export async function batchFetch<TItem, TResult>(
     maxRetries = DEFAULT_CONFIG.maxRetries,
     retryBaseDelayMs = DEFAULT_CONFIG.retryBaseDelayMs,
     concurrency = DEFAULT_CONFIG.concurrency,
+    enableRecovery = true,
   } = config;
 
   const results: BatchFetchResult<TItem, TResult>[] = new Array(items.length);
@@ -241,6 +249,56 @@ export async function batchFetch<TItem, TResult>(
       await sleep(5000);
       consecutiveErrors = 0;
     }
+  }
+
+  const mainErrorRate = processedCount > 0 ? errorCount / processedCount : 0;
+
+  // Recovery pass: re-attempt failed items with conservative settings.
+  // Skipped on full outage (>70% failed — recovery won't help) or no failures.
+  if (enableRecovery && errorCount > 0 && mainErrorRate < 0.7) {
+    const failedIndices: number[] = [];
+    for (let i = 0; i < results.length; i++) {
+      if (results[i].result === null) failedIndices.push(i);
+    }
+
+    logger.info('Starting recovery pass', { name, toRecover: failedIndices.length });
+    updateProgress(99, `Recovery pass: retrying ${failedIndices.length} failed ${name}`);
+
+    let recovered = 0;
+    for (const idx of failedIndices) {
+      const item = results[idx].item;
+      try {
+        const fetchWithLongerTimeout = () =>
+          Promise.race([
+            fetchFn(item),
+            new Promise<never>((_, reject) =>
+              setTimeout(() => reject(new Error(`${name} fetch timeout (recovery)`)), 60000)
+            ),
+          ]);
+        const { result, retryCount: recoveryRetries } = await fetchWithRetry(
+          fetchWithLongerTimeout,
+          5,
+          2000
+        );
+        if (result !== null) {
+          results[idx] = { item, result, retryCount: maxRetries + recoveryRetries };
+          recovered++;
+          successCount++;
+          errorCount--;
+        }
+      } catch {
+        // Stays failed; original error already recorded.
+      }
+      // Sequential pacing for recovery — 500ms between items.
+      await sleep(500);
+    }
+
+    logger.info('Recovery pass complete', {
+      name,
+      attempted: failedIndices.length,
+      recovered,
+      stillFailed: failedIndices.length - recovered,
+    });
   }
 
   const finalErrorRate = processedCount > 0 ? (errorCount / processedCount * 100).toFixed(1) : '0';

@@ -8,18 +8,17 @@ import {
   loadDataFile,
   formatPercentage,
   formatNumber,
-  findDailyMovers,
-  findTopCopierChanges
+  findTopCopierChanges,
+  getPortfolioCoverage,
+  adjustedPct,
+  findPpMovers,
+  GROUP_SIZES
 } from './lib/utils';
-import type { CensusData, Analysis, Holding, CopierChange, HoldingMover, AnalysisAverages } from './lib/types';
-
-interface ExtendedHolding extends Holding {
-  holdersPercentage?: number;
-}
+import type { Analysis, Holding, AnalysisAverages } from './lib/types';
 
 interface ExtendedAnalysis extends Omit<Analysis, 'averages' | 'topHoldings'> {
   averages: Required<Pick<AnalysisAverages, 'cashPercentage' | 'riskScore' | 'gain'>>;
-  topHoldings: ExtendedHolding[];
+  topHoldings: Holding[];
 }
 
 function generateDailyPost(): void {
@@ -34,6 +33,13 @@ function generateDailyPost(): void {
 
   const current100 = currentData.analyses[0] as ExtendedAnalysis;
   const prev100 = prevData.analyses[0] as ExtendedAnalysis;
+
+  const cov = {
+    cur100: getPortfolioCoverage(currentData, 0),
+    cur1500: getPortfolioCoverage(currentData, 3),
+    prev100: getPortfolioCoverage(prevData, 0),
+    prev1500: getPortfolioCoverage(prevData, 3)
+  };
 
   const dateMatch = files.today.match(/(\d{4}-\d{2}-\d{2})/);
   const displayDate = dateMatch ? dateMatch[1] : 'Today';
@@ -69,71 +75,63 @@ function generateDailyPost(): void {
   console.log('');
   console.log('💎 𝗧𝗼𝗽 𝟭𝟬 𝗣𝗼𝗿𝘁𝗳𝗼𝗹𝗶𝗼 𝗛𝗼𝗹𝗱𝗶𝗻𝗴𝘀:');
   console.log('');
+  function formatHolding(h: Holding, prevHoldings: Holding[], groupSize: number, curCov: number, prevCov: number): string {
+    const prev = prevHoldings.find(ph => ph.instrumentId === h.instrumentId);
+    const curPct = adjustedPct(h.holdersCount, groupSize, curCov);
+    const prevPct = prev ? adjustedPct(prev.holdersCount, groupSize, prevCov) : 0;
+    const ppChange = prev ? curPct - prevPct : 0;
+    const sign = ppChange > 0 ? '+' : ppChange < 0 ? '-' : '=';
+    return `$${h.symbol} (${curPct.toFixed(0)}% ${sign}${Math.abs(ppChange).toFixed(1)}pp)`;
+  }
+
   console.log('𝗧𝗼𝗽 𝟭𝟬𝟬:');
-  const top10Holdings100 = current100.topHoldings.slice(0, 10);
-  top10Holdings100.forEach((h, i) => {
-    const prevHolding = prev100.topHoldings.find(ph => ph.instrumentId === h.instrumentId);
-    const holderChange = prevHolding ? h.holdersCount - prevHolding.holdersCount : 0;
-    const changeIcon = holderChange > 0 ? '+' : holderChange < 0 ? '-' : '=';
-    console.log((i+1) + '. $' + h.symbol + ' (' + h.holdersCount + '% ' + changeIcon + Math.abs(holderChange) + ')');
+  current100.topHoldings.slice(0, 10).forEach((h, i) => {
+    console.log(`${i+1}. ${formatHolding(h, prev100.topHoldings, GROUP_SIZES[0], cov.cur100, cov.prev100)}`);
   });
 
   console.log('');
   console.log('𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽:');
-  const top10Holdings1500 = current1500.topHoldings.slice(0, 10);
-  top10Holdings1500.forEach((h, i) => {
-    const prevHolding = prev1500.topHoldings.find(ph => ph.instrumentId === h.instrumentId);
-    const holderChange = prevHolding ? h.holdersCount - prevHolding.holdersCount : 0;
-    const changeIcon = holderChange > 0 ? '+' : holderChange < 0 ? '-' : '=';
-    const percentage = h.holdersPercentage || (h.holdersCount / 15) || 0;
-    console.log((i+1) + '. $' + h.symbol + ' (' + percentage.toFixed(0) + '% ' + changeIcon + Math.abs(holderChange) + ')');
+  current1500.topHoldings.slice(0, 10).forEach((h, i) => {
+    console.log(`${i+1}. ${formatHolding(h, prev1500.topHoldings, GROUP_SIZES[3], cov.cur1500, cov.prev1500)}`);
   });
 
   console.log('');
   console.log('🚀 𝗕𝗶𝗴𝗴𝗲𝘀𝘁 𝗔𝘀𝘀𝗲𝘁 𝗠𝗼𝘃𝗲𝘀:');
   console.log('');
 
-  const dailyMovers100 = findDailyMovers(current100.topHoldings, prev100.topHoldings, 1);
-  const dailyMovers1500 = findDailyMovers(current1500.topHoldings, prev1500.topHoldings, 3);
+  const dailyMovers100 = findPpMovers(current100.topHoldings, prev100.topHoldings, GROUP_SIZES[0], cov.cur100, cov.prev100, 0.5);
+  const dailyMovers1500 = findPpMovers(current1500.topHoldings, prev1500.topHoldings, GROUP_SIZES[3], cov.cur1500, cov.prev1500, 0.3);
 
   if (dailyMovers100.length > 0) {
-    const additions100 = dailyMovers100.filter(m => m.change > 0).slice(0, 3);
-    const reductions100 = dailyMovers100.filter(m => m.change < 0).slice(0, 3);
+    const additions100 = dailyMovers100.filter(m => m.ppChange > 0).slice(0, 3);
+    const reductions100 = dailyMovers100.filter(m => m.ppChange < 0).slice(0, 3);
 
     if (additions100.length > 0) {
       console.log('𝗧𝗼𝗽 𝟭𝟬𝟬 - 𝗠𝗼𝘀𝘁 𝗔𝗱𝗱𝗲𝗱:');
-      additions100.forEach(m => {
-        console.log('• $' + m.symbol + ': +' + m.change + ' investors (' + formatPercentage(m.percentChange) + ')');
-      });
+      additions100.forEach(m => console.log(`• $${m.symbol}: +${m.ppChange.toFixed(1)}pp`));
     }
 
     if (reductions100.length > 0) {
       console.log('');
       console.log('𝗧𝗼𝗽 𝟭𝟬𝟬 - 𝗠𝗼𝘀𝘁 𝗥𝗲𝗱𝘂𝗰𝗲𝗱:');
-      reductions100.forEach(m => {
-        console.log('• $' + m.symbol + ': ' + m.change + ' investors (' + m.percentChange.toFixed(1) + '%)');
-      });
+      reductions100.forEach(m => console.log(`• $${m.symbol}: ${m.ppChange.toFixed(1)}pp`));
     }
   }
 
   if (dailyMovers1500.length > 0) {
-    const additions1500 = dailyMovers1500.filter(m => m.change > 0).slice(0, 3);
-    const reductions1500 = dailyMovers1500.filter(m => m.change < 0).slice(0, 3);
+    const additions1500 = dailyMovers1500.filter(m => m.ppChange > 0).slice(0, 3);
+    const reductions1500 = dailyMovers1500.filter(m => m.ppChange < 0).slice(0, 3);
 
     if (additions1500.length > 0) {
       console.log('');
       console.log('𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽 - 𝗠𝗼𝘀𝘁 𝗔𝗱𝗱𝗲𝗱:');
-      additions1500.forEach(m => {
-        console.log('• $' + m.symbol + ': +' + m.change + ' investors (' + formatPercentage(m.percentChange) + ')');
-      });
+      additions1500.forEach(m => console.log(`• $${m.symbol}: +${m.ppChange.toFixed(1)}pp`));
     }
 
     if (reductions1500.length > 0) {
       console.log('');
       console.log('𝗕𝗿𝗼𝗮𝗱 𝗚𝗿𝗼𝘂𝗽 - 𝗠𝗼𝘀𝘁 𝗥𝗲𝗱𝘂𝗰𝗲𝗱:');
-      reductions1500.forEach(m => {
-        console.log('• $' + m.symbol + ': ' + m.change + ' investors (' + m.percentChange.toFixed(1) + '%)');
-      });
+      reductions1500.forEach(m => console.log(`• $${m.symbol}: ${m.ppChange.toFixed(1)}pp`));
     }
   }
 
