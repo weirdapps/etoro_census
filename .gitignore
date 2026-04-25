@@ -137,3 +137,6 @@ archive/
 *.key
 *.p12
 *.pfx
+
+# Spotlight indexing opt-out marker (per-directory)
+.metadata_never_index
