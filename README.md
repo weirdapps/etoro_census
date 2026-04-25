@@ -361,6 +361,22 @@ node scripts/import-historical-to-supabase.js
 node scripts/sync-daily-to-supabase.js
 ```
 
+## Data Retention
+
+The `public/` and `archive/` directories together hold ~70 GB of historical census snapshots dating back to 2023. The Git history (~28 GB) intentionally preserves the full time series. **Do not trim either** — they are required for:
+
+- **Backtesting** — replaying past investor behaviour against new analysis logic
+- **Trend analysis** — identifying month-over-month and year-over-year shifts in cash allocation, risk appetite, and holdings
+- **Signal validation** — confirming that current-day signals would have flagged historically meaningful events
+
+For development clones that don't need history, use a shallow clone:
+
+```bash
+git clone --depth 1 git@github.com:weirdapps/etoro_census.git
+```
+
+This drops the historical commits but keeps the working tree intact. The `scripts/compress-historical-data.js` script (above) reduces on-disk size for older snapshots; it does *not* delete data.
+
 ## Known Limitations
 
 - eToro API limit: exactly 1,500 popular investors (hard cap)
