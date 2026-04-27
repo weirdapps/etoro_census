@@ -27,9 +27,12 @@ export async function GET(request: Request) {
       );
     }
 
-    // Extract base URL for fetch operations on Vercel (same as public endpoint)
-    const url = new URL(request.url);
-    const baseUrl = `${url.protocol}//${url.host}`;
+    // Build base URL from server-controlled env vars (NOT request.url, which
+    // would be user-controlled via Host header → SSRF risk). Mirrors the safe
+    // pattern already used in /api/public/[username]/route.ts. See issue #76.
+    const baseUrl = process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : (process.env.NEXT_PUBLIC_SITE_URL ?? '');
 
     // Fetch all simplified intelligence modules in parallel
     const [
