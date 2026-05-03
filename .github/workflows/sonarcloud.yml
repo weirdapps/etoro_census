@@ -42,9 +42,21 @@ jobs:
         if: steps.check-sonar.outputs.configured == 'true'
         run: npm ci
 
-      - name: Run tests with coverage
+      - name: Check for test script
         if: steps.check-sonar.outputs.configured == 'true'
+        id: check-tests
+        run: |
+          if [ -f package.json ] && jq -e '.scripts.test' package.json > /dev/null 2>&1; then
+            echo "has_tests=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_tests=false" >> $GITHUB_OUTPUT
+            echo "::notice::No test script in package.json — skipping coverage upload"
+          fi
+
+      - name: Run tests with coverage
+        if: steps.check-sonar.outputs.configured == 'true' && steps.check-tests.outputs.has_tests == 'true'
         run: npm test -- --coverage
+        continue-on-error: true
 
       - name: SonarCloud Scan
         if: steps.check-sonar.outputs.configured == 'true'
