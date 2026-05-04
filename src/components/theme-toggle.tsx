@@ -9,7 +9,10 @@ export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = React.useState(false);
 
-  // Avoid hydration mismatch
+  // Avoid hydration mismatch — setState in effect is required here because
+  // sessionStorage/window/theme-detection only exists post-hydration on the
+  // client. Cannot lazy-init in useState (SSR has no window).
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   React.useEffect(() => {
     setMounted(true);
   }, []);

@@ -16,11 +16,6 @@ export default function ReportGenerator({ onReportGenerated }: ReportGeneratorPr
   const [progressMessage, setProgressMessage] = useState('');
   const [error, setError] = useState<string | null>(null);
 
-  // Check for existing reports on mount
-  useEffect(() => {
-    checkExistingReports();
-  }, []);
-
   const checkExistingReports = async () => {
     try {
       const response = await fetch('/api/list-reports');
@@ -35,6 +30,12 @@ export default function ReportGenerator({ onReportGenerated }: ReportGeneratorPr
       console.error('Error checking existing reports:', err);
     }
   };
+
+  // Check for existing reports on mount
+  useEffect(() => {
+    checkExistingReports();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleGenerateReport = async () => {
     setIsGenerating(true);
