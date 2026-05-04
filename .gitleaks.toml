@@ -1,0 +1,30 @@
+# Gitleaks configuration for TypeScript/JavaScript projects
+# Minimal config - uses default rules with project-specific exclusions
+
+title = "Gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Allowlist for non-sensitive patterns"
+
+# Ignore .env.example and similar template files
+paths = [
+  '''\.env\.example$''',
+  '''\.env\.template$''',
+  '''\.env\.local\.example$''',
+  '''config\.example\.''',
+  '''\.sample$''',
+]
+
+# Ignore test fixtures and mock data
+regexes = [
+  '''test[_-]?secret[_-]?key''',
+  '''mock[_-]?api[_-]?key''',
+  '''example\.com/api/.*''',
+  '''localhost:.*''',
+  '''127\.0\.0\.1:.*''',
+  '''dummy[_-]?token''',
+  '''fake[_-]?key''',
+]
