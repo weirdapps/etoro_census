@@ -220,10 +220,6 @@ function generateWeeklyPost(): void {
     insights.push(`• Trading activity ${activity} significantly - ${Math.abs(avgTradesChange).toFixed(0)} trades/week change`);
   }
 
-  if (weeklyMovers100.length > 5 || weeklyMovers1500.length > 10) {
-    insights.push('• Major portfolio rotation detected - significant asset reallocation this week');
-  }
-
   const totalCopierChange = copierChanges.reduce((sum, c) => sum + c.change, 0);
   if (Math.abs(totalCopierChange) > 1000) {
     const direction = totalCopierChange > 0 ? 'growing' : 'declining';
@@ -236,8 +232,6 @@ function generateWeeklyPost(): void {
 
   insights.forEach(insight => console.log(insight));
 
-  console.log('');
-  console.log('**');
   console.log('');
   console.log('Check out the daily updated census dashboard at:');
   console.log('weirdapps.github.io/etoro_census');
