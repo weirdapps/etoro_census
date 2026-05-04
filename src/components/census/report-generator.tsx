@@ -33,8 +33,9 @@ export default function ReportGenerator({ onReportGenerated }: ReportGeneratorPr
 
   // Check for existing reports on mount
   useEffect(() => {
+    // setState-in-effect needed: data load on mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/set-state-in-effect
     checkExistingReports();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleGenerateReport = async () => {

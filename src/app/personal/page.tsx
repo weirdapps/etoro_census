@@ -97,8 +97,10 @@ export default function PersonalPortfolioPage() {
   };
 
   useEffect(() => {
+    // setState-in-effect needed: initial data fetch on mount requires setLoading
+    // calls that can't move to useState's lazy initializer (async API call).
+    // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/set-state-in-effect
     fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (loading) {

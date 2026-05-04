@@ -12,8 +12,8 @@ export function ThemeToggle() {
   // Avoid hydration mismatch — setState in effect is required here because
   // sessionStorage/window/theme-detection only exists post-hydration on the
   // client. Cannot lazy-init in useState (SSR has no window).
-  // eslint-disable-next-line react-hooks/set-state-in-effect
   React.useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
   }, []);
 

@@ -36,7 +36,6 @@ export default function HomeV2() {
   // Restore analysis data from sessionStorage on mount (for back navigation).
   // setState in effect is required: sessionStorage is client-only, so the
   // restore can't run in useState's lazy initializer (SSR has no sessionStorage).
-  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     const storedAnalysis = sessionStorage.getItem('v2CensusAnalysis');
     const storedRawData = sessionStorage.getItem('censusRawData');
@@ -44,6 +43,7 @@ export default function HomeV2() {
 
     if (storedAnalysis && storedRawData) {
       try {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setAnalysis(JSON.parse(storedAnalysis));
         setRawData(JSON.parse(storedRawData));
 
