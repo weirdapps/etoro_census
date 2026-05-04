@@ -14,36 +14,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check if SonarCloud is configured
-        id: check-sonar
-        run: |
-          if [ -z "${{ secrets.SONAR_TOKEN }}" ]; then
-            echo "⚠️ SONAR_TOKEN not configured - skipping SonarCloud analysis"
-            echo "configured=false" >> $GITHUB_OUTPUT
-          else
-            echo "✅ SONAR_TOKEN found - proceeding with analysis"
-            echo "configured=true" >> $GITHUB_OUTPUT
-          fi
-
       - name: Checkout repository
-        if: steps.check-sonar.outputs.configured == 'true'
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
-          fetch-depth: 0  # Full history for accurate blame information
+          fetch-depth: 0
 
       - name: Setup Node.js
-        if: steps.check-sonar.outputs.configured == 'true'
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
         with:
           node-version: '22'
           cache: 'npm'
 
       - name: Install dependencies
-        if: steps.check-sonar.outputs.configured == 'true'
         run: npm ci
 
       - name: Check for test script
-        if: steps.check-sonar.outputs.configured == 'true'
         id: check-tests
         run: |
           if [ -f package.json ] && jq -e '.scripts.test' package.json > /dev/null 2>&1; then
@@ -54,12 +39,22 @@ jobs:
           fi
 
       - name: Run tests with coverage
-        if: steps.check-sonar.outputs.configured == 'true' && steps.check-tests.outputs.has_tests == 'true'
+        if: steps.check-tests.outputs.has_tests == 'true'
         run: npm test -- --coverage
         continue-on-error: true
 
+      - name: Check for SonarCloud token
+        id: check-sonar
+        run: |
+          if [ -n "${{ secrets.SONAR_TOKEN }}" ]; then
+            echo "has_token=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_token=false" >> $GITHUB_OUTPUT
+            echo "::notice::SONAR_TOKEN not configured — skipping SonarCloud scan"
+          fi
+
       - name: SonarCloud Scan
-        if: steps.check-sonar.outputs.configured == 'true'
+        if: steps.check-sonar.outputs.has_token == 'true'
         uses: SonarSource/sonarcloud-github-action@ffc3010689be73b8e5ae0c57ce35968afd7909e8 # v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
