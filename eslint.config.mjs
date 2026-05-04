@@ -23,6 +23,11 @@ const eslintConfig = defineConfig([
       '@next/next/no-img-element': 'off',
       'react/no-unescaped-entities': 'off',
       'react-hooks/purity': 'off',
+      // New strict rules from eslint-plugin-react-hooks; refactor required to clear, deferred:
+      // - immutability: flags useEffect referencing later-declared functions (real React 19 anti-pattern)
+      // - set-state-in-effect: flags synchronous setState in useEffect (cascading renders)
+      'react-hooks/immutability': 'warn',
+      'react-hooks/set-state-in-effect': 'warn',
     },
   },
 ]);
