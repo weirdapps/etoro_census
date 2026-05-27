@@ -4,15 +4,13 @@ import { censusDataService } from '@/lib/services/census-data-service';
 import { portfolioComparison } from '@/lib/services/portfolio-comparison';
 import { generateUUID } from '@/lib/etoro-api-config';
 import { logger } from '@/lib/logger';
+import { getInternalBaseUrl } from '@/lib/utils/vercel-base-url';
 
 // Disable all caching for this endpoint
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-export async function GET(
-  request: Request,
-  { params }: { params: Promise<{ username: string }> }
-) {
+export async function GET(request: Request, { params }: { params: Promise<{ username: string }> }) {
   try {
     const { username } = await params;
 
@@ -21,9 +19,9 @@ export async function GET(
       return NextResponse.json(
         {
           success: false,
-          error: 'Username is required'
+          error: 'Username is required',
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -33,17 +31,17 @@ export async function GET(
       return NextResponse.json(
         {
           success: false,
-          error: 'Invalid username format. Only letters, numbers, underscore and hyphen allowed.'
+          error: 'Invalid username format. Only letters, numbers, underscore and hyphen allowed.',
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    // Trusted base URL for server-side fetch on Vercel.
-    // Derived from environment, NOT from request.url (Host header is user-controlled).
-    const baseUrl = process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}`
-      : (process.env.NEXT_PUBLIC_SITE_URL ?? '');
+    // Trusted base URL for server-side fetch on Vercel. Derived from server-
+    // controlled env vars (Host header is user-controlled → SSRF risk).
+    // Prefers the public alias over the immutable VERCEL_URL, which is gated
+    // by Vercel Deployment Protection and silently 401s on self-fetch.
+    const baseUrl = getInternalBaseUrl();
 
     // Validate username exists
     const isValid = await publicPortfolioService.validateUsername(username);
@@ -51,25 +49,19 @@ export async function GET(
       return NextResponse.json(
         {
           success: false,
-          error: 'Username not found or not a valid eToro investor'
+          error: 'Username not found or not a valid eToro investor',
         },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
     // Fetch portfolio and elite group data in parallel
-    const [
-      portfolio,
-      broadMarket,
-      topCopiers,
-      topPerformers,
-      lowRisk
-    ] = await Promise.all([
+    const [portfolio, broadMarket, topCopiers, topPerformers, lowRisk] = await Promise.all([
       publicPortfolioService.getNormalizedData(username),
       censusDataService.getSmartMoneyFlow('all', baseUrl),
       censusDataService.getSmartMoneyFlow('topCopiers', baseUrl),
       censusDataService.getSmartMoneyFlow('topPerformers', baseUrl),
-      censusDataService.getSmartMoneyFlow('lowRisk', baseUrl)
+      censusDataService.getSmartMoneyFlow('lowRisk', baseUrl),
     ]);
 
     // Use shared comparison service to build elite group comparison
@@ -80,7 +72,7 @@ export async function GET(
       broadMarket,
       topCopiers,
       topPerformers,
-      lowRisk
+      lowRisk,
     );
 
     // Fetch user details (name, photo, PI status)
@@ -92,14 +84,16 @@ export async function GET(
           headers: {
             'X-API-KEY': process.env.ETORO_PERSONAL_API_KEY || process.env.ETORO_API_KEY || '',
             'X-USER-KEY': process.env.ETORO_PERSONAL_USER_KEY || process.env.ETORO_USER_KEY || '',
-            'X-REQUEST-ID': generateUUID()
-          }
-        }
+            'X-REQUEST-ID': generateUUID(),
+          },
+        },
       );
       if (userDetailsResponse.ok) {
         const details = await userDetailsResponse.json();
         if (details.users && Array.isArray(details.users) && details.users.length > 0) {
-          const user = details.users.find((u: Record<string, unknown>) => u.username === username) || details.users[0];
+          const user =
+            details.users.find((u: Record<string, unknown>) => u.username === username) ||
+            details.users[0];
           // Get avatar - the API returns avatars array, pick the 150x150 or first one
           let avatarUrl = null;
           if (user.avatars && Array.isArray(user.avatars) && user.avatars.length > 0) {
@@ -108,16 +102,19 @@ export async function GET(
           }
 
           userDetails = {
-            fullName: user.fullName || `${user.firstName || ''} ${user.lastName || ''}`.trim() || username,
+            fullName:
+              user.fullName || `${user.firstName || ''} ${user.lastName || ''}`.trim() || username,
             avatar: avatarUrl,
             isPopularInvestor: user.isPi || false,
             piLevel: user.piLevel || 0,
-            country: user.country || 0
+            country: user.country || 0,
           };
         }
       }
     } catch (error) {
-      logger.warn('Failed to fetch user details', { error: error instanceof Error ? error.message : String(error) });
+      logger.warn('Failed to fetch user details', {
+        error: error instanceof Error ? error.message : String(error),
+      });
     }
 
     // Build portfolio summary with sorted positions and logos
@@ -136,16 +133,27 @@ export async function GET(
       riskScore: portfolio.riskScore,
       trades: portfolio.trades,
       winRatio: portfolio.winRatio,
-      topPositions: portfolio.positions
-        ?.sort((a: { marketValue: number }, b: { marketValue: number }) => b.marketValue - a.marketValue)
-        ?.slice(0, 10)
-        ?.map((p: { symbol: string; instrumentName?: string; instrumentId: number; marketValue: number }) => ({
-          symbol: p.symbol,
-          instrumentName: p.instrumentName,
-          instrumentId: p.instrumentId,
-          marketValue: p.marketValue,  // This is percentage (0-100) for public portfolios
-          logoUrl: `https://etoro-cdn.etorostatic.com/market-avatars/${p.instrumentId}/150x150.png`
-        })) || []
+      topPositions:
+        portfolio.positions
+          ?.sort(
+            (a: { marketValue: number }, b: { marketValue: number }) =>
+              b.marketValue - a.marketValue,
+          )
+          ?.slice(0, 10)
+          ?.map(
+            (p: {
+              symbol: string;
+              instrumentName?: string;
+              instrumentId: number;
+              marketValue: number;
+            }) => ({
+              symbol: p.symbol,
+              instrumentName: p.instrumentName,
+              instrumentId: p.instrumentId,
+              marketValue: p.marketValue, // This is percentage (0-100) for public portfolios
+              logoUrl: `https://etoro-cdn.etorostatic.com/market-avatars/${p.instrumentId}/150x150.png`,
+            }),
+          ) || [],
     };
 
     // Get performance data from census file (has weekTDReturn, monthTDReturn)
@@ -159,8 +167,8 @@ export async function GET(
         eliteGroupComparison: eliteComparison,
         broadMarketHoldings: broadMarket.topHoldings || [],
         performanceData: performanceHoldings, // Full holdings with Week TD and MTD data
-        timestamp: new Date().toISOString()
-      }
+        timestamp: new Date().toISOString(),
+      },
     });
 
     // Add cache control headers to prevent caching
@@ -170,13 +178,15 @@ export async function GET(
 
     return response;
   } catch (error) {
-    logger.error('Failed to get public portfolio insights', { error: error instanceof Error ? error.message : String(error) });
+    logger.error('Failed to get public portfolio insights', {
+      error: error instanceof Error ? error.message : String(error),
+    });
     return NextResponse.json(
       {
         success: false,
-        error: error instanceof Error ? error.message : 'Failed to analyze portfolio'
+        error: error instanceof Error ? error.message : 'Failed to analyze portfolio',
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

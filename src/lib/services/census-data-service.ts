@@ -207,12 +207,15 @@ interface CensusData {
     details: CensusInstrumentDetail[];
     priceData: CensusInstrumentPrice[];
   };
-  userDetails?: Record<string, {
-    username: string;
-    avatar?: {
-      url: string;
-    };
-  }>;
+  userDetails?: Record<
+    string,
+    {
+      username: string;
+      avatar?: {
+        url: string;
+      };
+    }
+  >;
   metadata: {
     timestamp: string;
     investorCount: number;
@@ -298,8 +301,8 @@ class CensusDataService {
 
         const dataDir = path.join(process.cwd(), 'public', 'data');
         const dataFiles = [
-          'census-data-latest.json',            // Fixed filename for Vercel deployment
-          'latest-census.json',                 // Symlink fallback (for local dev)
+          'census-data-latest.json', // Fixed filename for Vercel deployment
+          'latest-census.json', // Symlink fallback (for local dev)
         ];
 
         for (const fileName of dataFiles) {
@@ -321,13 +324,13 @@ class CensusDataService {
         // On Vercel serverless, we need absolute URLs, so use baseUrl if provided
         const urlBase = baseUrl || '';
         const dataFiles = [
-          '/data/census-data-latest.json',            // Fixed filename for Vercel deployment
-          '/data/latest-census.json',                 // Symlink fallback (for local dev)
+          '/data/census-data-latest.json', // Fixed filename for Vercel deployment
+          '/data/latest-census.json', // Symlink fallback (for local dev)
         ];
 
         for (const file of dataFiles) {
+          const url = `${urlBase}${file}`;
           try {
-            const url = `${urlBase}${file}`;
             logger.debug('Attempting to load census data', { source: url });
             const response = await fetch(url);
             if (response.ok) {
@@ -337,15 +340,25 @@ class CensusDataService {
               logger.info('Successfully loaded census data', { source: url });
               return this.censusData;
             }
-          } catch (_err) {
-            logger.debug('Census data file not found, trying next', { source: file });
+            logger.warn('Census data fetch returned non-OK response', {
+              source: url,
+              status: response.status,
+              statusText: response.statusText,
+            });
+          } catch (err) {
+            logger.warn('Census data fetch threw', {
+              source: url,
+              error: err instanceof Error ? err.message : String(err),
+            });
           }
         }
       }
 
-      logger.error('Failed to load census data from any source');
+      logger.error('Failed to load census data from any source', { baseUrl });
     } catch (error) {
-      logger.error('Failed to load census data', { error: error instanceof Error ? error.message : String(error) });
+      logger.error('Failed to load census data', {
+        error: error instanceof Error ? error.message : String(error),
+      });
     }
 
     return null;
@@ -362,22 +375,20 @@ class CensusDataService {
     const instrumentDetailsMap = this.getInstrumentDetailsMap();
     const instrumentPriceMap = this.getInstrumentPriceMap();
 
-    return data.analyses[0].topHoldings
-      .slice(0, limit)
-      .map(holding => {
-        const details = instrumentDetailsMap.get(holding.instrumentId);
-        const priceData = instrumentPriceMap.get(holding.instrumentId);
+    return data.analyses[0].topHoldings.slice(0, limit).map((holding) => {
+      const details = instrumentDetailsMap.get(holding.instrumentId);
+      const priceData = instrumentPriceMap.get(holding.instrumentId);
 
-        return {
-          ...holding,
-          name: holding.instrumentName || details?.instrumentDisplayName || holding.symbol,
-          imageUrl: holding.imageUrl || details?.images?.[2]?.uri, // 50x50 image
-          currentPrice: priceData?.currentPrice,
-          dayChange: holding.yesterdayReturn,
-          weekChange: holding.weekTDReturn,
-          monthChange: holding.monthTDReturn
-        };
-      });
+      return {
+        ...holding,
+        name: holding.instrumentName || details?.instrumentDisplayName || holding.symbol,
+        imageUrl: holding.imageUrl || details?.images?.[2]?.uri, // 50x50 image
+        currentPrice: priceData?.currentPrice,
+        dayChange: holding.yesterdayReturn,
+        weekChange: holding.weekTDReturn,
+        monthChange: holding.monthTDReturn,
+      };
+    });
   }
 
   /**
@@ -397,22 +408,24 @@ class CensusDataService {
       .sort((a, b) => b.gain - a.gain)
       .slice(0, limit)
       .map((investor, index) => {
-        const username = investor.username ||
-                        userDetailsMap[Object.keys(userDetailsMap)[index]]?.username ||
-                        `Investor${index + 1}`;
+        const username =
+          investor.username ||
+          userDetailsMap[Object.keys(userDetailsMap)[index]]?.username ||
+          `Investor${index + 1}`;
 
         return {
           ...investor,
           username,
-          portfolioSize: investor.portfolio?.positionsCount || investor.portfolio?.positions?.length || 0,
-          topHoldings: investor.portfolio?.positions?.slice(0, 5).map(p => {
+          portfolioSize:
+            investor.portfolio?.positionsCount || investor.portfolio?.positions?.length || 0,
+          topHoldings: investor.portfolio?.positions?.slice(0, 5).map((p) => {
             const details = instrumentDetailsMap.get(p.instrumentId);
             return {
               symbol: p.symbol || details?.symbolFull || 'N/A',
               allocation: p.percentage,
-              name: details?.instrumentDisplayName || p.symbol || 'Unknown'
+              name: details?.instrumentDisplayName || p.symbol || 'Unknown',
             };
-          })
+          }),
         };
       });
   }
@@ -433,7 +446,7 @@ class CensusDataService {
       averageCashPercent: analysis.averages?.cashPercent || 15,
       averagePositions: analysis.averages?.positions || 20,
       fearGreedIndex: analysis.fearGreedIndex,
-      marketSentiment: this.calculateMarketSentiment(analysis)
+      marketSentiment: this.calculateMarketSentiment(analysis),
     };
   }
 
@@ -449,7 +462,7 @@ class CensusDataService {
     for (const symbol of symbols) {
       let count = 0;
       for (const investor of data.investors) {
-        if (investor.portfolio?.positions?.some(p => p.symbol === symbol)) {
+        if (investor.portfolio?.positions?.some((p) => p.symbol === symbol)) {
           count++;
         }
       }
@@ -463,7 +476,10 @@ class CensusDataService {
    * Get smart money flow (what top investors are buying/selling)
    * Can analyze different investor groups
    */
-  async getSmartMoneyFlow(groupType: 'all' | 'topCopiers' | 'topPerformers' | 'lowRisk' = 'all', baseUrl?: string): Promise<SmartMoneyFlow> {
+  async getSmartMoneyFlow(
+    groupType: 'all' | 'topCopiers' | 'topPerformers' | 'lowRisk' = 'all',
+    baseUrl?: string,
+  ): Promise<SmartMoneyFlow> {
     const data = await this.loadCensusData(baseUrl);
     if (!data) {
       logger.debug('No census data loaded for smart money flow');
@@ -473,10 +489,12 @@ class CensusDataService {
         investorCount: 0,
         topHoldings: [],
         risingStars: [],
-        consensus: []
+        consensus: [],
       };
     }
-    logger.debug('Census data loaded for smart money flow', { investorCount: data.investors?.length });
+    logger.debug('Census data loaded for smart money flow', {
+      investorCount: data.investors?.length,
+    });
 
     // Use memoized map (built when data was loaded)
     const instrumentDetailsMap = this.getInstrumentDetailsMap();
@@ -488,24 +506,20 @@ class CensusDataService {
     switch (groupType) {
       case 'topCopiers':
         // Top 100 by copiers (most trusted)
-        topInvestors = data.investors
-          .sort((a, b) => b.copiers - a.copiers)
-          .slice(0, 100);
+        topInvestors = data.investors.sort((a, b) => b.copiers - a.copiers).slice(0, 100);
         groupDescription = 'Top 100 Most Copied (Social Proof)';
         break;
 
       case 'topPerformers':
         // Top 100 by YTD performance
-        topInvestors = data.investors
-          .sort((a, b) => b.gain - a.gain)
-          .slice(0, 100);
+        topInvestors = data.investors.sort((a, b) => b.gain - a.gain).slice(0, 100);
         groupDescription = 'Top 100 YTD Performers';
         break;
 
       case 'lowRisk':
         // Top 100 by lowest risk score (most conservative)
         topInvestors = data.investors
-          .filter(inv => inv.riskScore !== undefined && inv.riskScore > 0)
+          .filter((inv) => inv.riskScore !== undefined && inv.riskScore > 0)
           .sort((a, b) => (a.riskScore ?? 0) - (b.riskScore ?? 0))
           .slice(0, 100);
         groupDescription = 'Top 100 Conservative (Low Risk)';
@@ -520,7 +534,10 @@ class CensusDataService {
     logger.debug('Smart money flow group selected', { count: topInvestors.length });
 
     // Aggregate their holdings by instrumentId (more reliable than symbol)
-    const holdingsMap = new Map<number, { symbol: string, investors: Set<number>, totalAllocation: number }>();
+    const holdingsMap = new Map<
+      number,
+      { symbol: string; investors: Set<number>; totalAllocation: number }
+    >();
 
     for (let investorIndex = 0; investorIndex < topInvestors.length; investorIndex++) {
       const investor = topInvestors[investorIndex];
@@ -529,19 +546,26 @@ class CensusDataService {
 
       for (const position of investor.portfolio?.positions || []) {
         const currentAllocation = investorPositionsByInstrument.get(position.instrumentId) || 0;
-        const positionAllocation = position.percentage || (100 / Math.max(10, investor.portfolio?.positions?.length || 20));
-        investorPositionsByInstrument.set(position.instrumentId, currentAllocation + positionAllocation);
+        const positionAllocation =
+          position.percentage || 100 / Math.max(10, investor.portfolio?.positions?.length || 20);
+        investorPositionsByInstrument.set(
+          position.instrumentId,
+          currentAllocation + positionAllocation,
+        );
       }
 
       // Now add aggregated positions to the holdings map
-      for (const [instrumentId, totalInvestorAllocation] of investorPositionsByInstrument.entries()) {
+      for (const [
+        instrumentId,
+        totalInvestorAllocation,
+      ] of investorPositionsByInstrument.entries()) {
         const details = instrumentDetailsMap.get(instrumentId);
         const symbol = details?.symbolFull || `ID${instrumentId}`;
 
         const current = holdingsMap.get(instrumentId) || {
           symbol,
           investors: new Set<number>(),
-          totalAllocation: 0
+          totalAllocation: 0,
         };
 
         // Add this investor to the set (ensures unique counting)
@@ -563,7 +587,7 @@ class CensusDataService {
           symbol: data.symbol,
           holdersCount: uniqueHolders,
           averageAllocation: data.totalAllocation / Math.max(1, uniqueHolders),
-          penetration: (uniqueHolders / Math.max(1, topInvestors.length)) * 100
+          penetration: (uniqueHolders / Math.max(1, topInvestors.length)) * 100,
         };
       })
       .sort((a, b) => b.penetration - a.penetration);
@@ -575,8 +599,8 @@ class CensusDataService {
       groupDescription,
       investorCount: topInvestors.length,
       topHoldings: smartHoldings.slice(0, 20),
-      risingStars: smartHoldings.filter(h => h.penetration > 30 && h.penetration < 60),
-      consensus: smartHoldings.filter(h => h.penetration > 60)
+      risingStars: smartHoldings.filter((h) => h.penetration > 30 && h.penetration < 60),
+      consensus: smartHoldings.filter((h) => h.penetration > 60),
     };
   }
 
@@ -631,15 +655,18 @@ class CensusDataService {
       const massRate = massHoldings.get(symbol) || 0;
       const divergence = topRate - massRate;
 
-      if (Math.abs(divergence) > 20) { // Significant divergence
-        const signal: DivergenceOpportunity['signal'] = divergence > 0 ? 'SMART_ACCUMULATING' : 'SMART_DISTRIBUTING';
+      if (Math.abs(divergence) > 20) {
+        // Significant divergence
+        const signal: DivergenceOpportunity['signal'] =
+          divergence > 0 ? 'SMART_ACCUMULATING' : 'SMART_DISTRIBUTING';
         opportunities.push({
           symbol,
           smartMoneyHolding: topRate,
           massHolding: massRate,
           divergence,
           signal,
-          opportunity: divergence > 0 ? 'Consider following smart money' : 'Consider taking profits'
+          opportunity:
+            divergence > 0 ? 'Consider following smart money' : 'Consider taking profits',
         });
       }
     }
@@ -655,7 +682,7 @@ class CensusDataService {
 
     for (const investor of investors) {
       const uniqueSymbols = new Set<string>(
-        investor.portfolio?.positions?.map((p) => p.symbol).filter((s): s is string => !!s) || []
+        investor.portfolio?.positions?.map((p) => p.symbol).filter((s): s is string => !!s) || [],
       );
 
       for (const symbol of uniqueSymbols) {
