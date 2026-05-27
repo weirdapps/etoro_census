@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { simplifiedIntelligence } from '@/lib/services/simplified-intelligence-service';
 import { logger } from '@/lib/logger';
+import { getInternalBaseUrl } from '@/lib/utils/vercel-base-url';
 
 // Disable all caching for this endpoint
 export const dynamic = 'force-dynamic';
@@ -17,39 +18,35 @@ export async function GET(request: Request) {
         {
           success: false,
           error: 'API_CREDENTIALS_MISSING',
-          message: 'Personal portfolio analysis requires eToro API credentials. Please configure ETORO_API_KEY and ETORO_USER_KEY environment variables in your deployment settings.',
+          message:
+            'Personal portfolio analysis requires eToro API credentials. Please configure ETORO_API_KEY and ETORO_USER_KEY environment variables in your deployment settings.',
           instructions: {
-            vercel: 'Go to Project Settings → Environment Variables and add ETORO_API_KEY and ETORO_USER_KEY',
-            local: 'Create a .env.local file with ETORO_API_KEY and ETORO_USER_KEY values'
-          }
+            vercel:
+              'Go to Project Settings → Environment Variables and add ETORO_API_KEY and ETORO_USER_KEY',
+            local: 'Create a .env.local file with ETORO_API_KEY and ETORO_USER_KEY values',
+          },
         },
-        { status: 503 } // Service Unavailable
+        { status: 503 }, // Service Unavailable
       );
     }
 
     // Build base URL from server-controlled env vars (NOT request.url, which
-    // would be user-controlled via Host header → SSRF risk). Mirrors the safe
-    // pattern already used in /api/public/[username]/route.ts. See issue #76.
-    const baseUrl = process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}`
-      : (process.env.NEXT_PUBLIC_SITE_URL ?? '');
+    // would be user-controlled via Host header → SSRF risk; see issue #76).
+    // Prefer the production/branch alias over VERCEL_URL: the immutable URL
+    // is gated by Vercel Deployment Protection (401 → SSO) which silently
+    // breaks the function's self-fetch in loadCensusData.
+    const baseUrl = getInternalBaseUrl();
 
     // Fetch all simplified intelligence modules in parallel
-    const [
-      portfolio,
-      smartMoney,
-      performance,
-      holdings,
-      risk,
-      eliteGroupComparison
-    ] = await Promise.all([
-      simplifiedIntelligence.getPortfolioSummary(),
-      simplifiedIntelligence.getSmartMoneyAnalysis('all', baseUrl),
-      simplifiedIntelligence.getPerformanceComparison(),
-      simplifiedIntelligence.getTopHoldingsInsights(baseUrl),
-      simplifiedIntelligence.getRiskAssessment(),
-      simplifiedIntelligence.getEliteGroupComparison(baseUrl)
-    ]);
+    const [portfolio, smartMoney, performance, holdings, risk, eliteGroupComparison] =
+      await Promise.all([
+        simplifiedIntelligence.getPortfolioSummary(),
+        simplifiedIntelligence.getSmartMoneyAnalysis('all', baseUrl),
+        simplifiedIntelligence.getPerformanceComparison(),
+        simplifiedIntelligence.getTopHoldingsInsights(baseUrl),
+        simplifiedIntelligence.getRiskAssessment(),
+        simplifiedIntelligence.getEliteGroupComparison(baseUrl),
+      ]);
 
     const response = NextResponse.json({
       success: true,
@@ -59,9 +56,9 @@ export async function GET(request: Request) {
         performance,
         holdings,
         risk,
-        eliteGroupComparison
+        eliteGroupComparison,
       },
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
 
     // Add cache control headers to prevent any caching
@@ -71,13 +68,15 @@ export async function GET(request: Request) {
 
     return response;
   } catch (error) {
-    logger.error('Failed to get simplified intelligence', { error: error instanceof Error ? error.message : String(error) });
+    logger.error('Failed to get simplified intelligence', {
+      error: error instanceof Error ? error.message : String(error),
+    });
     return NextResponse.json(
       {
         success: false,
-        error: 'Failed to analyze portfolio'
+        error: 'Failed to analyze portfolio',
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
