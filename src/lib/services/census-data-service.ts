@@ -4,6 +4,7 @@
  */
 
 import { logger } from '../logger';
+import { getInternalBaseUrl } from '../utils/vercel-base-url';
 
 // Distribution bucket type (e.g., { "0-10%": 15, "10-20%": 25 })
 type DistributionBuckets = Record<string, number>;
@@ -320,9 +321,12 @@ class CensusDataService {
           }
         }
       } else {
-        // Client-side OR Vercel server-side: Use fetch
-        // On Vercel serverless, we need absolute URLs, so use baseUrl if provided
-        const urlBase = baseUrl || '';
+        // Client-side OR Vercel server-side: Use fetch.
+        // On Vercel serverless we need absolute URLs. Resolve our own base if
+        // the caller didn't pass one (e.g. getTopHoldings, getMarketStats),
+        // otherwise those internal callers race the cache and lose, then fail
+        // with a relative URL fetch.
+        const urlBase = baseUrl || getInternalBaseUrl();
         const dataFiles = [
           '/data/census-data-latest.json', // Fixed filename for Vercel deployment
           '/data/latest-census.json', // Symlink fallback (for local dev)
