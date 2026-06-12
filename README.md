@@ -1,5 +1,11 @@
 # eToro Popular Investors Census
 
+[![CI](https://github.com/weirdapps/etoro_census/actions/workflows/ci.yml/badge.svg)](https://github.com/weirdapps/etoro_census/actions/workflows/ci.yml)
+[![SonarCloud](https://sonarcloud.io/api/project_badges/measure?project=weirdapps_etoro_census&metric=alert_status)](https://sonarcloud.io/project/overview?id=weirdapps_etoro_census)
+[![CodeQL](https://github.com/weirdapps/etoro_census/actions/workflows/codeql.yml/badge.svg)](https://github.com/weirdapps/etoro_census/actions/workflows/codeql.yml)
+[![Node.js 22](https://img.shields.io/badge/node-22-brightgreen?logo=node.js)](https://nodejs.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 A web application for analyzing portfolios and performance metrics of eToro's most popular investors. Provides data-driven insights into investor behavior, portfolio composition, and market sentiment across 1,500 popular investors.
 
 <!-- Deployment trigger: 2025-12-07 -->
@@ -13,6 +19,7 @@ A web application for analyzing portfolios and performance metrics of eToro's mo
 ## What It Does
 
 This tool analyzes eToro's popular investors to provide:
+
 - Portfolio composition and diversification metrics
 - Cash allocation patterns across investors
 - Performance distribution analysis
@@ -24,6 +31,7 @@ The analysis processes data from up to 1,500 popular investors and generates com
 ## Key Features
 
 ### 📊 Analysis Metrics
+
 - **Fear & Greed Index**: Sentiment indicator based on average cash holdings (30% cash = 0 display, 0% cash = 100 display)
 - **Portfolio Diversification**: Distribution of unique instruments across portfolios
 - **Cash Allocation**: Cash percentage patterns with risk implications
@@ -32,6 +40,7 @@ The analysis processes data from up to 1,500 popular investors and generates com
 - **Trading Activity**: Average trades count and win ratios
 
 ### 👥 Investor Rankings
+
 - Ranked by copiers (social proof metric)
 - Profile information and performance data
 - YTD gains, trade statistics, risk scores
@@ -39,6 +48,7 @@ The analysis processes data from up to 1,500 popular investors and generates com
 - Paginated display (20 per page)
 
 ### 🏆 Popular Holdings
+
 - Most common instruments across portfolios
 - Average allocation percentages
 - Recent performance data (Yesterday/WTD/MTD returns)
@@ -46,6 +56,7 @@ The analysis processes data from up to 1,500 popular investors and generates com
 - Color-coded return indicators
 
 ### ⚡ Real-Time Processing
+
 - Server-Sent Events for progress updates
 - Detailed phase-by-phase status messages
 - Handles 1,500 investors efficiently
@@ -54,6 +65,7 @@ The analysis processes data from up to 1,500 popular investors and generates com
 ## Tech Stack
 
 ### Frontend
+
 - **Framework**: Next.js 16.2.1 with App Router
 - **Language**: TypeScript with strict typing
 - **Styling**: Tailwind CSS v4 + Radix UI components
@@ -63,6 +75,7 @@ The analysis processes data from up to 1,500 popular investors and generates com
 - **Testing**: Vitest with 326+ tests (comprehensive service, schema, and utility coverage)
 
 ### Backend
+
 - **API**: RESTful endpoints with streaming support
 - **Data Collection**: Single-pass architecture with circuit breakers
 - **Resilience**: Circuit breaker pattern with exponential backoff retry
@@ -72,6 +85,7 @@ The analysis processes data from up to 1,500 popular investors and generates com
 - **Export**: JSON data with comprehensive details
 
 ### Infrastructure
+
 - **Deployment**: Vercel (production) + GitHub Pages (reports)
 - **Database**: Supabase (PostgreSQL) for historical data
 - **Automation**: Daily reports via GitHub Actions (00:00 UTC)
@@ -81,7 +95,9 @@ The analysis processes data from up to 1,500 popular investors and generates com
 ## Architecture
 
 ### Single-Pass Data Collection
+
 The application uses an optimized data collection strategy:
+
 - One comprehensive API fetch per analysis
 - Multiple analysis bands from same dataset (100/500/1000/1500 investors)
 - Circuit breakers with adaptive error handling
@@ -89,6 +105,7 @@ The application uses an optimized data collection strategy:
 - Smart batching (50 items per call)
 
 ### Services
+
 - **DataCollectionService**: Handles all API interactions with progress tracking
 - **AnalysisService**: Generates insights from collected data
 - **InstrumentService**: Manages asset information
@@ -96,7 +113,7 @@ The application uses an optimized data collection strategy:
 
 ## Project Structure
 
-```
+```text
 src/
 ├── app/                          # Next.js App Router
 │   ├── api/                      # API routes
@@ -161,6 +178,7 @@ supabase/                         # Database schema
 ## Getting Started
 
 ### Prerequisites
+
 - Node.js 18+
 - npm/yarn/pnpm
 - eToro API credentials
@@ -168,6 +186,7 @@ supabase/                         # Database schema
 ### Installation
 
 1. Clone and install:
+
    ```bash
    git clone <repository-url>
    cd etoro_census
@@ -175,6 +194,7 @@ supabase/                         # Database schema
    ```
 
 2. Configure environment (`.env.local`):
+
    ```env
    ETORO_API_BASE_URL=https://www.etoro.com/api/public
    ETORO_API_KEY=your_api_key_here
@@ -182,12 +202,15 @@ supabase/                         # Database schema
    ```
 
 3. Run development server:
+
    ```bash
    npm run dev
    ```
+
    Navigate to [http://localhost:3600](http://localhost:3600)
 
 ### Production Build
+
 ```bash
 npm run build
 npm start
@@ -196,6 +219,7 @@ npm start
 ## Analysis Tools
 
 ### Social Media Post Generators
+
 Generate formatted updates for the eToro community:
 
 ```bash
@@ -213,18 +237,21 @@ npx tsx analysis/generate-all-posts.ts
 ```
 
 Features:
+
 - Unicode sans-serif bold formatting (eToro compatible)
 - Copier activity tracking (daily/weekly/monthly gainers/losers)
 - Top 100 vs. broad market performance comparisons
 - Adaptive insights based on data
 
 ### PI Feed Collection
+
 ```bash
 # Collect recent posts from top Popular Investors
 npx tsx analysis/collect-feeds.ts
 ```
 
 ### Performance Analysis
+
 ```bash
 # Hot hands - investors on winning streaks
 node analysis/hot-hands.js
@@ -238,6 +265,7 @@ node generate-follower-chart.js
 ```
 
 ### Advanced Analysis
+
 - **Risk vs Return**: Interactive charts (see `analysis/risk-return/README.md`)
 - **Performance Comparison**: Outperformance analysis tools
 - **Follower Distribution**: Power law analysis across all 1,500 investors
@@ -245,13 +273,15 @@ node generate-follower-chart.js
 ## API Integration
 
 ### Authentication Headers
-```
+
+```text
 X-API-KEY: eToro API authentication key
 X-USER-KEY: User-specific authorization
 X-REQUEST-ID: UUID for request tracking
 ```
 
 ### Key Endpoints
+
 - Popular Investors: `/v1/user-info/people/search`
 - Portfolios: `/v1/user-info/people/{username}/portfolio/live`
 - Trade Info: `/v1/user-info/people/{username}/tradeinfo?period=currYear`
@@ -262,13 +292,16 @@ X-REQUEST-ID: UUID for request tracking
 ## Deployment
 
 ### Automated Daily Reports
+
 GitHub Actions workflow runs daily at 00:00 UTC:
+
 - Analyzes all 1,500 popular investors
 - Generates HTML reports and JSON data
 - Deploys to GitHub Pages
 - Triggers Vercel deployment
 
 ### Manual Deployment
+
 ```bash
 # Deploy to Vercel
 vercel --prod
@@ -280,11 +313,13 @@ git push origin master
 ## Configuration
 
 ### Investor Selection
+
 - **Range**: 1-1500 investors (validated)
 - **Default**: 100 investors
 - **API Limit**: eToro caps at exactly 1,500 popular investors
 
 ### Performance Periods
+
 - Year to Date (default)
 - Current Month/Quarter
 - Historical periods (1, 3, 6 months ago)
@@ -293,6 +328,7 @@ git push origin master
 ## Performance Optimizations
 
 ### Data Collection
+
 - Single-pass collection eliminates redundant API calls
 - Circuit breakers prevent cascade failures
 - Adaptive delays based on error rates (75ms to 1500ms)
@@ -300,12 +336,14 @@ git push origin master
 - Batch processing (50 items per API call)
 
 ### Analysis Generation
+
 - Zero API calls for analysis (uses pre-collected data)
 - Multiple investor bands processed simultaneously
 - Shared dataset across all analysis types
 - Fast processing without network delays
 
 ### GitHub Actions
+
 - Disk space optimization (removes unnecessary SDKs)
 - Efficient artifact handling (last 7 days of reports)
 - Build cache cleanup
@@ -314,12 +352,14 @@ git push origin master
 ## Development
 
 ### Code Style
+
 - TypeScript with strict typing
 - ESLint + Prettier configuration
 - Consistent naming conventions
 - Comprehensive error handling
 
 ### Component Guidelines
+
 - Functional components with hooks
 - Typed props interfaces
 - Responsive Tailwind CSS design
@@ -328,6 +368,7 @@ git push origin master
 - Accessibility considerations
 
 ### Testing
+
 ```bash
 # Run tests
 npm test
@@ -340,6 +381,7 @@ npm test -- --coverage
 ```
 
 Current test coverage: 326+ tests across:
+
 - Services (DataCollectionService, AnalysisService, InstrumentService, UserService, AssetService)
 - Schemas (Investor, Instrument, Portfolio - 100% coverage)
 - Middleware (Request validation, API response utilities)
@@ -347,6 +389,7 @@ Current test coverage: 326+ tests across:
 - API Config (Circuit breaker, retry logic)
 
 ### Data Management
+
 ```bash
 # Compress historical data (7+ days old)
 node scripts/compress-historical-data.js
@@ -375,7 +418,7 @@ For development clones that don't need history, use a shallow clone:
 git clone --depth 1 git@github.com:weirdapps/etoro_census.git
 ```
 
-This drops the historical commits but keeps the working tree intact. The `scripts/compress-historical-data.js` script (above) reduces on-disk size for older snapshots; it does *not* delete data.
+This drops the historical commits but keeps the working tree intact. The `scripts/compress-historical-data.js` script (above) reduces on-disk size for older snapshots; it does _not_ delete data.
 
 ## Known Limitations
 
@@ -403,5 +446,6 @@ This project is for educational and analysis purposes. Please ensure compliance 
 ## Support
 
 For questions or issues:
+
 - Check existing documentation (ARCHITECTURE.md, CONTRIBUTING.md)
 - Create an issue in the repository
