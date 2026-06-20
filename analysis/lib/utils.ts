@@ -61,10 +61,15 @@ export function getLatestDataFile(): DataFileInfo {
     throw new Error('No data files found in data directory');
   }
   const dataDir = getDataDirectory();
-  return {
-    filename: files[0],
-    filepath: path.join(dataDir, files[0])
-  };
+  for (const file of files) {
+    if (hasGoodCoverage(path.join(dataDir, path.basename(file)))) { // nosemgrep
+      return { filename: file, filepath: path.join(dataDir, path.basename(file)) }; // nosemgrep
+    }
+  }
+  throw new Error(
+    `No data file with Broad Group portfolio coverage ≥${COVERAGE_THRESHOLD * 100}%. ` +
+    `Most recent files appear to be partial syncs.`
+  );
 }
 
 /**
@@ -112,7 +117,20 @@ export function getWeeklyDataFiles(): WeeklyDataFiles {
     throw new Error('Need at least 2 data files to compare');
   }
 
-  const latestFile = files[0];
+  let latestFile: string | null = null;
+  for (const file of files) {
+    if (hasGoodCoverage(path.join(dataDir, path.basename(file)))) { // nosemgrep
+      latestFile = file;
+      break;
+    }
+  }
+  if (!latestFile) {
+    throw new Error(
+      `No recent data file with Broad Group portfolio coverage ≥${COVERAGE_THRESHOLD * 100}%. ` +
+      `Most recent files appear to be partial syncs.`
+    );
+  }
+
   const latestDateMatch = latestFile.match(/(\d{4}-\d{2}-\d{2})/);
   if (!latestDateMatch) {
     throw new Error('Cannot parse date from latest file');
