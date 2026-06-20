@@ -6,42 +6,10 @@ name: Monthly Dependency Refresh
 permissions:
   contents: write
   pull-requests: write
-concurrency:
-  group: deps-refresh
-  cancel-in-progress: false
 jobs:
   refresh:
-    runs-on: ubuntu-latest
-    steps:
-      # actions/checkout v6
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
-      # actions/setup-node v6
-      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
-        with:
-          node-version: '22'
-          cache: 'npm'
-      - name: Refresh dependencies
-        run: |
-          npm update
-          npm install
-      - name: Validate
-        env:
-          NODE_OPTIONS: '--max-old-space-size=4096'
-        run: |
-          npm run lint
-          npx tsc --noEmit
-          npm test -- --run
-          npm run build
-      # peter-evans/create-pull-request v8.1.1
-      - name: Open PR with refreshed lockfile
-        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1
-        with:
-          token: ${{ secrets.PUSH_PAT || github.token }}
-          branch: deps/monthly-refresh
-          delete-branch: true
-          commit-message: 'deps: monthly dependency refresh'
-          title: 'deps: monthly dependency refresh'
-          body: |
-            Automated monthly `npm update`. Validation (lint, tsc, test, build) passed on this branch.
-            Review and merge if green.
-          labels: dependencies
+    uses: weirdapps/shared-workflows/.github/workflows/deps-refresh.yml@main
+    with:
+      node_version: '22'
+      gate_cmd: NODE_OPTIONS='--max-old-space-size=4096' npm run lint && npx tsc --noEmit && npm test -- --run && npm run build
+    secrets: inherit
