@@ -184,13 +184,32 @@ jobs:
               fi
             done
       
+      - name: Validate census data was collected
+        run: |
+          TODAY=$(date -u +'%Y-%m-%d')
+          DATA_FILE=$(ls public/data/etoro-data-${TODAY}-*.json 2>/dev/null | head -n 1)
+          if [ -z "$DATA_FILE" ]; then
+            echo "❌ FATAL: No data file created for ${TODAY}"
+            echo "The eToro API likely returned empty data. Check API keys and rate limits."
+            exit 1
+          fi
+          FILE_SIZE=$(stat -c%s "$DATA_FILE")
+          MIN_SIZE=50000000
+          if [ "$FILE_SIZE" -lt "$MIN_SIZE" ]; then
+            echo "❌ FATAL: Data file too small ($(numfmt --to=iec $FILE_SIZE)), expected >$(numfmt --to=iec $MIN_SIZE)"
+            echo "Partial sync detected — most investor portfolios are likely empty."
+            echo "File: $DATA_FILE"
+            exit 1
+          fi
+          echo "✅ Data file validated: $DATA_FILE ($(numfmt --to=iec $FILE_SIZE))"
+
       - name: Stop Next.js server
         if: always()
         run: |
           if [ ! -z "$SERVER_PID" ]; then
             kill $SERVER_PID || true
           fi
-      
+
       - name: Configure Git
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
