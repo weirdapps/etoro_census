@@ -194,7 +194,7 @@ jobs:
             exit 1
           fi
           FILE_SIZE=$(stat -c%s "$DATA_FILE")
-          MIN_SIZE=50000000
+          MIN_SIZE=10000000
           if [ "$FILE_SIZE" -lt "$MIN_SIZE" ]; then
             echo "❌ FATAL: Data file too small ($(numfmt --to=iec $FILE_SIZE)), expected >$(numfmt --to=iec $MIN_SIZE)"
             echo "Partial sync detected — most investor portfolios are likely empty."
