@@ -13,7 +13,7 @@
 set -e
 
 # Configuration
-REPO_DIR="/Users/plessas/SourceCode/etoro_census"
+REPO_DIR="$HOME/SourceCode/etoro_census"
 ARCHIVE_DIR="$REPO_DIR/archive"
 LOG_FILE="/tmp/etoro-census-sync.log"
 
