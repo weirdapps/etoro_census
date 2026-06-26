@@ -21,7 +21,7 @@ interface Position {
 
 class RealPortfolioService {
   private static instance: RealPortfolioService;
-  private readonly baseUrl = 'https://www.etoro.com/api/public/v1';
+  private readonly baseUrl = 'https://public-api.etoro.com/api/v1';
   private cachedPortfolio: any = null;
   private cacheTimestamp: number = 0;
   private readonly CACHE_DURATION = 5 * 60 * 1000; // 5 minute cache for portfolio data
@@ -47,8 +47,8 @@ class RealPortfolioService {
   private getHeaders(): HeadersInit {
     return {
       'Content-Type': 'application/json',
-      'X-API-KEY': process.env.ETORO_PERSONAL_API_KEY || process.env.ETORO_API_KEY || '',
-      'X-USER-KEY': process.env.ETORO_PERSONAL_USER_KEY || process.env.ETORO_USER_KEY || '',
+      'X-API-KEY': process.env.ETORO_API_KEY || process.env.ETORO_PERSONAL_API_KEY || '',
+      'X-USER-KEY': process.env.ETORO_USER_KEY || process.env.ETORO_PERSONAL_USER_KEY || '',
       'X-REQUEST-ID': generateUUID()
     };
   }
@@ -548,7 +548,7 @@ class RealPortfolioService {
     try {
       // Get username from environment or default to 'plessas'
       const username = process.env.ETORO_USERNAME || 'plessas';
-      const url = `https://www.etoro.com/api/public/v1/user-info/people/${username}/tradeinfo?period=currYear`;
+      const url = `${this.baseUrl}/user-info/people/${username}/tradeinfo?period=currYear`;
 
       logger.debug('Fetching trade info', { username });
       const response = await fetch(url, {

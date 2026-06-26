@@ -26,7 +26,7 @@ interface PublicPortfolio {
 
 class PublicPortfolioService {
   private static instance: PublicPortfolioService;
-  private readonly baseUrl = 'https://www.etoro.com/api/public/v1';
+  private readonly baseUrl = 'https://public-api.etoro.com/api/v1';
 
   private constructor() {}
 
@@ -43,8 +43,8 @@ class PublicPortfolioService {
   private getHeaders(): HeadersInit {
     return {
       'Content-Type': 'application/json',
-      'X-API-KEY': process.env.ETORO_PERSONAL_API_KEY || process.env.ETORO_API_KEY || '',
-      'X-USER-KEY': process.env.ETORO_PERSONAL_USER_KEY || process.env.ETORO_USER_KEY || '',
+      'X-API-KEY': process.env.ETORO_API_KEY || process.env.ETORO_PERSONAL_API_KEY || '',
+      'X-USER-KEY': process.env.ETORO_USER_KEY || process.env.ETORO_PERSONAL_USER_KEY || '',
       'X-REQUEST-ID': generateUUID()
     };
   }
@@ -191,7 +191,7 @@ class PublicPortfolioService {
 
           for (let i = 0; i < instrumentIds.length; i += batchSize) {
             const batch = instrumentIds.slice(i, i + batchSize);
-            const url = `https://www.etoro.com/api/public/v1/market-data/instruments?instrumentIDs=${batch.join(',')}`;
+            const url = `${this.baseUrl}/market-data/instruments?instrumentIDs=${batch.join(',')}`;
 
             const response = await fetch(url, { headers: this.getHeaders() });
 

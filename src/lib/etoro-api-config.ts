@@ -2,7 +2,7 @@ import { logger } from './logger';
 import { API } from './constants';
 import { randomUUID } from 'crypto';
 
-export const ETORO_API_BASE_URL = process.env.ETORO_API_BASE_URL || 'https://www.etoro.com/api/public';
+export const ETORO_API_BASE_URL = process.env.ETORO_API_BASE_URL || 'https://public-api.etoro.com/api';
 
 // Use functions to get these values at runtime instead of build time
 const getApiUserKey = () => process.env.ETORO_USER_KEY || '';

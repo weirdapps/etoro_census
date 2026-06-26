@@ -79,11 +79,11 @@ export async function GET(request: Request, { params }: { params: Promise<{ user
     let userDetails = null;
     try {
       const userDetailsResponse = await fetch(
-        `https://www.etoro.com/api/public/v1/user-info/people?usernames=${username}`,
+        `https://public-api.etoro.com/api/v1/user-info/people?usernames=${username}`,
         {
           headers: {
-            'X-API-KEY': process.env.ETORO_PERSONAL_API_KEY || process.env.ETORO_API_KEY || '',
-            'X-USER-KEY': process.env.ETORO_PERSONAL_USER_KEY || process.env.ETORO_USER_KEY || '',
+            'X-API-KEY': process.env.ETORO_API_KEY || process.env.ETORO_PERSONAL_API_KEY || '',
+            'X-USER-KEY': process.env.ETORO_USER_KEY || process.env.ETORO_PERSONAL_USER_KEY || '',
             'X-REQUEST-ID': generateUUID(),
           },
         },
