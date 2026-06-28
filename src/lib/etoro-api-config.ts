@@ -33,7 +33,8 @@ export const getDefaultHeaders = () => {
     'X-API-KEY': getApiKey(),
     'X-REQUEST-ID': generateUUID(),
     'Accept': 'application/json',
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
+    'User-Agent': 'Mozilla/5.0',
   };
   
   // Log warning if keys are missing (only in development)
