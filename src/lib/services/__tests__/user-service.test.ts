@@ -113,12 +113,10 @@ describe('user-service', () => {
       expect(result.positions).toEqual([]);
     });
 
-    it('should handle API errors gracefully', async () => {
+    it('should propagate API errors to caller', async () => {
       vi.mocked(fetchFromEtoroApi).mockRejectedValue(new Error('API Error'));
 
-      const result = await getUserPortfolio('testinvestor1');
-
-      expect(result.positions).toEqual([]);
+      await expect(getUserPortfolio('testinvestor1')).rejects.toThrow('API Error');
     });
 
     it('should calculate profit/loss percentage', async () => {
@@ -227,12 +225,10 @@ describe('user-service', () => {
       expect(result).toBeNull();
     });
 
-    it('should handle errors and return null', async () => {
+    it('should propagate API errors to caller', async () => {
       vi.mocked(fetchFromEtoroApi).mockRejectedValue(new Error('API Error'));
 
-      const result = await getUserTradeInfo('testinvestor1');
-
-      expect(result).toBeNull();
+      await expect(getUserTradeInfo('testinvestor1')).rejects.toThrow('API Error');
     });
 
     it('should use CurrYear period by default', async () => {

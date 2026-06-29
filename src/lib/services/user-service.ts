@@ -78,46 +78,40 @@ export async function getPopularInvestors(
 }
 
 export async function getUserPortfolio(username: string): Promise<UserPortfolio> {
-  try {
-    const endpoint = API_ENDPOINTS.USER_PORTFOLIO_LIVE.replace('{username}', username);
-    logger.info('[Portfolio] Fetching portfolio for user', { username });
+  const endpoint = API_ENDPOINTS.USER_PORTFOLIO_LIVE.replace('{username}', username);
+  logger.debug('[Portfolio] Fetching portfolio for user', { username });
 
-    const response = await fetchFromEtoroApi<UserPortfolio>(endpoint);
+  const response = await fetchFromEtoroApi<UserPortfolio>(endpoint);
 
-    // Detailed logging of response
-    if (!response) {
-      logger.warn('[Portfolio] No response for user', { username });
-      return { positions: [] };
-    }
-
-    if (!response.positions) {
-      logger.warn('[Portfolio] No positions array for user', { username, responseKeys: Object.keys(response) });
-      return { positions: [] };
-    }
-
-    logger.info('[Portfolio] User portfolio retrieved', { username, positionsCount: response.positions.length });
-
-    let totalValue = 0;
-    let profitLoss = 0;
-
-    response.positions.forEach(position => {
-      if (position.netProfit !== undefined) {
-        const positionValue = position.investmentPct || 0;
-        totalValue += positionValue;
-        profitLoss += (position.netProfit * positionValue) / 100;
-      }
-    });
-
-    return {
-      ...response,
-      totalValue,
-      profitLoss,
-      profitLossPercentage: totalValue > 0 ? (profitLoss / totalValue) * 100 : 0
-    };
-  } catch (error) {
-    logger.error('[Portfolio] Error fetching portfolio for user', { username, error: error instanceof Error ? error.message : String(error) });
+  if (!response) {
+    logger.warn('[Portfolio] No response for user', { username });
     return { positions: [] };
   }
+
+  if (!response.positions) {
+    logger.warn('[Portfolio] No positions array for user', { username, responseKeys: Object.keys(response) });
+    return { positions: [] };
+  }
+
+  logger.debug('[Portfolio] User portfolio retrieved', { username, positionsCount: response.positions.length });
+
+  let totalValue = 0;
+  let profitLoss = 0;
+
+  response.positions.forEach(position => {
+    if (position.netProfit !== undefined) {
+      const positionValue = position.investmentPct || 0;
+      totalValue += positionValue;
+      profitLoss += (position.netProfit * positionValue) / 100;
+    }
+  });
+
+  return {
+    ...response,
+    totalValue,
+    profitLoss,
+    profitLossPercentage: totalValue > 0 ? (profitLoss / totalValue) * 100 : 0
+  };
 }
 
 export const clientUserService = {
@@ -277,25 +271,20 @@ export async function getUsersDetails(userIds: number[]): Promise<Map<number, Us
 }
 
 export async function getUserTradeInfo(username: string, period: PeriodType = 'CurrYear'): Promise<UserTradeInfo | null> {
-  try {
-    const baseEndpoint = API_ENDPOINTS.USER_TRADE_INFO.replace('{username}', username);
-    const endpoint = `${baseEndpoint}?period=${period}`;
-    logger.info('[TradeInfo] Fetching trade info for user', { username, period });
+  const baseEndpoint = API_ENDPOINTS.USER_TRADE_INFO.replace('{username}', username);
+  const endpoint = `${baseEndpoint}?period=${period}`;
+  logger.debug('[TradeInfo] Fetching trade info for user', { username, period });
 
-    const response = await fetchFromEtoroApi<UserTradeInfo>(endpoint);
+  const response = await fetchFromEtoroApi<UserTradeInfo>(endpoint);
 
-    if (!response) {
-      logger.warn('[TradeInfo] No response for user', { username });
-      return null;
-    }
-
-    logger.info('[TradeInfo] User trade info retrieved', { username, trades: response.trades || 0, winRatio: response.winRatio || 0 });
-
-    return response;
-  } catch (error) {
-    logger.error('[TradeInfo] Error fetching trade info for user', { username, error: error instanceof Error ? error.message : String(error) });
+  if (!response) {
+    logger.warn('[TradeInfo] No response for user', { username });
     return null;
   }
+
+  logger.debug('[TradeInfo] User trade info retrieved', { username, trades: response.trades || 0, winRatio: response.winRatio || 0 });
+
+  return response;
 }
 
 export function getUserAvatarUrl(user: UserDetail | undefined, hasAvatar?: boolean, username?: string): string | undefined {

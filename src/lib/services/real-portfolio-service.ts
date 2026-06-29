@@ -49,7 +49,8 @@ class RealPortfolioService {
       'Content-Type': 'application/json',
       'X-API-KEY': process.env.ETORO_API_KEY || process.env.ETORO_PERSONAL_API_KEY || '',
       'X-USER-KEY': process.env.ETORO_USER_KEY || process.env.ETORO_PERSONAL_USER_KEY || '',
-      'X-REQUEST-ID': generateUUID()
+      'X-REQUEST-ID': generateUUID(),
+      'User-Agent': 'Mozilla/5.0',
     };
   }
 

@@ -5,6 +5,7 @@ import { getPopularInvestors, getUserPortfolio, getUsersDetailsByUsernames, getU
 import { getInstrumentDetails, getInstrumentPriceData, InstrumentPriceData, InstrumentDisplayData } from './instrument-service';
 import { collectPIFeeds, FeedCollectionConfig } from './feed-service';
 import { batchFetch } from './batch-fetcher';
+import { resetCircuitBreaker } from '../etoro-api-config';
 import { logger } from '../logger';
 
 export interface ProgressCallback {
@@ -102,6 +103,9 @@ export class DataCollectionService {
       updateProgress(Math.round(scaledProgress), message);
     });
 
+    // Reset circuit breaker between phases to prevent cascading failures
+    resetCircuitBreaker();
+
     // Step 2.5: Fetch all trade info with comprehensive error handling
     updateProgress(50, 'Fetching all investor trade info...');
     const investorsWithTradeInfo = await this.fetchAllTradeInfo(investorsWithPortfolios, period, (progress, message) => {
@@ -113,6 +117,8 @@ export class DataCollectionService {
     updateProgress(65, 'Extracting unique instruments from portfolios...');
     const uniqueInstrumentIds = this.extractUniqueInstruments(investorsWithTradeInfo);
     updateProgress(68, `Found ${uniqueInstrumentIds.length} unique instruments`);
+
+    resetCircuitBreaker();
 
     // Step 4: Fetch all instrument details
     updateProgress(70, 'Fetching instrument details...');
@@ -127,6 +133,8 @@ export class DataCollectionService {
       const scaledProgress = 80 + (progress * 10 / 100); // 80-90% range
       updateProgress(Math.round(scaledProgress), message);
     });
+
+    resetCircuitBreaker();
 
     // Step 6: Fetch user details for avatars
     updateProgress(85, 'Fetching user details and avatars...');
