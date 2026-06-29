@@ -260,11 +260,7 @@ export class AnalysisService {
       let totalInvested = 0;
       let cashPercentage = 0;
 
-      // Investors with empty portfolios are filtered out above — they represent
-      // API throttling (not actual 100% cash), and including them inflates
-      // average cash and crashes the Fear & Greed index.
-
-      investor.portfolio.positions.forEach(position => {
+      investor.portfolio!.positions!.forEach(position => {
         const percentage = position.investmentPct || 0;
         totalInvested += percentage;
 

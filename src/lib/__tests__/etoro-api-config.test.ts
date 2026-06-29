@@ -148,7 +148,7 @@ describe('etoro-api-config', () => {
       });
 
       const result = await fetchFromEtoroApi<typeof mockData>(
-        'https://public-api.etoro.com/api/v1/test'
+        'https://www.etoro.com/api/public/v1/test'
       );
 
       expect(result).toEqual(mockData);
@@ -163,7 +163,7 @@ describe('etoro-api-config', () => {
       });
 
       await expect(
-        fetchFromEtoroApi('https://public-api.etoro.com/api/v1/test')
+        fetchFromEtoroApi('https://www.etoro.com/api/public/v1/test')
       ).rejects.toThrow('eToro API request failed: 500');
     }, 10000);
 
@@ -175,7 +175,7 @@ describe('etoro-api-config', () => {
       });
 
       await expect(
-        fetchFromEtoroApi('https://public-api.etoro.com/api/v1/test')
+        fetchFromEtoroApi('https://www.etoro.com/api/public/v1/test')
       ).rejects.toThrow('eToro API request failed: 429');
 
       // Logger.warn uses console.warn internally
@@ -193,7 +193,7 @@ describe('etoro-api-config', () => {
         json: () => Promise.resolve(mockData),
       });
 
-      await fetchFromEtoroApi('https://public-api.etoro.com/api/v1/test', {
+      await fetchFromEtoroApi('https://www.etoro.com/api/public/v1/test', {
         headers: { 'X-Custom-Header': 'custom-value' },
       });
 
@@ -207,7 +207,7 @@ describe('etoro-api-config', () => {
 
       // First failure
       await expect(
-        fetchFromEtoroApi('https://public-api.etoro.com/api/v1/test')
+        fetchFromEtoroApi('https://www.etoro.com/api/public/v1/test')
       ).rejects.toThrow();
 
       const state = getCircuitBreakerState();
@@ -223,7 +223,7 @@ describe('etoro-api-config', () => {
         json: () => Promise.resolve(mockData),
       });
 
-      await fetchFromEtoroApi('https://public-api.etoro.com/api/v1/test');
+      await fetchFromEtoroApi('https://www.etoro.com/api/public/v1/test');
 
       const state = getCircuitBreakerState();
       expect(state.failures).toBe(0);
@@ -239,8 +239,8 @@ describe('etoro-api-config', () => {
       });
 
       const start = Date.now();
-      await fetchFromEtoroApi('https://public-api.etoro.com/api/v1/test');
-      await fetchFromEtoroApi('https://public-api.etoro.com/api/v1/test');
+      await fetchFromEtoroApi('https://www.etoro.com/api/public/v1/test');
+      await fetchFromEtoroApi('https://www.etoro.com/api/public/v1/test');
       const elapsed = Date.now() - start;
 
       // Should take at least 1000ms due to rate limiting (MIN_REQUEST_INTERVAL)
