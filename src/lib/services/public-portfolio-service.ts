@@ -26,7 +26,7 @@ interface PublicPortfolio {
 
 class PublicPortfolioService {
   private static instance: PublicPortfolioService;
-  private readonly baseUrl = 'https://public-api.etoro.com/api/v1';
+  private readonly baseUrl = 'https://www.etoro.com/api/public/v1';
 
   private constructor() {}
 

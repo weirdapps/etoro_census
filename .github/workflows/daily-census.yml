@@ -136,11 +136,11 @@ jobs:
           echo ""
 
           # Call the optimized report endpoint with 1500 investors and PI feeds for briefings
-          # Timeout: 120 minutes (7200 seconds) — collection + analysis + file save
+          # Timeout: 90 minutes (5400 seconds) — typical run is ~40-60 minutes
           curl -X POST http://localhost:3000/api/optimized-report \
             -H "Content-Type: application/json" \
             -d '{"period": "CurrYear", "maxInvestors": 1500, "includeFeeds": true}' \
-            --max-time 7200 \
+            --max-time 5400 \
             --no-buffer \
             --silent \
             --show-error \

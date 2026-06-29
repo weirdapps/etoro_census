@@ -21,7 +21,7 @@ interface Position {
 
 class RealPortfolioService {
   private static instance: RealPortfolioService;
-  private readonly baseUrl = 'https://public-api.etoro.com/api/v1';
+  private readonly baseUrl = 'https://www.etoro.com/api/public/v1';
   private cachedPortfolio: any = null;
   private cacheTimestamp: number = 0;
   private readonly CACHE_DURATION = 5 * 60 * 1000; // 5 minute cache for portfolio data
