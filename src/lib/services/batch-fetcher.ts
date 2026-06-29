@@ -40,10 +40,10 @@ const DEFAULT_CONFIG = {
   timeoutMs: 30000,
   maxConsecutiveErrors: 10,
   progressUpdateInterval: 2000,
-  baseDelayMs: 500,
+  baseDelayMs: 300,
   maxRetries: 3,
   retryBaseDelayMs: 2000,
-  concurrency: 1,
+  concurrency: 2,
 };
 
 /**
