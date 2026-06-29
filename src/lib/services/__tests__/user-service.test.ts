@@ -97,20 +97,16 @@ describe('user-service', () => {
       );
     });
 
-    it('should return empty portfolio when no response', async () => {
+    it('should throw when no response (API throttling)', async () => {
       vi.mocked(fetchFromEtoroApi).mockResolvedValue(null);
 
-      const result = await getUserPortfolio('testinvestor1');
-
-      expect(result.positions).toEqual([]);
+      await expect(getUserPortfolio('testinvestor1')).rejects.toThrow('No API response');
     });
 
-    it('should return empty portfolio when positions missing', async () => {
+    it('should throw when positions missing (API throttling)', async () => {
       vi.mocked(fetchFromEtoroApi).mockResolvedValue({});
 
-      const result = await getUserPortfolio('testinvestor1');
-
-      expect(result.positions).toEqual([]);
+      await expect(getUserPortfolio('testinvestor1')).rejects.toThrow('Empty positions');
     });
 
     it('should propagate API errors to caller', async () => {

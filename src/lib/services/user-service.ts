@@ -84,13 +84,11 @@ export async function getUserPortfolio(username: string): Promise<UserPortfolio>
   const response = await fetchFromEtoroApi<UserPortfolio>(endpoint);
 
   if (!response) {
-    logger.warn('[Portfolio] No response for user', { username });
-    return { positions: [] };
+    throw new Error(`No API response for ${username}`);
   }
 
-  if (!response.positions) {
-    logger.warn('[Portfolio] No positions array for user', { username, responseKeys: Object.keys(response) });
-    return { positions: [] };
+  if (!response.positions || response.positions.length === 0) {
+    throw new Error(`Empty positions for ${username} — likely API throttling`);
   }
 
   logger.debug('[Portfolio] User portfolio retrieved', { username, positionsCount: response.positions.length });
