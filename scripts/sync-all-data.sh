@@ -93,19 +93,30 @@ if [ -n "$RECENT_FILES" ]; then
     # Get the latest file for census-data-latest.json
     LATEST_FILE=$(echo "$RECENT_FILES" | head -1)
     LATEST_FILENAME=$(basename "$LATEST_FILE")
-
-    # Create/update census-data-latest.json as a copy
-    cd "$PUBLIC_DATA"
-    if [ -f "census-data-latest.json" ]; then
-        rm "census-data-latest.json"
-    fi
-    cp "$LATEST_FILENAME" "census-data-latest.json"
-
-    # Extract date from filename
     LATEST_DATE=$(echo "$LATEST_FILENAME" | grep -oE '[0-9]{4}-[0-9]{2}-[0-9]{2}')
     FILES_COPIED=$(echo "$RECENT_FILES" | wc -l | tr -d ' ')
-    echo -e "${GREEN}✓${NC} Synced last ${FILES_COPIED} data files for analysis"
-    echo -e "${GREEN}✓${NC} Latest data: $LATEST_DATE\n"
+
+    # Coverage gate — matches COVERAGE_THRESHOLD = 0.95 in analysis/lib/utils.ts
+    cd "$PUBLIC_DATA"
+    PASS=$(node -e "
+      const data = JSON.parse(require('fs').readFileSync('$LATEST_FILENAME', 'utf8'));
+      const slice = data.investors.slice(0, 1500);
+      const withPortfolio = slice.filter(i => i.portfolio?.positions?.length > 0).length;
+      const coverage = slice.length > 0 ? withPortfolio / slice.length : 0;
+      process.exit(coverage >= 0.95 ? 0 : 1);
+    " && echo "true" || echo "false")
+
+    if [ "$PASS" = "true" ]; then
+        if [ -f "census-data-latest.json" ]; then
+            rm "census-data-latest.json"
+        fi
+        cp "$LATEST_FILENAME" "census-data-latest.json"
+        echo -e "${GREEN}✓${NC} Synced last ${FILES_COPIED} data files for analysis"
+        echo -e "${GREEN}✓${NC} Latest data: $LATEST_DATE (coverage ≥95%)\n"
+    else
+        echo -e "${GREEN}✓${NC} Synced last ${FILES_COPIED} data files for analysis"
+        echo -e "${YELLOW}⚠${NC} Latest data ($LATEST_DATE) has <95% portfolio coverage — kept previous census-data-latest.json\n"
+    fi
     cd "$PROJECT_ROOT"
 else
     echo -e "${RED}✗${NC} No data files found in archive\n"

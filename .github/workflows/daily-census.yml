@@ -203,6 +203,16 @@ jobs:
           fi
           echo "✅ Data file validated: $DATA_FILE ($(numfmt --to=iec $FILE_SIZE))"
 
+          # Portfolio coverage check (informational — the gate is in the latest-copy step)
+          COVERAGE_INFO=$(node -e "
+            const data = JSON.parse(require('fs').readFileSync('$DATA_FILE', 'utf8'));
+            const slice = data.investors.slice(0, 1500);
+            const withPortfolio = slice.filter(i => i.portfolio?.positions?.length > 0).length;
+            const coverage = (withPortfolio / slice.length * 100).toFixed(1);
+            console.log(withPortfolio + '/' + slice.length + ' investors with portfolio data (' + coverage + '% coverage)');
+          ")
+          echo "📊 Coverage: $COVERAGE_INFO"
+
       - name: Stop Next.js server
         if: always()
         run: |
@@ -217,14 +227,30 @@ jobs:
 
       - name: Update latest data file for Vercel deployment
         run: |
-          # Find the most recent data file
           LATEST_DATA=$(ls public/data/etoro-data-*.json 2>/dev/null | sort -r | head -n 1)
-          if [ -n "$LATEST_DATA" ]; then
-            echo "Copying $LATEST_DATA to public/data/census-data-latest.json for Vercel deployment"
-            cp "$LATEST_DATA" public/data/census-data-latest.json
-            echo "✅ Updated census-data-latest.json for Vercel"
-          else
+          if [ -z "$LATEST_DATA" ]; then
             echo "⚠️  No data files found to update census-data-latest.json"
+            exit 0
+          fi
+
+          # Coverage gate — matches COVERAGE_THRESHOLD = 0.95 in analysis/lib/utils.ts
+          COVERAGE=$(node -e "
+            const data = JSON.parse(require('fs').readFileSync('$LATEST_DATA', 'utf8'));
+            const slice = data.investors.slice(0, 1500);
+            const withPortfolio = slice.filter(i => i.portfolio?.positions?.length > 0).length;
+            const coverage = slice.length > 0 ? withPortfolio / slice.length : 0;
+            console.log(JSON.stringify({ pct: Math.round(coverage * 1000) / 10, with: withPortfolio, total: slice.length }));
+          ")
+          echo "📊 Portfolio coverage: $COVERAGE"
+
+          PASS=$(echo "$COVERAGE" | node -e "const d=JSON.parse(require('fs').readFileSync('/dev/stdin','utf8')); process.exit(d.pct >= 95 ? 0 : 1)" && echo "true" || echo "false")
+
+          if [ "$PASS" = "true" ]; then
+            cp "$LATEST_DATA" public/data/census-data-latest.json
+            echo "✅ Updated census-data-latest.json (coverage ≥95%)"
+          else
+            echo "⚠️  SKIPPED: Portfolio coverage below 95% — keeping previous census-data-latest.json"
+            echo "This run's data is archived but NOT published as latest"
           fi
 
       - name: Commit dated files to data-archive branch
