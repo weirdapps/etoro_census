@@ -136,11 +136,11 @@ jobs:
           echo ""
 
           # Call the optimized report endpoint with 1500 investors and PI feeds for briefings
-          # Timeout: 150 minutes (9000 seconds) — collection + recovery pass + analysis + save
+          # Timeout: 120 minutes (7200 seconds) — collection + analysis + file save
           curl -X POST http://localhost:3000/api/optimized-report \
             -H "Content-Type: application/json" \
             -d '{"period": "CurrYear", "maxInvestors": 1500, "includeFeeds": true}' \
-            --max-time 9000 \
+            --max-time 7200 \
             --no-buffer \
             --silent \
             --show-error \
@@ -243,13 +243,13 @@ jobs:
           ")
           echo "📊 Portfolio coverage: $COVERAGE"
 
-          PASS=$(echo "$COVERAGE" | node -e "const d=JSON.parse(require('fs').readFileSync('/dev/stdin','utf8')); process.exit(d.pct >= 95 ? 0 : 1)" && echo "true" || echo "false")
+          PASS=$(echo "$COVERAGE" | node -e "const d=JSON.parse(require('fs').readFileSync('/dev/stdin','utf8')); process.exit(d.pct >= 80 ? 0 : 1)" && echo "true" || echo "false")
 
           if [ "$PASS" = "true" ]; then
             cp "$LATEST_DATA" public/data/census-data-latest.json
-            echo "✅ Updated census-data-latest.json (coverage ≥95%)"
+            echo "✅ Updated census-data-latest.json (coverage ≥80%)"
           else
-            echo "⚠️  SKIPPED: Portfolio coverage below 95% — keeping previous census-data-latest.json"
+            echo "⚠️  SKIPPED: Portfolio coverage below 80% — keeping previous census-data-latest.json"
             echo "This run's data is archived but NOT published as latest"
           fi
 

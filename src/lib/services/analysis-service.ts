@@ -253,20 +253,16 @@ export class AnalysisService {
   }
 
   private calculatePortfolioStats(investors: CollectedInvestorData[]): PortfolioStats[] {
-    return investors.map(investor => {
+    return investors
+      .filter(investor => investor.portfolio?.positions && investor.portfolio.positions.length > 0)
+      .map(investor => {
       const instruments: { [instrumentId: number]: number } = {};
       let totalInvested = 0;
       let cashPercentage = 0;
 
-      if (!investor.portfolio?.positions || investor.portfolio.positions.length === 0) {
-        return {
-          username: investor.userName,
-          cashPercentage: 100,
-          uniqueInstruments: 0,
-          totalGain: investor.gain || 0,
-          instruments: {}
-        };
-      }
+      // Investors with empty portfolios are filtered out above — they represent
+      // API throttling (not actual 100% cash), and including them inflates
+      // average cash and crashes the Fear & Greed index.
 
       investor.portfolio.positions.forEach(position => {
         const percentage = position.investmentPct || 0;

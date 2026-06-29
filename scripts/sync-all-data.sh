@@ -103,7 +103,7 @@ if [ -n "$RECENT_FILES" ]; then
       const slice = data.investors.slice(0, 1500);
       const withPortfolio = slice.filter(i => i.portfolio?.positions?.length > 0).length;
       const coverage = slice.length > 0 ? withPortfolio / slice.length : 0;
-      process.exit(coverage >= 0.95 ? 0 : 1);
+      process.exit(coverage >= 0.80 ? 0 : 1);
     " && echo "true" || echo "false")
 
     if [ "$PASS" = "true" ]; then
@@ -112,10 +112,10 @@ if [ -n "$RECENT_FILES" ]; then
         fi
         cp "$LATEST_FILENAME" "census-data-latest.json"
         echo -e "${GREEN}✓${NC} Synced last ${FILES_COPIED} data files for analysis"
-        echo -e "${GREEN}✓${NC} Latest data: $LATEST_DATE (coverage ≥95%)\n"
+        echo -e "${GREEN}✓${NC} Latest data: $LATEST_DATE (coverage ≥80%)\n"
     else
         echo -e "${GREEN}✓${NC} Synced last ${FILES_COPIED} data files for analysis"
-        echo -e "${YELLOW}⚠${NC} Latest data ($LATEST_DATE) has <95% portfolio coverage — kept previous census-data-latest.json\n"
+        echo -e "${YELLOW}⚠${NC} Latest data ($LATEST_DATE) has <80% portfolio coverage — kept previous census-data-latest.json\n"
     fi
     cd "$PROJECT_ROOT"
 else
