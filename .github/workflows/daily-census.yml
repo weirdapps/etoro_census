@@ -349,21 +349,6 @@ jobs:
             public/data/etoro-data-*.json
           retention-days: 30
 
-      - name: Trigger GitHub Pages deployment
-        if: success()
-        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            // Trigger the deploy-pages workflow
-            await github.rest.actions.createWorkflowDispatch({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              workflow_id: 'deploy-pages.yml',
-              ref: 'master'
-            });
-            console.log('✅ Triggered GitHub Pages deployment workflow');
-
       - name: Trigger Vercel deployment
         if: success()
         env:
