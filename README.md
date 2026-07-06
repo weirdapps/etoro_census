@@ -1,451 +1,258 @@
 # eToro Popular Investors Census
 
 [![CI](https://github.com/weirdapps/etoro_census/actions/workflows/ci.yml/badge.svg)](https://github.com/weirdapps/etoro_census/actions/workflows/ci.yml)
-[![SonarCloud](https://sonarcloud.io/api/project_badges/measure?project=weirdapps_etoro_census&metric=alert_status)](https://sonarcloud.io/project/overview?id=weirdapps_etoro_census)
+[![Daily Census](https://github.com/weirdapps/etoro_census/actions/workflows/daily-census.yml/badge.svg)](https://github.com/weirdapps/etoro_census/actions/workflows/daily-census.yml)
 [![CodeQL](https://github.com/weirdapps/etoro_census/actions/workflows/codeql.yml/badge.svg)](https://github.com/weirdapps/etoro_census/actions/workflows/codeql.yml)
-[![Node.js 22](https://img.shields.io/badge/node-22-brightgreen?logo=node.js)](https://nodejs.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-A web application for analyzing portfolios and performance metrics of eToro's most popular investors. Provides data-driven insights into investor behavior, portfolio composition, and market sentiment across 1,500 popular investors.
+A Next.js web app plus a GitHub Actions pipeline that takes a daily snapshot of the top 1,500 eToro Popular Investors and turns it into portfolio, sentiment, and performance reports.
 
-<!-- Deployment trigger: 2025-12-07 -->
+Links:
 
-🔗 **Live Dashboard**: [weirdapps.github.io/etoro_census](https://weirdapps.github.io/etoro_census)
-📊 **Vercel Deployment**: [etoro-census.vercel.app](https://etoro-census.vercel.app)
-👤 **Author's eToro Profile**: [@plessas](https://www.etoro.com/people/plessas)
+- Daily HTML reports: [weirdapps.github.io/etoro_census](https://weirdapps.github.io/etoro_census)
+- Interactive dashboard (Vercel): [etoro-census.vercel.app](https://etoro-census.vercel.app)
+- Author's eToro profile: [@plessas](https://www.etoro.com/people/plessas)
 
-![screenshots of etoro PI census](src/assets/census.gif)
+![Screenshots of the eToro Popular Investors Census dashboard](src/assets/census.gif)
 
-## What It Does
+## What it does
 
-This tool analyzes eToro's popular investors to provide:
+Every day at 00:00 UTC, a GitHub Actions workflow starts the Next.js server inside the runner, calls its `/api/optimized-report` endpoint, and lets it walk the eToro public API for up to 1,500 Popular Investors. The output is:
 
-- Portfolio composition and diversification metrics
-- Cash allocation patterns across investors
-- Performance distribution analysis
-- Risk appetite insights
-- Market sentiment indicators
+1. A dated JSON snapshot (`etoro-data-YYYY-MM-DD-*.json`) committed to the `data-archive` branch.
+2. A dated HTML report (`etoro-census-YYYY-MM-DD-*.html`) committed to the same branch and republished on GitHub Pages.
+3. A `census-data-latest.json` on `master` that the Vercel Next.js app reads to render the live dashboard.
 
-The analysis processes data from up to 1,500 popular investors and generates comprehensive reports with interactive visualizations.
+The Vercel app exposes three views on top of that data:
 
-## Key Features
+- `/reports` embeds the latest GitHub Pages report in an iframe.
+- `/public` looks up any eToro username and compares that portfolio to the census.
+- `/personal` analyses your own portfolio against the census (needs your eToro API keys).
 
-### 📊 Analysis Metrics
+## Features
 
-- **Fear & Greed Index**: Sentiment indicator based on average cash holdings (30% cash = 0 display, 0% cash = 100 display)
-- **Portfolio Diversification**: Distribution of unique instruments across portfolios
-- **Cash Allocation**: Cash percentage patterns with risk implications
-- **Returns Analysis**: Performance distribution (Yesterday, Week-to-Date, Month-to-Date)
-- **Risk Profiles**: Risk score distribution (Conservative to Very High Risk)
-- **Trading Activity**: Average trades count and win ratios
+Grounded in the code under `src/`, `analysis/`, and `.github/workflows/`.
 
-### 👥 Investor Rankings
+Data collection (`src/lib/services/`, `src/lib/etoro-api-config.ts`):
 
-- Ranked by copiers (social proof metric)
-- Profile information and performance data
-- YTD gains, trade statistics, risk scores
-- Cash percentage indicators
-- Paginated display (20 per page)
+- Single-pass fetch of investor list, per-investor portfolio, trade info, and instrument metadata.
+- Optional Popular Investor feed collection (`includeFeeds: true`).
+- Circuit breaker and rate limiter around every eToro call, with 429 back-off and per-request timeout.
+- Portfolio coverage gate: the daily workflow only promotes a new `census-data-latest.json` when at least 80% of the top 1,500 investors returned a non-empty portfolio.
 
-### 🏆 Popular Holdings
+Analysis (`src/lib/services/analysis-service.ts` and siblings):
 
-- Most common instruments across portfolios
-- Average allocation percentages
-- Recent performance data (Yesterday/WTD/MTD returns)
-- Asset details and ownership statistics
-- Color-coded return indicators
+- Fear and greed proxy derived from average cash holdings.
+- Portfolio diversification and cash-allocation distributions.
+- Return distributions for yesterday, week-to-date, and month-to-date.
+- Risk-score distribution and average trades / win-ratio.
+- Popular holdings across the cohort with average allocation and recent returns.
+- Investor rankings by copiers, with per-investor performance and cash figures.
 
-### ⚡ Real-Time Processing
+Streaming API (`src/app/api/optimized-report/route.ts`):
 
-- Server-Sent Events for progress updates
-- Detailed phase-by-phase status messages
-- Handles 1,500 investors efficiently
-- Comprehensive error recovery
+- Server-Sent Events emit `progress`, `error`, and `complete` frames so the workflow log shows phase-by-phase status.
+- Optional `API_SECRET_KEY` protects the endpoint via `X-API-KEY` when set.
 
-## Tech Stack
+Public and personal lookups:
 
-### Frontend
+- `src/app/api/public/[username]/route.ts` returns a portfolio comparison for any eToro user.
+- `src/app/api/personal/route.ts` does the same for the caller's own keys.
+- `src/app/api/extract-instruments/route.ts` extracts instrument metadata.
 
-- **Framework**: Next.js 16.2.1 with App Router
-- **Language**: TypeScript with strict typing
-- **Styling**: Tailwind CSS v4 + Radix UI components
-- **Theming**: Dark mode support with next-themes
-- **Validation**: Zod schemas
-- **Analytics**: Vercel Analytics + Speed Insights
-- **Testing**: Vitest with 326+ tests (comprehensive service, schema, and utility coverage)
+Reporting site:
 
-### Backend
+- Daily HTML report generation lives in `src/lib/report-generator/` (components, scripts, styles).
+- GitHub Pages surfaces the last 7 daily reports plus the newest data files (see `.github/workflows/deploy-pages.yml`).
 
-- **API**: RESTful endpoints with streaming support
-- **Data Collection**: Single-pass architecture with circuit breakers
-- **Resilience**: Circuit breaker pattern with exponential backoff retry
-- **Validation**: Zod middleware for request/response validation
-- **Logging**: Structured JSON logging (production) / Pretty printing (development)
-- **Error Handling**: Adaptive delays and timeout protection
-- **Export**: JSON data with comprehensive details
+Analysis CLIs (`analysis/`):
 
-### Infrastructure
+- `analysis:daily`, `analysis:weekly`, `analysis:monthly` post generators for the eToro community.
+- `analysis/generate-all-posts.ts` runs all three.
+- `analysis/collect-feeds.ts` pulls recent posts from top Popular Investors.
+- `analysis/hot-hands.js` and `analysis/hot-hands-momentum.js` for winning-streak detection.
+- Sub-projects: `analysis/follower-distribution/`, `analysis/performance-comparison/`, `analysis/risk-return/`.
 
-- **Deployment**: Vercel (production) + GitHub Pages (reports)
-- **Database**: Supabase (PostgreSQL) for historical data
-- **Automation**: Daily reports via GitHub Actions (00:00 UTC)
-- **Monitoring**: Real-time performance tracking
-- **Data Archival**: Gzip compression for historical data (~90% space savings)
+## How it works
 
-## Architecture
-
-### Single-Pass Data Collection
-
-The application uses an optimized data collection strategy:
-
-- One comprehensive API fetch per analysis
-- Multiple analysis bands from same dataset (100/500/1000/1500 investors)
-- Circuit breakers with adaptive error handling
-- 30-second timeouts with graceful fallbacks
-- Smart batching (50 items per call)
-
-### Services
-
-- **DataCollectionService**: Handles all API interactions with progress tracking
-- **AnalysisService**: Generates insights from collected data
-- **InstrumentService**: Manages asset information
-- **UserService**: Handles investor data and authentication
-
-## Project Structure
-
-```text
-src/
-├── app/                          # Next.js App Router
-│   ├── api/                      # API routes
-│   │   ├── optimized-report/    # Main analysis endpoint
-│   │   ├── census-stream/       # Streaming analysis
-│   │   ├── extract-instruments/ # Instrument utilities
-│   │   └── public/[username]/   # Individual investor data
-│   ├── v2/                       # V2 interface routes
-│   ├── globals.css               # Global styles
-│   ├── layout.tsx                # Root layout with analytics
-│   └── page.tsx                  # Main dashboard
-├── components/
-│   ├── analytics.tsx             # Vercel analytics wrapper
-│   ├── census/                   # Analysis components
-│   │   ├── fear-greed-gauge.tsx
-│   │   ├── portfolio-diversification.tsx
-│   │   ├── top-holdings.tsx
-│   │   └── top-performers.tsx
-│   ├── ui/                       # Reusable UI components
-│   └── Disclaimer.tsx            # Legal disclaimers
-├── lib/
-│   ├── models/                   # TypeScript interfaces
-│   ├── services/                 # Business logic
-│   │   ├── data-collection-service.ts
-│   │   ├── analysis-service.ts
-│   │   └── user-service.ts
-│   ├── etoro-api-config.ts       # API configuration
-│   └── utils.ts                  # Utility functions
-└── middleware.ts                 # Next.js middleware
-
-analysis/                         # Analysis tools (TypeScript)
-├── daily-post.ts                 # Daily census updates
-├── weekly-post.ts                # Weekly summaries
-├── monthly-post.ts               # Monthly reports
-├── generate-all-posts.ts         # Run all post generators
-├── collect-feeds.ts              # PI feed collection
-├── lib/
-│   ├── types.ts                  # Type definitions
-│   └── utils.ts                  # Shared utilities
-├── hot-hands.js                  # Winning streak analysis
-├── export-for-integration.ts     # Data export for integrations
-├── follower-distribution/        # Follower analysis tools
-├── performance-comparison/       # Performance tools
-├── risk-return/                  # Risk/return analysis
-└── output/                       # Generated analysis results (gitignored)
-
-scripts/                          # Utility scripts
-├── compress-historical-data.js   # Compress old JSON data
-├── decompress-for-analysis.js    # Extract compressed data
-├── import-historical-to-supabase.js  # Import data to Supabase
-└── sync-daily-to-supabase.js     # Sync daily data to Supabase
-
-supabase/                         # Database schema
-└── migrations/
-    └── 001_initial_schema.sql    # Initial database schema
-
-.github/workflows/                # Automation
-├── daily-census.yml              # Daily report generation
-└── deploy-pages.yml              # GitHub Pages deployment
+```mermaid
+flowchart LR
+    A[GitHub Actions daily-census.yml, 00:00 UTC] --> B[Build & start Next.js server]
+    B --> C[POST /api/optimized-report, maxInvestors=1500]
+    C --> D[eToro public API v1]
+    D --> C
+    C --> E[Dated JSON + HTML in public/data, public/reports]
+    E --> F[data-archive branch: full history]
+    E -->|coverage ≥ 80%| G[census-data-latest.json on master]
+    F --> H[GitHub Pages: last 7 reports + data]
+    G --> I[Vercel Next.js app / dashboard]
 ```
 
-## Getting Started
+Key modules:
 
-### Prerequisites
+- `src/app/`: Next.js App Router with the home page, `/reports`, `/public`, and `/personal`.
+- `src/app/api/`: routes `optimized-report`, `personal`, `public/[username]`, `users`, `extract-instruments`, `health`.
+- `src/lib/services/`: data collection, analysis, feeds, instruments, portfolio comparison, historical tracking, alerts.
+- `src/lib/etoro-api-config.ts`: eToro endpoint map, rate limiter, circuit breaker.
+- `src/lib/schemas/`: Zod schemas for investor, portfolio, instrument, and feed payloads.
+- `src/lib/report-generator/`: HTML report assembly.
+- `src/lib/supabase/`: optional PostgreSQL sync (see `scripts/sync-daily-to-supabase.js`).
+- `analysis/`: standalone TypeScript and JS CLIs for post generation and deeper analytics.
+- `scripts/`: sync, compression, and Supabase import utilities.
 
-- Node.js 18+
-- npm/yarn/pnpm
-- eToro API credentials
+## Installation
 
-### Installation
+Prerequisites:
 
-1. Clone and install:
+- Node.js 22 (matches the CI and daily workflow).
+- npm (project uses `package-lock.json`).
+- eToro API credentials (`ETORO_API_KEY`, `ETORO_USER_KEY`).
 
-   ```bash
-   git clone <repository-url>
-   cd etoro_census
-   npm install
-   ```
-
-2. Configure environment (`.env.local`):
-
-   ```env
-   ETORO_API_BASE_URL=https://www.etoro.com/api/public
-   ETORO_API_KEY=your_api_key_here
-   ETORO_USER_KEY=your_user_key_here
-   ```
-
-3. Run development server:
-
-   ```bash
-   npm run dev
-   ```
-
-   Navigate to [http://localhost:3600](http://localhost:3600)
-
-### Production Build
+Clone and install:
 
 ```bash
-npm run build
-npm start
+git clone git@github.com:weirdapps/etoro_census.git
+cd etoro_census
+npm install
 ```
 
-## Analysis Tools
-
-### Social Media Post Generators
-
-Generate formatted updates for the eToro community:
-
-```bash
-# Using npm scripts (recommended)
-npm run analysis:daily
-npm run analysis:weekly
-npm run analysis:monthly
-npm run analysis:all
-
-# Or using tsx directly
-npx tsx analysis/daily-post.ts
-npx tsx analysis/weekly-post.ts
-npx tsx analysis/monthly-post.ts
-npx tsx analysis/generate-all-posts.ts
-```
-
-Features:
-
-- Unicode sans-serif bold formatting (eToro compatible)
-- Copier activity tracking (daily/weekly/monthly gainers/losers)
-- Top 100 vs. broad market performance comparisons
-- Adaptive insights based on data
-
-### PI Feed Collection
-
-```bash
-# Collect recent posts from top Popular Investors
-npx tsx analysis/collect-feeds.ts
-```
-
-### Performance Analysis
-
-```bash
-# Hot hands - investors on winning streaks
-node analysis/hot-hands.js
-
-# Momentum-based analysis
-node analysis/hot-hands-momentum.js
-
-# Follower distribution charts
-cd analysis/follower-distribution
-node generate-follower-chart.js
-```
-
-### Advanced Analysis
-
-- **Risk vs Return**: Interactive charts (see `analysis/risk-return/README.md`)
-- **Performance Comparison**: Outperformance analysis tools
-- **Follower Distribution**: Power law analysis across all 1,500 investors
-
-## API Integration
-
-### Authentication Headers
-
-```text
-X-API-KEY: eToro API authentication key
-X-USER-KEY: User-specific authorization
-X-REQUEST-ID: UUID for request tracking
-```
-
-### Key Endpoints
-
-- Popular Investors: `/v1/user-info/people/search`
-- Portfolios: `/v1/user-info/people/{username}/portfolio/live`
-- Trade Info: `/v1/user-info/people/{username}/tradeinfo?period=currYear`
-- Instruments: `/v1/market-data/instruments`
-- Closing Prices: `/v1/market-data/instruments/history/closing-price`
-- User Details: `/v1/user-info/people` (avatars, profiles)
-
-## Deployment
-
-### Automated Daily Reports
-
-GitHub Actions workflow runs daily at 00:00 UTC:
-
-- Analyzes all 1,500 popular investors
-- Generates HTML reports and JSON data
-- Deploys to GitHub Pages
-- Triggers Vercel deployment
-
-### Manual Deployment
-
-```bash
-# Deploy to Vercel
-vercel --prod
-
-# Or push to master branch (auto-deploys)
-git push origin master
-```
-
-## Configuration
-
-### Investor Selection
-
-- **Range**: 1-1500 investors (validated)
-- **Default**: 100 investors
-- **API Limit**: eToro caps at exactly 1,500 popular investors
-
-### Performance Periods
-
-- Year to Date (default)
-- Current Month/Quarter
-- Historical periods (1, 3, 6 months ago)
-- Last Year/Two Years
-
-## Performance Optimizations
-
-### Data Collection
-
-- Single-pass collection eliminates redundant API calls
-- Circuit breakers prevent cascade failures
-- Adaptive delays based on error rates (75ms to 1500ms)
-- 30-second timeouts with graceful recovery
-- Batch processing (50 items per API call)
-
-### Analysis Generation
-
-- Zero API calls for analysis (uses pre-collected data)
-- Multiple investor bands processed simultaneously
-- Shared dataset across all analysis types
-- Fast processing without network delays
-
-### GitHub Actions
-
-- Disk space optimization (removes unnecessary SDKs)
-- Efficient artifact handling (last 7 days of reports)
-- Build cache cleanup
-- Monitoring and error tracking
-
-## Development
-
-### Code Style
-
-- TypeScript with strict typing
-- ESLint + Prettier configuration
-- Consistent naming conventions
-- Comprehensive error handling
-
-### Component Guidelines
-
-- Functional components with hooks
-- Typed props interfaces
-- Responsive Tailwind CSS design
-- Dark mode support via CSS variables
-- Loading skeletons for better UX
-- Accessibility considerations
-
-### Testing
-
-```bash
-# Run tests
-npm test
-
-# Run tests in watch mode
-npm test -- --watch
-
-# Run with coverage
-npm test -- --coverage
-```
-
-Current test coverage: 326+ tests across:
-
-- Services (DataCollectionService, AnalysisService, InstrumentService, UserService, AssetService)
-- Schemas (Investor, Instrument, Portfolio - 100% coverage)
-- Middleware (Request validation, API response utilities)
-- Utilities (Country mapping, formatting)
-- API Config (Circuit breaker, retry logic)
-
-### Data Management
-
-```bash
-# Compress historical data (7+ days old)
-node scripts/compress-historical-data.js
-
-# Decompress data for analysis
-node scripts/decompress-for-analysis.js
-
-# Import to Supabase
-node scripts/import-historical-to-supabase.js
-
-# Sync daily data
-node scripts/sync-daily-to-supabase.js
-```
-
-## Data Retention
-
-The `public/` and `archive/` directories together hold ~70 GB of historical census snapshots dating back to 2023. The Git history (~28 GB) intentionally preserves the full time series. **Do not trim either** — they are required for:
-
-- **Backtesting** — replaying past investor behaviour against new analysis logic
-- **Trend analysis** — identifying month-over-month and year-over-year shifts in cash allocation, risk appetite, and holdings
-- **Signal validation** — confirming that current-day signals would have flagged historically meaningful events
-
-For development clones that don't need history, use a shallow clone:
+Historical snapshots live on the `data-archive` branch and add up to tens of gigabytes. If you do not need history, use a shallow clone:
 
 ```bash
 git clone --depth 1 git@github.com:weirdapps/etoro_census.git
 ```
 
-This drops the historical commits but keeps the working tree intact. The `scripts/compress-historical-data.js` script (above) reduces on-disk size for older snapshots; it does _not_ delete data.
+Create `.env.local` (see `.env.local.example`):
 
-## Known Limitations
+```env
+ETORO_API_KEY=your_api_key_here
+ETORO_USER_KEY=your_user_key_here
+# Optional overrides
+# ETORO_API_BASE_URL=https://www.etoro.com/api/public
+# API_SECRET_KEY=some_shared_secret
+```
 
-- eToro API limit: exactly 1,500 popular investors (hard cap)
-- Some investors may have incomplete profile data
-- Instrument data availability varies by market hours
-- Historical data limited to available closing prices
-- Rate limiting handled via circuit breakers
+## Usage
+
+Development server:
+
+```bash
+npm run dev
+# open http://localhost:3600
+```
+
+Production build:
+
+```bash
+npm run build
+npm start
+# defaults to port 3000, override with PORT=xxxx npm start
+```
+
+Generate a census report locally (server must be running):
+
+```bash
+curl -X POST http://localhost:3600/api/optimized-report \
+  -H "Content-Type: application/json" \
+  -d '{"period": "CurrYear", "maxInvestors": 100, "includeFeeds": false}'
+```
+
+The endpoint streams Server-Sent Events. `period` accepts `CurrYear`, `CurrMonth`, or `CurrWeek`. `maxInvestors` is capped at 2000 by the schema; the daily workflow uses 1500 (the eToro Popular Investor list cap).
+
+Analysis CLIs:
+
+```bash
+npm run analysis:daily     # daily post
+npm run analysis:weekly    # weekly summary
+npm run analysis:monthly   # monthly summary
+npm run analysis:all       # all three
+```
+
+Output goes to `analysis/output/` (gitignored). See `analysis/README.md` for details.
+
+Sync the local `public/data/` copy from `data-archive`:
+
+```bash
+npm run sync
+# or
+bash scripts/sync-all-data.sh
+```
+
+## Configuration
+
+Environment variables read by the code:
+
+| Variable | Where | Required | Purpose |
+|---|---|---|---|
+| `ETORO_API_KEY` | `src/lib/etoro-api-config.ts` | Yes | eToro API key header (`X-API-KEY`) |
+| `ETORO_USER_KEY` | `src/lib/etoro-api-config.ts` | Yes | eToro user key header (`X-USER-KEY`) |
+| `ETORO_API_BASE_URL` | `src/lib/etoro-api-config.ts` | No | Defaults to `https://www.etoro.com/api/public` |
+| `API_SECRET_KEY` | `src/lib/auth.ts` | No | If set, `/api/optimized-report` requires `X-API-KEY` on inbound requests |
+| `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` | `src/lib/supabase/client.ts` | No | Enable the optional Supabase historical sync scripts |
+| `PORT` | `package.json` (`start`) | No | Production port for `npm start` (default 3000; dev is 3600) |
+
+GitHub Actions secrets used by `.github/workflows/daily-census.yml`:
+
+- `ETORO_API_KEY`, `ETORO_USER_KEY`: credentials for the census fetch.
+- `PUSH_PAT`: token used to push to `master` and `data-archive` from the job.
+- `VERCEL_DEPLOY_HOOK`: optional, pings Vercel after a successful run.
+
+## Automation
+
+Workflows in `.github/workflows/`:
+
+| File | Trigger | Purpose |
+|---|---|---|
+| `daily-census.yml` | cron `0 0 * * *` + manual | Full census, archive, coverage gate, Pages/Vercel triggers |
+| `deploy-pages.yml` | push to `master` + cron `30 0 * * *` + manual | Publish last 7 reports and data files to GitHub Pages |
+| `ci.yml` | push and PRs to `master` | Lint, `tsc --noEmit`, Vitest with coverage, `next build` |
+| `codeql.yml` | push and PRs to `master` + weekly | CodeQL scan for JavaScript / TypeScript |
+| `sonarcloud.yml` | push and PRs | SonarCloud analysis on public builds when `SONAR_TOKEN` is set |
+| `dependabot-auto-merge.yml` | pull_request | Auto-merge patch / minor Dependabot PRs |
+| `deps-refresh.yml` | cron `13 5 8 * *` + manual | Monthly dependency refresh via `weirdapps/shared-workflows` |
+
+If the daily census fails, a `notify-failure` job opens or comments on a GitHub issue labelled `census-failure,automated` and, when `SLACK_WEBHOOK_URL` is set, posts a Slack alert.
+
+Do not add a `push` trigger to `daily-census.yml`: the workflow commits back to `master`, and a `push` trigger would loop.
+
+## Data layout
+
+```text
+public/data/
+  census-data-latest.json      # tracked in master; consumed by the Vercel app
+  etoro-data-YYYY-MM-DD-*.json # dated snapshots (synced from data-archive)
+public/reports/
+  etoro-census-YYYY-MM-DD-*.html # dated HTML reports (synced from data-archive)
+archive/                        # optional git worktree pointing at data-archive
+  data/*.json
+  reports/*.html
+```
+
+The `data-archive` branch is the source of truth for historical snapshots. `master` only keeps the latest snapshot so it stays small enough to deploy on Vercel. See `ARCHITECTURE.md` for the full dual-branch design and the local sync recipe.
+
+The `public/` and `archive/` trees together are intentionally large (tens of GB) because the full time series is required for backtesting, trend analysis, and signal validation. Do not trim them; use a shallow clone if you only need code.
+
+## Development
+
+```bash
+npm test              # Vitest in watch mode
+npm run test:run      # single run
+npm run test:coverage # with coverage (v8 provider, html/lcov reports)
+npm run lint          # ESLint (flat config)
+npx tsc --noEmit      # TypeScript strict check
+npm run build         # production Next.js build
+```
+
+Vitest configuration lives in `vitest.config.ts`; tests are picked up from `src/**/*.{test,spec}.{ts,tsx}` under a `jsdom` environment. Additional guides:
+
+- `CONTRIBUTING.md` for contribution norms.
+- `ARCHITECTURE.md` for the dual-branch data architecture.
+- `SECURITY.md` for how to report vulnerabilities.
 
 ## Disclaimers
 
-**Important**: This project is for educational and informational purposes only.
-
-- **Not Financial Advice**: Does not constitute financial, investment, or trading advice
-- **No eToro Affiliation**: Independent project, not endorsed by eToro
-- **Data Accuracy**: Provided "as is" without warranties
-- **Risk Warning**: Trading involves substantial risk of loss
-
-Always consult with a qualified financial advisor before making investment decisions.
+For educational and informational use only. This project is independent and not endorsed by eToro. Data is provided as-is; nothing in this repository is investment advice. Trading involves substantial risk of loss.
 
 ## License
 
-This project is for educational and analysis purposes. Please ensure compliance with eToro's API terms of service.
-
-## Support
-
-For questions or issues:
-
-- Check existing documentation (ARCHITECTURE.md, CONTRIBUTING.md)
-- Create an issue in the repository
+MIT, see [LICENSE](LICENSE). Copyright (c) 2026 Dimitris Plessas.
