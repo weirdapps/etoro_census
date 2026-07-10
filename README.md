@@ -76,7 +76,7 @@ Analysis CLIs (`analysis/`):
 ## How it works
 
 ```mermaid
-flowchart LR
+flowchart TD
     A[GitHub Actions daily-census.yml, 00:00 UTC] --> B[Build & start Next.js server]
     B --> C[POST /api/optimized-report, maxInvestors=1500]
     C --> D[eToro public API v1]
