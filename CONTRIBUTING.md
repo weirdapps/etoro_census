@@ -3,7 +3,7 @@
 ## Development Setup
 
 ### Prerequisites
-- Node.js 20+
+- Node.js 22.22.2+ (jsdom 30 requires `^22.22.2 || ^24.15.0 || >=26.0.0`; CI runs Node 22)
 - npm 10+
 
 ### Installation
