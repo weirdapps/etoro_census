@@ -8,7 +8,7 @@ permissions:
   pull-requests: write
 jobs:
   refresh:
-    uses: weirdapps/shared-workflows/.github/workflows/deps-refresh.yml@main
+    uses: weirdapps/shared-workflows/.github/workflows/deps-refresh.yml@1cdc75d954fa1d60ef35937b21fccde923f42f9e  # main
     with:
       node_version: '22'
       gate_cmd: NODE_OPTIONS='--max-old-space-size=4096' npm run lint && npx tsc --noEmit && npm test -- --run && npm run build
