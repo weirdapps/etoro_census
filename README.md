@@ -104,7 +104,8 @@ Key modules:
 
 Prerequisites:
 
-- Node.js 22 (matches the CI and daily workflow).
+- Node.js 22 (matches the CI and daily workflow). Minimum is 22.22.2: the test
+  stack pulls jsdom 30, which requires `^22.22.2 || ^24.15.0 || >=26.0.0`.
 - npm (project uses `package-lock.json`).
 - eToro API credentials (`ETORO_API_KEY`, `ETORO_USER_KEY`).
 
