@@ -6,24 +6,9 @@ permissions:
   pull-requests: write
 
 jobs:
-  dependabot:
-    runs-on: ubuntu-latest
-    if: github.event.pull_request.user.login == 'dependabot[bot]'
-    steps:
-      - name: Get Dependabot metadata
-        id: meta
-        uses: dependabot/fetch-metadata@v3
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Enable auto-merge for safe updates
-        # Auto-merge: patch + minor for ALL ecosystems, including grouped updates.
-        # Major version bumps still require manual review.
-        if: |
-          steps.meta.outputs.update-type == 'version-update:semver-patch' ||
-          steps.meta.outputs.update-type == 'version-update:semver-minor' ||
-          steps.meta.outputs.update-type == 'version-update:semver-patchminor' ||
-          steps.meta.outputs.dependency-group != ''
-        run: gh pr merge --auto --squash "$PR_URL"
-        env:
-          PR_URL: ${{ github.event.pull_request.html_url }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  auto-merge:
+    # Shared implementation. Native `gh pr merge --auto` cannot work here
+    # (branch protection is a paid feature on private repos, and
+    # allow_auto_merge silently no-ops), so the reusable polls this PR's own
+    # checks and merges once they are green. Majors stay open for review.
+    uses: weirdapps/shared-workflows/.github/workflows/dependabot-auto-merge.yml@main
