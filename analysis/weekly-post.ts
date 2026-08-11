@@ -169,7 +169,6 @@ function generateWeeklyPost(): void {
 
   console.log('');
   console.log('👥 𝗪𝗲𝗲𝗸𝗹𝘆 𝗖𝗼𝗽𝗶𝗲𝗿 𝗧𝗿𝗲𝗻𝗱𝘀:');
-  console.log('');
 
   const copierChanges = findTopCopierChanges(currentData.investors, weekAgoData.investors, 10);
   const gainers = copierChanges.filter(c => c.change > 0).sort((a, b) => b.change - a.change).slice(0, 5);
@@ -194,6 +193,7 @@ function generateWeeklyPost(): void {
   }
 
   if (gainers.length === 0 && losers.length === 0) {
+    console.log('');
     console.log('Stable copier counts - minimal changes (under ±10) in investor following this week');
   }
 

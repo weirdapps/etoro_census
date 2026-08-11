@@ -169,7 +169,6 @@ function generateMonthlyPost(): void {
 
   console.log('');
   console.log('👥 𝗖𝗼𝗽𝗶𝗲𝗿 𝗔𝗰𝘁𝗶𝘃𝗶𝘁𝘆 (𝗠𝗼𝗻𝘁𝗵𝗹𝘆):');
-  console.log('');
 
   const copierChanges = findTopCopierChanges(currentData.investors, monthAgoData.investors, 50);
   const gainers = copierChanges.filter(c => c.change > 0).sort((a, b) => b.change - a.change).slice(0, 5);
