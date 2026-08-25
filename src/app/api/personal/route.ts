@@ -1,13 +1,26 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { simplifiedIntelligence } from '@/lib/services/simplified-intelligence-service';
 import { logger } from '@/lib/logger';
+import { validateApiKey } from '@/lib/auth';
 import { getInternalBaseUrl } from '@/lib/utils/vercel-base-url';
 
 // Disable all caching for this endpoint
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
+  // This endpoint returns a real, named eToro account: balance, cash, YTD P&L
+  // and every open position in absolute currency. It had no gate at all, and
+  // answered 200 to anonymous callers on the public deployment. Those are not
+  // public figures, so the gate goes on even though it costs the browser page.
+  //
+  // NOTE: /personal is a client component and fetches this from the browser, so
+  // it cannot present the key and will break until either it moves server-side
+  // or the deployment sits behind Vercel Deployment Protection. That is the
+  // intended trade: a broken private dashboard beats a public balance sheet.
+  const authError = validateApiKey(request);
+  if (authError) return authError;
+
   try {
     // Check if API credentials are configured
     const apiKey = process.env.ETORO_API_KEY;
