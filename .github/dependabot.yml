@@ -45,10 +45,6 @@ updates:
     ignore:
       - dependency-name: "@types/node"
         update-types: ["version-update:semver-major"]
-      # ESLint 10 not yet supported by eslint-plugin-react, eslint-config-next, etc.
-      # Remove this ignore once ecosystem catches up (check eslint-plugin-react peerDeps)
-      - dependency-name: "eslint"
-        update-types: ["version-update:semver-major"]
 
   # GitHub Actions
   - package-ecosystem: "github-actions"
