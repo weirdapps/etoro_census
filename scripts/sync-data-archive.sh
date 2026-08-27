@@ -117,9 +117,29 @@ log "Copying files to working directories..."
 BEFORE_JSON=$(ls public/data/etoro-data-*.json 2>/dev/null | wc -l | tr -d ' ')
 BEFORE_HTML=$(ls public/reports/etoro-census-*.html 2>/dev/null | wc -l | tr -d ' ')
 
-# Copy all files
-cp archive/data/*.json public/data/ 2>/dev/null || true
-cp archive/reports/*.html public/reports/ 2>/dev/null || true
+# Copy all files.
+#
+# APFS clone (-c), not a byte copy. public/ and archive/ hold the same 927 files,
+# and on 2026-08-27 they were verified byte-identical yet sitting on DISTINCT
+# physical blocks: 52.09 GiB of real disk spent storing one dataset twice. `cp -c`
+# collapses them onto shared blocks, which reclaims that space while deleting
+# nothing and changing no path. A plain `cp` over an identical destination rewrites
+# it and BREAKS the clone, so without this line one nightly run at 07:20 undoes the
+# whole reclaim.
+#
+# -c is BSD-only and GNU cp rejects it. The `2>/dev/null || true` below would
+# swallow that rejection and silently copy NOTHING on Linux, so probe once and fall
+# back explicitly rather than trusting the suppressor.
+_probe=$(mktemp) || _probe=""
+if [ -n "$_probe" ] && cp -c "$_probe" "${_probe}.clone" 2>/dev/null; then
+  CP_ARGS="-c"
+else
+  CP_ARGS=""
+fi
+rm -f "$_probe" "${_probe}.clone" 2>/dev/null || true
+
+cp $CP_ARGS archive/data/*.json public/data/ 2>/dev/null || true
+cp $CP_ARGS archive/reports/*.html public/reports/ 2>/dev/null || true
 
 # Count after copy
 AFTER_JSON=$(ls public/data/etoro-data-*.json 2>/dev/null | wc -l | tr -d ' ')
