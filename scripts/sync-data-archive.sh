@@ -139,7 +139,15 @@ BEFORE_HTML=$(ls public/reports/etoro-census-*.html 2>/dev/null | wc -l | tr -d 
 #   clone    - macOS/APFS, `cp -c`, shared blocks, real files on both sides
 #   hardlink - Linux, archive and public on the SAME filesystem
 #   symlink  - Linux, different filesystems (the VPS)
-_dev_of() { stat -f '%d' "$1" 2>/dev/null || stat -c '%d' "$1" 2>/dev/null; }
+# GNU first, BSD second, and the order is load-bearing. GNU `stat -f '%d' path`
+# does NOT mean "device id of path": -f is --file-system and the format must come
+# from -c, so GNU reads BOTH words as filenames, fails on '%d', succeeds on path,
+# and prints a whole filesystem dump to stdout while still exiting nonzero. Probing
+# BSD-first therefore returns dump+id concatenated on Linux, and since the dump
+# embeds the path, two directories on ONE filesystem would never compare equal and
+# hardlink mode could never be selected. macOS rejects -c with rc=1 and an empty
+# stdout, so GNU-first is clean on both.
+_dev_of() { stat -c '%d' "$1" 2>/dev/null || stat -f '%d' "$1" 2>/dev/null; }
 
 _probe=$(mktemp) || _probe=""
 if [ -n "$_probe" ] && cp -c "$_probe" "${_probe}.clone" 2>/dev/null; then
