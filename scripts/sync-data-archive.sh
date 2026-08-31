@@ -130,16 +130,60 @@ BEFORE_HTML=$(ls public/reports/etoro-census-*.html 2>/dev/null | wc -l | tr -d 
 # -c is BSD-only and GNU cp rejects it. The `2>/dev/null || true` below would
 # swallow that rejection and silently copy NOTHING on Linux, so probe once and fall
 # back explicitly rather than trusting the suppressor.
+#
+# Falling back to a PLAIN cp on Linux was itself the bug. On the VPS `archive` is a
+# symlink to /mnt/data/census-archive (volume sdb) while public/ sits on / (sda1),
+# so every run wrote a second full copy onto the small root volume: measured
+# 2026-08-31 at 54 GB on a 150 GB disk, 79% full. Hardlinks cannot cross devices and
+# ext4 has no reflink, so the only instrument left there is a symlink. Pick per host:
+#   clone    - macOS/APFS, `cp -c`, shared blocks, real files on both sides
+#   hardlink - Linux, archive and public on the SAME filesystem
+#   symlink  - Linux, different filesystems (the VPS)
+_dev_of() { stat -f '%d' "$1" 2>/dev/null || stat -c '%d' "$1" 2>/dev/null; }
+
 _probe=$(mktemp) || _probe=""
 if [ -n "$_probe" ] && cp -c "$_probe" "${_probe}.clone" 2>/dev/null; then
-  CP_ARGS="-c"
+  LINK_MODE="clone"
+elif [ "$(_dev_of archive/data)" = "$(_dev_of public/data)" ]; then
+  LINK_MODE="hardlink"
 else
-  CP_ARGS=""
+  LINK_MODE="symlink"
 fi
 rm -f "$_probe" "${_probe}.clone" 2>/dev/null || true
+log "Placement mode: $LINK_MODE"
 
-cp $CP_ARGS archive/data/*.json public/data/ 2>/dev/null || true
-cp $CP_ARGS archive/reports/*.html public/reports/ 2>/dev/null || true
+# Place every archive file into public/ without storing the dataset twice.
+# $1 = source dir (relative to repo root), $2 = destination dir, $3 = glob.
+place_files() {
+  _src="$1"; _dst="$2"; _pat="$3"
+  for _f in "$_src"/$_pat; do
+    [ -e "$_f" ] || continue
+    _bn=$(basename "$_f")
+    if [ "$LINK_MODE" = "clone" ]; then
+      # Re-cloning an existing clone is a no-op on disk, so do not try to skip it:
+      # an APFS clone has a DISTINCT inode, which makes -ef the wrong test here.
+      cp -c "$_f" "$_dst/$_bn" 2>/dev/null || cp "$_f" "$_dst/$_bn" 2>/dev/null || true
+      continue
+    fi
+    # -ef is same device+inode and follows symlinks, so it is true for both an
+    # existing hardlink and an existing good symlink, and false for a broken one.
+    [ "$_dst/$_bn" -ef "$_f" ] && continue
+    if [ "$LINK_MODE" = "hardlink" ]; then
+      ln -f "$_f" "$_dst/$_bn" 2>/dev/null || cp "$_f" "$_dst/$_bn" 2>/dev/null || true
+    else
+      # Relative, so the tree stays valid if the repo moves. public/<x>/<f> needs
+      # two levels up to reach the repo root before descending into $_src.
+      if ln -sfn "../../$_src/$_bn" "$_dst/$_bn.tmplink" 2>/dev/null; then
+        mv -f "$_dst/$_bn.tmplink" "$_dst/$_bn" 2>/dev/null || rm -f "$_dst/$_bn.tmplink"
+      else
+        cp "$_f" "$_dst/$_bn" 2>/dev/null || true
+      fi
+    fi
+  done
+}
+
+place_files archive/data public/data '*.json'
+place_files archive/reports public/reports '*.html'
 
 # Count after copy
 AFTER_JSON=$(ls public/data/etoro-data-*.json 2>/dev/null | wc -l | tr -d ' ')
