@@ -126,8 +126,11 @@ analysis/output/
 public/data/etoro-data-*.json
 public/reports/etoro-census-*.html
 
-# Archive worktree directory (created by sync script)
-archive/
+# Archive data, however it is materialised. No trailing slash: a trailing slash
+# matches directories ONLY, so it covered the Mac's git worktree but left the
+# VPS's `archive -> /mnt/data/census-archive` symlink showing as untracked, one
+# `git add -A` away from being committed as a machine-specific path.
+archive
 
 # Keep the latest file tracked for Vercel (negation pattern)
 !public/data/census-data-latest.json
