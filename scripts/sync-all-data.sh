@@ -85,10 +85,23 @@ echo -e "${YELLOW}[5/5]${NC} Syncing recent data files for analysis..."
 RECENT_FILES=$(ls -1 "$ARCHIVE_DATA"/etoro-data-*.json 2>/dev/null | sort -r | head -60)
 
 if [ -n "$RECENT_FILES" ]; then
-    # Copy recent files to public/data for analysis scripts
-    echo "$RECENT_FILES" | while read -r file; do
-        cp "$file" "$PUBLIC_DATA/"
-    done
+    # Place recent files into public/data for the analysis scripts.
+    #
+    # A plain `cp` here is what filled the VPS root volume: this script never
+    # removes older files, so public/data accumulated 614 full copies, 54 GB on
+    # a 150 GB disk. Once those were collapsed onto the archive the plain cp
+    # became actively fatal too, because `cp src dst` where dst resolves to src
+    # exits nonzero and this script runs under `set -e`, aborting the sync
+    # before census-data-latest.json is ever refreshed.
+    #
+    # place_one picks clone, hardlink or symlink for the host and always
+    # returns 0. See scripts/lib/place-files.sh.
+    . "$PROJECT_ROOT/scripts/lib/place-files.sh"
+    LINK_MODE=$(detect_link_mode "$ARCHIVE_DATA" "$PUBLIC_DATA")
+    echo -e "${BLUE}ℹ${NC}  Placement mode: $LINK_MODE"
+    while IFS= read -r file; do
+        place_one "$LINK_MODE" "$file" "$PUBLIC_DATA" "archive/data"
+    done <<< "$RECENT_FILES"
 
     # Get the latest file for census-data-latest.json
     LATEST_FILE=$(echo "$RECENT_FILES" | head -1)
