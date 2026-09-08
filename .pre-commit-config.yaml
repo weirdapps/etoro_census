@@ -49,7 +49,21 @@ repos:
     rev: v1.35.1
     hooks:
       - id: yamllint
-        args: [--strict, -d, '{extends: default, rules: {line-length: {max: 120}, document-start: disable}}']
+        # comments.min-spaces-from-content is 1, not yamllint's default of 2,
+        # and truthy.check-keys is off. Both exist to stop yamllint fighting the
+        # prettier hook three entries above it, which is a deadlock rather than a
+        # style disagreement: prettier --write rewrites `sha  # v7` to `sha # v7`,
+        # yamllint --strict then fails "too few spaces before comment", and since
+        # prettier has already modified the file the commit aborts. Re-running
+        # does not help, because prettier re-applies the same change every time.
+        # Net effect before this fix: NO workflow file in this repo could be
+        # edited and committed through the hooks at all. truthy.check-keys is the
+        # standard GitHub Actions accommodation, since `on:` is a real key there.
+        args:
+          - --strict
+          - -d
+          - "{extends: default, rules: {line-length: {max: 120}, document-start: disable,\
+            \ comments: {min-spaces-from-content: 1}, truthy: {check-keys: false}}}"
         files: \.github/workflows/.*\.ya?ml$
 
   # Markdown linting
