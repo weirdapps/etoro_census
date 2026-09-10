@@ -183,14 +183,14 @@ bash scripts/sync-all-data.sh
 
 Environment variables read by the code:
 
-| Variable | Where | Required | Purpose |
-|---|---|---|---|
-| `ETORO_API_KEY` | `src/lib/etoro-api-config.ts` | Yes | eToro API key header (`X-API-KEY`) |
-| `ETORO_USER_KEY` | `src/lib/etoro-api-config.ts` | Yes | eToro user key header (`X-USER-KEY`) |
-| `ETORO_API_BASE_URL` | `src/lib/etoro-api-config.ts` | No | Defaults to `https://www.etoro.com/api/public` |
-| `API_SECRET_KEY` | `src/lib/auth.ts` | No | If set, `/api/optimized-report` requires `X-API-KEY` on inbound requests |
-| `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` | `src/lib/supabase/client.ts` | No | Enable the optional Supabase historical sync scripts |
-| `PORT` | `package.json` (`start`) | No | Production port for `npm start` (default 3000; dev is 3600) |
+| Variable                                                    | Where                         | Required | Purpose                                                                  |
+| ----------------------------------------------------------- | ----------------------------- | -------- | ------------------------------------------------------------------------ |
+| `ETORO_API_KEY`                                             | `src/lib/etoro-api-config.ts` | Yes      | eToro API key header (`X-API-KEY`)                                       |
+| `ETORO_USER_KEY`                                            | `src/lib/etoro-api-config.ts` | Yes      | eToro user key header (`X-USER-KEY`)                                     |
+| `ETORO_API_BASE_URL`                                        | `src/lib/etoro-api-config.ts` | No       | Defaults to `https://www.etoro.com/api/public`                           |
+| `API_SECRET_KEY`                                            | `src/lib/auth.ts`             | No       | If set, `/api/optimized-report` requires `X-API-KEY` on inbound requests |
+| `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` | `src/lib/supabase/client.ts`  | No       | Enable the optional Supabase historical sync scripts                     |
+| `PORT`                                                      | `package.json` (`start`)      | No       | Production port for `npm start` (default 3000; dev is 3600)              |
 
 GitHub Actions secrets used by `.github/workflows/daily-census.yml`:
 
@@ -202,15 +202,15 @@ GitHub Actions secrets used by `.github/workflows/daily-census.yml`:
 
 Workflows in `.github/workflows/`:
 
-| File | Trigger | Purpose |
-|---|---|---|
-| `daily-census.yml` | cron `0 0 * * *` + manual | Full census, archive, coverage gate, Pages/Vercel triggers |
-| `deploy-pages.yml` | push to `master` + cron `30 0 * * *` + manual | Publish last 7 reports and data files to GitHub Pages |
-| `ci.yml` | push and PRs to `master` | Lint, `tsc --noEmit`, Vitest with coverage, `next build` |
-| `codeql.yml` | push and PRs to `master` + weekly | CodeQL scan for JavaScript / TypeScript |
-| `sonarcloud.yml` | push and PRs | SonarCloud analysis on public builds when `SONAR_TOKEN` is set |
-| `dependabot-auto-merge.yml` | pull_request | Auto-merge patch / minor Dependabot PRs |
-| `deps-refresh.yml` | cron `13 5 8 * *` + manual | Monthly dependency refresh via `weirdapps/shared-workflows` |
+| File                        | Trigger                                       | Purpose                                                        |
+| --------------------------- | --------------------------------------------- | -------------------------------------------------------------- |
+| `daily-census.yml`          | cron `0 0 * * *` + manual                     | Full census, archive, coverage gate, Pages/Vercel triggers     |
+| `deploy-pages.yml`          | push to `master` + cron `30 0 * * *` + manual | Publish last 7 reports and data files to GitHub Pages          |
+| `ci.yml`                    | push and PRs to `master`                      | Lint, `tsc --noEmit`, Vitest with coverage, `next build`       |
+| `codeql.yml`                | push and PRs to `master` + weekly             | CodeQL scan for JavaScript / TypeScript                        |
+| `sonarcloud.yml`            | push and PRs                                  | SonarCloud analysis on public builds when `SONAR_TOKEN` is set |
+| `dependabot-auto-merge.yml` | pull_request                                  | Auto-merge patch / minor Dependabot PRs                        |
+| `deps-refresh.yml`          | cron `13 5 8 * *` + manual                    | Monthly dependency refresh via `weirdapps/shared-workflows`    |
 
 If the daily census fails, a `notify-failure` job opens or comments on a GitHub issue labelled `census-failure,automated` and, when `SLACK_WEBHOOK_URL` is set, posts a Slack alert.
 
@@ -249,6 +249,13 @@ Vitest configuration lives in `vitest.config.ts`; tests are picked up from `src/
 - `CONTRIBUTING.md` for contribution norms.
 - `ARCHITECTURE.md` for the dual-branch data architecture.
 - `SECURITY.md` for how to report vulnerabilities.
+
+## Privacy and data source
+
+The census contains information about identifiable people (public eToro handles,
+display names and the performance metrics eToro publishes for them), all read
+from eToro's public API. See [PRIVACY.md](PRIVACY.md) for what is collected, the
+basis for keeping it, retention, and how to request removal.
 
 ## Disclaimers
 

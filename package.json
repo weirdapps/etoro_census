@@ -83,6 +83,6 @@
   "overrides": {
     "postcss": ">=8.5.18",
     "@babel/core": ">=7.29.6",
-    "sharp": ">=0.35.3"
+    "sharp": ">=0.35.4"
   }
 }

@@ -16,17 +16,40 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          fetch-depth: 0  # Full history for SonarCloud blame
+          fetch-depth: 0 # Full history for SonarCloud blame
           # Sonar genuinely needs the commit graph, but not the blobs. Partial
           # clone (checkout >= v4.2, this is v7) fetches all ~1,178 commits with
           # none of the file contents, which on a 3.37 GiB repo took the checkout
           # step from 227s of a 267s job down to seconds.
           filter: blob:none
 
+      # Sonar's blame is jgit, and jgit does NOT speak the partial-clone
+      # protocol: where native git would lazily fetch a missing blob, jgit dies
+      # with "MissingObjectException: Missing blob <sha>" and the scan exits 3.
+      # That is intermittent by nature, because it only fires when blame reaches
+      # a blob the filter omitted, which is why runs on 2026-09-07 and
+      # 2026-09-08 09:37 passed while 2026-09-08 03:51 and 23:32 failed.
+      #
+      # Rather than drop `filter: blob:none` (a full clone of this repo is
+      # 3.41 GiB and took the checkout step from seconds back to 227s), backfill
+      # only the blobs blame can actually ask for. `cat-file --batch` forces
+      # native git to resolve them from the promisor remote, after which jgit
+      # finds them locally. Measured on 2026-09-09: 604 blobs, 10.1 MiB, versus
+      # 3.41 GiB for the full clone and 7.5 GiB for a naive all-paths backfill
+      # (the generated census JSON dominates history, hence the tight pathspec).
+      - name: Backfill the blobs Sonar's blame needs
+        run: |
+          set -euo pipefail
+          git rev-list --objects --all -- \
+            src scripts ':(glob)*.ts' ':(glob)*.js' ':(glob)*.mjs' ':(glob)*.cjs' \
+            | awk '{print $1}' \
+            | git cat-file --batch --buffer >/dev/null
+          echo "blobs present locally: $(git rev-list --objects --all -- src scripts | wc -l)"
+
       - name: Set up Node.js
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020  # v7
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: '22'
           cache: 'npm'
@@ -61,7 +84,7 @@ jobs:
 
       - name: SonarCloud Scan
         if: steps.check-sonar.outputs.has_token == 'true'
-        uses: SonarSource/sonarcloud-github-action@ffc3010689be73b8e5ae0c57ce35968afd7909e8  # v5
+        uses: SonarSource/sonarcloud-github-action@ffc3010689be73b8e5ae0c57ce35968afd7909e8 # v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
