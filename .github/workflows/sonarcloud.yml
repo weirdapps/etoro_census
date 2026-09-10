@@ -36,17 +36,38 @@ jobs:
       # 3.41 GiB and took the checkout step from seconds back to 227s), backfill
       # only the blobs blame can actually ask for. `cat-file --batch` forces
       # native git to resolve them from the promisor remote, after which jgit
-      # finds them locally. Measured on 2026-09-09: 604 blobs, 10.1 MiB, versus
-      # 3.41 GiB for the full clone and 7.5 GiB for a naive all-paths backfill
-      # (the generated census JSON dominates history, hence the tight pathspec).
+      # finds them locally.
+      #
+      # THE PATHSPEC IS DERIVED FROM sonar.exclusions, NOT HAND-WRITTEN. Blame
+      # runs over every file Sonar INDEXED, and with `sonar.sources=.` that is
+      # every tracked file the exclusion list does not match: 145 of them, not
+      # only the TypeScript. The first version of this step listed
+      # `src scripts *.ts *.js *.mjs *.cjs`, which omitted package.json among
+      # others, and the 2026-09-10 20:53 scan died on a historical package.json
+      # blob (343576d) with exactly the MissingObjectException this step exists
+      # to prevent. Keep the excludes below in step with sonar-project.properties.
+      #
+      # Restricting to CURRENTLY TRACKED paths is what keeps it cheap: blame only
+      # ever asks about files in the checked-out tree, while `--all -- <dir>`
+      # would also drag in history-only paths. Measured on 2026-09-11: 742 blobs,
+      # 53.8 MiB, versus 3.41 GiB for a full clone and 64.8 GiB for every blob in
+      # history (the generated census HTML and JSON dominate it).
       - name: Backfill the blobs Sonar's blame needs
         run: |
           set -euo pipefail
-          git rev-list --objects --all -- \
-            src scripts ':(glob)*.ts' ':(glob)*.js' ':(glob)*.mjs' ':(glob)*.cjs' \
+          # -r matters: with no paths at all, xargs would otherwise run a bare
+          # `git rev-list --objects --all --` and try to fetch all 64.8 GiB.
+          blame_paths() {
+            git ls-files -z -- . \
+              ':(exclude)data' ':(exclude)public' ':(exclude)analysis' \
+              ':(exclude)research' ':(exclude).github' \
+              ':(exclude)supabase/migrations'
+          }
+          echo "tracked paths Sonar will blame: $(blame_paths | tr -cd '\0' | wc -c)"
+          blame_paths \
+            | xargs -0 -r git rev-list --objects --all -- \
             | awk '{print $1}' \
             | git cat-file --batch --buffer >/dev/null
-          echo "blobs present locally: $(git rev-list --objects --all -- src scripts | wc -l)"
 
       - name: Set up Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
