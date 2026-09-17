@@ -1,0 +1,54 @@
+name: Secret Scan
+
+# WORKING-TREE scan, not full history, and that is a deliberate downgrade.
+#
+# This repo is 2.99 GiB of pack across 1555 commits, almost all of it machine
+# generated census JSON under public/data, public/reports and data/. A
+# full-history gitleaks scan was attempted twice on a 4 vCPU box and killed both
+# times, at 1800s and 2400s, with no report either time. Two documented
+# workarounds were tried and both failed:
+#
+#   --max-target-megabytes 1   bounds what gitleaks INSPECTS, not what git has
+#                              to DIFF, and the cost here is the diffing.
+#   --log-opts pathspec        not honoured by gitleaks. It warns "may not work
+#     excludes                 as expected" (gitleaks issue 1153) and scans the
+#                              lot regardless.
+#
+# So this scans the checked-out tree instead: 4 seconds, and verified on the VPS
+# at 0 findings with a planted sqp_ token in the same tree correctly caught, so
+# the zero is the scanner working rather than the scanner missing.
+#
+# WHAT THIS CATCHES: every push updates HEAD, so a secret committed and left in
+# place is found.
+# WHAT IT DOES NOT: a secret added then removed between two runs, and everything
+# already in history, which remains UNVERIFIED for this repo alone.
+#
+# Move this to the default history mode the day the data paths leave git, for
+# example via LFS or a separate data branch. Drop the `with:` block to do it.
+
+'on':
+  push:
+    branches: [main, master]
+  pull_request:
+  schedule:
+    # 04:37 UTC Mondays, offset from the other repos so the estate does not
+    # queue every secret scan in the same minute.
+    - cron: '37 4 * * 1'
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gitleaks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  gitleaks:
+    # PINNED, not @main, deliberately: shared-workflows is PUBLIC, so an
+    # unpinned ref means anything that can push there silently changes what
+    # every repo in the estate scans with. Dependabot bumps this.
+    # yamllint disable-line rule:line-length
+    uses: weirdapps/shared-workflows/.github/workflows/gitleaks.yml@bc40a10151c193eddd62f6fcd42d1670c1c1a3e1
+    with:
+      scan_mode: worktree
