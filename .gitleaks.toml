@@ -27,4 +27,17 @@ regexes = [
   '''127\.0\.0\.1:.*''',
   '''dummy[_-]?token''',
   '''fake[_-]?key''',
+
+  # Shell-variable credential passed by reference, e.g. the SonarCloud poll
+  # in .github/workflows/sonarcloud.yml:
+  #     body=$(curl -sS -u "${SONAR_TOKEN}:" "$task_url" || true)
+  # curl-auth-user captures '"${SONAR_TOKEN}:"' and cannot tell a variable
+  # NAME from a literal token, so it fired in 27 repos at once. A scanner that
+  # is always non-zero trains the reader to ignore it, which is how a live key
+  # stayed in history for 105 days. Anchored on the whole captured secret being
+  # a bare shell expansion plus its trailing colon, quotes included, so a real
+  # literal is still caught (verified on gitleaks 8.30.1 against a planted
+  # sqp_ 40-hex token in the same shape).
+  # Canonical copy: weirdapps/shared-workflows/.gitleaks.toml
+  '''^"?\$\{?[A-Za-z_][A-Za-z0-9_]*\}?:"?$''',
 ]
