@@ -8,6 +8,13 @@ on:
     branches:
       - master
 
+# Minimal token scope. Added 2026-09-20: this workflow had no
+# permissions: key, so GITHUB_TOKEN arrived with the repository default,
+# which on these repos is write across contents, issues, pull-requests and
+# more. Nothing here writes anything; it checks out and runs checks.
+permissions:
+  contents: read
+
 jobs:
   test:
     name: Test, Lint & Build
