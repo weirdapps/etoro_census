@@ -13,4 +13,4 @@ jobs:
     # checks and merges once they are green. Majors stay open for review.
     # weirdapps/shared-workflows dependabot-auto-merge.yml @main as of 2026-08-17
     # yamllint disable-line rule:line-length
-    uses: weirdapps/shared-workflows/.github/workflows/dependabot-auto-merge.yml@cc9bc41e39430576a2f2f36f64b3d42f0ea72f49
+    uses: weirdapps/shared-workflows/.github/workflows/dependabot-auto-merge.yml@d6d3dd962e803eaeb56330fff30db2757a996990
