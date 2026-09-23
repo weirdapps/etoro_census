@@ -300,13 +300,22 @@ jobs:
 
           Auto-committed by daily census workflow"
 
-            # Pull with rebase to handle any concurrent pushes, then push with retry
+            # Pull with rebase to handle any concurrent pushes, then push with retry (fail step if all attempts fail)
+            PUSH_SUCCESS=false
             for i in 1 2 3; do
               echo "Push attempt $i..."
-              git pull --rebase origin data-archive && git push origin data-archive && break
+              git rebase --abort 2>/dev/null || true
+              if git pull --rebase origin data-archive && git push origin data-archive; then
+                PUSH_SUCCESS=true
+                break
+              fi
               echo "Attempt $i failed, retrying in 5 seconds..."
               sleep 5
             done
+            if [ "$PUSH_SUCCESS" = false ]; then
+              echo "❌ FATAL: All push attempts to data-archive failed. Today's census data is NOT archived."
+              exit 1
+            fi
             echo "✅ Successfully archived $NEW_JSON JSON and $NEW_HTML HTML files to data-archive branch"
             echo "📊 Total files in archive: $(ls data/*.json 2>/dev/null | wc -l) JSON, $(ls reports/*.html 2>/dev/null | wc -l) HTML"
           fi
@@ -340,13 +349,22 @@ jobs:
             COMMIT_MSG="Daily census report - $(date -u +'%Y-%m-%d %H:%M UTC')"
             git commit -m "$COMMIT_MSG"
 
-            # Pull with rebase to handle any concurrent pushes, then push with retry
+            # Pull with rebase to handle any concurrent pushes, then push with retry (fail step if all attempts fail)
+            PUSH_SUCCESS=false
             for i in 1 2 3; do
               echo "Push attempt $i..."
-              git pull --rebase origin master && git push && break
+              git rebase --abort 2>/dev/null || true
+              if git pull --rebase origin master && git push; then
+                PUSH_SUCCESS=true
+                break
+              fi
               echo "Attempt $i failed, retrying in 5 seconds..."
               sleep 5
             done
+            if [ "$PUSH_SUCCESS" = false ]; then
+              echo "❌ FATAL: All push attempts to master failed. census-data-latest.json is NOT published."
+              exit 1
+            fi
             echo "✅ Reports committed and pushed - this should trigger GitHub Pages deployment automatically"
           }
 
