@@ -62,12 +62,12 @@ export function getLatestDataFile(): DataFileInfo {
   }
   const dataDir = getDataDirectory();
   for (const file of files) {
-    if (hasGoodCoverage(path.join(dataDir, path.basename(file)))) { // nosemgrep
+    if (isUsableSnapshot(path.join(dataDir, path.basename(file)))) { // nosemgrep
       return { filename: file, filepath: path.join(dataDir, path.basename(file)) }; // nosemgrep
     }
   }
   throw new Error(
-    `No data file with Broad Group portfolio coverage ≥${COVERAGE_THRESHOLD * 100}%. ` +
+    `No data file with Broad Group portfolio coverage ≥${COVERAGE_THRESHOLD * 100}% and an intact investor list (hasIntegrity). ` +
     `Most recent files appear to be partial syncs.`
   );
 }
@@ -85,7 +85,7 @@ export function getLatestDataFiles(): DataFilePair {
   const dataDir = getDataDirectory();
   const goodFiles: string[] = [];
   for (const file of files) {
-    if (hasGoodCoverage(path.join(dataDir, path.basename(file)))) { // nosemgrep
+    if (isUsableSnapshot(path.join(dataDir, path.basename(file)))) { // nosemgrep
       goodFiles.push(file);
       if (goodFiles.length === 2) break;
     }
@@ -93,7 +93,7 @@ export function getLatestDataFiles(): DataFilePair {
 
   if (goodFiles.length < 2) {
     throw new Error(
-      `Need at least 2 data files with Broad Group portfolio coverage ≥${COVERAGE_THRESHOLD * 100}%. ` +
+      `Need at least 2 data files with Broad Group portfolio coverage ≥${COVERAGE_THRESHOLD * 100}% and an intact investor list (hasIntegrity). ` +
       `Most recent files appear to be partial syncs.`
     );
   }
@@ -119,14 +119,14 @@ export function getWeeklyDataFiles(): WeeklyDataFiles {
 
   let latestFile: string | null = null;
   for (const file of files) {
-    if (hasGoodCoverage(path.join(dataDir, path.basename(file)))) { // nosemgrep
+    if (isUsableSnapshot(path.join(dataDir, path.basename(file)))) { // nosemgrep
       latestFile = file;
       break;
     }
   }
   if (!latestFile) {
     throw new Error(
-      `No recent data file with Broad Group portfolio coverage ≥${COVERAGE_THRESHOLD * 100}%. ` +
+      `No recent data file with Broad Group portfolio coverage ≥${COVERAGE_THRESHOLD * 100}% and an intact investor list (hasIntegrity). ` +
       `Most recent files appear to be partial syncs.`
     );
   }
@@ -153,7 +153,7 @@ export function getWeeklyDataFiles(): WeeklyDataFiles {
     const diffDays = Math.abs((targetDate.getTime() - fileDate.getTime()) / (1000 * 60 * 60 * 24));
     if (diffDays > 2) continue;
     if (diffDays >= minDiff) continue;
-    if (!hasGoodCoverage(path.join(dataDir, path.basename(file)))) continue; // nosemgrep
+    if (!isUsableSnapshot(path.join(dataDir, path.basename(file)))) continue; // nosemgrep
     minDiff = diffDays;
     weekAgoFile = file;
   }
@@ -161,7 +161,7 @@ export function getWeeklyDataFiles(): WeeklyDataFiles {
   if (!weekAgoFile) {
     const targetStr = targetDate.toISOString().split('T')[0];
     throw new Error(
-      `No data file with Broad Group portfolio coverage ≥${COVERAGE_THRESHOLD * 100}% found ` +
+      `No data file with Broad Group portfolio coverage ≥${COVERAGE_THRESHOLD * 100}% and an intact investor list (hasIntegrity) found ` +
       `within ±2 days of ${targetStr}. Recent baselines appear to be partial syncs.`
     );
   }
@@ -193,7 +193,7 @@ export function getMonthlyDataFiles(): MonthlyDataFiles {
     const date = new Date(dateMatch[1]);
     const dayOfMonth = date.getDate();
     if (!(dayOfMonth >= 1 && dayOfMonth <= 5)) return false;
-    return hasGoodCoverage(path.join(dataDir, path.basename(file))); // nosemgrep
+    return isUsableSnapshot(path.join(dataDir, path.basename(file))); // nosemgrep
   });
 
   if (firstOfMonthFiles.length < 2) {
@@ -264,12 +264,35 @@ export function getPortfolioCoverage(data: CensusData, level: number = 3): numbe
 }
 
 /**
- * True if the file's Broad Group portfolio coverage meets the threshold.
+ * Duplicate investor rows replace real investors, so a snapshot carrying them reports
+ * holder shares and averages over the wrong people (2026-10-10: 177 duplicate rows,
+ * a "Top 100" of 63 people, published as an 8-17pp sell-off that never happened).
+ * The Top 100 is reported to 1pp per investor, so it must have none; the Broad Group
+ * tolerates MAX_DUPLICATE_SHARE, which 85 of the 128 snapshots Jun-Oct 2026 met at
+ * zero and most of the rest at 1-11 rows.
  */
-export function hasGoodCoverage(filepath: string, threshold: number = COVERAGE_THRESHOLD): boolean {
+export const MAX_DUPLICATE_SHARE = 0.01;
+
+export function hasIntegrity(data: CensusData): boolean {
+  const integrity = data.metadata?.integrity;
+  const investors = data.investors;
+  const top100 = investors.slice(0, 100);
+  const top100Duplicates = integrity?.top100DuplicateRows
+    ?? top100.length - new Set(top100.map(inv => inv.userName)).size;
+  const allDuplicates = integrity?.duplicateRowsDropped
+    ?? investors.length - new Set(investors.map(inv => inv.userName)).size;
+  const rows = investors.length + (integrity?.duplicateRowsDropped ?? 0);
+  return top100Duplicates === 0 && allDuplicates <= MAX_DUPLICATE_SHARE * rows;
+}
+
+/**
+ * True if the file is safe to report from: Broad Group portfolio coverage meets
+ * the threshold and the investor list has integrity.
+ */
+export function isUsableSnapshot(filepath: string, threshold: number = COVERAGE_THRESHOLD): boolean {
   try {
     const data = loadDataFile(filepath);
-    return getPortfolioCoverage(data, 3) >= threshold;
+    return hasIntegrity(data) && getPortfolioCoverage(data, 3) >= threshold;
   } catch {
     return false;
   }

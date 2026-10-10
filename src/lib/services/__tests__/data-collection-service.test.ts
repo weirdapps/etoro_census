@@ -4,7 +4,7 @@ import { mockInvestors, mockPortfolio, mockTradeInfo, mockUserDetails } from '@/
 
 // Mock the user-service module
 vi.mock('../user-service', () => ({
-  getPopularInvestors: vi.fn(),
+  collectPopularInvestors: vi.fn(),
   getUserPortfolio: vi.fn(),
   getUsersDetailsByUsernames: vi.fn(),
   getUserTradeInfo: vi.fn(),
@@ -16,7 +16,7 @@ vi.mock('../instrument-service', () => ({
   getInstrumentPriceData: vi.fn(),
 }));
 
-import { getPopularInvestors, getUserPortfolio, getUsersDetailsByUsernames, getUserTradeInfo } from '../user-service';
+import { collectPopularInvestors, getUserPortfolio, getUsersDetailsByUsernames, getUserTradeInfo } from '../user-service';
 import { getInstrumentDetails, getInstrumentPriceData } from '../instrument-service';
 
 describe('DataCollectionService', () => {
@@ -34,7 +34,7 @@ describe('DataCollectionService', () => {
   describe('collectAllData', () => {
     it('should collect data for investors', async () => {
       // Setup mocks
-      vi.mocked(getPopularInvestors).mockResolvedValue(mockInvestors);
+      vi.mocked(collectPopularInvestors).mockResolvedValue({ investors: mockInvestors, duplicateRowsDropped: 0, top100DuplicateRows: 0 });
       vi.mocked(getUserPortfolio).mockResolvedValue(mockPortfolio);
       vi.mocked(getUserTradeInfo).mockResolvedValue(mockTradeInfo);
       vi.mocked(getUsersDetailsByUsernames).mockResolvedValue(new Map(Object.entries(mockUserDetails)));
@@ -50,7 +50,7 @@ describe('DataCollectionService', () => {
     });
 
     it('should call progress callback during collection', async () => {
-      vi.mocked(getPopularInvestors).mockResolvedValue(mockInvestors);
+      vi.mocked(collectPopularInvestors).mockResolvedValue({ investors: mockInvestors, duplicateRowsDropped: 0, top100DuplicateRows: 0 });
       vi.mocked(getUserPortfolio).mockResolvedValue(mockPortfolio);
       vi.mocked(getUserTradeInfo).mockResolvedValue(mockTradeInfo);
       vi.mocked(getUsersDetailsByUsernames).mockResolvedValue(new Map());
@@ -67,13 +67,13 @@ describe('DataCollectionService', () => {
     });
 
     it('should throw error if no investors found', async () => {
-      vi.mocked(getPopularInvestors).mockResolvedValue([]);
+      vi.mocked(collectPopularInvestors).mockResolvedValue({ investors: [], duplicateRowsDropped: 0, top100DuplicateRows: 0 });
 
       await expect(dataCollectionService.collectAllData('CurrYear', 10)).rejects.toThrow('No investors found');
     });
 
     it('should handle portfolio fetch errors gracefully', async () => {
-      vi.mocked(getPopularInvestors).mockResolvedValue(mockInvestors);
+      vi.mocked(collectPopularInvestors).mockResolvedValue({ investors: mockInvestors, duplicateRowsDropped: 0, top100DuplicateRows: 0 });
       vi.mocked(getUserPortfolio).mockRejectedValue(new Error('Portfolio fetch failed'));
       vi.mocked(getUserTradeInfo).mockResolvedValue(mockTradeInfo);
       vi.mocked(getUsersDetailsByUsernames).mockResolvedValue(new Map());
@@ -93,7 +93,7 @@ describe('DataCollectionService', () => {
         { ...mockInvestors[1], copiers: 500 },
       ];
 
-      vi.mocked(getPopularInvestors).mockResolvedValue(unsortedInvestors);
+      vi.mocked(collectPopularInvestors).mockResolvedValue({ investors: unsortedInvestors, duplicateRowsDropped: 0, top100DuplicateRows: 0 });
       vi.mocked(getUserPortfolio).mockResolvedValue(mockPortfolio);
       vi.mocked(getUserTradeInfo).mockResolvedValue(mockTradeInfo);
       vi.mocked(getUsersDetailsByUsernames).mockResolvedValue(new Map());
@@ -108,7 +108,7 @@ describe('DataCollectionService', () => {
     });
 
     it('should include processing time in metadata', async () => {
-      vi.mocked(getPopularInvestors).mockResolvedValue(mockInvestors);
+      vi.mocked(collectPopularInvestors).mockResolvedValue({ investors: mockInvestors, duplicateRowsDropped: 0, top100DuplicateRows: 0 });
       vi.mocked(getUserPortfolio).mockResolvedValue(mockPortfolio);
       vi.mocked(getUserTradeInfo).mockResolvedValue(mockTradeInfo);
       vi.mocked(getUsersDetailsByUsernames).mockResolvedValue(new Map());
@@ -119,6 +119,32 @@ describe('DataCollectionService', () => {
 
       expect(result.metadata.processingTimeMs).toBeGreaterThanOrEqual(0);
       expect(typeof result.metadata.processingTimeMs).toBe('number');
+    });
+
+    it('records zero duplicates when none were dropped', async () => {
+      vi.mocked(collectPopularInvestors).mockResolvedValue({ investors: mockInvestors, duplicateRowsDropped: 0, top100DuplicateRows: 0 });
+      vi.mocked(getUserPortfolio).mockResolvedValue(mockPortfolio);
+      vi.mocked(getUserTradeInfo).mockResolvedValue(mockTradeInfo);
+      vi.mocked(getUsersDetailsByUsernames).mockResolvedValue(new Map());
+      vi.mocked(getInstrumentDetails).mockResolvedValue(new Map());
+      vi.mocked(getInstrumentPriceData).mockResolvedValue(new Map());
+
+      const result = await dataCollectionService.collectAllData('CurrYear', 10);
+
+      expect(result.metadata.integrity).toEqual({ uniqueInvestors: 3, duplicateRowsDropped: 0, top100DuplicateRows: 0 });
+    });
+
+    it('records the duplicate rows that were dropped', async () => {
+      vi.mocked(collectPopularInvestors).mockResolvedValue({ investors: mockInvestors, duplicateRowsDropped: 177, top100DuplicateRows: 37 });
+      vi.mocked(getUserPortfolio).mockResolvedValue(mockPortfolio);
+      vi.mocked(getUserTradeInfo).mockResolvedValue(mockTradeInfo);
+      vi.mocked(getUsersDetailsByUsernames).mockResolvedValue(new Map());
+      vi.mocked(getInstrumentDetails).mockResolvedValue(new Map());
+      vi.mocked(getInstrumentPriceData).mockResolvedValue(new Map());
+
+      const result = await dataCollectionService.collectAllData('CurrYear', 10);
+
+      expect(result.metadata.integrity).toEqual({ uniqueInvestors: 3, duplicateRowsDropped: 177, top100DuplicateRows: 37 });
     });
   });
 });
