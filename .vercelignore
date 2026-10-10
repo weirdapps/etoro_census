@@ -10,7 +10,7 @@ public/reports/etoro-census-*.html
 public/data/etoro-data-*.json
 
 # Old snapshots kept in git for reference; the app reads public/data only
-data/
+/data/
 
 # Keep these for deployment:
 # - public/reports/index.html
