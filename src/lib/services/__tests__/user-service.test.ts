@@ -15,6 +15,7 @@ vi.mock('../../etoro-api-config', () => ({
 import { fetchFromEtoroApi } from '../../etoro-api-config';
 import {
   getPopularInvestors,
+  collectPopularInvestors,
   getUserPortfolio,
   getUsersDetailsByUsernames,
   getUsersDetails,
@@ -81,6 +82,71 @@ describe('user-service', () => {
       const result = await getPopularInvestors('CurrYear', 2);
 
       expect(result).toHaveLength(2);
+    });
+  });
+
+  // 2026-10-10: the search endpoint returned 177 duplicate rows in place of real
+  // investors (one appeared 8 times), and the weekly post published holder shares
+  // computed over 63 distinct people as if they were the Top 100.
+  describe('collectPopularInvestors duplicate handling', () => {
+    const [a, b, c] = mockInvestors;
+
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it('re-fetches a page that came back with duplicate rows', async () => {
+      vi.mocked(fetchFromEtoroApi)
+        .mockResolvedValueOnce({ items: [a, a, b], totalRows: 3 })
+        .mockResolvedValueOnce({ items: [a, b, c], totalRows: 3 });
+
+      const pending = collectPopularInvestors('CurrYear', 3);
+      await vi.runAllTimersAsync();
+      const result = await pending;
+
+      expect(fetchFromEtoroApi).toHaveBeenCalledTimes(2);
+      expect(result.investors.map(i => i.userName)).toEqual(['testinvestor1', 'testinvestor2', 'testinvestor3']);
+      expect(result.duplicateRowsDropped).toBe(0);
+      expect(result.top100DuplicateRows).toBe(0);
+    });
+
+    it('drops duplicates and reports them when every retry still has them', async () => {
+      vi.mocked(fetchFromEtoroApi).mockResolvedValue({ items: [a, a, b], totalRows: 3 });
+
+      const pending = collectPopularInvestors('CurrYear', 3);
+      await vi.runAllTimersAsync();
+      const result = await pending;
+
+      expect(result.investors.map(i => i.userName)).toEqual(['testinvestor1', 'testinvestor2']);
+      expect(result.duplicateRowsDropped).toBe(1);
+      expect(result.top100DuplicateRows).toBe(1);
+    });
+
+    it('treats a row repeated across pages as a duplicate', async () => {
+      vi.mocked(fetchFromEtoroApi)
+        .mockResolvedValueOnce({ items: [a, b], totalRows: 4 })
+        .mockResolvedValue({ items: [b, c], totalRows: 4 });
+
+      const pending = collectPopularInvestors('CurrYear', 4, 2);
+      await vi.runAllTimersAsync();
+      const result = await pending;
+
+      expect(new Set(result.investors.map(i => i.userName)).size).toBe(result.investors.length);
+      expect(result.duplicateRowsDropped).toBe(1);
+    });
+
+    it('getPopularInvestors never returns the same investor twice', async () => {
+      vi.mocked(fetchFromEtoroApi).mockResolvedValue({ items: [a, a, b], totalRows: 3 });
+
+      const pending = getPopularInvestors('CurrYear', 3);
+      await vi.runAllTimersAsync();
+      const result = await pending;
+
+      expect(result.map(i => i.userName)).toEqual(['testinvestor1', 'testinvestor2']);
     });
   });
 

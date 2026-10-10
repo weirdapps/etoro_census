@@ -9,6 +9,9 @@ public/reports/etoro-census-*.html
 # Archive data (only latest file needed for web app)
 public/data/etoro-data-*.json
 
+# Old snapshots kept in git for reference; the app reads public/data only
+/data/
+
 # Keep these for deployment:
 # - public/reports/index.html
 # - public/data/census-data-latest.json

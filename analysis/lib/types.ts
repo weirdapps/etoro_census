@@ -9,6 +9,12 @@ export interface CensusMetadata {
   analysisGroups: Array<{ count: number }>;
   dataSource: string;
   period: string;
+  /** Written by the collector since 2026-10-10; absent on older files. */
+  integrity?: {
+    uniqueInvestors: number;
+    duplicateRowsDropped: number;
+    top100DuplicateRows: number;
+  };
 }
 
 export interface PortfolioPosition {
