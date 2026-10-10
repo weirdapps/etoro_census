@@ -4,24 +4,52 @@ import { PopularInvestor, PopularInvestorsResponse, PeriodType, UserDetail, User
 import { UserPortfolio } from '../models/user-portfolio';
 import { API, DATA_COLLECTION } from '../constants';
 
-export async function getPopularInvestors(
+export interface PopularInvestorsCollection {
+  investors: PopularInvestor[];
+  /** Rows the API returned for an investor already collected, after every retry. */
+  duplicateRowsDropped: number;
+  /** Of those, the rows that sat where a Top 100 investor should have been. */
+  top100DuplicateRows: number;
+}
+
+/**
+ * Investors ranked by copiers, each one exactly once.
+ *
+ * The search endpoint sometimes returns the same investor in several rows IN PLACE OF
+ * other investors (2026-10-10: 177 of 1500 rows, one investor 8 times), so dropping
+ * the repeats cannot recover the missing ones. A page with any repeat is fetched
+ * again; if every retry still has repeats, they are dropped and counted, so readers
+ * of the snapshot can judge whether it is fit to report from.
+ */
+export async function collectPopularInvestors(
   period: PeriodType = "CurrMonth",
-  limit: number = 50
-): Promise<PopularInvestor[]> {
+  limit: number = 50,
+  maxPageSize: number = DATA_COLLECTION.MAX_PAGE_SIZE
+): Promise<PopularInvestorsCollection> {
   try {
     logger.info('Requesting investors from eToro API', { limit });
 
     // eToro might have a max page size
-    const pageSize = Math.min(limit, DATA_COLLECTION.MAX_PAGE_SIZE);
+    const pageSize = Math.min(limit, maxPageSize);
     const totalPages = Math.ceil(limit / pageSize);
     const allInvestors: PopularInvestor[] = [];
+    const seen = new Set<string>();
+    let duplicateRowsDropped = 0;
+    let top100DuplicateRows = 0;
 
     for (let page = 1; page <= totalPages; page++) {
       const endpoint = `${API_ENDPOINTS.USER_INFO_SEARCH}?period=${period}&pageSize=${pageSize}&page=${page}&sort=-copiers&`;
 
       logger.debug('Fetching page', { page, pageSize, endpoint });
 
-      const response = await fetchFromEtoroApi<PopularInvestorsResponse>(endpoint);
+      let response = await fetchFromEtoroApi<PopularInvestorsResponse>(endpoint);
+      for (let attempt = 1; attempt <= API.MAX_RETRIES && countRepeats(response?.items, seen) > 0; attempt++) {
+        logger.warn('Page returned duplicate investors, fetching it again', {
+          page, attempt, duplicates: countRepeats(response?.items, seen)
+        });
+        await new Promise(resolve => setTimeout(resolve, API.RETRY_BASE_DELAY * attempt));
+        response = await fetchFromEtoroApi<PopularInvestorsResponse>(endpoint);
+      }
 
       if (!response || !response.items || !Array.isArray(response.items)) {
         logger.error('Invalid response format for page', { page, response });
@@ -41,7 +69,15 @@ export async function getPopularInvestors(
 
       logger.debug('Page metadata', metadata);
 
-      allInvestors.push(...response.items);
+      for (const investor of response.items) {
+        if (seen.has(investor.userName)) {
+          duplicateRowsDropped++;
+          if (allInvestors.length < 100) top100DuplicateRows++;
+          continue;
+        }
+        seen.add(investor.userName);
+        allInvestors.push(investor);
+      }
 
       // Stop if we got less than a full page (no more data)
       if (response.items.length < pageSize) {
@@ -63,6 +99,12 @@ export async function getPopularInvestors(
 
     logger.info('Total investors collected', { collected: allInvestors.length, requested: limit });
 
+    if (duplicateRowsDropped > 0) {
+      logger.error('Duplicate investor rows persisted after retries; collection is incomplete', {
+        duplicateRowsDropped, top100DuplicateRows, unique: allInvestors.length
+      });
+    }
+
     // If we got less than requested, log it
     if (allInvestors.length < limit) {
       logger.warn('Could only fetch partial investors', { fetched: allInvestors.length, requested: limit });
@@ -70,11 +112,30 @@ export async function getPopularInvestors(
     }
 
     // Return only up to the requested limit
-    return allInvestors.slice(0, limit);
+    return { investors: allInvestors.slice(0, limit), duplicateRowsDropped, top100DuplicateRows };
   } catch (error) {
     logger.error('Error fetching popular investors', { error: error instanceof Error ? error.message : String(error) });
     throw error;
   }
+}
+
+/** Rows in a page naming an investor already seen, on this page or an earlier one. */
+function countRepeats(items: PopularInvestor[] | undefined, seen: Set<string>): number {
+  if (!Array.isArray(items)) return 0;
+  const onPage = new Set<string>();
+  let repeats = 0;
+  for (const investor of items) {
+    if (seen.has(investor.userName) || onPage.has(investor.userName)) repeats++;
+    onPage.add(investor.userName);
+  }
+  return repeats;
+}
+
+export async function getPopularInvestors(
+  period: PeriodType = "CurrMonth",
+  limit: number = 50
+): Promise<PopularInvestor[]> {
+  return (await collectPopularInvestors(period, limit)).investors;
 }
 
 export async function getUserPortfolio(username: string): Promise<UserPortfolio> {

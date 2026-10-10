@@ -1,7 +1,7 @@
 import { PopularInvestor, PeriodType, UserDetail, UserTradeInfo } from '../models/user';
 import { UserPortfolio } from '../models/user-portfolio';
 import { FeedCollection } from '../models/feed';
-import { getPopularInvestors, getUserPortfolio, getUsersDetailsByUsernames, getUserTradeInfo } from './user-service';
+import { collectPopularInvestors, getUserPortfolio, getUsersDetailsByUsernames, getUserTradeInfo } from './user-service';
 import { getInstrumentDetails, getInstrumentPriceData, InstrumentPriceData, InstrumentDisplayData } from './instrument-service';
 import { collectPIFeeds, FeedCollectionConfig } from './feed-service';
 import { batchFetch } from './batch-fetcher';
@@ -35,6 +35,16 @@ export interface ComprehensiveDataCollection {
     dataSource: string;
     processingTimeMs: number;
     includesFeeds: boolean;
+    /**
+     * Duplicate investor rows the API kept returning after retries. Each one replaced a
+     * real investor, so the ranking is missing that many people; readers decide whether
+     * the file is fit to report from (analysis/lib/utils.ts::hasIntegrity).
+     */
+    integrity?: {
+      uniqueInvestors: number;
+      duplicateRowsDropped: number;
+      top100DuplicateRows: number;
+    };
   };
   investors: CollectedInvestorData[];
   instruments: {
@@ -80,7 +90,7 @@ export class DataCollectionService {
 
     // Step 1: Fetch all investors (always fetch maximum to ensure consistency)
     updateProgress(5, `Fetching top ${maxInvestors} popular investors...`);
-    const investors = await getPopularInvestors(period, maxInvestors);
+    const { investors, duplicateRowsDropped, top100DuplicateRows } = await collectPopularInvestors(period, maxInvestors);
     
     if (investors.length === 0) {
       throw new Error('No investors found');
@@ -183,6 +193,11 @@ export class DataCollectionService {
         dataSource: 'eToro API',
         processingTimeMs: processingTime,
         includesFeeds: !!feeds,
+        integrity: {
+          uniqueInvestors: investors.length,
+          duplicateRowsDropped,
+          top100DuplicateRows,
+        },
       },
       investors: investorsWithTradeInfo,
       instruments: {
