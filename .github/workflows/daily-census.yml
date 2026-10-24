@@ -223,6 +223,18 @@ jobs:
           ")
           echo "📊 Coverage: $COVERAGE_INFO"
 
+          # PI feed integrity: recorded here, enforced by the last step so the census
+          # data still commits. Missing feeds, or 0 posts from N PIs, is a failure.
+          FEED_INFO=$(node -e "
+            const f = JSON.parse(require('fs').readFileSync('$DATA_FILE', 'utf8')).feeds;
+            const s = f?.stats || {};
+            const ok = !!f && f.totalPosts > 0 && s.integrity !== 'failed';
+            console.log((ok ? 'ok' : 'failed') + ' ' + (f?.totalPosts ?? 0) + ' posts from ' + (s.fetchedPIs ?? 0) + '/' + (s.totalRequests ?? 0) + ' PIs');
+          ")
+          echo "💬 PI feeds: $FEED_INFO"
+          echo "FEED_INTEGRITY=${FEED_INFO%% *}" >> $GITHUB_ENV
+          echo "FEED_INFO=$FEED_INFO" >> $GITHUB_ENV
+
       - name: Stop Next.js server
         if: always()
         run: |
@@ -392,6 +404,13 @@ jobs:
             echo "⚠️  VERCEL_DEPLOY_HOOK secret not configured, skipping Vercel deployment"
             echo "ℹ️  Add the webhook URL to GitHub Secrets to enable automatic Vercel deployments"
           fi
+
+      - name: Fail on empty PI feeds
+        if: env.FEED_INTEGRITY != 'ok'
+        run: |
+          echo "❌ PI feed collection failed: ${FEED_INFO:-feed check did not run}"
+          echo "Census data was committed; the feeds section is empty. Check the eToro feed response shape."
+          exit 1
 
   # Failure notification job - runs if the main job fails
   notify-failure:

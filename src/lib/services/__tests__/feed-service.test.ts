@@ -628,6 +628,63 @@ describe('FeedService', () => {
       expect(result.stats.failedPIs).toBe(0);
       expect(result.stats.totalRequests).toBe(1);
       expect(result.stats.processingTimeMs).toBeGreaterThanOrEqual(0);
+      expect(result.stats.integrity).toBe('ok');
+    });
+
+    it('should flag integrity failed when every PI fetch fails', async () => {
+      const investors = [
+        createMockInvestor({ userName: 'elite1', copiers: 10000 }),
+        createMockInvestor({ userName: 'elite2', copiers: 8000 }),
+      ];
+
+      const userDetails = new Map([
+        ['elite1', createMockUserDetail('elite1', 1001)],
+        ['elite2', createMockUserDetail('elite2', 1002)],
+      ]);
+
+      vi.mocked(fetchFromEtoroApi).mockResolvedValue({ discussions: [{ post: {} }] });
+      vi.mocked(validateFeedResponse).mockReturnValue(null);
+
+      const promise = collectPIFeeds(investors, userDetails, { includeEngaging: false });
+      await runAllTimers();
+      const result = await promise;
+
+      expect(result.stats.fetchedPIs).toBe(0);
+      expect(result.stats.failedPIs).toBe(2);
+      expect(result.stats.integrity).toBe('failed');
+    });
+
+    it('should flag integrity failed when PIs answer but no post is collected', async () => {
+      const investors = [createMockInvestor({ userName: 'elite1', copiers: 10000 })];
+      const userDetails = new Map([['elite1', createMockUserDetail('elite1', 1001)]]);
+
+      const empty = createMockFeedResponse([]);
+      vi.mocked(fetchFromEtoroApi).mockResolvedValueOnce(empty);
+      vi.mocked(validateFeedResponse).mockReturnValueOnce(empty);
+
+      const result = await collectPIFeeds(investors, userDetails, { includeEngaging: false });
+
+      expect(result.stats.fetchedPIs).toBe(1);
+      expect(result.totalPosts).toBe(0);
+      expect(result.stats.integrity).toBe('failed');
+    });
+
+    it('should cap posts per PI even when the API ignores the page size', async () => {
+      const investors = [createMockInvestor({ userName: 'elite1', copiers: 10000 })];
+      const userDetails = new Map([['elite1', createMockUserDetail('elite1', 1001)]]);
+
+      const twenty = createMockFeedResponse(
+        Array.from({ length: 20 }, (_, i) => ({ text: `Post ${i}` }))
+      );
+      vi.mocked(fetchFromEtoroApi).mockResolvedValueOnce(twenty);
+      vi.mocked(validateFeedResponse).mockReturnValueOnce(twenty);
+
+      const result = await collectPIFeeds(investors, userDetails, {
+        includeEngaging: false,
+        postsPerPI: 3,
+      });
+
+      expect(result.totalPosts).toBe(3);
     });
 
     it('should deduplicate PIs across categories', async () => {
@@ -749,8 +806,9 @@ describe('FeedService', () => {
 
       await fetchPostsByGcids(gcids, 5);
 
+      // The feed API ignores pageSize (returns 20); `take` is the page size it honours.
       expect(fetchFromEtoroApi).toHaveBeenCalledWith(
-        expect.stringContaining('pageSize=5')
+        expect.stringContaining('take=5')
       );
     });
   });

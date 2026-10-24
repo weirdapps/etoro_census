@@ -149,7 +149,8 @@ async function fetchPIPosts(
   gcid: number,
   postsPerPI: number = MAX_POSTS_PER_PI
 ): Promise<EtoroFeedResponse | null> {
-  const endpoint = `${API_ENDPOINTS.USER_FEED}/${gcid}?pageNumber=1&pageSize=${postsPerPI}`;
+  // The feed API ignores pageSize (it returns 20); `take` is the page size it honours.
+  const endpoint = `${API_ENDPOINTS.USER_FEED}/${gcid}?take=${postsPerPI}`;
 
   try {
     const response = await fetchFromEtoroApi<EtoroFeedResponse>(endpoint);
@@ -166,11 +167,12 @@ async function fetchPIPosts(
 function processPostResponse(
   response: EtoroFeedResponse,
   pi: PICategorySummary,
-  category: PICategory
+  category: PICategory,
+  postsPerPI: number
 ): PIPost[] {
   const posts: PIPost[] = [];
 
-  for (const discussion of response.discussions || []) {
+  for (const discussion of (response.discussions || []).slice(0, postsPerPI)) {
     const post = discussion.post;
     if (!post) continue;
 
@@ -305,7 +307,7 @@ export async function collectPIFeeds(
     const response = await fetchPIPosts(pi.gcid, postsPerPI);
 
     if (response) {
-      const posts = processPostResponse(response, pi, category);
+      const posts = processPostResponse(response, pi, category, postsPerPI);
       allPosts.push(...posts);
       fetchedCount++;
     } else {
@@ -348,6 +350,16 @@ export async function collectPIFeeds(
   const processingTime = Date.now() - startTime;
   updateProgress(100, `Feed collection complete in ${(processingTime / 1000).toFixed(1)}s`);
 
+  // A run that asked PIs for posts and collected none is a broken collector, not a quiet day
+  const integrity = pisToFetch.length > 0 && allPosts.length === 0 ? 'failed' : 'ok';
+  if (integrity === 'failed') {
+    logger.error('PI feed collection returned no posts', {
+      fetchedPIs: fetchedCount,
+      failedPIs: failedCount,
+      totalRequests: pisToFetch.length,
+    });
+  }
+
   return {
     collectedAt: new Date().toISOString(),
     totalPosts: allPosts.length,
@@ -362,6 +374,7 @@ export async function collectPIFeeds(
       failedPIs: failedCount,
       totalRequests: pisToFetch.length,
       processingTimeMs: processingTime,
+      integrity,
     },
   };
 }
