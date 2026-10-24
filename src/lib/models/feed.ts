@@ -101,6 +101,8 @@ export interface FeedCollection {
     failedPIs: number;
     totalRequests: number;
     processingTimeMs: number;
+    /** 'failed' when PIs were requested but no post was collected */
+    integrity: 'ok' | 'failed';
   };
 }
 

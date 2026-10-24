@@ -56,6 +56,7 @@ export const feedCollectionSchema = z.object({
     failedPIs: z.number(),
     totalRequests: z.number(),
     processingTimeMs: z.number(),
+    integrity: z.enum(['ok', 'failed']).optional(),
   }),
 });
 
@@ -68,20 +69,50 @@ export const etoroMessageSchema = z.object({
   type: z.string().optional(),
 });
 
+// The feed API changed shape (seen 2026-10-24): the author moved to post.owner,
+// likes to emotionsData.like.paging.totalCount, comments to
+// summary.totalCommentsAndReplies. The legacy flat fields are still accepted, and
+// both shapes are normalised to EtoroFeedResponse.
+const etoroPostOwnerSchema = z.object({
+  id: z.union([z.string(), z.number()]).optional(),
+  username: z.string().optional(),
+});
+
 export const etoroPostSchema = z.object({
   id: z.string(),
   created: z.string(),
   modified: z.string().optional(),
   message: etoroMessageSchema,
-  likes: z.number().default(0),
-  userGcid: z.number(),
-  username: z.string(),
+  owner: etoroPostOwnerSchema.optional(),
+  likes: z.number().optional(),
+  userGcid: z.number().optional(),
+  username: z.string().optional(),
 });
 
-export const etoroDiscussionSchema = z.object({
-  post: etoroPostSchema,
-  commentsCount: z.number().default(0),
-});
+export const etoroDiscussionSchema = z
+  .object({
+    post: etoroPostSchema,
+    commentsCount: z.number().optional(),
+    emotionsData: z.object({
+      like: z.object({
+        paging: z.object({ totalCount: z.number() }).partial().optional(),
+      }).optional(),
+    }).optional(),
+    summary: z.object({ totalCommentsAndReplies: z.number() }).partial().optional(),
+  })
+  .transform(({ post, commentsCount, emotionsData, summary }) => {
+    const { owner, ...rest } = post;
+    const ownerGcid = Number(owner?.id);
+    return {
+      post: {
+        ...rest,
+        likes: post.likes ?? emotionsData?.like?.paging?.totalCount ?? 0,
+        userGcid: post.userGcid ?? (Number.isFinite(ownerGcid) ? ownerGcid : 0),
+        username: post.username ?? owner?.username ?? '',
+      },
+      commentsCount: commentsCount ?? summary?.totalCommentsAndReplies ?? 0,
+    };
+  });
 
 export const etoroFeedResponseSchema = z.object({
   discussions: z.array(etoroDiscussionSchema).default([]),
