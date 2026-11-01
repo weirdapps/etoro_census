@@ -8,7 +8,7 @@ permissions:
   pull-requests: write
 jobs:
   refresh:
-    uses: weirdapps/shared-workflows/.github/workflows/deps-refresh.yml@d6d3dd962e803eaeb56330fff30db2757a996990  # main
+    uses: weirdapps/shared-workflows/.github/workflows/deps-refresh.yml@66658bc1c4962fd23197e31ce96c9dc3ebf60918  # main
     with:
       node_version: '22'
       # Node 22 ships npm 10.x, whose Arborist crashes on some dependency
