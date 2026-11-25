@@ -19,10 +19,11 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  # Upload and deploy are two jobs since 2026-11-26. From 2026-11-24 10:12 a deploy
+  # in the same job as its upload found 0 "github-pages" artifacts seconds after the
+  # upload finalized (four runs in a row, rerun included); hostlaws, which deploys
+  # from a second job, kept deploying with the same action SHAs.
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Free up disk space
@@ -130,7 +131,14 @@ jobs:
         with:
           # Upload only necessary files for GitHub Pages
           path: 'deploy-temp'
-      
+
+  deploy:
+    needs: build
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
